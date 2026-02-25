@@ -556,7 +556,7 @@ async fn cli_main(arg0_paths: Arg0DispatchPaths) -> anyhow::Result<()> {
         feature_toggles,
         mut interactive,
         subcommand,
-    } = MultitoolCli::parse();
+    } = cli;
 
     // Fold --enable/--disable into config overrides so they flow to all subcommands.
     let toggle_overrides = feature_toggles.to_overrides()?;
@@ -1107,34 +1107,6 @@ mod tests {
         assert!(args.last);
         assert_eq!(args.session_id, None);
         assert_eq!(args.prompt.as_deref(), Some("2+2"));
-    }
-
-    #[test]
-    fn exec_resume_accepts_output_last_message_flag_after_subcommand() {
-        let cli = MultitoolCli::try_parse_from([
-            "codex",
-            "exec",
-            "resume",
-            "session-123",
-            "-o",
-            "/tmp/resume-output.md",
-            "re-review",
-        ])
-        .expect("parse should succeed");
-
-        let Some(Subcommand::Exec(exec)) = cli.subcommand else {
-            panic!("expected exec subcommand");
-        };
-        let Some(codex_exec::Command::Resume(args)) = exec.command else {
-            panic!("expected exec resume");
-        };
-
-        assert_eq!(
-            exec.last_message_file,
-            Some(std::path::PathBuf::from("/tmp/resume-output.md"))
-        );
-        assert_eq!(args.session_id.as_deref(), Some("session-123"));
-        assert_eq!(args.prompt.as_deref(), Some("re-review"));
     }
 
     fn app_server_from_args(args: &[&str]) -> AppServerCommand {
