@@ -1,97 +1,60 @@
-# heliosCLI
-
-**High-performance multi-agent orchestration CLI** - Built on codex with enhancements.
-
-## Architecture
-
-```
-heliosCLI/
-├── rust_core/     # Codex fork (90% Rust) - Primary CLI
-├── crates/        # thegent extensions (Rust)
-├── transport/     # cliproxy++ (Go - HTTP/WS/Unix/gRPC)
-└── python/       # heliosBench (Python - optimized runtimes)
-```
-
-## Components
-
-### Rust (Primary)
-- **rust_core/cli** - Main CLI (codex-rs fork)
-- **rust_core/core** - Core agent logic
-- **rust_core/exec** - Execution engine
-- **rust_core/tui** - Terminal UI
-- **crates/** - thegent extensions
-
-### Python (Optimized)
-- **heliosBench** - Benchmarking framework
-- Run with: `pypy3.11` or `cpython3.14` (GIL-free)
-
-### Go (Transport)
-- **cliproxy++** - High-performance proxy
-- HTTP/2, WebSocket, Unix Socket, gRPC
-
-## Building
-
-```bash
-# Build Rust CLI
-cd heliosHarness/heliosCLI
-cargo build --release
-
-# Run benchmarks (Python)
-cd python
-pypy3.11 -m heliosBench run --profile latency
-```
-
-## Features
-- Unified execution
-- Multi-agent orchestration
-- Connection pooling (100 connections)
-- Multi-transport (unix > ws > http)
-- Shell snapshots
-- Memory tool
+<p align="center"><code>npm i -g @openai/codex</code><br />or <code>brew install --cask codex</code></p>
+<p align="center"><strong>Codex CLI</strong> is a coding agent from OpenAI that runs locally on your computer.
+<p align="center">
+  <img src="https://github.com/openai/codex/blob/main/.github/codex-cli-splash.png" alt="Codex CLI splash" width="80%" />
+</p>
+</br>
+If you want Codex in your code editor (VS Code, Cursor, Windsurf), <a href="https://developers.openai.com/codex/ide">install in your IDE.</a>
+</br>If you want the desktop app experience, run <code>codex app</code> or visit <a href="https://chatgpt.com/codex?app-landing-page=true">the Codex App page</a>.
+</br>If you are looking for the <em>cloud-based agent</em> from OpenAI, <strong>Codex Web</strong>, go to <a href="https://chatgpt.com/codex">chatgpt.com/codex</a>.</p>
 
 ---
 
-## Phase 2: Performance Optimization
+## Quickstart
 
-### Zig Integration
-- Native extensions for hot paths: JSON parsing, token counting
-- Zero-cost abstractions, no runtime
-- Build as `.dylib`/`.so` from Rust
+### Installing and running Codex CLI
 
-### Mojo Integration  
-- High-performance compute kernels
-- SIMD support for batch processing
-- Python-compatible (can call from Python)
+Install globally with your preferred package manager:
 
-### Inline Assembly
-- Rust `asm!` macro for critical loops
-- Token parsing, hashing, encryption
+```shell
+# Install using npm
+npm install -g @openai/codex
+```
 
-### CPython 3.14 / PyPy 3.11
-- GIL-free mode for Python components
-- JIT compilation via PyPy
+```shell
+# Install using Homebrew
+brew install --cask codex
+```
 
-## Component Language Matrix
+Then simply run `codex` to get started.
 
-| Component | Current | Target |
-|-----------|---------|--------|
-| CLI Core | Rust | Rust |
-| Extensions | Rust | Rust + Zig |
-| Compute | Python | Mojo |
-| Transport | Go | Go |
-| Benchmarks | Python | PyPy 3.11 / CPython 3.14 |
-| Hot Paths | - | Inline Assembly |
+<details>
+<summary>You can also go to the <a href="https://github.com/openai/codex/releases/latest">latest GitHub Release</a> and download the appropriate binary for your platform.</summary>
 
----
+Each GitHub Release contains many executables, but in practice, you likely want one of these:
 
-## Current Components
+- macOS
+  - Apple Silicon/arm64: `codex-aarch64-apple-darwin.tar.gz`
+  - x86_64 (older Mac hardware): `codex-x86_64-apple-darwin.tar.gz`
+- Linux
+  - x86_64: `codex-x86_64-unknown-linux-musl.tar.gz`
+  - arm64: `codex-aarch64-unknown-linux-musl.tar.gz`
 
-| Component | Language | Location |
-|-----------|----------|-----------|
-| CLI Core | Rust | rust_core/cli |
-| Core | Rust | rust_core/core |
-| Extensions | Rust | crates/thegent-* |
-| Native | Rust | crates/harness-native |
-| Zig | Zig | crates/harness_zig |
-| Transport | Go | transport/ |
-| Benchmarks | Python | python/ |
+Each archive contains a single entry with the platform baked into the name (e.g., `codex-x86_64-unknown-linux-musl`), so you likely want to rename it to `codex` after extracting it.
+
+</details>
+
+### Using Codex with your ChatGPT plan
+
+Run `codex` and select **Sign in with ChatGPT**. We recommend signing into your ChatGPT account to use Codex as part of your Plus, Pro, Team, Edu, or Enterprise plan. [Learn more about what's included in your ChatGPT plan](https://help.openai.com/en/articles/11369540-codex-in-chatgpt).
+
+You can also use Codex with an API key, but this requires [additional setup](https://developers.openai.com/codex/auth#sign-in-with-an-api-key).
+
+## Docs
+
+- [**Codex Documentation**](https://developers.openai.com/codex)
+- [**Contributing**](./docs/contributing.md)
+- [**Installing & building**](./docs/install.md)
+- [**Open source fund**](./docs/open-source-fund.md)
+
+This repository is licensed under the [Apache-2.0 License](LICENSE).
