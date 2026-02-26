@@ -3,6 +3,7 @@ use clap::CommandFactory;
 use clap::Parser;
 use clap_complete::Shell;
 use clap_complete::generate;
+use helios_arg0::Arg0DispatchPaths;
 use helios_arg0::arg0_dispatch_or_else;
 use helios_chatgpt::apply_command::ApplyCommand;
 use helios_chatgpt::apply_command::run_apply_command;
@@ -54,9 +55,8 @@ use helios_core::terminal::TerminalName;
 /// If no subcommand is specified, options will be forwarded to the interactive CLI.
 #[derive(Debug, Parser)]
 #[clap(
-    name = "helios",
     author,
-    version,
+    version = "0.2.1-105.1",
     // If a sub‑command is given, ignore requirements of the default args.
     subcommand_negates_reqs = true,
     // The executable is sometimes invoked via a platform‑specific name like
@@ -316,16 +316,6 @@ struct AppServerCommand {
     )]
     listen: helios_app_server::AppServerTransport,
 
-    /// Advanced transport selector for app-server internals. `auto` falls back to
-    /// platform detection.
-    #[arg(
-        long = "transport",
-        value_name = "transport",
-        value_enum,
-        default_value_t = TransportSelection::Auto
-    )]
-    transport: TransportSelection,
-
     /// Controls whether analytics are enabled by default.
     ///
     /// Analytics are disabled by default for app-server. Users have to explicitly opt in
@@ -343,27 +333,6 @@ struct AppServerCommand {
     /// See https://developers.openai.com/codex/config-advanced/#metrics for more details.
     #[arg(long = "analytics-default-enabled")]
     analytics_default_enabled: bool,
-}
-
-#[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
-enum TransportSelection {
-    Auto,
-    Unix,
-    Ws,
-    Http2,
-    Grpc,
-}
-
-impl From<TransportSelection> for Option<helios_core::transport::TransportType> {
-    fn from(value: TransportSelection) -> Self {
-        match value {
-            TransportSelection::Auto => None,
-            TransportSelection::Unix => Some(helios_core::transport::TransportType::UnixSocket),
-            TransportSelection::Ws => Some(helios_core::transport::TransportType::WebSocket),
-            TransportSelection::Http2 => Some(helios_core::transport::TransportType::Http2),
-            TransportSelection::Grpc => Some(helios_core::transport::TransportType::Grpc),
-        }
-    }
 }
 
 #[derive(Debug, clap::Subcommand)]
@@ -502,12 +471,7 @@ fn run_debug_app_server_command(cmd: DebugAppServerCommand) -> anyhow::Result<()
     match cmd.subcommand {
         DebugAppServerSubcommand::SendMessageV2(cmd) => {
             let helios_bin = std::env::current_exe()?;
-            helios_app_server_test_client::send_message_v2(
-                &helios_bin,
-                &[],
-                cmd.user_message,
-                &None,
-            )
+            helios_app_server_test_client::send_message_v2(&helios_bin, &[], cmd.user_message, &None)
         }
     }
 }
@@ -580,20 +544,13 @@ fn stage_str(stage: helios_core::features::Stage) -> &'static str {
 }
 
 fn main() -> anyhow::Result<()> {
-    if helios_core::maybe_run_zsh_exec_wrapper_mode()? {
-        return Ok(());
-    }
-    let cli = MultitoolCli::parse();
-    arg0_dispatch_or_else(|helios_linux_sandbox_exe| async move {
-        cli_main(cli, helios_linux_sandbox_exe).await?;
+    arg0_dispatch_or_else(|arg0_paths: Arg0DispatchPaths| async move {
+        cli_main(arg0_paths).await?;
         Ok(())
     })
 }
 
-async fn cli_main(
-    cli: MultitoolCli,
-    helios_linux_sandbox_exe: Option<PathBuf>,
-) -> anyhow::Result<()> {
+async fn cli_main(arg0_paths: Arg0DispatchPaths) -> anyhow::Result<()> {
     let MultitoolCli {
         config_overrides: mut root_config_overrides,
         feature_toggles,
@@ -611,7 +568,7 @@ async fn cli_main(
                 &mut interactive.config_overrides,
                 root_config_overrides.clone(),
             );
-            let exit_info = run_interactive_tui(interactive, helios_linux_sandbox_exe).await?;
+            let exit_info = run_interactive_tui(interactive, arg0_paths.clone()).await?;
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Exec(mut exec_cli)) => {
@@ -619,7 +576,7 @@ async fn cli_main(
                 &mut exec_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            helios_exec::run_main(exec_cli, helios_linux_sandbox_exe).await?;
+            helios_exec::run_main(exec_cli, arg0_paths.clone()).await?;
         }
         Some(Subcommand::Review(review_args)) => {
             let mut exec_cli = ExecCli::try_parse_from(["codex", "exec"])?;
@@ -628,10 +585,10 @@ async fn cli_main(
                 &mut exec_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            helios_exec::run_main(exec_cli, helios_linux_sandbox_exe).await?;
+            helios_exec::run_main(exec_cli, arg0_paths.clone()).await?;
         }
         Some(Subcommand::McpServer) => {
-            helios_mcp_server::run_main(helios_linux_sandbox_exe, root_config_overrides).await?;
+            helios_mcp_server::run_main(arg0_paths.clone(), root_config_overrides).await?;
         }
         Some(Subcommand::Mcp(mut mcp_cli)) => {
             // Propagate any root-level config overrides (e.g. `-c key=value`).
@@ -640,13 +597,9 @@ async fn cli_main(
         }
         Some(Subcommand::AppServer(app_server_cli)) => match app_server_cli.subcommand {
             None => {
-                let _selected_transport = helios_core::transport::TransportSelector::new(
-                    helios_core::transport::TransportConfig::default(),
-                )
-                .select_with_preference(app_server_cli.transport.into());
                 let transport = app_server_cli.listen;
                 helios_app_server::run_main_with_transport(
-                    helios_linux_sandbox_exe,
+                    arg0_paths.clone(),
                     root_config_overrides,
                     helios_core::config_loader::LoaderOverrides::default(),
                     app_server_cli.analytics_default_enabled,
@@ -690,7 +643,7 @@ async fn cli_main(
                 all,
                 config_overrides,
             );
-            let exit_info = run_interactive_tui(interactive, helios_linux_sandbox_exe).await?;
+            let exit_info = run_interactive_tui(interactive, arg0_paths.clone()).await?;
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Fork(ForkCommand {
@@ -707,7 +660,7 @@ async fn cli_main(
                 all,
                 config_overrides,
             );
-            let exit_info = run_interactive_tui(interactive, helios_linux_sandbox_exe).await?;
+            let exit_info = run_interactive_tui(interactive, arg0_paths.clone()).await?;
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Login(mut login_cli)) => {
@@ -756,7 +709,8 @@ async fn cli_main(
                 &mut cloud_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            helios_cloud_tasks::run_main(cloud_cli, helios_linux_sandbox_exe).await?;
+            helios_cloud_tasks::run_main(cloud_cli, arg0_paths.helios_linux_sandbox_exe.clone())
+                .await?;
         }
         Some(Subcommand::Sandbox(sandbox_args)) => match sandbox_args.cmd {
             SandboxCommand::Macos(mut seatbelt_cli) => {
@@ -766,7 +720,7 @@ async fn cli_main(
                 );
                 helios_cli::debug_sandbox::run_command_under_seatbelt(
                     seatbelt_cli,
-                    helios_linux_sandbox_exe,
+                    arg0_paths.helios_linux_sandbox_exe.clone(),
                 )
                 .await?;
             }
@@ -777,7 +731,7 @@ async fn cli_main(
                 );
                 helios_cli::debug_sandbox::run_command_under_landlock(
                     landlock_cli,
-                    helios_linux_sandbox_exe,
+                    arg0_paths.helios_linux_sandbox_exe.clone(),
                 )
                 .await?;
             }
@@ -788,7 +742,7 @@ async fn cli_main(
                 );
                 helios_cli::debug_sandbox::run_command_under_windows(
                     windows_cli,
-                    helios_linux_sandbox_exe,
+                    arg0_paths.helios_linux_sandbox_exe.clone(),
                 )
                 .await?;
             }
@@ -935,7 +889,7 @@ fn prepend_config_flags(
 
 async fn run_interactive_tui(
     mut interactive: TuiCli,
-    helios_linux_sandbox_exe: Option<PathBuf>,
+    arg0_paths: Arg0DispatchPaths,
 ) -> std::io::Result<AppExitInfo> {
     if let Some(prompt) = interactive.prompt.take() {
         // Normalize CRLF/CR to LF so CLI-provided text can't leak `\r` into TUI state.
@@ -960,7 +914,7 @@ async fn run_interactive_tui(
         }
     }
 
-    helios_tui::run_main(interactive, helios_linux_sandbox_exe).await
+    helios_tui::run_main(interactive, arg0_paths).await
 }
 
 fn confirm(prompt: &str) -> std::io::Result<bool> {
@@ -1427,26 +1381,6 @@ mod tests {
     fn app_server_listen_invalid_url_fails_to_parse() {
         let parse_result =
             MultitoolCli::try_parse_from(["codex", "app-server", "--listen", "http://foo"]);
-        assert!(parse_result.is_err());
-    }
-
-    #[test]
-    fn app_server_transport_auto_is_default() {
-        let app_server = app_server_from_args(["codex", "app-server"].as_ref());
-        assert_eq!(app_server.transport, TransportSelection::Auto);
-    }
-
-    #[test]
-    fn app_server_transport_parses_explicit_value() {
-        let app_server =
-            app_server_from_args(["codex", "app-server", "--transport", "ws"].as_ref());
-        assert_eq!(app_server.transport, TransportSelection::Ws);
-    }
-
-    #[test]
-    fn app_server_transport_rejects_unknown_value() {
-        let parse_result =
-            MultitoolCli::try_parse_from(["codex", "app-server", "--transport", "invalid"]);
         assert!(parse_result.is_err());
     }
 
