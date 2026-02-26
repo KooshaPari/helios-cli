@@ -1,6 +1,6 @@
 use crate::client_common::tools::ToolSpec;
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::function_tool::FunctionCallError;
 use crate::mcp_connection_manager::ToolInfo;
 use crate::sandboxing::SandboxPermissions;
@@ -214,7 +214,7 @@ impl ToolRouter {
 mod tests {
     use std::sync::Arc;
 
-    use crate::helios::make_session_and_context;
+    use crate::codex::make_session_and_context;
     use crate::tools::context::ToolPayload;
     use crate::turn_diff_tracker::TurnDiffTracker;
     use helios_protocol::models::ResponseInputItem;

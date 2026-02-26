@@ -3,7 +3,7 @@ use std::time::Duration;
 use helios_protocol::models::ContentItem;
 use helios_protocol::models::ResponseItem;
 
-use crate::helios::TurnContext;
+use crate::codex::TurnContext;
 use crate::exec::ExecToolCallOutput;
 use crate::tools::format_exec_output_str;
 
@@ -70,7 +70,7 @@ pub fn user_shell_command_record_item(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::helios::make_session_and_context;
+    use crate::codex::make_session_and_context;
     use crate::exec::StreamOutput;
     use pretty_assertions::assert_eq;
 

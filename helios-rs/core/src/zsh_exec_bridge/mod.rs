@@ -116,8 +116,8 @@ impl ZshExecBridge {
     pub(crate) async fn execute_shell_request(
         &self,
         _req: &crate::sandboxing::ExecRequest,
-        _session: &crate::helios::Session,
-        _turn: &crate::helios::TurnContext,
+        _session: &crate::codex::Session,
+        _turn: &crate::codex::TurnContext,
         _call_id: &str,
     ) -> Result<ExecToolCallOutput, ToolError> {
         let _ = &self.zsh_path;
@@ -130,8 +130,8 @@ impl ZshExecBridge {
     pub(crate) async fn execute_shell_request(
         &self,
         req: &crate::sandboxing::ExecRequest,
-        session: &crate::helios::Session,
-        turn: &crate::helios::TurnContext,
+        session: &crate::codex::Session,
+        turn: &crate::codex::TurnContext,
         call_id: &str,
     ) -> Result<ExecToolCallOutput, ToolError> {
         let zsh_path = self.zsh_path.clone().ok_or_else(|| {
@@ -325,8 +325,8 @@ impl ZshExecBridge {
         &self,
         mut stream: UnixStream,
         approval_reason: Option<String>,
-        session: &crate::helios::Session,
-        turn: &crate::helios::TurnContext,
+        session: &crate::codex::Session,
+        turn: &crate::codex::TurnContext,
         call_id: &str,
     ) -> Result<bool, ToolError> {
         let mut request_buf = Vec::new();

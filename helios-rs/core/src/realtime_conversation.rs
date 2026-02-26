@@ -1,6 +1,6 @@
 use crate::CodexAuth;
 use crate::api_bridge::map_api_error;
-use crate::helios::Session;
+use crate::codex::Session;
 use crate::default_client::default_headers;
 use crate::error::CodexErr;
 use crate::error::Result as CodexResult;

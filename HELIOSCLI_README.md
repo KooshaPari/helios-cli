@@ -21,6 +21,29 @@ git remote -v
 # upstream https://github.com/openai/codex.git (fetch)
 ```
 
+## Native install (local fork)
+
+Use the native Rust binary directly (no Python shim):
+
+```bash
+just install-dev
+```
+
+This command:
+
+- runs `just build-dev`
+- builds `helios` with `cargo build --release -p helios-cli`,
+- writes `helios` and `helios-dev` symlinks under `~/.local/bin`,
+- refreshes the symlink on every run.
+
+If you want a non-dev install path, run:
+
+```bash
+just install
+```
+
+This is a pure Rust launcher path; no Python package entrypoint is used.
+
 ## Tracking Upstream
 
 ```bash
@@ -44,7 +67,7 @@ git checkout -b helios-optimization
 ```
 helios-cli/
 ├── cli/              # CLI entry point
-├── codex-rs/         # Rust implementation
+├── helios-rs/        # Rust implementation
 ├── packages/         # NPM packages  
 ├── docs/             # Documentation
 └── scripts/          # Build/dev scripts
@@ -62,10 +85,10 @@ helios-cli/
 
 ```bash
 # Run benchmarks
-cargo bench -p codex-core
+cargo bench -p helios-core
 
 # Profile
-cargo flamegraph --bin codex -- --help
+cargo flamegraph --bin helios -- --help
 
 # Compare with upstream
 git fetch upstream

@@ -5,7 +5,7 @@ use helios_protocol::models::ShellCommandToolCallParams;
 use helios_protocol::models::ShellToolCallParams;
 use std::sync::Arc;
 
-use crate::helios::TurnContext;
+use crate::codex::TurnContext;
 use crate::exec::ExecParams;
 use crate::exec_env::create_env;
 use crate::exec_policy::ExecApprovalRequest;
@@ -33,7 +33,7 @@ use crate::tools::runtimes::shell::ShellRuntime;
 use crate::tools::runtimes::shell::ShellRuntimeBackend;
 use crate::tools::sandboxing::ToolCtx;
 use crate::tools::spec::ShellCommandBackendConfig;
-use codex_protocol::models::PermissionProfile;
+use helios_protocol::models::PermissionProfile;
 
 pub struct ShellHandler;
 
@@ -52,7 +52,7 @@ struct RunExecLikeArgs {
     exec_params: ExecParams,
     additional_permissions: Option<PermissionProfile>,
     prefix_rule: Option<Vec<String>>,
-    session: Arc<crate::helios::Session>,
+    session: Arc<crate::codex::Session>,
     turn: Arc<TurnContext>,
     tracker: crate::tools::context::SharedTurnDiffTracker,
     call_id: String,
@@ -109,7 +109,7 @@ impl ShellCommandHandler {
 
     fn to_exec_params(
         params: &ShellCommandToolCallParams,
-        session: &crate::helios::Session,
+        session: &crate::codex::Session,
         turn_context: &TurnContext,
         thread_id: ThreadId,
         allow_login_shell: bool,
@@ -464,7 +464,7 @@ mod tests {
     use helios_protocol::models::ShellCommandToolCallParams;
     use pretty_assertions::assert_eq;
 
-    use crate::helios::make_session_and_context;
+    use crate::codex::make_session_and_context;
     use crate::exec_env::create_env;
     use crate::is_safe_command::is_known_safe_command;
     use crate::powershell::try_find_powershell_executable_blocking;

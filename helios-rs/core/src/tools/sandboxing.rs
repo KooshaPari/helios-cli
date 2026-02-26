@@ -4,8 +4,8 @@
 //! `ApprovalCtx`, `Approvable`) together with the sandbox orchestration traits
 //! and helpers (`Sandboxable`, `ToolRuntime`, `SandboxAttempt`, etc.).
 
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::error::CodexErr;
 use crate::protocol::SandboxPolicy;
 use crate::sandboxing::CommandSpec;

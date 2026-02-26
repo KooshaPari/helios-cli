@@ -208,7 +208,6 @@ pub async fn process_exec_tool_call(
         env,
         expiration,
         sandbox_permissions,
-        additional_permissions: None,
         justification,
     };
 
@@ -228,7 +227,7 @@ pub async fn process_exec_tool_call(
         .map_err(CodexErr::from)?;
 
     // Route through the sandboxing module for a single, unified execution path.
-    crate::sandboxing::execute_env(exec_req, stdout_stream).await
+    crate::sandboxing::execute_env(exec_req, sandbox_policy, stdout_stream).await
 }
 
 pub(crate) async fn execute_exec_env(

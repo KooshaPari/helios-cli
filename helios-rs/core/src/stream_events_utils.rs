@@ -5,8 +5,8 @@ use helios_protocol::config_types::ModeKind;
 use helios_protocol::items::TurnItem;
 use tokio_util::sync::CancellationToken;
 
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::error::CodexErr;
 use crate::error::Result;
 use crate::function_tool::FunctionCallError;

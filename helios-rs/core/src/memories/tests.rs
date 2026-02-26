@@ -330,8 +330,8 @@ mod phase2 {
     use crate::CodexAuth;
     use crate::ThreadManager;
     use crate::agent::AgentControl;
-    use crate::helios::Session;
-    use crate::helios::make_session_and_context;
+    use crate::codex::Session;
+    use crate::codex::make_session_and_context;
     use crate::config::Config;
     use crate::config::test_config;
     use crate::memories::memory_root;

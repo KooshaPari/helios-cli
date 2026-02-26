@@ -47,6 +47,12 @@ pub(crate) struct ToolsConfig {
     pub experimental_supported_tools: Vec<String>,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum ShellCommandBackendConfig {
+    Classic,
+    ZshFork,
+}
+
 pub(crate) struct ToolsConfigParams<'a> {
     pub(crate) model_info: &'a ModelInfo,
     pub(crate) features: &'a Features,

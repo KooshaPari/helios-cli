@@ -13,26 +13,26 @@ use crate::tools::runtimes::build_command_spec;
 use crate::tools::sandboxing::SandboxAttempt;
 use crate::tools::sandboxing::ToolCtx;
 use crate::tools::sandboxing::ToolError;
-use codex_execpolicy::Decision;
-use codex_execpolicy::Policy;
-use codex_execpolicy::RuleMatch;
-use codex_protocol::config_types::WindowsSandboxLevel;
-use codex_protocol::models::PermissionProfile;
-use codex_protocol::protocol::AskForApproval;
-use codex_protocol::protocol::NetworkPolicyRuleAction;
-use codex_protocol::protocol::RejectConfig;
-use codex_protocol::protocol::ReviewDecision;
-use codex_protocol::protocol::SandboxPolicy;
-use codex_shell_command::bash::parse_shell_lc_plain_commands;
-use codex_shell_command::bash::parse_shell_lc_single_command_prefix;
-use codex_shell_escalation::EscalateAction;
-use codex_shell_escalation::EscalateServer;
-use codex_shell_escalation::EscalationPolicy;
-use codex_shell_escalation::ExecParams;
-use codex_shell_escalation::ExecResult;
-use codex_shell_escalation::ShellCommandExecutor;
-use codex_shell_escalation::Stopwatch;
-use codex_utils_absolute_path::AbsolutePathBuf;
+use helios_execpolicy::Decision;
+use helios_execpolicy::Policy;
+use helios_execpolicy::RuleMatch;
+use helios_protocol::config_types::WindowsSandboxLevel;
+use helios_protocol::models::PermissionProfile;
+use helios_protocol::protocol::AskForApproval;
+use helios_protocol::protocol::NetworkPolicyRuleAction;
+use helios_protocol::protocol::RejectConfig;
+use helios_protocol::protocol::ReviewDecision;
+use helios_protocol::protocol::SandboxPolicy;
+use helios_shell_command::bash::parse_shell_lc_plain_commands;
+use helios_shell_command::bash::parse_shell_lc_single_command_prefix;
+use helios_shell_escalation::EscalateAction;
+use helios_shell_escalation::EscalateServer;
+use helios_shell_escalation::EscalationPolicy;
+use helios_shell_escalation::ExecParams;
+use helios_shell_escalation::ExecResult;
+use helios_shell_escalation::ShellCommandExecutor;
+use helios_shell_escalation::Stopwatch;
+use helios_utils_absolute_path::AbsolutePathBuf;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -441,7 +441,7 @@ struct CoreShellCommandExecutor {
     sandbox_policy: SandboxPolicy,
     sandbox: SandboxType,
     env: HashMap<String, String>,
-    network: Option<codex_network_proxy::NetworkProxy>,
+    network: Option<helios_network_proxy::NetworkProxy>,
     windows_sandbox_level: WindowsSandboxLevel,
     sandbox_permissions: SandboxPermissions,
     justification: Option<String>,
@@ -563,8 +563,8 @@ mod tests {
     use super::join_program_and_argv;
     use super::map_exec_result;
     use crate::exec::SandboxType;
-    use codex_shell_escalation::ExecResult;
-    use codex_utils_absolute_path::AbsolutePathBuf;
+    use helios_shell_escalation::ExecResult;
+    use helios_utils_absolute_path::AbsolutePathBuf;
     use pretty_assertions::assert_eq;
     use std::time::Duration;
 

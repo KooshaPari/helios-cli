@@ -75,7 +75,7 @@ use tracing::instrument;
 use tracing::warn;
 use url::Url;
 
-use crate::helios::INITIAL_SUBMIT_ID;
+use crate::codex::INITIAL_SUBMIT_ID;
 use crate::config::types::McpServerConfig;
 use crate::config::types::McpServerTransportConfig;
 use crate::connectors::is_connector_id_allowed;

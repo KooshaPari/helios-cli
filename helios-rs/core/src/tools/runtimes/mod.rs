@@ -10,7 +10,6 @@ use crate::sandboxing::CommandSpec;
 use crate::sandboxing::SandboxPermissions;
 use crate::shell::Shell;
 use crate::tools::sandboxing::ToolError;
-use codex_protocol::models::PermissionProfile;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -26,7 +25,6 @@ pub(crate) fn build_command_spec(
     env: &HashMap<String, String>,
     expiration: ExecExpiration,
     sandbox_permissions: SandboxPermissions,
-    additional_permissions: Option<PermissionProfile>,
     justification: Option<String>,
 ) -> Result<CommandSpec, ToolError> {
     let (program, args) = command
@@ -39,7 +37,6 @@ pub(crate) fn build_command_spec(
         env: env.clone(),
         expiration,
         sandbox_permissions,
-        additional_permissions,
         justification,
     })
 }

@@ -33,6 +33,7 @@ helios-async-utils = { workspace = true }
 helios-client = { workspace = true }
 helios-config = { workspace = true }
 helios-shell-command = { workspace = true }
+helios-shell-escalation = { workspace = true }
 helios-skills = { workspace = true }
 helios-execpolicy = { workspace = true }
 helios-file-search = { workspace = true }
@@ -52,6 +53,7 @@ helios-secrets = { workspace = true }
 helios-utils-string = { workspace = true }
 helios-windows-sandbox = { package = "helios-windows-sandbox", path = "../windows-sandbox-rs" }
 dirs = { workspace = true }
+csv = { workspace = true }
 dashmap = "6.1.0"
 dunce = { workspace = true }
 encoding_rs = { workspace = true }
