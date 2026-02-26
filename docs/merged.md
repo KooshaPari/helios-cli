@@ -1,6 +1,6 @@
 # Merged Fragmented Markdown
 
-## Source: /Users/kooshapari/temp-PRODVERCEL/485/kush/heliosHarness/clones/codex/docs
+## Source: heliosHarness/clones/codex/docs
 ## Source: CLA.md
 
 # Individual Contributor License Agreement (v1.0, OpenAI)

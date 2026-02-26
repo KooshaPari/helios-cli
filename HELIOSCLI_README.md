@@ -44,7 +44,7 @@ git checkout -b helios-optimization
 ```
 helios-cli/
 ├── cli/              # CLI entry point
-├── codex-rs/         # Rust implementation
+├── helios-rs/        # Rust implementation
 ├── packages/         # NPM packages  
 ├── docs/             # Documentation
 └── scripts/          # Build/dev scripts
@@ -69,7 +69,7 @@ cargo flamegraph --bin codex -- --help
 
 # Compare with upstream
 git fetch upstream
-git diff main upstream/main
+git diff main upstream/main -- helios-rs/
 ```
 
 ## Syncing

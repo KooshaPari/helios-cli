@@ -238,7 +238,7 @@ impl<S: EventSource + Default + Unpin> TuiEventStream<S> {
         match event {
             Event::Key(key_event) => {
                 #[cfg(unix)]
-                if crate::tui::job_control::SUSPEND_KEY.is_press(key_event) {
+                if crate::tui::job_control::is_suspend_key(key_event) {
                     let _ = self.suspend_context.suspend(&self.alt_screen_active);
                     return Some(TuiEvent::Draw);
                 }
@@ -507,5 +507,20 @@ mod tests {
             Some(TuiEvent::Key(key)) => assert_eq!(key, expected_key),
             other => panic!("expected key event, got {other:?}"),
         }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test(flavor = "current_thread")]
+    async fn ctrl_b_suspend_triggers_draw() {
+        let (broker, handle, _draw_tx, draw_rx, terminal_focused) = setup();
+        let mut stream = make_stream(broker, draw_rx, terminal_focused);
+
+        handle.send(Ok(Event::Key(KeyEvent::new(
+            KeyCode::Char('b'),
+            KeyModifiers::CONTROL,
+        ))));
+
+        let next = stream.next().await.unwrap();
+        assert!(matches!(next, TuiEvent::Draw));
     }
 }
