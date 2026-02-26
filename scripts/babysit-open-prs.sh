@@ -7,10 +7,16 @@ SLEEP_SECONDS=240
 RETRY_WINDOW_SECONDS=1800
 AUTO_PING=1
 MAX_STATES=0
+GH_TIMEOUT_SECONDS=25
+DRY_RUN=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --repo)
+      if [[ $# -lt 2 || -z "${2:-}" ]]; then
+        echo "--repo requires a value" >&2
+        exit 1
+      fi
       REPO="$2"
       shift 2
       ;;
@@ -19,6 +25,10 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --sleep)
+      if [[ $# -lt 2 || ! "$2" =~ ^[0-9]+$ ]]; then
+        echo "--sleep requires a numeric value" >&2
+        exit 1
+      fi
       SLEEP_SECONDS="$2"
       shift 2
       ;;
@@ -27,12 +37,29 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --max-cycles)
+      if [[ $# -lt 2 || ! "$2" =~ ^[0-9]+$ ]]; then
+        echo "--max-cycles requires a numeric value" >&2
+        exit 1
+      fi
       MAX_STATES="$2"
       shift 2
       ;;
+    --gh-timeout)
+      if [[ $# -lt 2 || ! "$2" =~ ^[0-9]+$ ]]; then
+        echo "--gh-timeout requires a numeric value" >&2
+        exit 1
+      fi
+      GH_TIMEOUT_SECONDS="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
     --help|-h)
       cat <<'HELP'
-Usage: scripts/babysit-open-prs.sh [--repo org/repo] [--once] [--sleep SECONDS] [--no-ping] [--max-cycles N]
+      Usage: scripts/babysit-open-prs.sh [--repo org/repo] [--once] [--sleep SECONDS] [--no-ping] [--max-cycles N]
+             [--gh-timeout SECONDS] [--dry-run]
 
 Default behavior: run in a loop, scan open PRs, classify blockers, and optionally ping
 @coderabbitai review when only CodeRabbit is failing due to rate-limit signals.
@@ -49,23 +76,84 @@ HELP
   esac
 done
 
+require_cmds() {
+  local missing=0
+  for cmd in gh jq; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      echo "Missing required command: $cmd" >&2
+      missing=1
+    fi
+  done
+
+  if command -v python3 >/dev/null 2>&1; then
+    python_cmd="python3"
+  elif command -v python >/dev/null 2>&1; then
+    python_cmd="python"
+  else
+    echo "Missing required command: python3 (or python)" >&2
+    missing=1
+  fi
+  if [[ "$missing" -eq 1 ]]; then
+    exit 1
+  fi
+
+  export PYTHON_CMD="$python_cmd"
+}
+
+require_cmds
+
+run_gh() {
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "${GH_TIMEOUT_SECONDS}s" gh "$@"
+    return $?
+  fi
+
+  gh "$@"
+  return $?
+}
+
+compute_cutoff_timestamp() {
+  local seconds="$1"
+  "$PYTHON_CMD" - "$seconds" <<'PY'
+import datetime
+import sys
+
+seconds = int(sys.argv[1])
+dt = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=seconds)
+print(dt.isoformat().replace("+00:00", "Z"))
+PY
+}
+
+infer_repo_from_remote() {
+  local remote_url
+  remote_url=$(git config --get remote.origin.url || true)
+  if [[ -z "$remote_url" ]]; then
+    return 1
+  fi
+  if [[ "$remote_url" == git@github.com:* ]]; then
+    REPO="${remote_url#git@github.com:}"
+    REPO="${REPO%.git}"
+  elif [[ "$remote_url" == https://github.com/* ]]; then
+    REPO="${remote_url#https://github.com/}"
+    REPO="${REPO%.git}"
+  else
+    return 1
+  fi
+  return 0
+}
+
 if [[ -z "$REPO" ]]; then
-  if ! REPO=$(gh repo view --json nameWithOwner -q '.nameWithOwner' 2>/dev/null); then
-    remote_url=$(git config --get remote.origin.url || true)
-    if [[ -z "$remote_url" ]]; then
-      echo "Unable to infer repo. Provide --repo or configure GitHub CLI auth." >&2
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    if ! infer_repo_from_remote; then
+      echo "Unable to infer repo from remote URL. Use --repo org/repo." >&2
       exit 1
     fi
-
-    if [[ "$remote_url" == git@github.com:* ]]; then
-      REPO="${remote_url#git@github.com:}"
-      REPO="${REPO%.git}"
-    elif [[ "$remote_url" == https://github.com/* ]]; then
-      REPO="${remote_url#https://github.com/}"
-      REPO="${REPO%.git}"
-    else
-      echo "Unable to infer repo from remote URL: $remote_url" >&2
-      exit 1
+  else
+    if ! REPO=$(run_gh repo view --json nameWithOwner -q '.nameWithOwner'); then
+      if ! infer_repo_from_remote; then
+        echo "Unable to infer repo. Configure GitHub CLI auth or provide --repo." >&2
+        exit 1
+      fi
     fi
   fi
 fi
@@ -75,17 +163,43 @@ if [[ -z "$REPO" ]]; then
   exit 1
 fi
 
-ME=$(gh api user -q '.login')
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "dry-run enabled: no GitHub mutations or network calls."
+  echo "repo=$REPO"
+  echo "gh_timeout=${GH_TIMEOUT_SECONDS}s"
+  echo "No live PR sweep performed."
+  exit 0
+fi
+
+if ! ME=$(run_gh api user -q '.login'); then
+  echo "Unable to authenticate with GitHub CLI. Set GH auth (gh auth login) or pass --dry-run." >&2
+  DRY_RUN=1
+fi
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "Unable to authenticate with GitHub CLI; continuing in dry-run mode."
+  echo "repo=$REPO"
+  echo "gh_timeout=${GH_TIMEOUT_SECONDS}s"
+  echo "No live PR sweep performed."
+  exit 0
+fi
+
 CYCLES=0
+
 
 status_badge() {
   local merge_state="$1"
   local fail_total="$2"
   local fail_non_cb="$3"
   local cr_rate="$4"
+  local mergeable="$5"
 
-  if [[ "$fail_total" == "0" && "$merge_state" == "CLEAN" ]]; then
+  if [[ "$fail_total" == "0" && "$merge_state" == "CLEAN" && "$mergeable" == "true" ]]; then
     echo "READY"
+    return
+  fi
+  if [[ "$mergeable" != "true" ]]; then
+    echo "BLOCKED-MERGE"
     return
   fi
   if [[ "$fail_total" -gt 0 && "$fail_non_cb" -eq 0 && "$cr_rate" -gt 0 ]]; then
@@ -106,10 +220,14 @@ status_badge() {
 recent_my_request() {
   local pr="$1"
   local cutoff
-  cutoff=$(date -u -d "-$RETRY_WINDOW_SECONDS seconds" +%Y-%m-%dT%H:%M:%SZ)
+  cutoff=$(compute_cutoff_timestamp "$RETRY_WINDOW_SECONDS")
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    return 1
+  fi
 
   local recent
-  recent=$(gh pr view "$pr" --repo "$REPO" --json comments -q "[.comments[] | select(.author.login == \"$ME\" and .body == \"@coderabbitai review\" and .createdAt >= \"$cutoff\") ] | length")
+  recent=$(run_gh pr view "$pr" --repo "$REPO" --json comments -q "[.comments[] | select(.author.login == \"$ME\" and .body == \"@coderabbitai review\" and .createdAt >= \"$cutoff\") ] | length" || echo 0)
   [[ "$recent" != "0" ]]
 }
 
@@ -129,7 +247,7 @@ ping_coderabbit_if_needed() {
     return
   fi
 
-  if gh pr comment "$pr" --body "@coderabbitai review" >/dev/null; then
+  if run_gh pr comment "$pr" --body "@coderabbitai review" >/dev/null; then
     echo "    └ re-triage sent to CodeRabbit"
   fi
 }
@@ -141,24 +259,36 @@ classify_cycle() {
   branch=$(echo "$pr_json" | jq -r '.headRefName')
 
   local checks
-  checks=$(gh pr checks "$num" --repo "$REPO" --json name,state 2>/dev/null || echo '[]')
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    checks='[]'
+  else
+    checks=$(run_gh pr checks "$num" --repo "$REPO" --json name,state || echo '[]')
+  fi
   local fail_total fail_non_coderabbit
   fail_total=$(echo "$checks" | jq '[.[] | select(.state=="FAILURE" or .state=="ACTION_REQUIRED")] | length')
   fail_non_coderabbit=$(echo "$checks" | jq '[.[] | select((.state=="FAILURE" or .state=="ACTION_REQUIRED") and (.name | ascii_downcase) != "coderabbit")] | length')
 
   local comment_json
-  comment_json=$(gh pr view "$num" --json comments --repo "$REPO")
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    comment_json='{"comments":[]}'
+  else
+    comment_json=$(run_gh pr view "$num" --json comments --repo "$REPO" || echo '{"comments":[]}')
+  fi
   local cr_rate
   cr_rate=$(echo "$comment_json" | jq '[.comments[] | select(.author.login=="coderabbitai" and (.body | test("rate limit|secondary rate limit|quota|retry-after|abuse"; "i")))] | length')
 
   local meta
-  meta=$(gh pr view "$num" --repo "$REPO" --json mergeStateStatus,mergeable)
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    meta='{"mergeStateStatus":"UNKNOWN","mergeable":"UNKNOWN"}'
+  else
+    meta=$(run_gh pr view "$num" --repo "$REPO" --json mergeStateStatus,mergeable || echo '{"mergeStateStatus":"UNKNOWN","mergeable":"UNKNOWN"}')
+  fi
   merge_state=$(echo "$meta" | jq -r '.mergeStateStatus')
   local mergeable
   mergeable=$(echo "$meta" | jq -r '.mergeable')
 
   local state
-  state=$(status_badge "$merge_state" "$fail_total" "$fail_non_coderabbit" "$cr_rate")
+  state=$(status_badge "$merge_state" "$fail_total" "$fail_non_coderabbit" "$cr_rate" "$mergeable")
 
   printf '%-4s | %-24s | %-16s | %-7s | %-5s / %-12s / %-3s | %s\n' \
     "#$num" "${branch:0:24}" "$merge_state" "$mergeable" "$fail_total" "$fail_non_coderabbit" "$cr_rate" "$state"
@@ -175,7 +305,7 @@ while true; do
   echo "PR   | branch                    | mergeState       | mergeable | CI(fail/other/rate) | state"
   echo "--------------------------------------------------------------------------------"
 
-  open_json=$(gh pr list --repo "$REPO" --state open --json number,title,headRefName,mergeStateStatus,mergeable --jq '.[]')
+  open_json=$(run_gh pr list --repo "$REPO" --state open --json number,title,headRefName,mergeStateStatus,mergeable --jq '.[]' || echo '[]')
 
   if [[ -z "$open_json" ]]; then
     echo "No open PRs in $REPO"
