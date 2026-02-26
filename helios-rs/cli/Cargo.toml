@@ -24,7 +24,7 @@ helios-app-server-protocol = { workspace = true }
 helios-app-server-test-client = { workspace = true }
 helios-arg0 = { workspace = true }
 helios-chatgpt = { workspace = true }
-helios-cloud-tasks = { path = "../cloud-tasks" }
+helios-cloud-tasks = { workspace = true }
 helios-utils-cli = { workspace = true }
 helios-config = { workspace = true }
 helios-core = { workspace = true }

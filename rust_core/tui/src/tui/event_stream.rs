@@ -512,15 +512,13 @@ mod tests {
     #[cfg(unix)]
     #[tokio::test(flavor = "current_thread")]
     async fn ctrl_b_suspend_triggers_draw() {
-        let (broker, handle, _draw_tx, draw_rx, terminal_focused) = setup();
+        let (broker, _handle, _draw_tx, draw_rx, terminal_focused) = setup();
         let mut stream = make_stream(broker, draw_rx, terminal_focused);
 
-        handle.send(Ok(Event::Key(KeyEvent::new(
+        let next = stream.map_crossterm_event(Event::Key(KeyEvent::new(
             KeyCode::Char('b'),
             KeyModifiers::CONTROL,
-        ))));
-
-        let next = stream.next().await.unwrap();
-        assert!(matches!(next, TuiEvent::Draw));
+        )));
+        assert!(matches!(next, Some(TuiEvent::Draw)));
     }
 }

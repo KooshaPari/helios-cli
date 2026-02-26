@@ -14,7 +14,7 @@ docker run --platform=linux/amd64 --rm -it -e CARGO_TARGET_DIR=/workspace/helios
 
 Note that `/workspace/target` will contain the binaries built for your host platform, so we include `-e CARGO_TARGET_DIR=/workspace/helios-rs/target-amd64` in the `docker run` command so that the binaries built inside your container are written to a separate directory.
 
-For arm64, specify `--platform=linux/amd64` instead for both `docker build` and `docker run`.
+For arm64, specify `--platform=linux/arm64` instead for both `docker build` and `docker run`.
 
 Currently, the `Dockerfile` works for both x64 and arm64 Linux, though you need to run `rustup target add x86_64-unknown-linux-musl` yourself to install the musl toolchain for x64.
 
