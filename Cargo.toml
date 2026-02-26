@@ -22,5 +22,9 @@ members = [
 version = "0.1.0"
 edition = "2021"
 
+[workspace.dependencies]
+pheno-core = { path = "../phenotype-config/pheno-core" }
+pheno-db = { path = "../phenotype-config/pheno-db" }
+
 [workspace.metadata]
 rustfmt.exclude = ["crates/harness_zig"]

@@ -1,5 +1,7 @@
 //! Common utilities for heliosHarness
 
+pub mod phenotype_init;
+
 use thiserror::Error;
 
 /// Error types for utils
