@@ -1,11 +1,11 @@
 use crate::error::ApiError;
+use futures::Stream;
 use helios_protocol::config_types::ReasoningSummary as ReasoningSummaryConfig;
 use helios_protocol::config_types::Verbosity as VerbosityConfig;
 use helios_protocol::models::ResponseItem;
 use helios_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
 use helios_protocol::protocol::RateLimitSnapshot;
 use helios_protocol::protocol::TokenUsage;
-use futures::Stream;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
@@ -57,7 +57,7 @@ pub enum ResponseEvent {
     Created,
     OutputItemDone(ResponseItem),
     OutputItemAdded(ResponseItem),
-    /// Emitted when the server includes `OpenAI-Model` on the stream response.
+    /// Emitted when the server includes `Phenotype-Model` on the stream response.
     /// This can differ from the requested model when backend safety routing applies.
     ServerModel(String),
     /// Emitted when `X-Reasoning-Included: true` is present on the response,
@@ -103,7 +103,7 @@ pub enum TextFormatType {
 
 #[derive(Debug, Serialize, Default, Clone, PartialEq)]
 pub struct TextFormat {
-    /// Format type used by the OpenAI text controls.
+    /// Format type used by the Phenotype text controls.
     pub r#type: TextFormatType,
     /// When true, the server is expected to strictly validate responses.
     pub strict: bool,

@@ -1,4 +1,4 @@
-//! The main Codex TUI chat surface.
+//! The main Helios TUI chat surface.
 //!
 //! `ChatWidget` consumes protocol events, builds and updates history cells, and drives rendering
 //! for both the main viewport and overlay UIs.
@@ -45,6 +45,10 @@ use crate::status::format_tokens_compact;
 use crate::status::rate_limit_snapshot_display_for_limit;
 use crate::text_formatting::proper_join;
 use crate::version::HELIOS_CLI_VERSION;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use helios_app_server_protocol::ConfigLayerSource;
 use helios_backend_client::Client as BackendClient;
 use helios_chatgpt::connectors;
@@ -135,10 +139,6 @@ use helios_protocol::request_user_input::RequestUserInputEvent;
 use helios_protocol::user_input::TextElement;
 use helios_protocol::user_input::UserInput;
 use helios_utils_sleep_inhibitor::SleepInhibitor;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use rand::Rng;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
@@ -557,7 +557,7 @@ pub(crate) struct ChatWidget {
     stream_controller: Option<StreamController>,
     // Stream lifecycle controller for proposed plan output.
     plan_stream_controller: Option<PlanStreamController>,
-    // Latest completed user-visible Codex output that `/copy` should place on the clipboard.
+    // Latest completed user-visible Helios output that `/copy` should place on the clipboard.
     last_copyable_output: Option<String>,
     running_commands: HashMap<String, RunningCommand>,
     suppressed_exec_calls: HashSet<String>,
@@ -1705,7 +1705,7 @@ impl ChatWidget {
         self.finalize_turn();
 
         let message = if message.trim().is_empty() {
-            "Codex is currently experiencing high load.".to_string()
+            "Helios is currently experiencing high load.".to_string()
         } else {
             message
         };
@@ -2574,8 +2574,6 @@ impl ChatWidget {
             reason: ev.reason,
             network_approval_context: ev.network_approval_context,
             proposed_execpolicy_amendment: ev.proposed_execpolicy_amendment,
-            proposed_network_policy_amendments: ev.proposed_network_policy_amendments,
-            additional_permissions: ev.additional_permissions,
         };
         self.bottom_pane
             .push_approval_request(request, &self.config.features);
@@ -3669,7 +3667,7 @@ impl ChatWidget {
             SlashCommand::Copy => {
                 let Some(text) = self.last_copyable_output.as_deref() else {
                     self.add_info_message(
-                        "`/copy` is unavailable before the first Codex output or right after a rollback."
+                        "`/copy` is unavailable before the first Helios output or right after a rollback."
                             .to_string(),
                         None,
                     );
@@ -3685,7 +3683,7 @@ impl ChatWidget {
                                 .to_string(),
                         );
                         self.add_info_message(
-                            "Copied latest Codex output to clipboard.".to_string(),
+                            "Copied latest Helios output to clipboard.".to_string(),
                             hint,
                         );
                     }
@@ -4067,14 +4065,12 @@ impl ChatWidget {
                     .strip_prefix("skill://")
                     .unwrap_or(binding.path.as_str());
                 let path = Path::new(path);
-                if let Some(skill) = skills
-                    .iter()
-                    .find(|skill| skill.path_to_skills_md.as_path() == path)
-                    && selected_skill_paths.insert(skill.path_to_skills_md.clone())
+                if let Some(skill) = skills.iter().find(|skill| skill.path.as_path() == path)
+                    && selected_skill_paths.insert(skill.path.clone())
                 {
                     items.push(UserInput::Skill {
                         name: skill.name.clone(),
-                        path: skill.path_to_skills_md.clone(),
+                        path: skill.path.clone(),
                     });
                 }
             }
@@ -4082,13 +4078,13 @@ impl ChatWidget {
             let skill_mentions = find_skill_mentions_with_tool_mentions(&mentions, skills);
             for skill in skill_mentions {
                 if bound_names.contains(skill.name.as_str())
-                    || !selected_skill_paths.insert(skill.path_to_skills_md.clone())
+                    || !selected_skill_paths.insert(skill.path.clone())
                 {
                     continue;
                 }
                 items.push(UserInput::Skill {
                     name: skill.name.clone(),
-                    path: skill.path_to_skills_md.clone(),
+                    path: skill.path.clone(),
                 });
             }
         }
@@ -5269,7 +5265,7 @@ impl ChatWidget {
 
         let mut header = ColumnRenderable::new();
         header.push(Line::from("Select Personality".bold()));
-        header.push(Line::from("Choose a communication style for Codex.".dim()));
+        header.push(Line::from("Choose a communication style for Helios.".dim()));
 
         self.bottom_pane.show_selection_view(SelectionViewParams {
             header: Box::new(header),
@@ -6066,7 +6062,7 @@ impl ChatWidget {
         let mut header_children: Vec<Box<dyn Renderable>> = Vec::new();
         let title_line = Line::from("Enable full access?").bold();
         let info_line = Line::from(vec![
-            "When Codex runs with full access, it can edit any file on your computer and run commands with network, without your approval. "
+            "When Helios runs with full access, it can edit any file on your computer and run commands with network, without your approval. "
                 .into(),
             "Exercise caution when enabling full access. This significantly increases the risk of data loss, leaks, or unexpected behavior."
                 .fg(Color::Red),
@@ -6306,7 +6302,7 @@ impl ChatWidget {
         let mut header = ColumnRenderable::new();
         header.push(*Box::new(
             Paragraph::new(vec![
-                line!["Set up the Codex agent sandbox to protect your files and control network access. Learn more <https://developers.openai.com/codex/windows>"],
+                line!["Set up the Helios agent sandbox to protect your files and control network access. Learn more <https://developers.openai.com/codex/windows>"],
             ])
             .wrap(Wrap { trim: false }),
         ));
@@ -6374,7 +6370,7 @@ impl ChatWidget {
         ]);
         lines.push(line![""]);
         lines.push(line![
-            "You can still use Codex in a non-admin sandbox. It carries greater risk if prompt injected."
+            "You can still use Helios in a non-admin sandbox. It carries greater risk if prompt injected."
         ]);
         lines.push(line![
             "Learn more <https://developers.openai.com/codex/windows>"
@@ -6404,7 +6400,7 @@ impl ChatWidget {
                 ..Default::default()
             },
             SelectionItem {
-                name: "Use Codex with non-admin sandbox".to_string(),
+                name: "Use Helios with non-admin sandbox".to_string(),
                 description: None,
                 actions: vec![Box::new({
                     let otel = self.otel_manager.clone();
@@ -7057,7 +7053,7 @@ impl ChatWidget {
             let instructions = if connector.is_accessible {
                 "Manage this app in your browser."
             } else {
-                "Install this app in your browser, then reload Codex."
+                "Install this app in your browser, then reload Helios."
             };
             if let Some(install_url) = connector.install_url.clone() {
                 let app_id = connector.id.clone();
@@ -7773,7 +7769,7 @@ impl Notification {
             }
             Notification::EditApprovalRequested { cwd, changes } => {
                 format!(
-                    "Codex wants to edit {}",
+                    "Helios wants to edit {}",
                     if changes.len() == 1 {
                         #[allow(clippy::unwrap_used)]
                         display_path_for(changes.first().unwrap(), cwd)

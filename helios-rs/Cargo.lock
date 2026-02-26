@@ -2434,19 +2434,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "exec_server_test_support"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "helios-core",
- "helios-protocol",
- "helios-utils-cargo-bin",
- "rmcp",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "eyre"
 version = "0.6.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3444,6 +3431,7 @@ dependencies = [
  "clap",
  "core-foundation 0.9.4",
  "core_test_support",
+ "csv",
  "ctor 0.6.3",
  "dashmap",
  "dirs",
@@ -3581,34 +3569,6 @@ dependencies = [
  "uuid",
  "walkdir",
  "wiremock",
-]
-
-[[package]]
-name = "helios-exec-server"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap",
- "core_test_support",
- "exec_server_test_support",
- "helios-core",
- "helios-execpolicy",
- "helios-protocol",
- "helios-shell-command",
- "helios-shell-escalation",
- "helios-utils-cargo-bin",
- "maplit",
- "pretty_assertions",
- "rmcp",
- "schemars 1.2.1",
- "serde",
- "serde_json",
- "shlex",
- "tempfile",
- "tokio",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
@@ -3817,6 +3777,7 @@ dependencies = [
  "clap",
  "globset",
  "helios-utils-absolute-path",
+ "helios-utils-home-dir",
  "helios-utils-rustls-provider",
  "pretty_assertions",
  "rama-core",
@@ -4305,7 +4266,9 @@ name = "helios-utils-sleep-inhibitor"
 version = "0.0.0"
 dependencies = [
  "core-foundation 0.9.4",
+ "libc",
  "tracing",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

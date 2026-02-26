@@ -4,22 +4,22 @@
 //! `ApprovalCtx`, `Approvable`) together with the sandbox orchestration traits
 //! and helpers (`Sandboxable`, `ToolRuntime`, `SandboxAttempt`, etc.).
 
+use crate::error::CodexErr;
 use crate::helios::Session;
 use crate::helios::TurnContext;
-use crate::error::CodexErr;
 use crate::protocol::SandboxPolicy;
 use crate::sandboxing::CommandSpec;
 use crate::sandboxing::SandboxManager;
 use crate::sandboxing::SandboxTransformError;
 use crate::state::SessionServices;
 use crate::tools::network_approval::NetworkApprovalSpec;
+use futures::Future;
+use futures::future::BoxFuture;
 use helios_network_proxy::NetworkProxy;
 use helios_protocol::approvals::ExecPolicyAmendment;
 use helios_protocol::approvals::NetworkApprovalContext;
 use helios_protocol::protocol::AskForApproval;
 use helios_protocol::protocol::ReviewDecision;
-use futures::Future;
-use futures::future::BoxFuture;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -277,7 +277,7 @@ pub(crate) struct ToolCtx {
 #[derive(Debug)]
 pub(crate) enum ToolError {
     Rejected(String),
-    Codex(CodexErr),
+    Helios(CodexErr),
 }
 
 pub(crate) trait ToolRuntime<Req, Out>: Approvable<Req> + Sandboxable {

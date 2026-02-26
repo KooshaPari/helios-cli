@@ -42,7 +42,7 @@ async fn web_search_mode_cached_sets_external_web_access_false() {
     let test = builder
         .build(&server)
         .await
-        .expect("create test Codex conversation");
+        .expect("create test Helios conversation");
 
     test.submit_turn_with_policy(
         "hello cached web search",
@@ -83,7 +83,7 @@ async fn web_search_mode_takes_precedence_over_legacy_flags() {
     let test = builder
         .build(&server)
         .await
-        .expect("create test Codex conversation");
+        .expect("create test Helios conversation");
 
     test.submit_turn_with_policy(
         "hello cached+live flags",
@@ -125,7 +125,7 @@ async fn web_search_mode_defaults_to_cached_when_features_disabled() {
     let test = builder
         .build(&server)
         .await
-        .expect("create test Codex conversation");
+        .expect("create test Helios conversation");
 
     test.submit_turn_with_policy(
         "hello default cached web search",
@@ -176,7 +176,7 @@ async fn web_search_mode_updates_between_turns_with_sandbox_policy() {
     let test = builder
         .build(&server)
         .await
-        .expect("create test Codex conversation");
+        .expect("create test Helios conversation");
 
     test.submit_turn_with_policy("hello cached", SandboxPolicy::new_read_only_policy())
         .await

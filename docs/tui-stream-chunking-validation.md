@@ -23,7 +23,7 @@ Two trace messages are used:
 
 ## Runtime command
 
-Run Codex with chunking traces enabled:
+Run Helios with chunking traces enabled:
 
 ```bash
 RUST_LOG='codex_tui::streaming::commit_tick=trace,codex_tui=info,codex_core=info,codex_rmcp_client=info' \

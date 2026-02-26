@@ -37,6 +37,9 @@ install:
     rustup show active-toolchain
     cargo fetch
 
+install-dev *args:
+    ../scripts/install-helios-dev.sh "$@"
+
 # Run `cargo nextest` since it's faster than `cargo test`, though including
 # --no-fail-fast is important to ensure all tests are run.
 #
@@ -46,7 +49,7 @@ install:
 test:
     cargo nextest run --no-fail-fast
 
-# Build and run Codex from source using Bazel.
+# Build and run Helios from source using Bazel.
 # Note we have to use the combination of `[no-cd]` and `--run_under="cd $PWD &&"`
 # to ensure that Bazel runs the command in the current working directory.
 [no-cd]

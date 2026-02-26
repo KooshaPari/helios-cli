@@ -4,7 +4,7 @@
 //!
 //! Each test sets up a mocked SSE conversation and drives the conversation through
 //! a specific sequence of operations. After every operation we capture the
-//! request payload that Codex would send to the model and assert that the
+//! request payload that Helios would send to the model and assert that the
 //! model-visible history matches the expected sequence of messages.
 
 use super::compact::COMPACT_WARNING_MESSAGE;
@@ -526,7 +526,7 @@ async fn start_test_conversation(
     let base_url = format!("{}/v1", server.uri());
     let model = model.map(str::to_string);
     let mut builder = test_codex().with_config(move |config| {
-        config.model_provider.name = "Non-OpenAI Model provider".to_string();
+        config.model_provider.name = "Non-Phenotype Model provider".to_string();
         config.model_provider.base_url = Some(base_url);
         config.compact_prompt = Some(SUMMARIZATION_PROMPT.to_string());
         if let Some(model) = model {

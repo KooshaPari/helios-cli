@@ -315,7 +315,15 @@ impl ModelsManager {
 
         let remote_presets: Vec<ModelPreset> = remote_models.into_iter().map(Into::into).collect();
         let existing_presets = self.local_models.clone();
-        let mut merged_presets = ModelPreset::merge(remote_presets, existing_presets);
+        let mut merged_presets = remote_presets;
+        for preset in existing_presets {
+            if !merged_presets
+                .iter()
+                .any(|existing| existing.model == preset.model)
+            {
+                merged_presets.push(preset);
+            }
+        }
         let chatgpt_mode = matches!(self.auth_manager.auth_mode(), Some(AuthMode::Chatgpt));
         merged_presets = ModelPreset::filter_by_auth(merged_presets, chatgpt_mode);
 
@@ -397,8 +405,8 @@ mod tests {
     use crate::config::ConfigBuilder;
     use crate::model_provider_info::WireApi;
     use chrono::Utc;
-    use helios_protocol::openai_models::ModelsResponse;
     use core_test_support::responses::mount_models_once;
+    use helios_protocol::openai_models::ModelsResponse;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use tempfile::tempdir;

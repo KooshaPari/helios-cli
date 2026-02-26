@@ -1,11 +1,11 @@
 use clap::Parser;
 use std::path::PathBuf;
 
-const DEFAULT_HELIOS_DMG_URL: &str = "https://persistent.oaistatic.com/helios-app-prod/Codex.dmg";
+const DEFAULT_HELIOS_DMG_URL: &str = "https://persistent.oaistatic.com/helios-app-prod/Helios.dmg";
 
 #[derive(Debug, Parser)]
 pub struct AppCommand {
-    /// Workspace path to open in Codex Desktop.
+    /// Workspace path to open in Helios Desktop.
     #[arg(value_name = "PATH", default_value = ".")]
     pub path: PathBuf,
 

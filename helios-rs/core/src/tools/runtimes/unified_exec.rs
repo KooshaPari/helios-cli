@@ -30,9 +30,9 @@ use crate::tools::sandboxing::with_cached_approval;
 use crate::unified_exec::UnifiedExecError;
 use crate::unified_exec::UnifiedExecProcess;
 use crate::unified_exec::UnifiedExecProcessManager;
+use futures::future::BoxFuture;
 use helios_network_proxy::NetworkProxy;
 use helios_protocol::protocol::ReviewDecision;
-use futures::future::BoxFuture;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -118,6 +118,8 @@ impl Approvable<UnifiedExecRequest> for UnifiedExecRuntime<'_> {
                         req.exec_approval_requirement
                             .proposed_execpolicy_amendment()
                             .cloned(),
+                        None,
+                        None,
                     )
                     .await
             })
@@ -199,13 +201,13 @@ impl<'a> ToolRuntime<UnifiedExecRequest, UnifiedExecProcess> for UnifiedExecRunt
         .map_err(|_| ToolError::Rejected("missing command line for PTY".to_string()))?;
         let exec_env = attempt
             .env_for(spec, req.network.as_ref())
-            .map_err(|err| ToolError::Codex(err.into()))?;
+            .map_err(|err| ToolError::Helios(err.into()))?;
         self.manager
             .open_session_with_exec_env(&exec_env, req.tty)
             .await
             .map_err(|err| match err {
                 UnifiedExecError::SandboxDenied { output, .. } => {
-                    ToolError::Codex(CodexErr::Sandbox(SandboxErr::Denied {
+                    ToolError::Helios(CodexErr::Sandbox(SandboxErr::Denied {
                         output: Box::new(output),
                         network_policy_decision: None,
                     }))

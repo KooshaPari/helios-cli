@@ -66,12 +66,11 @@ pub(super) async fn try_run_zsh_fork(
         &req.env,
         req.timeout_ms.into(),
         req.sandbox_permissions,
-        req.additional_permissions.clone(),
         req.justification.clone(),
     )?;
     let sandbox_exec_request = attempt
         .env_for(spec, req.network.as_ref())
-        .map_err(|err| ToolError::Codex(err.into()))?;
+        .map_err(|err| ToolError::Helios(err.into()))?;
     // Keep env/network/sandbox metadata from `attempt.env_for()`, but build the
     // script from the original shell argv. `attempt.env_for()` may wrap the
     // command with `sandbox-exec` on macOS, and passing those wrapper flags
@@ -207,6 +206,7 @@ impl CoreShellActionProvider {
                         None,
                         None,
                         None,
+                        None,
                         additional_permissions,
                     )
                     .await
@@ -229,7 +229,7 @@ impl CoreShellActionProvider {
         let program_path = program.as_path();
         for skill in skills_outcome.skills {
             // We intentionally ignore "enabled" status here for now.
-            let Some(skill_root) = skill.path_to_skills_md.parent() else {
+            let Some(skill_root) = skill.path.parent() else {
                 continue;
             };
             if program_path.starts_with(skill_root.join("scripts")) {
@@ -383,7 +383,7 @@ impl EscalationPolicy for CoreShellActionProvider {
                     program,
                     argv,
                     workdir,
-                    skill.permission_profile.clone(),
+                    skill.permissions.clone(),
                     DecisionSource::SkillScript,
                 )
                 .await;
@@ -529,13 +529,13 @@ fn map_exec_result(
     };
 
     if result.timed_out {
-        return Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Timeout {
+        return Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Timeout {
             output: Box::new(output),
         })));
     }
 
     if is_likely_sandbox_denied(sandbox, &output) {
-        return Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Denied {
+        return Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Denied {
             output: Box::new(output),
             network_policy_decision: None,
         })));

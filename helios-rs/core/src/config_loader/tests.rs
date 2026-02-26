@@ -846,7 +846,8 @@ async fn cli_override_model_instructions_file_sets_base_instructions() -> std::i
 }
 
 #[tokio::test]
-async fn project_layer_is_added_when_dot_helios_exists_without_config_toml() -> std::io::Result<()> {
+async fn project_layer_is_added_when_dot_helios_exists_without_config_toml() -> std::io::Result<()>
+{
     let tmp = tempdir()?;
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
@@ -875,7 +876,9 @@ async fn project_layer_is_added_when_dot_helios_exists_without_config_toml() -> 
     assert_eq!(
         vec![&ConfigLayerEntry {
             name: super::ConfigLayerSource::Project {
-                dot_helios_folder: AbsolutePathBuf::from_absolute_path(project_root.join(".codex"))?,
+                dot_helios_folder: AbsolutePathBuf::from_absolute_path(
+                    project_root.join(".codex")
+                )?,
             },
             config: TomlValue::Table(toml::map::Map::new()),
             raw_toml: None,

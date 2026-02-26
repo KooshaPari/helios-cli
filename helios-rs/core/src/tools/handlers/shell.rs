@@ -5,12 +5,12 @@ use helios_protocol::models::ShellCommandToolCallParams;
 use helios_protocol::models::ShellToolCallParams;
 use std::sync::Arc;
 
-use crate::helios::TurnContext;
 use crate::exec::ExecParams;
 use crate::exec_env::create_env;
 use crate::exec_policy::ExecApprovalRequest;
 use crate::features::Feature;
 use crate::function_tool::FunctionCallError;
+use crate::helios::TurnContext;
 use crate::is_safe_command::is_known_safe_command;
 use crate::protocol::ExecCommandSource;
 use crate::shell::Shell;
@@ -464,8 +464,8 @@ mod tests {
     use helios_protocol::models::ShellCommandToolCallParams;
     use pretty_assertions::assert_eq;
 
-    use crate::helios::make_session_and_context;
     use crate::exec_env::create_env;
+    use crate::helios::make_session_and_context;
     use crate::is_safe_command::is_known_safe_command;
     use crate::powershell::try_find_powershell_executable_blocking;
     use crate::powershell::try_find_pwsh_executable_blocking;

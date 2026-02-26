@@ -67,7 +67,7 @@ pub struct StateRuntime {
 }
 
 impl StateRuntime {
-    /// Initialize the state runtime using the provided Codex home and default provider.
+    /// Initialize the state runtime using the provided Helios home and default provider.
     ///
     /// This opens (and migrates) the SQLite database at `helios_home/state.sqlite`.
     pub async fn init(
@@ -103,7 +103,7 @@ impl StateRuntime {
         Ok(runtime)
     }
 
-    /// Return the configured Codex home directory for this runtime.
+    /// Return the configured Helios home directory for this runtime.
     pub fn helios_home(&self) -> &Path {
         self.helios_home.as_path()
     }

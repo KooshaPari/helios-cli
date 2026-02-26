@@ -47,7 +47,7 @@ async fn build_config_state_with_mtimes() -> Result<(ConfigState, Vec<LayerMtime
         CloudRequirementsLoader::default(),
     )
     .await
-    .context("failed to load Codex config")?;
+    .context("failed to load Helios config")?;
 
     let config = config_from_layers(&config_layer_stack)?;
 

@@ -80,7 +80,7 @@ mod windows_impl {
         }
     }
 
-    /// Creates the sandbox user's Codex home directory if it does not already exist.
+    /// Creates the sandbox user's Helios home directory if it does not already exist.
     fn ensure_helios_home_exists(p: &Path) -> Result<()> {
         std::fs::create_dir_all(p)?;
         Ok(())

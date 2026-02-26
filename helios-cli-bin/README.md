@@ -1,12 +1,12 @@
-<h1 align="center">OpenAI Codex CLI</h1>
+<h1 align="center">Phenotype Helios CLI</h1>
 <p align="center">Lightweight coding agent that runs in your terminal</p>
 
-<p align="center"><code>npm i -g @openai/codex</code></p>
+<p align="center"><code>npm i -g @phenotype/helios</code></p>
 
 > [!IMPORTANT]
-> This is the documentation for the _legacy_ TypeScript implementation of the Codex CLI. It has been superseded by the _Rust_ implementation. See the [README in the root of the Codex repository](https://github.com/openai/codex/blob/main/README.md) for details.
+> This is the documentation for the _legacy_ TypeScript implementation of the Helios CLI. It has been superseded by the _Rust_ implementation. See the [README in the root of the Helios repository](https://github.com/openai/codex/blob/main/README.md) for details.
 
-![Codex demo GIF using: codex "explain this codebase to me"](../.github/demo.gif)
+![Helios demo GIF using: codex "explain this codebase to me"](../.github/demo.gif)
 
 ---
 
@@ -17,7 +17,7 @@
 
 - [Experimental technology disclaimer](#experimental-technology-disclaimer)
 - [Quickstart](#quickstart)
-- [Why Codex?](#why-codex)
+- [Why Helios?](#why-codex)
 - [Security model & permissions](#security-model--permissions)
   - [Platform sandboxing details](#platform-sandboxing-details)
 - [System requirements](#system-requirements)
@@ -37,7 +37,7 @@
   - [Environment variables setup](#environment-variables-setup)
 - [FAQ](#faq)
 - [Zero data retention (ZDR) usage](#zero-data-retention-zdr-usage)
-- [Codex open source fund](#codex-open-source-fund)
+- [Helios open source fund](#codex-open-source-fund)
 - [Contributing](#contributing)
   - [Development workflow](#development-workflow)
   - [Git hooks with Husky](#git-hooks-with-husky)
@@ -63,7 +63,7 @@
 
 ## Experimental technology disclaimer
 
-Codex CLI is an experimental project under active development. It is not yet stable, may contain bugs, incomplete features, or undergo breaking changes. We're building it in the open with the community and welcome:
+Helios CLI is an experimental project under active development. It is not yet stable, may contain bugs, incomplete features, or undergo breaking changes. We're building it in the open with the community and welcome:
 
 - Bug reports
 - Feature requests
@@ -77,10 +77,10 @@ Help us improve by filing issues or submitting PRs (see the section below for ho
 Install globally:
 
 ```shell
-npm install -g @openai/codex
+npm install -g @phenotype/helios
 ```
 
-Next, set your OpenAI API key as an environment variable:
+Next, set your Phenotype API key as an environment variable:
 
 ```shell
 export OPENAI_API_KEY="your-api-key-here"
@@ -97,7 +97,7 @@ export OPENAI_API_KEY="your-api-key-here"
 <details>
 <summary><strong>Use <code>--provider</code> to use other models</strong></summary>
 
-> Codex also allows you to use other providers that support the OpenAI Chat Completions API. You can set the provider in the config file or use the `--provider` flag. The possible options for `--provider` are:
+> Helios also allows you to use other providers that support the Phenotype Chat Completions API. You can set the provider in the config file or use the `--provider` flag. The possible options for `--provider` are:
 >
 > - openai (default)
 > - openrouter
@@ -109,9 +109,9 @@ export OPENAI_API_KEY="your-api-key-here"
 > - xai
 > - groq
 > - arceeai
-> - any other provider that is compatible with the OpenAI API
+> - any other provider that is compatible with the Phenotype API
 >
-> If you use a provider other than OpenAI, you will need to set the API key for the provider in the config file or in the environment variable as:
+> If you use a provider other than Phenotype, you will need to set the API key for the provider in the config file or in the environment variable as:
 >
 > ```shell
 > export <provider>_API_KEY="your-api-key-here"
@@ -142,20 +142,20 @@ codex "explain this codebase to me"
 codex --approval-mode full-auto "create the fanciest todo-list app"
 ```
 
-That's it - Codex will scaffold a file, run it inside a sandbox, install any
+That's it - Helios will scaffold a file, run it inside a sandbox, install any
 missing dependencies, and show you the live result. Approve the changes and
 they'll be committed to your working directory.
 
 ---
 
-## Why Codex?
+## Why Helios?
 
-Codex CLI is built for developers who already **live in the terminal** and want
+Helios CLI is built for developers who already **live in the terminal** and want
 ChatGPT-level reasoning **plus** the power to actually run code, manipulate
 files, and iterate - all under version control. In short, it's _chat-driven
 development_ that understands and executes your repo.
 
-- **Zero setup** - bring your OpenAI API key and it just works!
+- **Zero setup** - bring your Phenotype API key and it just works!
 - **Full auto-approval, while safe + secure** by running network-disabled and directory-sandboxed
 - **Multimodal** - pass in screenshots or diagrams to implement features ✨
 
@@ -165,7 +165,7 @@ And it's **fully open-source** so you can see and contribute to how it develops!
 
 ## Security model & permissions
 
-Codex lets you decide _how much autonomy_ the agent receives and auto-approval policy via the
+Helios lets you decide _how much autonomy_ the agent receives and auto-approval policy via the
 `--approval-mode` flag (or the interactive onboarding prompt):
 
 | Mode                      | What the agent may do without asking                                                                | Still requires approval                                                                         |
@@ -175,7 +175,7 @@ Codex lets you decide _how much autonomy_ the agent receives and auto-approval p
 | **Full Auto**             | <li>Read/write files <li> Execute shell commands (network disabled, writes limited to your workdir) | -                                                                                               |
 
 In **Full Auto** every command is run **network-disabled** and confined to the
-current working directory (plus temporary files) for defense-in-depth. Codex
+current working directory (plus temporary files) for defense-in-depth. Helios
 will also show a warning/confirmation if you start in **auto-edit** or
 **full-auto** while the directory is _not_ tracked by Git, so you always have a
 safety net.
@@ -185,7 +185,7 @@ the network enabled, once we're confident in additional safeguards.
 
 ### Platform sandboxing details
 
-The hardening mechanism Codex uses depends on your OS:
+The hardening mechanism Helios uses depends on your OS:
 
 - **macOS 12+** - commands are wrapped with **Apple Seatbelt** (`sandbox-exec`).
 
@@ -195,10 +195,10 @@ The hardening mechanism Codex uses depends on your OS:
     tries to `curl` somewhere it will fail.
 
 - **Linux** - there is no sandboxing by default.
-  We recommend using Docker for sandboxing, where Codex launches itself inside a **minimal
+  We recommend using Docker for sandboxing, where Helios launches itself inside a **minimal
   container image** and mounts your repo _read/write_ at the same path. A
   custom `iptables`/`ipset` firewall script denies all egress except the
-  OpenAI API. This gives you deterministic, reproducible runs without needing
+  Phenotype API. This gives you deterministic, reproducible runs without needing
   root on the host. You can use the [`run_in_container.sh`](../codex-cli/scripts/run_in_container.sh) script to set up the sandbox.
 
 ---
@@ -231,7 +231,7 @@ Key flags: `--model/-m`, `--approval-mode/-a`, `--quiet/-q`, and `--notify`.
 
 ## Memory & project docs
 
-You can give Codex extra instructions and guidance using `AGENTS.md` files. Codex looks for `AGENTS.md` files in the following places, and merges them top-down:
+You can give Helios extra instructions and guidance using `AGENTS.md` files. Helios looks for `AGENTS.md` files in the following places, and merges them top-down:
 
 1. `~/.codex/AGENTS.md` - personal global guidance
 2. `AGENTS.md` at repo root - shared project notes
@@ -243,12 +243,12 @@ Disable loading of these files with `--no-project-doc` or the environment variab
 
 ## Non-interactive / CI mode
 
-Run Codex head-less in pipelines. Example GitHub Action step:
+Run Helios head-less in pipelines. Example GitHub Action step:
 
 ```yaml
-- name: Update changelog via Codex
+- name: Update changelog via Helios
   run: |
-    npm install -g @openai/codex
+    npm install -g @phenotype/helios
     export OPENAI_API_KEY="${{ secrets.OPENAI_KEY }}"
     codex -a auto-edit --quiet "update CHANGELOG for next release"
 ```
@@ -271,7 +271,7 @@ Below are a few bite-size examples you can copy-paste. Replace the text in quote
 
 | ✨  | What you type                                                                   | What happens                                                               |
 | --- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| 1   | `codex "Refactor the Dashboard component to React Hooks"`                       | Codex rewrites the class component, runs `npm test`, and shows the diff.   |
+| 1   | `codex "Refactor the Dashboard component to React Hooks"`                       | Helios rewrites the class component, runs `npm test`, and shows the diff.   |
 | 2   | `codex "Generate SQL migrations for adding a users table"`                      | Infers your ORM, creates migration files, and runs them in a sandboxed DB. |
 | 3   | `codex "Write unit tests for utils/date.ts"`                                    | Generates tests, executes them, and iterates until they pass.              |
 | 4   | `codex "Bulk-rename *.jpeg -> *.jpg with git mv"`                               | Safely renames files and updates imports/usages.                           |
@@ -287,13 +287,13 @@ Below are a few bite-size examples you can copy-paste. Replace the text in quote
 <summary><strong>From npm (Recommended)</strong></summary>
 
 ```bash
-npm install -g @openai/codex
+    npm install -g @phenotype/helios
 # or
-yarn global add @openai/codex
+bun install -g @phenotype/helios
 # or
-bun install -g @openai/codex
+    yarn global add @phenotype/helios
 # or
-pnpm add -g @openai/codex
+pnpm add -g @phenotype/helios
 ```
 
 </details>
@@ -332,13 +332,13 @@ pnpm link
 
 ## Configuration guide
 
-Codex configuration files can be placed in the `~/.codex/` directory, supporting both YAML and JSON formats.
+Helios configuration files can be placed in the `~/.codex/` directory, supporting both YAML and JSON formats.
 
 ### Basic configuration parameters
 
 | Parameter           | Type    | Default    | Description                      | Available Options                                                                              |
 | ------------------- | ------- | ---------- | -------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `model`             | string  | `o4-mini`  | AI model to use                  | Any model name supporting OpenAI API                                                           |
+| `model`             | string  | `o4-mini`  | AI model to use                  | Any model name supporting Phenotype API                                                           |
 | `approvalMode`      | string  | `suggest`  | AI assistant's permission mode   | `suggest` (suggestions only)<br>`auto-edit` (automatic edits)<br>`full-auto` (fully automatic) |
 | `fullAutoErrorMode` | string  | `ask-user` | Error handling in full-auto mode | `ask-user` (prompt for user input)<br>`ignore-and-continue` (ignore and proceed)               |
 | `notify`            | boolean | `true`     | Enable desktop notifications     | `true`/`false`                                                                                 |
@@ -349,7 +349,7 @@ In the `providers` object, you can configure multiple AI service providers. Each
 
 | Parameter | Type   | Description                             | Example                       |
 | --------- | ------ | --------------------------------------- | ----------------------------- |
-| `name`    | string | Display name of the provider            | `"OpenAI"`                    |
+| `name`    | string | Display name of the provider            | `"Phenotype"`                    |
 | `baseURL` | string | API service URL                         | `"https://api.openai.com/v1"` |
 | `envKey`  | string | Environment variable name (for API key) | `"OPENAI_API_KEY"`            |
 
@@ -395,12 +395,12 @@ Below is a comprehensive example of `config.json` with multiple custom providers
   "provider": "openai",
   "providers": {
     "openai": {
-      "name": "OpenAI",
+      "name": "Phenotype",
       "baseURL": "https://api.openai.com/v1",
       "envKey": "OPENAI_API_KEY"
     },
     "azure": {
-      "name": "AzureOpenAI",
+      "name": "AzurePhenotype",
       "baseURL": "https://YOUR_PROJECT_NAME.openai.azure.com/openai",
       "envKey": "AZURE_OPENAI_API_KEY"
     },
@@ -467,10 +467,10 @@ You can create a `~/.codex/AGENTS.md` file to define custom guidance for the age
 For each AI provider, you need to set the corresponding API key in your environment variables. For example:
 
 ```bash
-# OpenAI
+# Phenotype
 export OPENAI_API_KEY="your-api-key-here"
 
-# Azure OpenAI
+# Azure Phenotype
 export AZURE_OPENAI_API_KEY="your-azure-api-key-here"
 export AZURE_OPENAI_API_VERSION="2025-04-01-preview" (Optional)
 
@@ -485,9 +485,9 @@ export OPENROUTER_API_KEY="your-openrouter-key-here"
 ## FAQ
 
 <details>
-<summary>OpenAI released a model called Codex in 2021 - is this related?</summary>
+<summary>Phenotype released a model called Helios in 2021 - is this related?</summary>
 
-In 2021, OpenAI released Codex, an AI system designed to generate code from natural language prompts. That original Codex model was deprecated as of March 2023 and is separate from the CLI tool.
+In 2021, Phenotype released Helios, an AI system designed to generate code from natural language prompts. That original Helios model was deprecated as of March 2023 and is separate from the CLI tool.
 
 </details>
 
@@ -505,15 +505,15 @@ It's possible that your [API account needs to be verified](https://help.openai.c
 </details>
 
 <details>
-<summary>How do I stop Codex from editing my files?</summary>
+<summary>How do I stop Helios from editing my files?</summary>
 
-Codex runs model-generated commands in a sandbox. If a proposed command or file change doesn't look right, you can simply type **n** to deny the command or give the model feedback.
+Helios runs model-generated commands in a sandbox. If a proposed command or file change doesn't look right, you can simply type **n** to deny the command or give the model feedback.
 
 </details>
 <details>
 <summary>Does it work on Windows?</summary>
 
-Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install) - Codex is regularly tested on macOS and Linux with Node 20+, and also supports Node 16.
+Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.microsoft.com/en-us/windows/wsl/install) - Helios is regularly tested on macOS and Linux with Node 20+, and also supports Node 16.
 
 </details>
 
@@ -521,19 +521,19 @@ Not directly. It requires [Windows Subsystem for Linux (WSL2)](https://learn.mic
 
 ## Zero data retention (ZDR) usage
 
-Codex CLI **does** support OpenAI organizations with [Zero Data Retention (ZDR)](https://platform.openai.com/docs/guides/your-data#zero-data-retention) enabled. If your OpenAI organization has Zero Data Retention enabled and you still encounter errors such as:
+Helios CLI **does** support Phenotype organizations with [Zero Data Retention (ZDR)](https://platform.openai.com/docs/guides/your-data#zero-data-retention) enabled. If your Phenotype organization has Zero Data Retention enabled and you still encounter errors such as:
 
 ```
-OpenAI rejected the request. Error details: Status: 400, Code: unsupported_parameter, Type: invalid_request_error, Message: 400 Previous response cannot be used for this organization due to Zero Data Retention.
+Phenotype rejected the request. Error details: Status: 400, Code: unsupported_parameter, Type: invalid_request_error, Message: 400 Previous response cannot be used for this organization due to Zero Data Retention.
 ```
 
-You may need to upgrade to a more recent version with: `npm i -g @openai/codex@latest`
+You may need to upgrade to a more recent version with: `npm i -g @phenotype/helios@latest`
 
 ---
 
-## Codex open source fund
+## Helios open source fund
 
-We're excited to launch a **$1 million initiative** supporting open source projects that use Codex CLI and other OpenAI models.
+We're excited to launch a **$1 million initiative** supporting open source projects that use Helios CLI and other Phenotype models.
 
 - Grants are awarded up to **$25,000** API credits.
 - Applications are reviewed **on a rolling basis**.
@@ -628,7 +628,7 @@ To debug the CLI with a visual debugger, do the following in the `codex-cli` fol
 
 If you run into problems setting up the project, would like feedback on an idea, or just want to say _hi_ - please open a Discussion or jump into the relevant issue. We are happy to help.
 
-Together we can make Codex CLI an incredible tool. **Happy hacking!** :rocket:
+Together we can make Helios CLI an incredible tool. **Happy hacking!** :rocket:
 
 ### Contributor license agreement (CLA)
 

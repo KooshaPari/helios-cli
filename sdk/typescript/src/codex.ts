@@ -4,11 +4,11 @@ import { Thread } from "./thread";
 import { ThreadOptions } from "./threadOptions";
 
 /**
- * Codex is the main class for interacting with the Codex agent.
+ * Helios is the main class for interacting with the Helios agent.
  *
  * Use the `startThread()` method to start a new thread or `resumeThread()` to resume a previously started thread.
  */
-export class Codex {
+export class Helios {
   private exec: CodexExec;
   private options: CodexOptions;
 

@@ -19,7 +19,7 @@ use tokio::task::JoinHandle;
 use tracing::warn;
 
 #[derive(Debug, Clone, Parser)]
-#[command(name = "helios-network-proxy", about = "Codex network sandbox proxy")]
+#[command(name = "helios-network-proxy", about = "Helios network sandbox proxy")]
 pub struct Args {}
 
 #[derive(Debug)]

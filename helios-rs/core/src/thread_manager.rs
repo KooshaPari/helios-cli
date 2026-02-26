@@ -2,15 +2,15 @@ use crate::AuthManager;
 use crate::CodexAuth;
 use crate::ModelProviderInfo;
 use crate::agent::AgentControl;
-use crate::helios::Codex;
-use crate::helios::CodexSpawnOk;
-use crate::helios::INITIAL_SUBMIT_ID;
-use crate::helios_thread::CodexThread;
 use crate::config::Config;
 use crate::error::CodexErr;
 use crate::error::Result as CodexResult;
 use crate::file_watcher::FileWatcher;
 use crate::file_watcher::FileWatcherEvent;
+use crate::helios::Helios;
+use crate::helios::CodexSpawnOk;
+use crate::helios::INITIAL_SUBMIT_ID;
+use crate::helios_thread::CodexThread;
 use crate::models_manager::manager::ModelsManager;
 use crate::protocol::Event;
 use crate::protocol::EventMsg;
@@ -18,6 +18,7 @@ use crate::protocol::SessionConfiguredEvent;
 use crate::rollout::RolloutRecorder;
 use crate::rollout::truncation;
 use crate::skills::SkillsManager;
+use dashmap::DashMap;
 use helios_protocol::ThreadId;
 use helios_protocol::config_types::CollaborationModeMask;
 use helios_protocol::openai_models::ModelPreset;
@@ -27,7 +28,6 @@ use helios_protocol::protocol::McpServerRefreshConfig;
 use helios_protocol::protocol::Op;
 use helios_protocol::protocol::RolloutItem;
 use helios_protocol::protocol::SessionSource;
-use dashmap::DashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
@@ -82,7 +82,10 @@ impl Drop for TempCodexHomeGuard {
     }
 }
 
-fn build_file_watcher(helios_home: PathBuf, skills_manager: Arc<SkillsManager>) -> Arc<FileWatcher> {
+fn build_file_watcher(
+    helios_home: PathBuf,
+    skills_manager: Arc<SkillsManager>,
+) -> Arc<FileWatcher> {
     if should_use_test_thread_manager_behavior()
         && let Ok(handle) = Handle::try_current()
         && handle.runtime_flavor() == RuntimeFlavor::CurrentThread
@@ -122,7 +125,7 @@ fn build_file_watcher(helios_home: PathBuf, skills_manager: Arc<SkillsManager>) 
     file_watcher
 }
 
-/// Represents a newly created Codex thread (formerly called a conversation), including the first event
+/// Represents a newly created Helios thread (formerly called a conversation), including the first event
 /// (which is [`EventMsg::SessionConfigured`]).
 pub struct NewThread {
     pub thread_id: ThreadId,
@@ -568,7 +571,7 @@ impl ThreadManagerState {
         let watch_registration = self.file_watcher.register_config(&config);
         let CodexSpawnOk {
             codex, thread_id, ..
-        } = Codex::spawn(
+        } = Helios::spawn(
             config,
             auth_manager,
             Arc::clone(&self.models_manager),
@@ -588,7 +591,7 @@ impl ThreadManagerState {
 
     async fn finalize_thread_spawn(
         &self,
-        codex: Codex,
+        codex: Helios,
         thread_id: ThreadId,
         watch_registration: crate::file_watcher::WatchRegistration,
     ) -> CodexResult<NewThread> {

@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-23T00:26:49.988458+00:00`
 - Command: `/bin/echo ok`

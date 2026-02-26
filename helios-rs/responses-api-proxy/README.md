@@ -1,6 +1,6 @@
 # codex-responses-api-proxy
 
-A strict HTTP proxy that only forwards `POST` requests to `/v1/responses` to the OpenAI API (`https://api.openai.com`), injecting the `Authorization: Bearer $OPENAI_API_KEY` header. Everything else is rejected with `403 Forbidden`.
+A strict HTTP proxy that only forwards `POST` requests to `/v1/responses` to the Phenotype API (`https://api.openai.com`), injecting the `Authorization: Bearer $OPENAI_API_KEY` header. Everything else is rejected with `403 Forbidden`.
 
 ## Expected Usage
 
@@ -12,12 +12,12 @@ A privileged user (i.e., `root` or a user with `sudo`) who has access to `OPENAI
 printenv OPENAI_API_KEY | env -u OPENAI_API_KEY codex-responses-api-proxy --http-shutdown --server-info /tmp/server-info.json
 ```
 
-A non-privileged user would then run Codex as follows, specifying the `model_provider` dynamically:
+A non-privileged user would then run Helios as follows, specifying the `model_provider` dynamically:
 
 ```shell
 PROXY_PORT=$(jq .port /tmp/server-info.json)
 PROXY_BASE_URL="http://127.0.0.1:${PROXY_PORT}"
-codex exec -c "model_providers.openai-proxy={ name = 'OpenAI Proxy', base_url = '${PROXY_BASE_URL}/v1', wire_api='responses' }" \
+codex exec -c "model_providers.openai-proxy={ name = 'Phenotype Proxy', base_url = '${PROXY_BASE_URL}/v1', wire_api='responses' }" \
     -c model_provider="openai-proxy" \
     'Your prompt here'
 ```
@@ -47,7 +47,7 @@ codex-responses-api-proxy [--port <PORT>] [--server-info <FILE>] [--http-shutdow
 - `--server-info <FILE>`: If set, the proxy writes a single line of JSON with `{ "port": <PORT>, "pid": <PID> }` once listening.
 - `--http-shutdown`: If set, enables `GET /shutdown` to exit the process with code `0`.
 - `--upstream-url <URL>`: Absolute URL to forward requests to. Defaults to `https://api.openai.com/v1/responses`.
-- Authentication is fixed to `Authorization: Bearer <key>` to match the Codex CLI expectations.
+- Authentication is fixed to `Authorization: Bearer <key>` to match the Helios CLI expectations.
 
 For Azure, for example (ensure your deployment accepts `Authorization: Bearer <key>`):
 

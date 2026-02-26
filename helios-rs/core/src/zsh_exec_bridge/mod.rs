@@ -21,6 +21,8 @@ use anyhow::Context as _;
 #[cfg(unix)]
 use helios_protocol::approvals::ExecPolicyAmendment;
 #[cfg(unix)]
+use helios_protocol::protocol::NetworkPolicyRuleAction;
+#[cfg(unix)]
 use helios_utils_pty::process_group::kill_child_process_group;
 #[cfg(unix)]
 use serde::Deserialize;
@@ -364,6 +366,8 @@ impl ZshExecBridge {
                 approval_reason,
                 None,
                 None::<ExecPolicyAmendment>,
+                None,
+                None,
             )
             .await;
 
@@ -383,6 +387,16 @@ impl ZshExecBridge {
                 Some("command aborted by host approval policy".to_string()),
                 true,
             ),
+            ReviewDecision::NetworkPolicyAmendment {
+                network_policy_amendment,
+            } => match network_policy_amendment.action {
+                NetworkPolicyRuleAction::Allow => (WrapperExecAction::Run, None, false),
+                NetworkPolicyRuleAction::Deny => (
+                    WrapperExecAction::Deny,
+                    Some("command denied by host approval policy".to_string()),
+                    true,
+                ),
+            },
         };
 
         write_json_line(
@@ -404,13 +418,13 @@ impl ZshExecBridge {
         output: ExecToolCallOutput,
     ) -> Result<ExecToolCallOutput, ToolError> {
         if output.timed_out {
-            return Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Timeout {
+            return Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Timeout {
                 output: Box::new(output),
             })));
         }
 
         if crate::exec::is_likely_sandbox_denied(sandbox, &output) {
-            return Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Denied {
+            return Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Denied {
                 output: Box::new(output),
                 network_policy_decision: None,
             })));

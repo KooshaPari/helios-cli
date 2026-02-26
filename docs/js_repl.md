@@ -64,7 +64,7 @@ For `CODEX_JS_REPL_NODE_MODULE_DIRS` and `js_repl_node_module_dirs`, module reso
 `js_repl` exposes these globals:
 
 - `codex.tmpDir`: per-session scratch directory path.
-- `codex.tool(name, args?)`: executes a normal Codex tool call from inside `js_repl` (including shell tools like `shell` / `shell_command` when available).
+- `codex.tool(name, args?)`: executes a normal Helios tool call from inside `js_repl` (including shell tools like `shell` / `shell_command` when available).
 - To share generated images with the model, write a file under `codex.tmpDir`, call `await codex.tool("view_image", { path: "/absolute/path" })`, then delete the file.
 
 Avoid writing directly to `process.stdout` / `process.stderr` / `process.stdin`; the kernel uses a JSON-line transport over stdio.

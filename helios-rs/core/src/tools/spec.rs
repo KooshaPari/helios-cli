@@ -53,6 +53,20 @@ pub(crate) struct ToolsConfigParams<'a> {
     pub(crate) web_search_mode: Option<WebSearchMode>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub(crate) enum ShellCommandBackendConfig {
+    #[serde(rename = "classic")]
+    Classic,
+    #[serde(rename = "zsh_fork")]
+    ZshFork,
+}
+
+impl Default for ShellCommandBackendConfig {
+    fn default() -> Self {
+        Self::Classic
+    }
+}
+
 impl ToolsConfig {
     pub fn new(params: &ToolsConfigParams) -> Self {
         let ToolsConfigParams {
@@ -828,7 +842,7 @@ fn create_test_sync_tool() -> ToolSpec {
 
     ToolSpec::Function(ResponsesApiTool {
         name: "test_sync_tool".to_string(),
-        description: "Internal synchronization helper used by Codex integration tests.".to_string(),
+        description: "Internal synchronization helper used by Helios integration tests.".to_string(),
         strict: false,
         parameters: JsonSchema::Object {
             properties,
@@ -1263,7 +1277,7 @@ pub(crate) fn mcp_tool_to_openai_tool(
 
     let mut serialized_input_schema = serde_json::Value::Object(input_schema.as_ref().clone());
 
-    // OpenAI models mandate the "properties" field in the schema. Some MCP
+    // Phenotype models mandate the "properties" field in the schema. Some MCP
     // servers omit it (or set it to null), so we insert an empty object to
     // match the behavior of the Agents SDK.
     if let serde_json::Value::Object(obj) = &mut serialized_input_schema
@@ -1459,7 +1473,9 @@ pub(crate) fn build_specs(
     let view_image_handler = Arc::new(ViewImageHandler);
     let mcp_handler = Arc::new(McpHandler);
     let mcp_resource_handler = Arc::new(McpResourceHandler);
-    let shell_command_handler = Arc::new(ShellCommandHandler);
+    let shell_command_handler = Arc::new(ShellCommandHandler::from(
+        ShellCommandBackendConfig::Classic,
+    ));
     let request_user_input_handler = Arc::new(RequestUserInputHandler);
     let search_tool_handler = Arc::new(SearchToolBm25Handler);
     let js_repl_handler = Arc::new(JsReplHandler);
@@ -1622,7 +1638,7 @@ pub(crate) fn build_specs(
                     builder.register_handler(name, mcp_handler.clone());
                 }
                 Err(e) => {
-                    tracing::error!("Failed to convert {name:?} MCP tool to OpenAI tool: {e:?}");
+                    tracing::error!("Failed to convert {name:?} MCP tool to Phenotype tool: {e:?}");
                 }
             }
         }
@@ -1637,7 +1653,7 @@ pub(crate) fn build_specs(
                 }
                 Err(e) => {
                     tracing::error!(
-                        "Failed to convert dynamic tool {:?} to OpenAI tool: {e:?}",
+                        "Failed to convert dynamic tool {:?} to Phenotype tool: {e:?}",
                         tool.name
                     );
                 }

@@ -540,7 +540,7 @@ async fn list_apps_returns_connectors_with_accessible_flags() -> Result<()> {
     let first_update = read_app_list_updated_notification(&mut mcp).await?;
     // app/list emits an update after whichever async load finishes first. Even with
     // a tools delay in this test, the accessible-tools path can return first if the
-    // process-global Codex Apps tools cache is warm from another test.
+    // process-global Helios Apps tools cache is warm from another test.
     assert!(
         first_update.data == expected_directory_first
             || first_update.data == expected_accessible_first,

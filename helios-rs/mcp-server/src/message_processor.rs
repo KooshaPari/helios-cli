@@ -29,10 +29,10 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::task;
 
-use crate::helios_tool_config::CodexToolCallParam;
-use crate::helios_tool_config::CodexToolCallReplyParam;
-use crate::helios_tool_config::create_tool_for_helios_tool_call_param;
-use crate::helios_tool_config::create_tool_for_helios_tool_call_reply_param;
+use crate::codex_tool_config::CodexToolCallParam;
+use crate::codex_tool_config::CodexToolCallReplyParam;
+use crate::codex_tool_config::create_tool_for_helios_tool_call_param;
+use crate::codex_tool_config::create_tool_for_helios_tool_call_reply_param;
 use crate::outgoing_message::OutgoingMessageSender;
 
 pub(crate) struct MessageProcessor {
@@ -208,14 +208,14 @@ impl MessageProcessor {
 
         let server_info = Implementation {
             name: "helios-mcp-server".to_string(),
-            title: Some("Codex".to_string()),
+            title: Some("Helios".to_string()),
             version: env!("CARGO_PKG_VERSION").to_string(),
             description: None,
             icons: None,
             website_url: None,
         };
 
-        // Preserve Codex's existing non-spec `serverInfo.user_agent` field.
+        // Preserve Helios's existing non-spec `serverInfo.user_agent` field.
         let mut server_info_value = match serde_json::to_value(&server_info) {
             Ok(value) => value,
             Err(err) => {
@@ -360,7 +360,7 @@ impl MessageProcessor {
                     Err(e) => {
                         let result = CallToolResult {
                             content: vec![rmcp::model::Content::text(format!(
-                                "Failed to load Codex configuration from overrides: {e}"
+                                "Failed to load Helios configuration from overrides: {e}"
                             ))],
                             structured_content: None,
                             is_error: Some(true),
@@ -373,7 +373,7 @@ impl MessageProcessor {
                 Err(e) => {
                     let result = CallToolResult {
                         content: vec![rmcp::model::Content::text(format!(
-                            "Failed to parse configuration for Codex tool: {e}"
+                            "Failed to parse configuration for Helios tool: {e}"
                         ))],
                         structured_content: None,
                         is_error: Some(true),
@@ -402,11 +402,11 @@ impl MessageProcessor {
         let thread_manager = self.thread_manager.clone();
         let running_requests_id_to_helios_uuid = self.running_requests_id_to_helios_uuid.clone();
 
-        // Spawn an async task to handle the Codex session so that we do not
+        // Spawn an async task to handle the Helios session so that we do not
         // block the synchronous message-processing loop.
         task::spawn(async move {
-            // Run the Codex session and stream events back to the client.
-            crate::helios_tool_runner::run_helios_tool_session(
+            // Run the Helios session and stream events back to the client.
+            crate::codex_tool_runner::run_helios_tool_session(
                 id,
                 initial_prompt,
                 config,
@@ -431,10 +431,10 @@ impl MessageProcessor {
             Some(json_val) => match serde_json::from_value::<CodexToolCallReplyParam>(json_val) {
                 Ok(params) => params,
                 Err(e) => {
-                    tracing::error!("Failed to parse Codex tool call reply parameters: {e}");
+                    tracing::error!("Failed to parse Helios tool call reply parameters: {e}");
                     let result = CallToolResult {
                         content: vec![rmcp::model::Content::text(format!(
-                            "Failed to parse configuration for Codex tool: {e}"
+                            "Failed to parse configuration for Helios tool: {e}"
                         ))],
                         structured_content: None,
                         is_error: Some(true),
@@ -486,7 +486,7 @@ impl MessageProcessor {
             Ok(c) => c,
             Err(_) => {
                 tracing::warn!("Session not found for thread_id: {thread_id}");
-                let result = crate::helios_tool_runner::create_call_tool_result_with_thread_id(
+                let result = crate::codex_tool_runner::create_call_tool_result_with_thread_id(
                     thread_id,
                     format!("Session not found for thread_id: {thread_id}"),
                     Some(true),
@@ -503,7 +503,7 @@ impl MessageProcessor {
             let running_requests_id_to_helios_uuid = running_requests_id_to_helios_uuid.clone();
 
             async move {
-                crate::helios_tool_runner::run_helios_tool_session_reply(
+                crate::codex_tool_runner::run_helios_tool_session_reply(
                     thread_id,
                     codex,
                     outgoing,
@@ -559,7 +559,7 @@ impl MessageProcessor {
         };
         tracing::info!("thread_id: {thread_id}");
 
-        // Obtain the Codex thread from the server.
+        // Obtain the Helios thread from the server.
         let helios_arc = match self.thread_manager.get_thread(thread_id).await {
             Ok(c) => c,
             Err(_) => {
@@ -568,7 +568,7 @@ impl MessageProcessor {
             }
         };
 
-        // Submit interrupt to Codex.
+        // Submit interrupt to Helios.
         if let Err(e) = helios_arc
             .submit_with_id(Submission {
                 id: request_id_string,
@@ -576,7 +576,7 @@ impl MessageProcessor {
             })
             .await
         {
-            tracing::error!("Failed to submit interrupt to Codex: {e}");
+            tracing::error!("Failed to submit interrupt to Helios: {e}");
             return;
         }
         // unregister the id so we don't keep it in the map

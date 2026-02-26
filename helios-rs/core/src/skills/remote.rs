@@ -26,7 +26,7 @@ fn as_query_hazelnut_scope(scope: RemoteSkillHazelnutScope) -> Option<&'static s
 fn as_query_product_surface(product_surface: RemoteSkillProductSurface) -> &'static str {
     match product_surface {
         RemoteSkillProductSurface::Chatgpt => "chatgpt",
-        RemoteSkillProductSurface::Codex => "codex",
+        RemoteSkillProductSurface::Helios => "codex",
         RemoteSkillProductSurface::Api => "api",
         RemoteSkillProductSurface::Atlas => "atlas",
     }

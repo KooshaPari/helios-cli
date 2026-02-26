@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-23T10:17:14.491560+00:00`
 - Command: `codex --help >/dev/null`

@@ -3,14 +3,14 @@ use crate::common::ResponseStream;
 use crate::error::ApiError;
 use crate::rate_limits::parse_all_rate_limits;
 use crate::telemetry::SseTelemetry;
+use eventsource_stream::Eventsource;
+use futures::StreamExt;
+use futures::TryStreamExt;
 use helios_client::ByteStream;
 use helios_client::StreamResponse;
 use helios_client::TransportError;
 use helios_protocol::models::ResponseItem;
 use helios_protocol::protocol::TokenUsage;
-use eventsource_stream::Eventsource;
-use futures::StreamExt;
-use futures::TryStreamExt;
 use serde::Deserialize;
 use serde_json::Value;
 use std::io::BufRead;
@@ -522,10 +522,10 @@ mod tests {
     use super::*;
     use assert_matches::assert_matches;
     use bytes::Bytes;
+    use futures::stream;
     use helios_client::StreamResponse;
     use helios_protocol::models::MessagePhase;
     use helios_protocol::models::ResponseItem;
-    use futures::stream;
     use http::HeaderMap;
     use http::HeaderValue;
     use http::StatusCode;
@@ -1010,7 +1010,7 @@ mod tests {
                 "response": {
                     "id": "resp-1",
                     "headers": {
-                        "OpenAI-Model": CYBER_RESTRICTED_MODEL_FOR_TESTS
+                        "Phenotype-Model": CYBER_RESTRICTED_MODEL_FOR_TESTS
                     }
                 }
             }),

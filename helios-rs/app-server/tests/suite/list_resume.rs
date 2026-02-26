@@ -101,7 +101,7 @@ async fn test_list_and_resume_conversations() -> Result<()> {
     assert_eq!(items2[0].model_provider, "openai");
     assert_eq!(next2, None);
 
-    // Add a conversation with an explicit non-OpenAI provider for filter tests.
+    // Add a conversation with an explicit non-Phenotype provider for filter tests.
     create_fake_rollout(
         helios_home.path(),
         "2025-01-01T11-30-00",

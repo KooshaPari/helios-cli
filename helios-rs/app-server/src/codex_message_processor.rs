@@ -320,7 +320,7 @@ fn convert_remote_scope(scope: ApiHazelnutScope) -> RemoteSkillHazelnutScope {
 fn convert_remote_product_surface(product_surface: ApiProductSurface) -> RemoteSkillProductSurface {
     match product_surface {
         ApiProductSurface::Chatgpt => RemoteSkillProductSurface::Chatgpt,
-        ApiProductSurface::Codex => RemoteSkillProductSurface::Codex,
+        ApiProductSurface::Helios => RemoteSkillProductSurface::Helios,
         ApiProductSurface::Api => RemoteSkillProductSurface::Api,
         ApiProductSurface::Atlas => RemoteSkillProductSurface::Atlas,
     }
@@ -332,7 +332,7 @@ impl Drop for ActiveLogin {
     }
 }
 
-/// Handles JSON-RPC messages for Codex threads (and legacy conversation APIs).
+/// Handles JSON-RPC messages for Helios threads (and legacy conversation APIs).
 pub(crate) struct CodexMessageProcessor {
     auth_manager: Arc<AuthManager>,
     thread_manager: Arc<ThreadManager>,
@@ -825,6 +825,17 @@ impl CodexMessageProcessor {
             }
             ClientRequest::FeedbackUpload { request_id, params } => {
                 self.upload_feedback(to_connection_request_id(request_id), params)
+                    .await;
+            }
+            ClientRequest::ExternalAgentConfigDetect { request_id, .. }
+            | ClientRequest::ExternalAgentConfigImport { request_id, .. } => {
+                let error = JSONRPCErrorError {
+                    code: INVALID_REQUEST_ERROR_CODE,
+                    message: "external agent config requests are not yet supported".to_string(),
+                    data: None,
+                };
+                self.outgoing
+                    .send_error(to_connection_request_id(request_id), error)
                     .await;
             }
         }
@@ -1732,6 +1743,8 @@ impl CodexMessageProcessor {
         let timeout_ms = params
             .timeout_ms
             .and_then(|timeout_ms| u64::try_from(timeout_ms).ok());
+        let command = params.command;
+        let original_command = command.join(" ");
         let managed_network_requirements_enabled =
             self.config.managed_network_requirements_enabled();
         let started_network_proxy = match self.config.permissions.network.as_ref() {
@@ -1759,7 +1772,8 @@ impl CodexMessageProcessor {
         };
         let windows_sandbox_level = WindowsSandboxLevel::from_config(&self.config);
         let exec_params = ExecParams {
-            command: params.command,
+            command,
+            original_command,
             cwd,
             expiration: timeout_ms.into(),
             env,
@@ -3667,6 +3681,7 @@ impl CodexMessageProcessor {
                     allowed_sources,
                     model_provider_filter.as_deref(),
                     fallback_provider.as_str(),
+                    None,
                 )
                 .await
                 .map_err(|err| JSONRPCErrorError {
@@ -3683,6 +3698,7 @@ impl CodexMessageProcessor {
                     allowed_sources,
                     model_provider_filter.as_deref(),
                     fallback_provider.as_str(),
+                    None,
                 )
                 .await
                 .map_err(|err| JSONRPCErrorError {

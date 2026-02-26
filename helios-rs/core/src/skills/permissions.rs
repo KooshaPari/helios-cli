@@ -3,9 +3,9 @@ use std::path::Component;
 use std::path::Path;
 use std::path::PathBuf;
 
-use helios_utils_absolute_path::AbsolutePathBuf;
 use dirs::home_dir;
 use dunce::canonicalize as canonicalize_path;
+use helios_utils_absolute_path::AbsolutePathBuf;
 use serde::Deserialize;
 use tracing::warn;
 

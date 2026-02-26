@@ -25,7 +25,7 @@ async fn malformed_rules_should_not_panic() -> anyhow::Result<()> {
     let cwd = std::env::current_dir()?;
     let config_contents = format!(
         r#"
-# Pick a local provider so the CLI doesn't prompt for OpenAI auth in this test.
+# Pick a local provider so the CLI doesn't prompt for Phenotype auth in this test.
 model_provider = "ollama"
 
 [projects]
@@ -36,7 +36,7 @@ model_provider = "ollama"
     std::fs::write(helios_home.join("config.toml"), config_contents)?;
 
     let CodexCliOutput { exit_code, output } = run_helios_cli(helios_home, cwd).await?;
-    assert_ne!(0, exit_code, "Codex CLI should exit nonzero.");
+    assert_ne!(0, exit_code, "Helios CLI should exit nonzero.");
     assert!(
         output.contains("ERROR: Failed to initialize codex:"),
         "expected startup error in output, got: {output}"

@@ -11,27 +11,29 @@ use helios_protocol::protocol::ExecApprovalRequestEvent;
 use helios_protocol::protocol::Op;
 use helios_protocol::protocol::RequestUserInputEvent;
 use helios_protocol::protocol::SessionSource;
+use helios_protocol::protocol::SkillRequestApprovalEvent;
 use helios_protocol::protocol::SubAgentSource;
 use helios_protocol::protocol::Submission;
 use helios_protocol::request_user_input::RequestUserInputArgs;
 use helios_protocol::request_user_input::RequestUserInputResponse;
+use helios_protocol::skill_approval::SkillApprovalResponse;
 use helios_protocol::user_input::UserInput;
 use std::time::Duration;
 use tokio::time::timeout;
 use tokio_util::sync::CancellationToken;
 
 use crate::AuthManager;
-use crate::helios::Codex;
+use crate::config::Config;
+use crate::error::CodexErr;
+use crate::helios::Helios;
 use crate::helios::CodexSpawnOk;
 use crate::helios::SUBMISSION_CHANNEL_CAPACITY;
 use crate::helios::Session;
 use crate::helios::TurnContext;
-use crate::config::Config;
-use crate::error::CodexErr;
 use crate::models_manager::manager::ModelsManager;
 use helios_protocol::protocol::InitialHistory;
 
-/// Start an interactive sub-Codex thread and return IO channels.
+/// Start an interactive sub-Helios thread and return IO channels.
 ///
 /// The returned `events_rx` yields non-approval events emitted by the sub-agent.
 /// Approval requests are handled via `parent_session` and are not surfaced.
@@ -44,11 +46,11 @@ pub(crate) async fn run_helios_thread_interactive(
     parent_ctx: Arc<TurnContext>,
     cancel_token: CancellationToken,
     initial_history: Option<InitialHistory>,
-) -> Result<Codex, CodexErr> {
+) -> Result<Helios, CodexErr> {
     let (tx_sub, rx_sub) = async_channel::bounded(SUBMISSION_CHANNEL_CAPACITY);
     let (tx_ops, rx_ops) = async_channel::bounded(SUBMISSION_CHANNEL_CAPACITY);
 
-    let CodexSpawnOk { codex, .. } = Codex::spawn(
+    let CodexSpawnOk { codex, .. } = Helios::spawn(
         config,
         auth_manager,
         models_manager,
@@ -90,7 +92,7 @@ pub(crate) async fn run_helios_thread_interactive(
         forward_ops(helios_for_ops, rx_ops, cancel_token_ops).await;
     });
 
-    Ok(Codex {
+    Ok(Helios {
         tx_sub: tx_ops,
         rx_event: rx_sub,
         agent_status: codex.agent_status.clone(),
@@ -111,7 +113,7 @@ pub(crate) async fn run_helios_thread_one_shot(
     parent_ctx: Arc<TurnContext>,
     cancel_token: CancellationToken,
     initial_history: Option<InitialHistory>,
-) -> Result<Codex, CodexErr> {
+) -> Result<Helios, CodexErr> {
     // Use a child token so we can stop the delegate after completion without
     // requiring the caller to cancel the parent token.
     let child_cancel = cancel_token.child_token();
@@ -165,7 +167,7 @@ pub(crate) async fn run_helios_thread_one_shot(
     let (tx_closed, rx_closed) = async_channel::bounded(SUBMISSION_CHANNEL_CAPACITY);
     drop(rx_closed);
 
-    Ok(Codex {
+    Ok(Helios {
         rx_event: rx_bridge,
         tx_sub: tx_closed,
         agent_status,
@@ -174,7 +176,7 @@ pub(crate) async fn run_helios_thread_one_shot(
 }
 
 async fn forward_events(
-    codex: Arc<Codex>,
+    codex: Arc<Helios>,
     tx_sub: Sender<Event>,
     parent_session: Arc<Session>,
     parent_ctx: Arc<TurnContext>,
@@ -255,6 +257,20 @@ async fn forward_events(
                         )
                         .await;
                     }
+                    Event {
+                        id,
+                        msg: EventMsg::SkillRequestApproval(event),
+                    } => {
+                        handle_skill_request_approval(
+                            &codex,
+                            id,
+                            &parent_session,
+                            &parent_ctx,
+                            event,
+                            &cancel_token,
+                        )
+                        .await;
+                    }
                     other => {
                         match tx_sub.send(other).or_cancel(&cancel_token).await {
                             Ok(Ok(())) => {}
@@ -271,7 +287,7 @@ async fn forward_events(
 }
 
 /// Ask the delegate to stop and drain its events so background sends do not hit a closed channel.
-async fn shutdown_delegate(codex: &Codex) {
+async fn shutdown_delegate(codex: &Helios) {
     let _ = codex.submit(Op::Interrupt).await;
     let _ = codex.submit(Op::Shutdown {}).await;
 
@@ -290,7 +306,7 @@ async fn shutdown_delegate(codex: &Codex) {
 
 /// Forward ops from a caller to a sub-agent, respecting cancellation.
 async fn forward_ops(
-    codex: Arc<Codex>,
+    codex: Arc<Helios>,
     rx_ops: Receiver<Submission>,
     cancel_token_ops: CancellationToken,
 ) {
@@ -305,7 +321,7 @@ async fn forward_ops(
 
 /// Handle an ExecApprovalRequest by consulting the parent session and replying.
 async fn handle_exec_approval(
-    codex: &Codex,
+    codex: &Helios,
     turn_id: String,
     parent_session: &Session,
     parent_ctx: &TurnContext,
@@ -321,6 +337,7 @@ async fn handle_exec_approval(
         reason,
         network_approval_context,
         proposed_execpolicy_amendment,
+        proposed_network_policy_amendments,
         additional_permissions,
         ..
     } = event;
@@ -334,6 +351,7 @@ async fn handle_exec_approval(
         reason,
         network_approval_context,
         proposed_execpolicy_amendment,
+        proposed_network_policy_amendments,
         additional_permissions,
     );
     let decision = await_approval_with_cancel(
@@ -355,7 +373,7 @@ async fn handle_exec_approval(
 
 /// Handle an ApplyPatchApprovalRequest by consulting the parent session and replying.
 async fn handle_patch_approval(
-    codex: &Codex,
+    codex: &Helios,
     _id: String,
     parent_session: &Session,
     parent_ctx: &TurnContext,
@@ -389,7 +407,7 @@ async fn handle_patch_approval(
 }
 
 async fn handle_request_user_input(
-    codex: &Codex,
+    codex: &Helios,
     id: String,
     parent_session: &Session,
     parent_ctx: &TurnContext,
@@ -409,6 +427,33 @@ async fn handle_request_user_input(
     )
     .await;
     let _ = codex.submit(Op::UserInputAnswer { id, response }).await;
+}
+
+async fn handle_skill_request_approval(
+    codex: &Helios,
+    _id: String,
+    parent_session: &Session,
+    parent_ctx: &TurnContext,
+    event: SkillRequestApprovalEvent,
+    cancel_token: &CancellationToken,
+) {
+    let SkillRequestApprovalEvent {
+        item_id,
+        skill_name,
+    } = event;
+    let decision = await_skill_approval_with_cancel(
+        parent_session.request_skill_approval(parent_ctx, item_id.clone(), skill_name),
+        parent_session,
+        &item_id,
+        cancel_token,
+    )
+    .await;
+    let _ = codex
+        .submit(Op::SkillApproval {
+            id: item_id,
+            response: decision,
+        })
+        .await;
 }
 
 async fn await_user_input_with_cancel<F>(
@@ -461,6 +506,32 @@ where
     }
 }
 
+async fn await_skill_approval_with_cancel<F>(
+    fut: F,
+    parent_session: &Session,
+    item_id: &str,
+    cancel_token: &CancellationToken,
+) -> SkillApprovalResponse
+where
+    F: core::future::Future<Output = Option<SkillApprovalResponse>>,
+{
+    tokio::select! {
+        biased;
+        _ = cancel_token.cancelled() => {
+            let response = SkillApprovalResponse {
+                approved: false,
+            };
+            parent_session
+                .notify_skill_approval(item_id, response.clone())
+                .await;
+            response
+        }
+        decision = fut => decision.unwrap_or(SkillApprovalResponse {
+            approved: false,
+        }),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -479,7 +550,7 @@ mod tests {
         let (tx_sub, rx_sub) = bounded(SUBMISSION_CHANNEL_CAPACITY);
         let (_agent_status_tx, agent_status) = watch::channel(AgentStatus::PendingInit);
         let (session, ctx, _rx_evt) = crate::helios::make_session_and_context_with_rx().await;
-        let codex = Arc::new(Codex {
+        let codex = Arc::new(Helios {
             tx_sub,
             rx_event: rx_events,
             agent_status,

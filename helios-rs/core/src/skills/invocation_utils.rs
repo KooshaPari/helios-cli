@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -21,27 +20,6 @@ struct SkillApprovalCacheKey {
     skill_name: String,
     skill_path: PathBuf,
     skill_scope: codex_protocol::protocol::SkillScope,
-}
-
-pub(crate) fn build_implicit_skill_path_indexes(
-    skills: Vec<SkillMetadata>,
-) -> (
-    HashMap<PathBuf, SkillMetadata>,
-    HashMap<PathBuf, SkillMetadata>,
-) {
-    let mut by_scripts_dir = HashMap::new();
-    let mut by_skill_doc_path = HashMap::new();
-    for skill in skills {
-        let skill_doc_path = normalize_path(skill.path_to_skills_md.as_path());
-        by_skill_doc_path.insert(skill_doc_path, skill.clone());
-
-        if let Some(skill_dir) = skill.path_to_skills_md.parent() {
-            let scripts_dir = normalize_path(&skill_dir.join("scripts"));
-            by_scripts_dir.insert(scripts_dir, skill);
-        }
-    }
-
-    (by_scripts_dir, by_skill_doc_path)
 }
 
 fn detect_implicit_skill_invocation_for_command(
@@ -108,17 +86,19 @@ pub(crate) async fn ensure_skill_approval_for_command(
     }
 
     let workdir = normalize_path(workdir);
-    let Some(skill) = detect_implicit_skill_script_invocation_for_command(
-        turn_context.turn_skills.outcome.as_ref(),
-        command,
-        workdir.as_path(),
-    ) else {
+    let outcome = sess
+        .services
+        .skills_manager
+        .skills_for_config(&turn_context.config);
+    let Some(skill) =
+        detect_implicit_skill_script_invocation_for_command(&outcome, command, workdir.as_path())
+    else {
         return true;
     };
 
     let cache_key = SkillApprovalCacheKey {
         skill_name: skill.name.clone(),
-        skill_path: skill.path_to_skills_md.clone(),
+        skill_path: skill.path.clone(),
         skill_scope: skill.scope,
     };
     let already_approved = {
@@ -151,18 +131,19 @@ pub(crate) async fn maybe_emit_implicit_skill_invocation(
     command: &str,
     workdir: Option<&str>,
 ) {
-    let Some(candidate) = detect_implicit_skill_invocation_for_command(
-        &turn_context.turn_skills.outcome,
-        turn_context,
-        command,
-        workdir,
-    ) else {
+    let outcome = sess
+        .services
+        .skills_manager
+        .skills_for_config(&turn_context.config);
+    let Some(candidate) =
+        detect_implicit_skill_invocation_for_command(&outcome, turn_context, command, workdir)
+    else {
         return;
     };
     let invocation = SkillInvocation {
         skill_name: candidate.name,
         skill_scope: candidate.scope,
-        skill_path: candidate.path_to_skills_md,
+        skill_path: candidate.path,
         invocation_type: InvocationType::Implicit,
     };
     let skill_scope = match invocation.skill_scope {
@@ -175,11 +156,7 @@ pub(crate) async fn maybe_emit_implicit_skill_invocation(
     let skill_name = invocation.skill_name.clone();
     let seen_key = format!("{skill_scope}:{skill_path}:{skill_name}");
     let inserted = {
-        let mut seen_skills = turn_context
-            .turn_skills
-            .implicit_invocation_seen_skills
-            .lock()
-            .await;
+        let mut seen_skills = turn_context.implicit_invocation_seen_skills.lock().await;
         seen_skills.insert(seen_key)
     };
     if !inserted {
@@ -257,7 +234,16 @@ fn detect_skill_script_run(
     let script_path = normalize_path(script_path.as_path());
 
     for ancestor in script_path.ancestors() {
-        if let Some(candidate) = outcome.implicit_skills_by_scripts_dir.get(ancestor) {
+        let candidate = outcome
+            .allowed_skills_for_implicit_invocation()
+            .into_iter()
+            .find(|skill| {
+                let Some(skill_dir) = skill.path.parent() else {
+                    return false;
+                };
+                normalize_path(&skill_dir.join("scripts")) == ancestor
+            });
+        if let Some(candidate) = candidate {
             return Some(candidate.clone());
         }
     }
@@ -284,7 +270,11 @@ fn detect_skill_doc_read(
         } else {
             normalize_path(&workdir.join(path))
         };
-        if let Some(candidate) = outcome.implicit_skills_by_doc_path.get(&candidate_path) {
+        let outcome_skills = outcome.allowed_skills_for_implicit_invocation();
+        if let Some(candidate) = outcome_skills
+            .into_iter()
+            .find(|skill| normalize_path(&skill.path) == candidate_path)
+        {
             return Some(candidate.clone());
         }
     }
@@ -323,10 +313,8 @@ mod tests {
     use super::normalize_path;
     use super::script_run_token;
     use pretty_assertions::assert_eq;
-    use std::collections::HashMap;
     use std::path::Path;
     use std::path::PathBuf;
-    use std::sync::Arc;
 
     fn test_skill_metadata(skill_doc_path: PathBuf) -> SkillMetadata {
         SkillMetadata {
@@ -336,9 +324,8 @@ mod tests {
             interface: None,
             dependencies: None,
             policy: None,
-            permission_profile: None,
             permissions: None,
-            path_to_skills_md: skill_doc_path,
+            path: skill_doc_path,
             scope: codex_protocol::protocol::SkillScope::User,
         }
     }
@@ -371,11 +358,7 @@ mod tests {
         let normalized_skill_doc_path = normalize_path(skill_doc_path.as_path());
         let skill = test_skill_metadata(skill_doc_path);
         let outcome = SkillLoadOutcome {
-            implicit_skills_by_scripts_dir: Arc::new(HashMap::new()),
-            implicit_skills_by_doc_path: Arc::new(HashMap::from([(
-                normalized_skill_doc_path,
-                skill,
-            )])),
+            skills: vec![skill],
             ..Default::default()
         };
 
@@ -399,8 +382,7 @@ mod tests {
         let scripts_dir = normalize_path(Path::new("/tmp/skill-test/scripts"));
         let skill = test_skill_metadata(skill_doc_path);
         let outcome = SkillLoadOutcome {
-            implicit_skills_by_scripts_dir: Arc::new(HashMap::from([(scripts_dir, skill)])),
-            implicit_skills_by_doc_path: Arc::new(HashMap::new()),
+            skills: vec![skill],
             ..Default::default()
         };
         let tokens = vec![
@@ -422,8 +404,7 @@ mod tests {
         let scripts_dir = normalize_path(Path::new("/tmp/skill-test/scripts"));
         let skill = test_skill_metadata(skill_doc_path);
         let outcome = SkillLoadOutcome {
-            implicit_skills_by_scripts_dir: Arc::new(HashMap::from([(scripts_dir, skill)])),
-            implicit_skills_by_doc_path: Arc::new(HashMap::new()),
+            skills: vec![skill],
             ..Default::default()
         };
         let tokens = vec![
@@ -445,8 +426,7 @@ mod tests {
         let scripts_dir = normalize_path(Path::new("/tmp/skill-test/scripts"));
         let skill = test_skill_metadata(skill_doc_path);
         let outcome = SkillLoadOutcome {
-            implicit_skills_by_scripts_dir: Arc::new(HashMap::from([(scripts_dir, skill)])),
-            implicit_skills_by_doc_path: Arc::new(HashMap::new()),
+            skills: vec![skill],
             ..Default::default()
         };
 
@@ -468,11 +448,7 @@ mod tests {
         let normalized_skill_doc_path = normalize_path(skill_doc_path.as_path());
         let skill = test_skill_metadata(skill_doc_path);
         let outcome = SkillLoadOutcome {
-            implicit_skills_by_scripts_dir: Arc::new(HashMap::new()),
-            implicit_skills_by_doc_path: Arc::new(HashMap::from([(
-                normalized_skill_doc_path,
-                skill,
-            )])),
+            skills: vec![skill],
             ..Default::default()
         };
 

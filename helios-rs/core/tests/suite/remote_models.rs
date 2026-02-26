@@ -72,7 +72,7 @@ async fn remote_models_get_model_info_uses_longest_matching_prefix() -> Result<(
         TruncationPolicyConfig::bytes(10_000),
     );
     let specific = ModelInfo {
-        display_name: "GPT 5.3 Codex".to_string(),
+        display_name: "GPT 5.3 Helios".to_string(),
         base_instructions: "use specific prefix".to_string(),
         ..specific
     };

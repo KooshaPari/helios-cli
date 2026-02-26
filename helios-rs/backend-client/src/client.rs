@@ -254,7 +254,7 @@ impl Client {
 
     /// Fetch the managed requirements file from helios-backend.
     ///
-    /// `GET /api/codex/config/requirements` (Codex API style) or
+    /// `GET /api/codex/config/requirements` (Helios API style) or
     /// `GET /wham/config/requirements` (ChatGPT backend-api style).
     pub async fn get_config_requirements_file(&self) -> Result<ConfigFileResponse> {
         let url = match self.path_style {

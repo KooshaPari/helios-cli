@@ -85,7 +85,7 @@ async fn list_models_returns_all_models_with_large_limit() -> Result<()> {
             model: "gpt-5.1-helios-max".to_string(),
             upgrade: Some("gpt-5.2-codex".to_string()),
             display_name: "gpt-5.1-helios-max".to_string(),
-            description: "Codex-optimized flagship for deep and fast reasoning.".to_string(),
+            description: "Helios-optimized flagship for deep and fast reasoning.".to_string(),
             hidden: false,
             supported_reasoning_efforts: vec![
                 ReasoningEffortOption {

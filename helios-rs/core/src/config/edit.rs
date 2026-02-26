@@ -1772,14 +1772,16 @@ model_reasoning_effort = "high"
             .set_model(Some("gpt-5.1-codex"), Some(ReasoningEffort::High))
             .apply_blocking()
             .expect("persist update");
-        contents = std::fs::read_to_string(helios_home.join(CONFIG_TOML_FILE)).expect("read config");
+        contents =
+            std::fs::read_to_string(helios_home.join(CONFIG_TOML_FILE)).expect("read config");
         assert_eq!(contents, updated_expected);
 
         ConfigEditsBuilder::new(helios_home)
             .set_model(Some("o4-mini"), Some(ReasoningEffort::Low))
             .apply_blocking()
             .expect("persist revert");
-        contents = std::fs::read_to_string(helios_home.join(CONFIG_TOML_FILE)).expect("read config");
+        contents =
+            std::fs::read_to_string(helios_home.join(CONFIG_TOML_FILE)).expect("read config");
         assert_eq!(contents, initial_expected);
     }
 

@@ -1,4 +1,4 @@
-# HeliosCLI - Fork of OpenAI Codex CLI
+# HeliosCLI - Fork of Phenotype Helios CLI
 
 ## Overview
 

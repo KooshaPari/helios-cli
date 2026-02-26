@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-23T10:11:46.291877+00:00`
 - Command: `codex exec --sandbox danger-full-access --skip-git-repo-check 'echo exec-smoke && sleep 0.05'`

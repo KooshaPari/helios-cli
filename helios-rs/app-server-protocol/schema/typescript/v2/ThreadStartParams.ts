@@ -8,7 +8,7 @@ import type { SandboxMode } from "./SandboxMode";
 
 export type ThreadStartParams = {model?: string | null, modelProvider?: string | null, cwd?: string | null, approvalPolicy?: AskForApproval | null, sandbox?: SandboxMode | null, config?: { [key in string]?: JsonValue } | null, serviceName?: string | null, baseInstructions?: string | null, developerInstructions?: string | null, personality?: Personality | null, ephemeral?: boolean | null, /**
  * If true, opt into emitting raw Responses API items on the event stream.
- * This is for internal use only (e.g. Codex Cloud).
+ * This is for internal use only (e.g. Helios Cloud).
  */
 experimentalRawEvents: boolean, /**
  * If true, persist additional rollout EventMsg variants required to

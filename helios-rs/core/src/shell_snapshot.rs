@@ -127,7 +127,7 @@ impl ShellSnapshot {
             .duration_since(SystemTime::UNIX_EPOCH)
             .map(|duration| duration.as_nanos())
             .unwrap_or(0);
-        let temp_path = codex_home
+        let temp_path = helios_home
             .join(SNAPSHOT_DIR)
             .join(format!("{session_id}.tmp-{nonce}"));
 
@@ -478,7 +478,10 @@ $envVars | ForEach-Object {
 /// Removes shell snapshots that either lack a matching session rollout file or
 /// whose rollouts have not been updated within the retention window.
 /// The active session id is exempt from cleanup.
-pub async fn cleanup_stale_snapshots(helios_home: &Path, active_session_id: ThreadId) -> Result<()> {
+pub async fn cleanup_stale_snapshots(
+    helios_home: &Path,
+    active_session_id: ThreadId,
+) -> Result<()> {
     let snapshot_dir = helios_home.join(SNAPSHOT_DIR);
 
     let mut entries = match fs::read_dir(&snapshot_dir).await {

@@ -1,9 +1,9 @@
 use crate::agent::AgentStatus;
-use crate::helios::Codex;
-use crate::helios::SteerInputError;
 use crate::error::Result as CodexResult;
 use crate::features::Feature;
 use crate::file_watcher::WatchRegistration;
+use crate::helios::Helios;
+use crate::helios::SteerInputError;
 use crate::protocol::Event;
 use crate::protocol::Op;
 use crate::protocol::Submission;
@@ -35,16 +35,16 @@ pub struct ThreadConfigSnapshot {
 }
 
 pub struct CodexThread {
-    pub(crate) codex: Codex,
+    pub(crate) codex: Helios,
     rollout_path: Option<PathBuf>,
     _watch_registration: WatchRegistration,
 }
 
 /// Conduit for the bidirectional stream of messages that compose a thread
-/// (formerly called a conversation) in Codex.
+/// (formerly called a conversation) in Helios.
 impl CodexThread {
     pub(crate) fn new(
-        codex: Codex,
+        codex: Helios,
         rollout_path: Option<PathBuf>,
         watch_registration: WatchRegistration,
     ) -> Self {

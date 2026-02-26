@@ -39,8 +39,8 @@ const DEFAULT_READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs
 
 #[tokio::test]
 async fn test_send_message_success() -> Result<()> {
-    // Spin up a mock responses server that immediately ends the Codex turn.
-    // Two Codex turns hit the mock model (session start + send-user-message). Provide two SSE responses.
+    // Spin up a mock responses server that immediately ends the Helios turn.
+    // Two Helios turns hit the mock model (session start + send-user-message). Provide two SSE responses.
     let server = responses::start_mock_server().await;
     let body1 = responses::sse(vec![
         responses::ev_response_created("resp-1"),
@@ -55,7 +55,7 @@ async fn test_send_message_success() -> Result<()> {
     let _response_mock1 = responses::mount_sse_once(&server, body1).await;
     let _response_mock2 = responses::mount_sse_once(&server, body2).await;
 
-    // Create a temporary Codex home with config pointing at the mock server.
+    // Create a temporary Helios home with config pointing at the mock server.
     let helios_home = TempDir::new()?;
     create_config_toml(helios_home.path(), &server.uri())?;
 
@@ -246,7 +246,7 @@ async fn test_send_message_raw_notifications_opt_in() -> Result<()> {
 
 #[tokio::test]
 async fn test_send_message_session_not_found() -> Result<()> {
-    // Start MCP without creating a Codex session
+    // Start MCP without creating a Helios session
     let helios_home = TempDir::new()?;
     let mut mcp = McpProcess::new(helios_home.path()).await?;
     timeout(DEFAULT_READ_TIMEOUT, mcp.initialize()).await??;

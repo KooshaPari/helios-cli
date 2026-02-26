@@ -39,7 +39,7 @@ const DEFAULT_READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs
 async fn test_shell_command_approval_triggers_elicitation() {
     if env::var(HELIOS_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
         println!(
-            "Skipping test because it cannot execute when network is disabled in a Codex sandbox."
+            "Skipping test because it cannot execute when network is disabled in a Helios sandbox."
         );
         return;
     }
@@ -183,7 +183,7 @@ fn create_expected_elicitation_request_params(
     thread_id: helios_protocol::ThreadId,
 ) -> anyhow::Result<serde_json::Value> {
     let expected_message = format!(
-        "Allow Codex to run `{}` in `{}`?",
+        "Allow Helios to run `{}` in `{}`?",
         shlex::try_join(command.iter().map(std::convert::AsRef::as_ref))?,
         workdir.to_string_lossy()
     );
@@ -209,7 +209,7 @@ fn create_expected_elicitation_request_params(
 async fn test_patch_approval_triggers_elicitation() {
     if env::var(HELIOS_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
         println!(
-            "Skipping test because it cannot execute when network is disabled in a Codex sandbox."
+            "Skipping test because it cannot execute when network is disabled in a Helios sandbox."
         );
         return;
     }
@@ -442,7 +442,7 @@ fn create_expected_patch_approval_elicitation_request_params(
     if let Some(r) = &reason {
         message_lines.push(r.clone());
     }
-    message_lines.push("Allow Codex to apply proposed code changes?".to_string());
+    message_lines.push("Allow Helios to apply proposed code changes?".to_string());
     let params_json = serde_json::to_value(PatchApprovalElicitRequestParams {
         message: message_lines.join("\n"),
         requested_schema: json!({"type":"object","properties":{}}),
@@ -484,7 +484,7 @@ async fn create_mcp_process(responses: Vec<String>) -> anyhow::Result<McpHandle>
     })
 }
 
-/// Create a Codex config that uses the mock server as the model provider.
+/// Create a Helios config that uses the mock server as the model provider.
 /// It also uses `approval_policy = "untrusted"` so that we exercise the
 /// elicitation code path for shell commands.
 fn create_config_toml(helios_home: &Path, server_uri: &str) -> std::io::Result<()> {

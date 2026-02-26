@@ -9,10 +9,10 @@ use tracing::Instrument;
 use tracing::instrument;
 use tracing::trace_span;
 
-use crate::helios::Session;
-use crate::helios::TurnContext;
 use crate::error::CodexErr;
 use crate::function_tool::FunctionCallError;
+use crate::helios::Session;
+use crate::helios::TurnContext;
 use crate::tools::context::SharedTurnDiffTracker;
 use crate::tools::context::ToolPayload;
 use crate::tools::router::ToolCall;

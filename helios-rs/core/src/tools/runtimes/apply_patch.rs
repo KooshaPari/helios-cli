@@ -18,13 +18,13 @@ use crate::tools::sandboxing::ToolCtx;
 use crate::tools::sandboxing::ToolError;
 use crate::tools::sandboxing::ToolRuntime;
 use crate::tools::sandboxing::with_cached_approval;
+use futures::future::BoxFuture;
 use helios_apply_patch::ApplyPatchAction;
 use helios_apply_patch::HELIOS_CORE_APPLY_PATCH_ARG1;
 use helios_protocol::protocol::AskForApproval;
 use helios_protocol::protocol::FileChange;
 use helios_protocol::protocol::ReviewDecision;
 use helios_utils_absolute_path::AbsolutePathBuf;
-use futures::future::BoxFuture;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -66,7 +66,6 @@ impl ApplyPatchRuntime {
             // Run apply_patch with a minimal environment for determinism and to avoid leaks.
             env: HashMap::new(),
             sandbox_permissions: SandboxPermissions::UseDefault,
-            additional_permissions: None,
             justification: None,
         })
     }
@@ -162,10 +161,10 @@ impl ToolRuntime<ApplyPatchRequest, ExecToolCallOutput> for ApplyPatchRuntime {
         let spec = Self::build_command_spec(req)?;
         let env = attempt
             .env_for(spec, None)
-            .map_err(|err| ToolError::Codex(err.into()))?;
-        let out = execute_env(env, Self::stdout_stream(ctx))
+            .map_err(|err| ToolError::Helios(err.into()))?;
+        let out = execute_env(env, attempt.policy, Self::stdout_stream(ctx))
             .await
-            .map_err(ToolError::Codex)?;
+            .map_err(ToolError::Helios)?;
         Ok(out)
     }
 }

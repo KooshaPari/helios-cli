@@ -659,6 +659,76 @@ pub struct ConfigBatchWriteParams {
     pub expected_version: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub enum ExternalAgentConfigMigrationItemType {
+    #[serde(rename = "CONFIG")]
+    #[ts(rename = "CONFIG")]
+    Config,
+    #[serde(rename = "SKILLS")]
+    #[ts(rename = "SKILLS")]
+    Skills,
+    #[serde(rename = "AGENTS_MD")]
+    #[ts(rename = "AGENTS_MD")]
+    AgentsMd,
+    #[serde(rename = "MCP_SERVER_CONFIG")]
+    #[ts(rename = "MCP_SERVER_CONFIG")]
+    McpServerConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct ExternalAgentConfigMigrationItem {
+    pub item_type: ExternalAgentConfigMigrationItemType,
+    pub description: String,
+    /// Null or empty means home-scoped migration; non-empty means repo-scoped migration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub cwd: Option<PathBuf>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct ExternalAgentConfigDetectParams {
+    /// If true, include detection under the user's home (~/.claude, ~/.codex, etc.).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub include_home: bool,
+    /// Zero or more working directories to include for repo-scoped detection.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub cwds: Option<Vec<PathBuf>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct ExternalAgentConfigDetectResponse {
+    pub items: Vec<ExternalAgentConfigMigrationItem>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct ExternalAgentConfigImportParams {
+    pub migration_items: Vec<ExternalAgentConfigMigrationItem>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct ExternalAgentConfigImportResponse {}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub enum SkillApprovalDecision {
+    Approve,
+    Decline,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
@@ -1058,7 +1128,7 @@ pub enum LoginAccountParams {
     #[ts(rename = "chatgpt")]
     Chatgpt,
     /// [UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE.
-    /// The access token must contain the same scopes that Codex-managed ChatGPT auth tokens have.
+    /// The access token must contain the same scopes that Helios-managed ChatGPT auth tokens have.
     #[experimental("account/login/start.chatgptAuthTokens")]
     #[serde(rename = "chatgptAuthTokens", rename_all = "camelCase")]
     #[ts(rename = "chatgptAuthTokens", rename_all = "camelCase")]
@@ -1070,7 +1140,7 @@ pub enum LoginAccountParams {
         chatgpt_account_id: String,
         /// Optional plan type supplied by the client.
         ///
-        /// When `null`, Codex attempts to derive the plan type from access-token
+        /// When `null`, Helios attempts to derive the plan type from access-token
         /// claims. If unavailable, the plan defaults to `unknown`.
         #[ts(optional = nullable)]
         chatgpt_plan_type: Option<String>,
@@ -1131,7 +1201,7 @@ pub struct LogoutAccountResponse {}
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub enum ChatgptAuthTokensRefreshReason {
-    /// Codex attempted a backend request and received `401 Unauthorized`.
+    /// Helios attempted a backend request and received `401 Unauthorized`.
     Unauthorized,
 }
 
@@ -1140,7 +1210,7 @@ pub enum ChatgptAuthTokensRefreshReason {
 #[ts(export_to = "v2/")]
 pub struct ChatgptAuthTokensRefreshParams {
     pub reason: ChatgptAuthTokensRefreshReason,
-    /// Workspace/account identifier that Codex was previously using.
+    /// Workspace/account identifier that Helios was previously using.
     ///
     /// Clients that manage multiple accounts/workspaces can use this as a hint
     /// to refresh the token for the correct workspace.
@@ -1577,7 +1647,7 @@ pub struct ThreadStartParams {
     #[ts(optional = nullable)]
     pub mock_experimental_field: Option<String>,
     /// If true, opt into emitting raw Responses API items on the event stream.
-    /// This is for internal use only (e.g. Codex Cloud).
+    /// This is for internal use only (e.g. Helios Cloud).
     #[experimental("thread/start.experimentalRawEvents")]
     #[serde(default)]
     pub experimental_raw_events: bool,
@@ -2026,7 +2096,7 @@ pub enum HazelnutScope {
 pub enum ProductSurface {
     Chatgpt,
     #[default]
-    Codex,
+    Helios,
     Api,
     Atlas,
 }
@@ -3357,6 +3427,21 @@ pub struct WindowsSandboxSetupCompletedNotification {
 pub struct ContextCompactedNotification {
     pub thread_id: String,
     pub turn_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct SkillRequestApprovalParams {
+    pub item_id: String,
+    pub skill_name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct SkillRequestApprovalResponse {
+    pub decision: SkillApprovalDecision,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]

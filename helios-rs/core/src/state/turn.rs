@@ -11,6 +11,7 @@ use tokio_util::task::AbortOnDropHandle;
 use helios_protocol::dynamic_tools::DynamicToolResponse;
 use helios_protocol::models::ResponseInputItem;
 use helios_protocol::request_user_input::RequestUserInputResponse;
+use helios_protocol::skill_approval::SkillApprovalResponse;
 use tokio::sync::oneshot;
 
 use crate::helios::TurnContext;
@@ -72,6 +73,7 @@ pub(crate) struct TurnState {
     pending_approvals: HashMap<String, oneshot::Sender<ReviewDecision>>,
     pending_user_input: HashMap<String, oneshot::Sender<RequestUserInputResponse>>,
     pending_dynamic_tools: HashMap<String, oneshot::Sender<DynamicToolResponse>>,
+    pending_skill_approvals: HashMap<String, oneshot::Sender<SkillApprovalResponse>>,
     pending_input: Vec<ResponseInputItem>,
 }
 
@@ -95,6 +97,7 @@ impl TurnState {
         self.pending_approvals.clear();
         self.pending_user_input.clear();
         self.pending_dynamic_tools.clear();
+        self.pending_skill_approvals.clear();
         self.pending_input.clear();
     }
 
@@ -126,6 +129,21 @@ impl TurnState {
         key: &str,
     ) -> Option<oneshot::Sender<DynamicToolResponse>> {
         self.pending_dynamic_tools.remove(key)
+    }
+
+    pub(crate) fn insert_pending_skill_approval(
+        &mut self,
+        key: String,
+        tx: oneshot::Sender<SkillApprovalResponse>,
+    ) -> Option<oneshot::Sender<SkillApprovalResponse>> {
+        self.pending_skill_approvals.insert(key, tx)
+    }
+
+    pub(crate) fn remove_pending_skill_approval(
+        &mut self,
+        key: &str,
+    ) -> Option<oneshot::Sender<SkillApprovalResponse>> {
+        self.pending_skill_approvals.remove(key)
     }
 
     pub(crate) fn push_pending_input(&mut self, input: ResponseInputItem) {

@@ -16,6 +16,10 @@ use crate::key_hint::KeyBinding;
 use crate::render::highlight::highlight_bash_to_lines;
 use crate::render::renderable::ColumnRenderable;
 use crate::render::renderable::Renderable;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use helios_core::features::Features;
 use helios_protocol::mcp::RequestId;
 use helios_protocol::protocol::ElicitationAction;
@@ -24,10 +28,6 @@ use helios_protocol::protocol::FileChange;
 use helios_protocol::protocol::NetworkApprovalContext;
 use helios_protocol::protocol::Op;
 use helios_protocol::protocol::ReviewDecision;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize;
@@ -485,7 +485,7 @@ fn exec_options(
                 additional_shortcuts: vec![key_hint::plain(KeyCode::Char('a'))],
             },
             ApprovalOption {
-                label: "No, and tell Codex what to do differently".to_string(),
+                label: "No, and tell Helios what to do differently".to_string(),
                 decision: ApprovalDecision::Review(ReviewDecision::Abort),
                 display_shortcut: Some(key_hint::plain(KeyCode::Esc)),
                 additional_shortcuts: vec![key_hint::plain(KeyCode::Char('n'))],
@@ -518,7 +518,7 @@ fn exec_options(
         })
     }))
     .chain([ApprovalOption {
-        label: "No, and tell Codex what to do differently".to_string(),
+        label: "No, and tell Helios what to do differently".to_string(),
         decision: ApprovalDecision::Review(ReviewDecision::Abort),
         display_shortcut: Some(key_hint::plain(KeyCode::Esc)),
         additional_shortcuts: vec![key_hint::plain(KeyCode::Char('n'))],
@@ -541,7 +541,7 @@ fn patch_options() -> Vec<ApprovalOption> {
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('a'))],
         },
         ApprovalOption {
-            label: "No, and tell Codex what to do differently".to_string(),
+            label: "No, and tell Helios what to do differently".to_string(),
             decision: ApprovalDecision::Review(ReviewDecision::Abort),
             display_shortcut: Some(key_hint::plain(KeyCode::Esc)),
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('n'))],
@@ -707,7 +707,7 @@ mod tests {
             vec![
                 "Yes, just this once".to_string(),
                 "Yes, and allow this host for this session".to_string(),
-                "No, and tell Codex what to do differently".to_string(),
+                "No, and tell Helios what to do differently".to_string(),
             ]
         );
     }

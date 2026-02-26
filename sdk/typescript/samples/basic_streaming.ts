@@ -3,11 +3,11 @@
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
-import { Codex } from "@openai/codex-sdk";
-import type { ThreadEvent, ThreadItem } from "@openai/codex-sdk";
+import { Helios } from "@phenotype/helios-sdk";
+import type { ThreadEvent, ThreadItem } from "@phenotype/helios-sdk";
 import { codexPathOverride } from "./helpers.ts";
 
-const codex = new Codex({ codexPathOverride: codexPathOverride() });
+const codex = new Helios({ codexPathOverride: codexPathOverride() });
 const thread = codex.startThread();
 const rl = createInterface({ input, output });
 

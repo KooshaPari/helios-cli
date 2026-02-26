@@ -16,8 +16,8 @@ use crate::state::validate_policy_against_constraints;
 use anyhow::Context;
 use anyhow::Result;
 use async_trait::async_trait;
-use helios_utils_absolute_path::AbsolutePathBuf;
 use globset::GlobSet;
+use helios_utils_absolute_path::AbsolutePathBuf;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::collections::VecDeque;
@@ -234,7 +234,7 @@ impl NetworkProxyState {
 
     pub async fn current_cfg(&self) -> Result<NetworkProxyConfig> {
         // Callers treat `NetworkProxyState` as a live view of policy. We reload-on-demand so edits to
-        // `config.toml` (including Codex-managed writes) take effect without a restart.
+        // `config.toml` (including Helios-managed writes) take effect without a restart.
         self.reload_if_needed().await?;
         let guard = self.state.read().await;
         Ok(guard.config.clone())

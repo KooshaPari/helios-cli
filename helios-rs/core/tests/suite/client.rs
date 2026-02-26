@@ -264,7 +264,7 @@ async fn resume_includes_initial_messages_and_sends_prior_items() {
     )
     .await;
 
-    // Configure Codex to resume from our file
+    // Configure Helios to resume from our file
     let helios_home = Arc::new(TempDir::new().unwrap());
     let mut builder = test_codex()
         .with_home(helios_home.clone())
@@ -2035,7 +2035,7 @@ fn create_dummy_helios_auth() -> CodexAuth {
 /// We assert that the `input` sent on each turn contains the expected conversation history
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn history_dedupes_streamed_and_final_messages_across_turns() {
-    // Skip under Codex sandbox network restrictions (mirrors other tests).
+    // Skip under Helios sandbox network restrictions (mirrors other tests).
     skip_if_no_network!();
 
     // Mock server that will receive three sequential requests and return the same SSE stream

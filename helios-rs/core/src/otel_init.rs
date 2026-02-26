@@ -92,7 +92,7 @@ pub fn build_provider(
     })
 }
 
-/// Filter predicate for exporting only Codex-owned events via OTEL.
+/// Filter predicate for exporting only Helios-owned events via OTEL.
 /// Keeps events that originated from helios_otel module
 pub fn helios_export_filter(meta: &tracing::Metadata<'_>) -> bool {
     meta.target().starts_with("helios_otel")

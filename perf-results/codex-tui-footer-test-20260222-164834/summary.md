@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-22T23:48:50.943438+00:00`
 - Command: `cargo test --manifest-path codex-rs/Cargo.toml -p codex-tui bottom_pane::chat_composer::tests::footer_collapse_snapshots -- --nocapture`

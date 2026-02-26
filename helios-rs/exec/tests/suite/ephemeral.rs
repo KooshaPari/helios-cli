@@ -1,8 +1,8 @@
 #![cfg(not(target_os = "windows"))]
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
-use helios_utils_cargo_bin::find_resource;
 use core_test_support::test_helios_exec::test_helios_exec;
+use helios_utils_cargo_bin::find_resource;
 use walkdir::WalkDir;
 
 fn session_rollout_count(home_path: &std::path::Path) -> usize {

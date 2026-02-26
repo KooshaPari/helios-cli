@@ -53,6 +53,7 @@ use tracing_subscriber::registry::Registry;
 use tracing_subscriber::util::SubscriberInitExt;
 
 mod bespoke_event_handling;
+mod codex_message_processor;
 mod helios_message_processor;
 mod config_api;
 mod dynamic_tools;

@@ -64,7 +64,7 @@ describe("CodexExec", () => {
     expect(result.status).toBe("rejected");
     if (result.status === "rejected") {
       expect(result.error).toBeInstanceOf(Error);
-      expect(result.error.message).toMatch(/Codex Exec exited/);
+      expect(result.error.message).toMatch(/Helios Exec exited/);
     }
   });
 
