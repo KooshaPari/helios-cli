@@ -17,6 +17,7 @@ use crate::agent::AgentStatus;
 use crate::agent::agent_status_from_event;
 use crate::analytics_client::AnalyticsEventsClient;
 use crate::analytics_client::AppInvocation;
+use crate::analytics_client::InvocationType;
 use crate::analytics_client::build_track_events_context;
 use crate::apps::render_apps_section;
 use crate::commit_attribution::commit_message_trailer_instruction;
@@ -51,6 +52,9 @@ use crate::util::error_or_panic;
 use crate::ws_version_from_features;
 use async_channel::Receiver;
 use async_channel::Sender;
+use futures::future::BoxFuture;
+use futures::prelude::*;
+use futures::stream::FuturesOrdered;
 use helios_hooks::HookEvent;
 use helios_hooks::HookEventAfterAgent;
 use helios_hooks::HookPayload;
@@ -60,6 +64,7 @@ use helios_hooks::HooksConfig;
 use helios_network_proxy::NetworkProxy;
 use helios_protocol::ThreadId;
 use helios_protocol::approvals::ExecPolicyAmendment;
+use helios_protocol::approvals::NetworkPolicyAmendment;
 use helios_protocol::config_types::ModeKind;
 use helios_protocol::config_types::Settings;
 use helios_protocol::config_types::WebSearchMode;
@@ -70,6 +75,7 @@ use helios_protocol::items::TurnItem;
 use helios_protocol::items::UserMessageItem;
 use helios_protocol::mcp::CallToolResult;
 use helios_protocol::models::BaseInstructions;
+use helios_protocol::models::PermissionProfile;
 use helios_protocol::models::format_allow_prefixes;
 use helios_protocol::openai_models::ModelInfo;
 use helios_protocol::protocol::FileChange;
@@ -89,9 +95,6 @@ use helios_protocol::request_user_input::RequestUserInputArgs;
 use helios_protocol::request_user_input::RequestUserInputResponse;
 use helios_rmcp_client::ElicitationResponse;
 use helios_rmcp_client::OAuthCredentialsStoreMode;
-use futures::future::BoxFuture;
-use futures::prelude::*;
-use futures::stream::FuturesOrdered;
 use rmcp::model::ListResourceTemplatesResult;
 use rmcp::model::ListResourcesResult;
 use rmcp::model::PaginatedRequestParams;
@@ -122,7 +125,6 @@ use crate::client::ModelClient;
 use crate::client::ModelClientSession;
 use crate::client_common::Prompt;
 use crate::client_common::ResponseEvent;
-use crate::codex_thread::ThreadConfigSnapshot;
 use crate::compact::collect_user_messages;
 use crate::config::Config;
 use crate::config::Constrained;
@@ -139,6 +141,7 @@ use crate::error::CodexErr;
 use crate::error::Result as CodexResult;
 #[cfg(test)]
 use crate::exec::StreamOutput;
+use crate::helios_thread::ThreadConfigSnapshot;
 use helios_config::CONFIG_TOML_FILE;
 
 #[derive(Debug, PartialEq)]
@@ -159,10 +162,10 @@ use crate::mcp::effective_mcp_servers;
 use crate::mcp::maybe_prompt_and_install_mcp_dependencies;
 use crate::mcp::with_helios_apps_mcp;
 use crate::mcp_connection_manager::McpConnectionManager;
-use crate::mcp_connection_manager::helios_apps_tools_cache_key;
 use crate::mcp_connection_manager::filter_helios_apps_mcp_tools_only;
 use crate::mcp_connection_manager::filter_mcp_tools_by_name;
 use crate::mcp_connection_manager::filter_non_helios_apps_mcp_tools_only;
+use crate::mcp_connection_manager::helios_apps_tools_cache_key;
 use crate::memories;
 use crate::mentions::build_connector_slug_counts;
 use crate::mentions::build_skill_name_counts;
@@ -201,6 +204,7 @@ use crate::protocol::SkillDependencies as ProtocolSkillDependencies;
 use crate::protocol::SkillErrorInfo;
 use crate::protocol::SkillInterface as ProtocolSkillInterface;
 use crate::protocol::SkillMetadata as ProtocolSkillMetadata;
+use crate::protocol::SkillRequestApprovalEvent;
 use crate::protocol::SkillToolDependency as ProtocolSkillToolDependency;
 use crate::protocol::StreamErrorEvent;
 use crate::protocol::Submission;
@@ -267,14 +271,15 @@ use helios_protocol::models::ResponseItem;
 use helios_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
 use helios_protocol::protocol::CodexErrorInfo;
 use helios_protocol::protocol::InitialHistory;
+use helios_protocol::skill_approval::SkillApprovalResponse;
 use helios_protocol::user_input::UserInput;
 use helios_utils_absolute_path::AbsolutePathBuf;
 use helios_utils_readiness::Readiness;
 use helios_utils_readiness::ReadinessFlag;
 
-/// The high-level interface to the Codex system.
+/// The high-level interface to the Helios system.
 /// It operates as a queue pair where you send submissions and receive events.
-pub struct Codex {
+pub struct Helios {
     pub(crate) tx_sub: Sender<Submission>,
     pub(crate) rx_event: Receiver<Event>,
     // Last known status of the agent.
@@ -282,11 +287,11 @@ pub struct Codex {
     pub(crate) session: Arc<Session>,
 }
 
-/// Wrapper returned by [`Codex::spawn`] containing the spawned [`Codex`],
+/// Wrapper returned by [`Helios::spawn`] containing the spawned [`Helios`],
 /// the submission id for the initial `ConfigureSession` request and the
 /// unique session id.
 pub struct CodexSpawnOk {
-    pub codex: Codex,
+    pub codex: Helios,
     pub thread_id: ThreadId,
     #[deprecated(note = "use thread_id")]
     pub conversation_id: ThreadId,
@@ -335,8 +340,8 @@ fn resolve_submission_channel_capacity() -> usize {
         .unwrap_or(SUBMISSION_CHANNEL_CAPACITY)
 }
 
-impl Codex {
-    /// Spawn a new [`Codex`] and initialize the session.
+impl Helios {
+    /// Spawn a new [`Helios`] and initialize the session.
     #[allow(clippy::too_many_arguments)]
     pub(crate) async fn spawn(
         mut config: Config,
@@ -349,6 +354,7 @@ impl Codex {
         agent_control: AgentControl,
         dynamic_tools: Vec<DynamicToolSpec>,
         persist_extended_history: bool,
+        metrics_service_name: Option<String>,
     ) -> CodexResult<CodexSpawnOk> {
         let resolved_capacity = resolve_submission_channel_capacity();
         let (tx_sub, rx_sub) = async_channel::bounded(resolved_capacity);
@@ -461,7 +467,7 @@ impl Codex {
             persist_extended_history,
         };
 
-        // Generate a unique ID for the lifetime of this Codex session.
+        // Generate a unique ID for the lifetime of this Helios session.
         let session_source_clone = session_configuration.session_source.clone();
         let (agent_status_tx, agent_status_rx) = watch::channel(AgentStatus::PendingInit);
 
@@ -479,6 +485,7 @@ impl Codex {
             skills_manager,
             file_watcher,
             agent_control,
+            metrics_service_name,
         )
         .instrument(session_init_span)
         .await
@@ -493,7 +500,7 @@ impl Codex {
         tokio::spawn(
             submission_loop(Arc::clone(&session), config, rx_sub).instrument(session_loop_span),
         );
-        let codex = Codex {
+        let codex = Helios {
             tx_sub,
             rx_event,
             agent_status: agent_status_rx,
@@ -516,7 +523,7 @@ impl Codex {
         Ok(id)
     }
 
-    /// Use sparingly: prefer `submit()` so Codex is responsible for generating
+    /// Use sparingly: prefer `submit()` so Helios is responsible for generating
     /// unique IDs for each submission.
     pub async fn submit_with_id(&self, sub: Submission) -> CodexResult<()> {
         let submission_id = sub.id.clone();
@@ -618,6 +625,7 @@ pub(crate) struct TurnContext {
     pub(crate) js_repl: Arc<JsReplHandle>,
     pub(crate) dynamic_tools: Vec<DynamicToolSpec>,
     pub(crate) turn_metadata_state: Arc<TurnMetadataState>,
+    pub(crate) implicit_invocation_seen_skills: Arc<tokio::sync::Mutex<HashSet<String>>>,
 }
 impl TurnContext {
     pub(crate) fn model_context_window(&self) -> Option<i64> {
@@ -700,6 +708,7 @@ impl TurnContext {
             js_repl: Arc::clone(&self.js_repl),
             dynamic_tools: self.dynamic_tools.clone(),
             turn_metadata_state: self.turn_metadata_state.clone(),
+            implicit_invocation_seen_skills: Arc::clone(&self.implicit_invocation_seen_skills),
         }
     }
 
@@ -785,7 +794,7 @@ pub(crate) struct SessionConfiguration {
     /// `ConfigureSession` operation so that the business-logic layer can
     /// operate deterministically.
     cwd: PathBuf,
-    /// Directory containing all Codex state for this session.
+    /// Directory containing all Helios state for this session.
     helios_home: PathBuf,
     /// Optional user-facing name for the thread, updated during the session.
     thread_name: Option<String>,
@@ -1039,6 +1048,7 @@ impl Session {
             truncation_policy: model_info.truncation_policy.into(),
             js_repl,
             dynamic_tools: session_configuration.dynamic_tools.clone(),
+            implicit_invocation_seen_skills: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
             turn_metadata_state,
         }
     }
@@ -1057,6 +1067,7 @@ impl Session {
         skills_manager: Arc<SkillsManager>,
         file_watcher: Arc<FileWatcher>,
         agent_control: AgentControl,
+        metrics_service_name: Option<String>,
     ) -> anyhow::Result<Arc<Self>> {
         debug!(
             "Configuring session: model={}; provider={:?}",
@@ -1207,7 +1218,7 @@ impl Session {
 
         let auth = auth.as_ref();
         let auth_mode = auth.map(CodexAuth::auth_mode).map(TelemetryAuthMode::from);
-        let otel_manager = OtelManager::new(
+        let mut otel_manager = OtelManager::new(
             conversation_id,
             session_configuration.collaboration_mode.model(),
             session_configuration.collaboration_mode.model(),
@@ -1219,6 +1230,9 @@ impl Session {
             terminal::user_agent(),
             session_configuration.session_source.clone(),
         );
+        if let Some(metrics_service_name) = metrics_service_name {
+            otel_manager = otel_manager.with_metrics_service_name(&metrics_service_name);
+        }
         config.features.emit_metrics(&otel_manager);
         otel_manager.counter(
             "codex.thread.started",
@@ -1275,15 +1289,18 @@ impl Session {
             default_shell.shell_snapshot = rx;
             tx
         };
-        let thread_name =
-            match session_index::find_thread_name_by_id(&config.helios_home, &conversation_id).await
-            {
-                Ok(name) => name,
-                Err(err) => {
-                    warn!("Failed to read session index for thread name: {err}");
-                    None
-                }
-            };
+        let thread_name = match session_index::find_thread_name_by_id(
+            &config.helios_home,
+            &conversation_id,
+        )
+        .await
+        {
+            Ok(name) => name,
+            Err(err) => {
+                warn!("Failed to read session index for thread name: {err}");
+                None
+            }
+        };
         session_configuration.thread_name = thread_name.clone();
         let mut state = SessionState::new(session_configuration.clone());
         let managed_network_requirements_enabled = config.managed_network_requirements_enabled();
@@ -1684,7 +1701,7 @@ impl Session {
                         EventMsg::Warning(WarningEvent {
                             message: format!(
                                 "This session was recorded with model `{prev}` but is resuming with `{curr}`. \
-                         Consider switching back to `{prev}` as it may affect Codex performance."
+                         Consider switching back to `{prev}` as it may affect Helios performance."
                             ),
                         }),
                     )
@@ -2426,6 +2443,8 @@ impl Session {
         reason: Option<String>,
         network_approval_context: Option<NetworkApprovalContext>,
         proposed_execpolicy_amendment: Option<ExecPolicyAmendment>,
+        proposed_network_policy_amendments: Option<Vec<NetworkPolicyAmendment>>,
+        additional_permissions: Option<PermissionProfile>,
     ) -> ReviewDecision {
         //  command-level approvals use `call_id`.
         // `approval_id` is only present for subcommand callbacks (execve intercept)
@@ -2456,6 +2475,8 @@ impl Session {
             reason,
             network_approval_context,
             proposed_execpolicy_amendment,
+            proposed_network_policy_amendments,
+            additional_permissions,
             parsed_cmd,
         });
         self.send_event(turn_context, event).await;
@@ -2496,6 +2517,38 @@ impl Session {
         });
         self.send_event(turn_context, event).await;
         rx_approve
+    }
+
+    pub async fn request_skill_approval(
+        &self,
+        turn_context: &TurnContext,
+        item_id: String,
+        skill_name: String,
+    ) -> Option<SkillApprovalResponse> {
+        let (tx_response, rx_response) = oneshot::channel();
+        let prev_entry = {
+            let mut active = self.active_turn.lock().await;
+            match active.as_mut() {
+                Some(at) => {
+                    let mut ts = at.turn_state.lock().await;
+                    ts.insert_pending_skill_approval(item_id.clone(), tx_response)
+                }
+                None => None,
+            }
+        };
+        if prev_entry.is_some() {
+            warn!("Overwriting existing pending skill approval for item_id: {item_id}");
+        }
+
+        let event = EventMsg::SkillRequestApproval(SkillRequestApprovalEvent {
+            item_id: item_id.clone(),
+            skill_name,
+        });
+        self.send_event(turn_context, event).await;
+        rx_response
+            .await
+            .map(Some)
+            .unwrap_or(Some(SkillApprovalResponse { approved: false }))
     }
 
     pub async fn request_user_input(
@@ -2551,6 +2604,27 @@ impl Session {
             }
             None => {
                 warn!("No pending user input found for sub_id: {sub_id}");
+            }
+        }
+    }
+
+    pub async fn notify_skill_approval(&self, item_id: &str, response: SkillApprovalResponse) {
+        let entry = {
+            let mut active = self.active_turn.lock().await;
+            match active.as_mut() {
+                Some(at) => {
+                    let mut ts = at.turn_state.lock().await;
+                    ts.remove_pending_skill_approval(item_id)
+                }
+                None => None,
+            }
+        };
+        match entry {
+            Some(tx_response) => {
+                tx_response.send(response).ok();
+            }
+            None => {
+                warn!("No pending skill approval found for item_id: {item_id}");
             }
         }
     }
@@ -2780,6 +2854,7 @@ impl Session {
                 turn_context.approval_policy.value(),
                 self.services.exec_policy.current().as_ref(),
                 &turn_context.cwd,
+                turn_context.features.enabled(Feature::RequestPermissions),
             )
             .into(),
         );
@@ -3513,6 +3588,9 @@ async fn submission_loop(sess: Arc<Session>, config: Arc<Config>, rx_sub: Receiv
             Op::PatchApproval { id, decision } => {
                 handlers::patch_approval(&sess, id, decision).await;
             }
+            Op::SkillApproval { id, response } => {
+                handlers::skill_approval(&sess, id, response).await;
+            }
             Op::UserInputAnswer { id, response } => {
                 handlers::request_user_input_response(&sess, id, response).await;
             }
@@ -3615,7 +3693,7 @@ mod handlers {
     use crate::helios::SessionSettingsUpdate;
     use crate::helios::SteerInputError;
 
-    use crate::helios::spawn_review_thread;
+    use super::spawn_review_thread;
     use crate::config::Config;
 
     use crate::mcp::auth::compute_auth_statuses;
@@ -3650,6 +3728,7 @@ mod handlers {
     use helios_protocol::protocol::TurnAbortReason;
     use helios_protocol::protocol::WarningEvent;
     use helios_protocol::request_user_input::RequestUserInputResponse;
+    use helios_protocol::skill_approval::SkillApprovalResponse;
 
     use crate::context_manager::is_user_turn_boundary;
     use helios_protocol::config_types::CollaborationMode;
@@ -3872,6 +3951,10 @@ mod handlers {
             }
             other => sess.notify_approval(&id, other).await,
         }
+    }
+
+    pub async fn skill_approval(sess: &Arc<Session>, id: String, response: SkillApprovalResponse) {
+        sess.notify_skill_approval(&id, response).await;
     }
 
     pub async fn request_user_input_response(
@@ -4310,7 +4393,7 @@ mod handlers {
             .terminate_all_processes()
             .await;
         sess.services.zsh_exec_bridge.shutdown().await;
-        info!("Shutting down Codex instance");
+        info!("Shutting down Helios instance");
         let history = sess.clone_history().await;
         let turn_count = history
             .raw_items()
@@ -4488,6 +4571,7 @@ async fn spawn_review_thread(
         tool_call_gate: Arc::new(ReadinessFlag::new()),
         js_repl: Arc::clone(&sess.js_repl),
         dynamic_tools: parent_turn_context.dynamic_tools.clone(),
+        implicit_invocation_seen_skills: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
         truncation_policy: model_info.truncation_policy.into(),
         turn_metadata_state,
     };
@@ -4719,7 +4803,7 @@ pub(crate) async fn run_turn(
             app_name: connector_names_by_id
                 .get(connector_id.as_str())
                 .map(|name| (*name).to_string()),
-            invoke_type: Some("explicit".to_string()),
+            invocation_type: Some(InvocationType::Explicit),
         })
         .collect::<Vec<_>>();
     sess.services
@@ -5388,8 +5472,10 @@ async fn built_tools(
             explicitly_enabled.as_ref(),
         ));
 
-        mcp_tools =
-            connectors::filter_helios_apps_tools_by_policy(selected_mcp_tools, &turn_context.config);
+        mcp_tools = connectors::filter_helios_apps_tools_by_policy(
+            selected_mcp_tools,
+            &turn_context.config,
+        );
     }
 
     Ok(Arc::new(ToolRouter::from_config(
@@ -7910,6 +7996,7 @@ mod tests {
             Arc::new(SkillsManager::new(config.helios_home.clone())),
             Arc::new(FileWatcher::noop()),
             AgentControl::default(),
+            None,
         )
         .await;
 
