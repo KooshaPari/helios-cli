@@ -3,14 +3,14 @@
 use anyhow::Result;
 use codex_core::features::Feature;
 #[cfg(unix)]
-use codex_protocol::models::FileSystemPermissions;
+use helios_protocol::models::FileSystemPermissions;
 #[cfg(unix)]
-use codex_protocol::models::PermissionProfile;
-use codex_protocol::protocol::AskForApproval;
-use codex_protocol::protocol::EventMsg;
-use codex_protocol::protocol::Op;
-use codex_protocol::protocol::SandboxPolicy;
-use codex_protocol::skill_approval::SkillApprovalResponse;
+use helios_protocol::models::PermissionProfile;
+use helios_protocol::protocol::AskForApproval;
+use helios_protocol::protocol::EventMsg;
+use helios_protocol::protocol::Op;
+use helios_protocol::protocol::SandboxPolicy;
+use helios_protocol::skill_approval::SkillApprovalResponse;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
@@ -97,7 +97,7 @@ async fn submit_turn_with_policies(
     let session_model = test.session_configured.model.clone();
     test.codex
         .submit(Op::UserTurn {
-            items: vec![codex_protocol::user_input::UserInput::Text {
+            items: vec![helios_protocol::user_input::UserInput::Text {
                 text: prompt.to_string(),
                 text_elements: Vec::new(),
             }],
@@ -107,7 +107,7 @@ async fn submit_turn_with_policies(
             sandbox_policy,
             model: session_model,
             effort: None,
-            summary: codex_protocol::config_types::ReasoningSummary::Auto,
+            summary: helios_protocol::config_types::ReasoningSummary::Auto,
             collaboration_mode: None,
             personality: None,
         })
@@ -428,7 +428,7 @@ async fn skill_approval_cache_is_per_skill() -> Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn shell_zsh_fork_prompts_for_skill_script_execution() -> Result<()> {
     use codex_config::Constrained;
-    use codex_protocol::protocol::ReviewDecision;
+    use helios_protocol::protocol::ReviewDecision;
 
     skip_if_no_network!(Ok(()));
 

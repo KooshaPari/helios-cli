@@ -13,7 +13,7 @@ use helios_protocol::models::ResponseInputItem;
 use helios_protocol::request_user_input::RequestUserInputResponse;
 use tokio::sync::oneshot;
 
-use crate::helios::TurnContext;
+use crate::codex::TurnContext;
 use crate::protocol::ReviewDecision;
 use crate::tasks::SessionTask;
 

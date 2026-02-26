@@ -194,6 +194,7 @@ impl<'a> ToolRuntime<UnifiedExecRequest, UnifiedExecProcess> for UnifiedExecRunt
             &env,
             ExecExpiration::DefaultTimeout,
             req.sandbox_permissions,
+            None,
             req.justification.clone(),
         )
         .map_err(|_| ToolError::Rejected("missing command line for PTY".to_string()))?;

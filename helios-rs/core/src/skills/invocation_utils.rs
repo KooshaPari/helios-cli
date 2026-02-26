@@ -10,7 +10,7 @@ use crate::codex::TurnContext;
 use crate::features::Feature;
 use crate::skills::SkillLoadOutcome;
 use crate::skills::SkillMetadata;
-use codex_protocol::protocol::ReviewDecision;
+use helios_protocol::protocol::ReviewDecision;
 use serde::Serialize;
 
 pub(crate) const SKILL_APPROVAL_DECLINED_MESSAGE: &str =
@@ -20,7 +20,7 @@ pub(crate) const SKILL_APPROVAL_DECLINED_MESSAGE: &str =
 struct SkillApprovalCacheKey {
     skill_name: String,
     skill_path: PathBuf,
-    skill_scope: codex_protocol::protocol::SkillScope,
+    skill_scope: helios_protocol::protocol::SkillScope,
 }
 
 pub(crate) fn build_implicit_skill_path_indexes(
@@ -166,10 +166,10 @@ pub(crate) async fn maybe_emit_implicit_skill_invocation(
         invocation_type: InvocationType::Implicit,
     };
     let skill_scope = match invocation.skill_scope {
-        codex_protocol::protocol::SkillScope::User => "user",
-        codex_protocol::protocol::SkillScope::Repo => "repo",
-        codex_protocol::protocol::SkillScope::System => "system",
-        codex_protocol::protocol::SkillScope::Admin => "admin",
+        helios_protocol::protocol::SkillScope::User => "user",
+        helios_protocol::protocol::SkillScope::Repo => "repo",
+        helios_protocol::protocol::SkillScope::System => "system",
+        helios_protocol::protocol::SkillScope::Admin => "admin",
     };
     let skill_path = invocation.skill_path.to_string_lossy();
     let skill_name = invocation.skill_name.clone();
@@ -339,7 +339,7 @@ mod tests {
             permission_profile: None,
             permissions: None,
             path_to_skills_md: skill_doc_path,
-            scope: codex_protocol::protocol::SkillScope::User,
+            scope: helios_protocol::protocol::SkillScope::User,
         }
     }
 

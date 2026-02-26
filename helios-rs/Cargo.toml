@@ -127,6 +127,13 @@ helios-utils-elapsed = { path = "utils/elapsed" }
 helios-utils-fuzzy-match = { path = "utils/fuzzy-match" }
 helios-utils-home-dir = { path = "utils/home-dir" }
 codex_utils_home_dir = { package = "helios-utils-home-dir", path = "utils/home-dir" }
+codex_app_server_protocol = { package = "helios-app-server-protocol", path = "app-server-protocol" }
+codex_execpolicy = { package = "helios-execpolicy", path = "execpolicy" }
+codex_network_proxy = { package = "helios-network-proxy", path = "network-proxy" }
+codex_protocol = { package = "helios-protocol", path = "protocol" }
+codex_shell_command = { package = "helios-shell-command", path = "shell-command" }
+codex_state = { package = "helios-state", path = "state" }
+codex_utils_absolute_path = { package = "helios-utils-absolute-path", path = "utils/absolute-path" }
 helios-utils-image = { path = "utils/image" }
 helios-utils-json-to-toml = { path = "utils/json-to-toml" }
 helios-utils-oss = { path = "utils/oss" }

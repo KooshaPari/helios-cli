@@ -1,7 +1,7 @@
 use crate::agent::AgentStatus;
 use crate::agent::exceeds_thread_spawn_depth_limit;
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::config::Config;
 use crate::config::Constrained;
 use crate::error::CodexErr;
@@ -951,7 +951,7 @@ mod tests {
     use crate::CodexAuth;
     use crate::ThreadManager;
     use crate::built_in_model_providers;
-    use crate::helios::make_session_and_context;
+    use crate::codex::make_session_and_context;
     use crate::config::DEFAULT_AGENT_MAX_DEPTH;
     use crate::config::types::ShellEnvironmentPolicy;
     use crate::function_tool::FunctionCallError;
@@ -977,7 +977,7 @@ mod tests {
     use tokio::time::timeout;
 
     fn invocation(
-        session: Arc<crate::helios::Session>,
+        session: Arc<crate::codex::Session>,
         turn: Arc<TurnContext>,
         tool_name: &str,
         payload: ToolPayload,

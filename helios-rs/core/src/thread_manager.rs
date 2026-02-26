@@ -2,9 +2,9 @@ use crate::AuthManager;
 use crate::CodexAuth;
 use crate::ModelProviderInfo;
 use crate::agent::AgentControl;
-use crate::helios::Codex;
-use crate::helios::CodexSpawnOk;
-use crate::helios::INITIAL_SUBMIT_ID;
+use crate::codex::Codex;
+use crate::codex::CodexSpawnOk;
+use crate::codex::INITIAL_SUBMIT_ID;
 use crate::codex_thread::CodexThread;
 use crate::config::Config;
 use crate::error::CodexErr;
@@ -640,7 +640,7 @@ fn truncate_before_nth_user_message(history: InitialHistory, n: usize) -> Initia
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::helios::make_session_and_context;
+    use crate::codex::make_session_and_context;
     use assert_matches::assert_matches;
     use helios_protocol::models::ContentItem;
     use helios_protocol::models::ReasoningItemReasoningSummary;

@@ -8,8 +8,8 @@ use helios_protocol::request_user_input::RequestUserInputQuestion;
 use helios_protocol::request_user_input::RequestUserInputResponse;
 use tracing::warn;
 
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::skills::SkillMetadata;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

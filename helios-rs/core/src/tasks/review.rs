@@ -15,8 +15,8 @@ use helios_protocol::protocol::ItemCompletedEvent;
 use helios_protocol::protocol::ReviewOutputEvent;
 use tokio_util::sync::CancellationToken;
 
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::codex_delegate::run_helios_thread_one_shot;
 use crate::config::Constrained;
 use crate::features::Feature;

@@ -1,7 +1,7 @@
 use crate::Prompt;
 use crate::RolloutRecorder;
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::config::Config;
 use crate::config::types::MemoriesConfig;
 use crate::error::CodexErr;

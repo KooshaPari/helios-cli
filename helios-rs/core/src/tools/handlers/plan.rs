@@ -1,7 +1,7 @@
 use crate::client_common::tools::ResponsesApiTool;
 use crate::client_common::tools::ToolSpec;
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::function_tool::FunctionCallError;
 use crate::tools::context::ToolInvocation;
 use crate::tools::context::ToolOutput;

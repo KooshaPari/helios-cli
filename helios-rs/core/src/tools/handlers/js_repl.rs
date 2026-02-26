@@ -56,8 +56,8 @@ fn build_js_repl_exec_output(
 }
 
 async fn emit_js_repl_exec_begin(
-    session: &crate::helios::Session,
-    turn: &crate::helios::TurnContext,
+    session: &crate::codex::Session,
+    turn: &crate::codex::TurnContext,
     call_id: &str,
 ) {
     let emitter = ToolEmitter::shell(
@@ -71,8 +71,8 @@ async fn emit_js_repl_exec_begin(
 }
 
 async fn emit_js_repl_exec_end(
-    session: &crate::helios::Session,
-    turn: &crate::helios::TurnContext,
+    session: &crate::codex::Session,
+    turn: &crate::codex::TurnContext,
     call_id: &str,
     output: &str,
     error: Option<&str>,
@@ -288,7 +288,7 @@ mod tests {
     use std::time::Duration;
 
     use super::parse_freeform_args;
-    use crate::helios::make_session_and_context_with_rx;
+    use crate::codex::make_session_and_context_with_rx;
     use crate::protocol::EventMsg;
     use crate::protocol::ExecCommandSource;
     use pretty_assertions::assert_eq;

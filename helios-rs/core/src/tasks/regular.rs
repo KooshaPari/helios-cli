@@ -3,8 +3,8 @@ use std::sync::Mutex;
 
 use crate::client::ModelClient;
 use crate::client::ModelClientSession;
-use crate::helios::TurnContext;
-use crate::helios::run_turn;
+use crate::codex::TurnContext;
+use crate::codex::run_turn;
 use crate::state::TaskKind;
 use async_trait::async_trait;
 use helios_otel::OtelManager;

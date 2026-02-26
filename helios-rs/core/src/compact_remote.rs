@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::Prompt;
-use crate::helios::Session;
-use crate::helios::TurnContext;
+use crate::codex::Session;
+use crate::codex::TurnContext;
 use crate::compact::InitialContextInjection;
 use crate::compact::extract_trailing_model_switch_update_for_compaction_request;
 use crate::compact::insert_initial_context_before_last_real_user_or_summary;

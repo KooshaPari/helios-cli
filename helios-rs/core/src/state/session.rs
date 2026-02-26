@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use tokio::task::JoinHandle;
 
-use crate::helios::SessionConfiguration;
+use crate::codex::SessionConfiguration;
 use crate::context_manager::ContextManager;
 use crate::error::Result as CodexResult;
 use crate::protocol::RateLimitSnapshot;
@@ -256,7 +256,7 @@ fn merge_rate_limit_fields(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::helios::make_session_configuration_for_tests;
+    use crate::codex::make_session_configuration_for_tests;
     use crate::protocol::RateLimitWindow;
     use pretty_assertions::assert_eq;
 

@@ -1,6 +1,6 @@
 use crate::agent::AgentStatus;
-use crate::helios::Codex;
-use crate::helios::SteerInputError;
+use crate::codex::Codex;
+use crate::codex::SteerInputError;
 use crate::error::Result as CodexResult;
 use crate::features::Feature;
 use crate::file_watcher::WatchRegistration;

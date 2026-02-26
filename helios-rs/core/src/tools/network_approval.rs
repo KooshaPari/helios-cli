@@ -1,4 +1,4 @@
-use crate::helios::Session;
+use crate::codex::Session;
 use crate::network_policy_decision::denied_network_policy_message;
 use crate::tools::sandboxing::ToolError;
 use helios_network_proxy::BlockedRequest;
@@ -241,7 +241,7 @@ impl NetworkApprovalService {
             .await;
     }
 
-    async fn active_turn_context(session: &Session) -> Option<Arc<crate::helios::TurnContext>> {
+    async fn active_turn_context(session: &Session) -> Option<Arc<crate::codex::TurnContext>> {
         let active_turn = session.active_turn.lock().await;
         active_turn
             .as_ref()

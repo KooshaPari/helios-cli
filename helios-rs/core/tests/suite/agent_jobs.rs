@@ -412,7 +412,7 @@ async fn spawn_agents_on_csv_stop_halts_future_items() -> Result<()> {
         .expect("job_id from csv");
     let db = test.codex.state_db().expect("state db");
     let job = db.get_agent_job(job_id.as_str()).await?.expect("job");
-    assert_eq!(job.status, codex_state::AgentJobStatus::Cancelled);
+    assert_eq!(job.status, helios_state::AgentJobStatus::Cancelled);
     let progress = db.get_agent_job_progress(job_id.as_str()).await?;
     assert_eq!(progress.total_items, 3);
     assert_eq!(progress.completed_items, 1);

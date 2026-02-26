@@ -1,10 +1,26 @@
 //! Root of the `helios-core` library.
+#![deny(clippy::print_stdout, clippy::print_stderr)]
 pub mod transport;
 
-// Prevent accidental direct writes to stdout/stderr in library code. All
-// user-visible output must go through the appropriate abstraction (e.g.,
-// the TUI or the tracing stack).
-#![deny(clippy::print_stdout, clippy::print_stderr)]
+// Legacy compatibility surface kept for forked names used in the Rust sources.
+pub(crate) mod helios {
+    pub(crate) use crate::codex::*;
+    pub(crate) use crate::codex_delegate::*;
+    pub(crate) use crate::state::*;
+    pub(crate) use crate::state_db::*;
+    pub(crate) use crate::thread_manager::*;
+    pub(crate) use crate::compact::*;
+    pub(crate) use crate::mcp::*;
+    pub(crate) use crate::environment_context::*;
+}
+
+extern crate helios_app_server_protocol as helios_app_server_protocol;
+extern crate helios_execpolicy as helios_execpolicy;
+extern crate helios_network_proxy as helios_network_proxy;
+extern crate helios_protocol as helios_protocol;
+extern crate helios_shell_command as helios_shell_command;
+extern crate helios_state as helios_state;
+extern crate helios_utils_absolute_path as helios_utils_absolute_path;
 
 mod analytics_client;
 pub mod api_bridge;

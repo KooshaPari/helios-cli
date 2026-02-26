@@ -39,7 +39,7 @@ Most callers want the effective config plus metadata:
 
 ```rust
 use codex_core::config_loader::{load_config_layers_state, LoaderOverrides};
-use codex_utils_absolute_path::AbsolutePathBuf;
+use helios_utils_absolute_path::AbsolutePathBuf;
 use toml::Value as TomlValue;
 
 let cli_overrides: Vec<(String, TomlValue)> = Vec::new();

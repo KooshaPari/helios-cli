@@ -1,6 +1,6 @@
 use crate::agent::AgentStatus;
 use crate::agent::status::is_final as is_final_agent_status;
-use crate::helios::Session;
+use crate::codex::Session;
 use crate::config::Config;
 use crate::features::Feature;
 use crate::memories::memory_root;

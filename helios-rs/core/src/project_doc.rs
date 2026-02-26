@@ -23,7 +23,7 @@ use crate::config_loader::project_root_markers_from_config;
 use crate::features::Feature;
 use crate::skills::SkillMetadata;
 use crate::skills::render_skills_section;
-use codex_app_server_protocol::ConfigLayerSource;
+use helios_app_server_protocol::ConfigLayerSource;
 use dunce::canonicalize as normalize_path;
 use std::path::PathBuf;
 use tokio::io::AsyncReadExt;

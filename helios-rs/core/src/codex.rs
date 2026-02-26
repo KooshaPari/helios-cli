@@ -3611,11 +3611,11 @@ async fn submission_loop(sess: Arc<Session>, config: Arc<Config>, rx_sub: Receiv
 
 /// Operation handlers
 mod handlers {
-    use crate::helios::Session;
-    use crate::helios::SessionSettingsUpdate;
-    use crate::helios::SteerInputError;
+    use crate::codex::Session;
+    use crate::codex::SessionSettingsUpdate;
+    use crate::codex::SteerInputError;
 
-    use crate::helios::spawn_review_thread;
+    use crate::codex::spawn_review_thread;
     use crate::config::Config;
 
     use crate::mcp::auth::compute_auth_statuses;

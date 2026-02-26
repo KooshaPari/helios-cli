@@ -91,3 +91,8 @@ CHANGELOG.ignore.md
 __pycache__/
 *.pyc
 
+
+# Phenotype Config
+.phenotype/
+config.db
+*.key

@@ -71,7 +71,7 @@ pub(crate) fn truncate_rollout_before_nth_user_message_from_start(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::helios::make_session_and_context;
+    use crate::codex::make_session_and_context;
     use assert_matches::assert_matches;
     use helios_protocol::models::ContentItem;
     use helios_protocol::models::ReasoningItemReasoningSummary;
