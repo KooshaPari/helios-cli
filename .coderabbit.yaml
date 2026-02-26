@@ -35,3 +35,7 @@ profiles:
     severity: high_only
     auto_approve: false
     focus: [security, correctness]
+
+pr_validation:
+  block_on:
+    severity: info
