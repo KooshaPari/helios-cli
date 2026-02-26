@@ -178,7 +178,7 @@ impl McpProcess {
                 },
                 "serverInfo": {
                     "name": "helios-mcp-server",
-                    "title": "Codex",
+                    "title": "Helios",
                     "version": "0.0.0",
                     "user_agent": user_agent
                 },

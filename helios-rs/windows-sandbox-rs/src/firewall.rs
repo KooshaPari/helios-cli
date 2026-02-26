@@ -29,7 +29,7 @@ use helios_windows_sandbox::SetupFailure;
 const OFFLINE_BLOCK_RULE_NAME: &str = "helios_sandbox_offline_block_outbound";
 
 // Friendly text shown in the firewall UI.
-const OFFLINE_BLOCK_RULE_FRIENDLY: &str = "Codex Sandbox Offline - Block Outbound";
+const OFFLINE_BLOCK_RULE_FRIENDLY: &str = "Helios Sandbox Offline - Block Outbound";
 
 pub fn ensure_offline_outbound_block(offline_sid: &str, log: &mut File) -> Result<()> {
     let local_user_spec = format!("O:LSD:(A;;CC;;;{offline_sid})");

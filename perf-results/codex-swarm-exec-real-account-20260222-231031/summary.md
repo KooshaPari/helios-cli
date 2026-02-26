@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-23T06:10:40.124666+00:00`
 - Command: `codex exec --sandbox danger-full-access --skip-git-repo-check "Reply with OK only."`

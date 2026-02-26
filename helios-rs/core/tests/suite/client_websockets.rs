@@ -48,7 +48,7 @@ use tempfile::TempDir;
 use tracing_test::traced_test;
 
 const MODEL: &str = "gpt-5.2-codex";
-const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
+const OPENAI_BETA_HEADER: &str = "Phenotype-Beta";
 const OPENAI_BETA_RESPONSES_WEBSOCKETS: &str = "responses_websockets=2026-02-04";
 const WS_V2_BETA_HEADER_VALUE: &str = "responses_websockets=2026-02-06";
 
@@ -371,7 +371,7 @@ async fn responses_websocket_preconnect_runs_when_only_v2_feature_enabled() {
     let handshake = server.single_handshake();
     let openai_beta_header = handshake
         .header(OPENAI_BETA_HEADER)
-        .expect("missing OpenAI-Beta header");
+        .expect("missing Phenotype-Beta header");
     assert!(
         openai_beta_header
             .split(',')
@@ -427,7 +427,7 @@ async fn responses_websocket_v2_requests_use_v2_when_model_prefers_websockets() 
     let handshake = server.single_handshake();
     let openai_beta_header = handshake
         .header(OPENAI_BETA_HEADER)
-        .expect("missing OpenAI-Beta header");
+        .expect("missing Phenotype-Beta header");
     assert!(
         openai_beta_header
             .split(',')
@@ -527,7 +527,7 @@ async fn responses_websocket_v2_wins_when_both_features_enabled() {
     let handshake = server.single_handshake();
     let openai_beta_header = handshake
         .header(OPENAI_BETA_HEADER)
-        .expect("missing OpenAI-Beta header");
+        .expect("missing Phenotype-Beta header");
     assert!(
         openai_beta_header
             .split(',')
@@ -1333,7 +1333,7 @@ async fn responses_websocket_v2_sets_openai_beta_header() {
     let handshake = server.single_handshake();
     let openai_beta_header = handshake
         .header(OPENAI_BETA_HEADER)
-        .expect("missing OpenAI-Beta header");
+        .expect("missing Phenotype-Beta header");
     assert!(
         openai_beta_header
             .split(',')

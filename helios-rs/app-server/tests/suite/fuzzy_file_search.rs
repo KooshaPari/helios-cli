@@ -162,7 +162,7 @@ async fn assert_no_session_updates_for(
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_fuzzy_file_search_sorts_and_includes_indices() -> Result<()> {
-    // Prepare a temporary Codex home and a separate root with test files.
+    // Prepare a temporary Helios home and a separate root with test files.
     let helios_home = TempDir::new()?;
     let root = TempDir::new()?;
 

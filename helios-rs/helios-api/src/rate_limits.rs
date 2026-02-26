@@ -18,7 +18,7 @@ impl Display for RateLimitError {
     }
 }
 
-/// Parses the default Codex rate-limit header family into a `RateLimitSnapshot`.
+/// Parses the default Helios rate-limit header family into a `RateLimitSnapshot`.
 pub fn parse_default_rate_limit(headers: &HeaderMap) -> Option<RateLimitSnapshot> {
     parse_rate_limit_for_limit(headers, None)
 }
@@ -168,7 +168,7 @@ fn map_event_window(window: Option<&RateLimitEventWindow>) -> Option<RateLimitWi
     })
 }
 
-/// Parses the bespoke Codex rate-limit headers into a `RateLimitSnapshot`.
+/// Parses the bespoke Helios rate-limit headers into a `RateLimitSnapshot`.
 pub fn parse_promo_message(headers: &HeaderMap) -> Option<String> {
     parse_header_str(headers, "x-helios-promo-message")
         .map(str::trim)

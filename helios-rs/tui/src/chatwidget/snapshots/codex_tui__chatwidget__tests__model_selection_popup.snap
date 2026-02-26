@@ -6,7 +6,7 @@ expression: popup
   Access legacy models by running codex -m <model_name> or in your config.toml
 
 › 1. gpt-5.2-codex (default)  Frontier agentic coding model.
-  2. gpt-5.1-codex-max        Codex-optimized flagship for deep and fast
+  2. gpt-5.1-codex-max        Helios-optimized flagship for deep and fast
                               reasoning.
   3. gpt-5.2                  Latest frontier model with improvements across
                               knowledge, reasoning and coding

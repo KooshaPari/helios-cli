@@ -330,10 +330,10 @@ mod phase2 {
     use crate::CodexAuth;
     use crate::ThreadManager;
     use crate::agent::AgentControl;
-    use crate::codex::Session;
-    use crate::codex::make_session_and_context;
     use crate::config::Config;
     use crate::config::test_config;
+    use crate::helios::Session;
+    use crate::helios::make_session_and_context;
     use crate::memories::memory_root;
     use crate::memories::phase2;
     use crate::memories::raw_memories_file;
@@ -574,7 +574,10 @@ mod phase2 {
             .expect("get consolidation thread");
         let config_snapshot = subagent.config_snapshot().await;
         pretty_assertions::assert_eq!(config_snapshot.approval_policy, AskForApproval::Never);
-        pretty_assertions::assert_eq!(config_snapshot.cwd, memory_root(&harness.config.helios_home));
+        pretty_assertions::assert_eq!(
+            config_snapshot.cwd,
+            memory_root(&harness.config.helios_home)
+        );
         match config_snapshot.sandbox_policy {
             SandboxPolicy::WorkspaceWrite { writable_roots, .. } => {
                 assert!(
@@ -775,7 +778,9 @@ mod phase2 {
         let thread_id = ThreadId::new();
         let mut metadata_builder = ThreadMetadataBuilder::new(
             thread_id,
-            config.helios_home.join(format!("rollout-{thread_id}.jsonl")),
+            config
+                .helios_home
+                .join(format!("rollout-{thread_id}.jsonl")),
             Utc::now(),
             SessionSource::Cli,
         );

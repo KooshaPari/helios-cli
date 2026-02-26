@@ -10,7 +10,7 @@ impl GrpcTransport {
     pub fn new(config: TransportConfig) -> Self {
         Self { config }
     }
-    
+
     pub async fn chat(&self, _request: ChatRequest) -> Result<ChatResponse, String> {
         // Placeholder - would use tonic
         Ok(ChatResponse::default())

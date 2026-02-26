@@ -24,7 +24,7 @@ use crate::output::Output;
 use crate::state::ReaderEvent;
 
 #[derive(Parser)]
-#[command(author = "Codex", version, about = "Minimal app-server client")]
+#[command(author = "Helios", version, about = "Minimal app-server client")]
 struct Cli {
     /// Path to the `codex` CLI binary.
     #[arg(long, default_value = "codex")]

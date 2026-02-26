@@ -3,11 +3,9 @@
 use helios_protocol::models::ResponseItem;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use tokio::task::JoinHandle;
 
-use crate::codex::SessionConfiguration;
 use crate::context_manager::ContextManager;
-use crate::error::Result as CodexResult;
+use crate::helios::SessionConfiguration;
 use crate::protocol::RateLimitSnapshot;
 use crate::protocol::TokenUsage;
 use crate::protocol::TokenUsageInfo;
@@ -28,7 +26,7 @@ pub(crate) struct SessionState {
     /// resume or `/compact`).
     previous_model: Option<String>,
     /// Startup regular task pre-created during session initialization.
-    pub(crate) startup_regular_task: Option<JoinHandle<CodexResult<RegularTask>>>,
+    pub(crate) startup_regular_task: Option<RegularTask>,
     pub(crate) active_mcp_tool_selection: Option<Vec<String>>,
     pub(crate) active_connector_selection: HashSet<String>,
 }
@@ -157,13 +155,11 @@ impl SessionState {
         self.dependency_env.clone()
     }
 
-    pub(crate) fn set_startup_regular_task(&mut self, task: JoinHandle<CodexResult<RegularTask>>) {
+    pub(crate) fn set_startup_regular_task(&mut self, task: RegularTask) {
         self.startup_regular_task = Some(task);
     }
 
-    pub(crate) fn take_startup_regular_task(
-        &mut self,
-    ) -> Option<JoinHandle<CodexResult<RegularTask>>> {
+    pub(crate) fn take_startup_regular_task(&mut self) -> Option<RegularTask> {
         self.startup_regular_task.take()
     }
 
@@ -256,7 +252,7 @@ fn merge_rate_limit_fields(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::codex::make_session_configuration_for_tests;
+    use crate::helios::make_session_configuration_for_tests;
     use crate::protocol::RateLimitWindow;
     use pretty_assertions::assert_eq;
 

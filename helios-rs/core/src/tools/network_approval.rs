@@ -11,6 +11,7 @@ use helios_network_proxy::NetworkProxy;
 use helios_protocol::approvals::NetworkApprovalContext;
 use helios_protocol::approvals::NetworkApprovalProtocol;
 use helios_protocol::protocol::AskForApproval;
+use helios_protocol::protocol::NetworkPolicyRuleAction;
 use helios_protocol::protocol::ReviewDecision;
 use indexmap::IndexMap;
 use std::collections::HashMap;
@@ -326,6 +327,8 @@ impl NetworkApprovalService {
                     protocol,
                 }),
                 None,
+                None,
+                None,
             )
             .await;
 
@@ -333,6 +336,18 @@ impl NetworkApprovalService {
             ReviewDecision::Approved | ReviewDecision::ApprovedExecpolicyAmendment { .. } => {
                 PendingApprovalDecision::AllowOnce
             }
+            ReviewDecision::NetworkPolicyAmendment {
+                network_policy_amendment,
+            } => match network_policy_amendment.action {
+                NetworkPolicyRuleAction::Allow => PendingApprovalDecision::AllowOnce,
+                NetworkPolicyRuleAction::Deny => {
+                    self.record_outcome_for_single_active_call(
+                        NetworkApprovalOutcome::DeniedByUser,
+                    )
+                    .await;
+                    PendingApprovalDecision::Deny
+                }
+            },
             ReviewDecision::ApprovedForSession => PendingApprovalDecision::AllowForSession,
             ReviewDecision::Denied | ReviewDecision::Abort => {
                 self.record_outcome_for_single_active_call(NetworkApprovalOutcome::DeniedByUser)

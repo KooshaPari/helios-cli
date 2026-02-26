@@ -593,10 +593,13 @@ mod tests {
             second_uuid,
         );
 
-        let runtime =
-            helios_state::StateRuntime::init(helios_home.clone(), "test-provider".to_string(), None)
-                .await
-                .expect("initialize runtime");
+        let runtime = helios_state::StateRuntime::init(
+            helios_home.clone(),
+            "test-provider".to_string(),
+            None,
+        )
+        .await
+        .expect("initialize runtime");
         let first_watermark =
             backfill_watermark_for_path(helios_home.as_path(), first_path.as_path());
         runtime.mark_backfill_running().await.expect("mark running");

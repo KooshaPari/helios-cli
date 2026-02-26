@@ -1,11 +1,11 @@
 /// Update action the CLI should perform after the TUI exits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UpdateAction {
-    /// Update via `npm install -g @openai/codex@latest`.
+    /// Update via `npm install -g @phenotype/helios@latest`.
     NpmGlobalLatest,
-    /// Update via `bun install -g @openai/codex@latest`.
+    /// Update via `bun install -g @phenotype/helios@latest`.
     BunGlobalLatest,
-    /// Update via `brew upgrade codex`.
+    /// Update via `brew upgrade --cask helios`.
     BrewUpgrade,
 }
 
@@ -13,9 +13,9 @@ impl UpdateAction {
     /// Returns the list of command-line arguments for invoking the update.
     pub fn command_args(self) -> (&'static str, &'static [&'static str]) {
         match self {
-            UpdateAction::NpmGlobalLatest => ("npm", &["install", "-g", "@openai/codex"]),
-            UpdateAction::BunGlobalLatest => ("bun", &["install", "-g", "@openai/codex"]),
-            UpdateAction::BrewUpgrade => ("brew", &["upgrade", "--cask", "codex"]),
+            UpdateAction::NpmGlobalLatest => ("npm", &["install", "-g", "@phenotype/helios"]),
+            UpdateAction::BunGlobalLatest => ("bun", &["install", "-g", "@phenotype/helios"]),
+            UpdateAction::BrewUpgrade => ("brew", &["upgrade", "--cask", "helios"]),
         }
     }
 
@@ -82,7 +82,7 @@ mod tests {
         assert_eq!(
             detect_update_action(
                 true,
-                std::path::Path::new("/opt/homebrew/bin/codex"),
+                std::path::Path::new("/opt/homebrew/bin/helios"),
                 false,
                 false
             ),
@@ -91,7 +91,7 @@ mod tests {
         assert_eq!(
             detect_update_action(
                 true,
-                std::path::Path::new("/usr/local/bin/codex"),
+                std::path::Path::new("/usr/local/bin/helios"),
                 false,
                 false
             ),

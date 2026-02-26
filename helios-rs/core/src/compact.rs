@@ -4,12 +4,12 @@ use crate::ModelProviderInfo;
 use crate::Prompt;
 use crate::client::ModelClientSession;
 use crate::client_common::ResponseEvent;
-use crate::codex::Session;
-use crate::codex::TurnContext;
-use crate::codex::get_last_assistant_message_from_turn;
 use crate::context_manager::ContextManager;
 use crate::error::CodexErr;
 use crate::error::Result as CodexResult;
+use crate::helios::Session;
+use crate::helios::TurnContext;
+use crate::helios::get_last_assistant_message_from_turn;
 use crate::protocol::CompactedItem;
 use crate::protocol::EventMsg;
 use crate::protocol::TurnStartedEvent;
@@ -18,6 +18,7 @@ use crate::truncate::TruncationPolicy;
 use crate::truncate::approx_token_count;
 use crate::truncate::truncate_text;
 use crate::util::backoff;
+use futures::prelude::*;
 use helios_protocol::items::ContextCompactionItem;
 use helios_protocol::items::TurnItem;
 use helios_protocol::models::ContentItem;
@@ -25,7 +26,6 @@ use helios_protocol::models::ResponseInputItem;
 use helios_protocol::models::ResponseItem;
 use helios_protocol::protocol::RolloutItem;
 use helios_protocol::user_input::UserInput;
-use futures::prelude::*;
 use tracing::error;
 
 pub const SUMMARIZATION_PROMPT: &str = include_str!("../templates/compact/prompt.md");
@@ -492,7 +492,7 @@ mod tests {
     async fn process_compacted_history_with_test_session(
         compacted_history: Vec<ResponseItem>,
     ) -> (Vec<ResponseItem>, Vec<ResponseItem>) {
-        let (session, turn_context) = crate::codex::make_session_and_context().await;
+        let (session, turn_context) = crate::helios::make_session_and_context().await;
         let initial_context = session.build_initial_context(&turn_context).await;
         let refreshed = crate::compact_remote::process_compacted_history(
             &session,

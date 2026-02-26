@@ -1,8 +1,8 @@
 use crate::agent::AgentStatus;
 use crate::agent::status::is_final as is_final_agent_status;
-use crate::codex::Session;
 use crate::config::Config;
 use crate::features::Feature;
+use crate::helios::Session;
 use crate::memories::memory_root;
 use crate::memories::metrics;
 use crate::memories::phase_two;
@@ -163,7 +163,9 @@ mod job {
                 otel_manager.counter(metrics::MEMORY_PHASE_TWO_JOBS, 1, &[("status", "claimed")]);
                 (ownership_token, input_watermark)
             }
-            helios_state::Phase2JobClaimOutcome::SkippedNotDirty => return Err("skipped_not_dirty"),
+            helios_state::Phase2JobClaimOutcome::SkippedNotDirty => {
+                return Err("skipped_not_dirty");
+            }
             helios_state::Phase2JobClaimOutcome::SkippedRunning => return Err("skipped_running"),
         };
 

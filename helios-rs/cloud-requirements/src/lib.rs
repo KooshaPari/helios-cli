@@ -1,12 +1,12 @@
-//! Cloud-hosted config requirements for Codex.
+//! Cloud-hosted config requirements for Helios.
 //!
 //! This crate fetches `requirements.toml` data from the backend as an alternative to loading it
 //! from the local filesystem. It only applies to Business (aka Enterprise CBP) or Enterprise ChatGPT
 //! customers.
 //!
-//! Today, fetching is best-effort: on error or timeout, Codex continues without cloud requirements.
+//! Today, fetching is best-effort: on error or timeout, Helios continues without cloud requirements.
 //! We expect to tighten this so that Enterprise ChatGPT customers must successfully fetch these
-//! requirements before Codex will run.
+//! requirements before Helios will run.
 
 use async_trait::async_trait;
 use base64::Engine;
@@ -493,7 +493,10 @@ mod tests {
     use tempfile::tempdir;
 
     fn write_auth_json(helios_home: &Path, value: serde_json::Value) -> std::io::Result<()> {
-        std::fs::write(helios_home.join("auth.json"), serde_json::to_string(&value)?)?;
+        std::fs::write(
+            helios_home.join("auth.json"),
+            serde_json::to_string(&value)?,
+        )?;
         Ok(())
     }
 

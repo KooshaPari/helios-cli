@@ -302,7 +302,7 @@ Keep it **fun but useful**: crisp narrative voice, high-signal, and easy to skim
 
 For example, include (when known):
 - What they do / care about most (roles, recurring projects, goals)
-- Typical workflows and tools (how they like to work, how they use Codex/agents, preferred formats)
+- Typical workflows and tools (how they like to work, how they use Helios/agents, preferred formats)
 - Communication preferences (tone, structure, what annoys them, what “good” looks like)
 - Reusable constraints and gotchas (env quirks, constraints, defaults, “always/never” rules)
 

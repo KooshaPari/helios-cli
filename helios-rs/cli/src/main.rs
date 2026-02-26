@@ -49,7 +49,7 @@ use helios_core::features::Stage;
 use helios_core::features::is_known_feature_key;
 use helios_core::terminal::TerminalName;
 
-/// Codex CLI
+/// Helios CLI
 ///
 /// If no subcommand is specified, options will be forwarded to the interactive CLI.
 #[derive(Debug, Parser)]
@@ -80,7 +80,7 @@ struct MultitoolCli {
 
 #[derive(Debug, clap::Subcommand)]
 enum Subcommand {
-    /// Run Codex non-interactively.
+    /// Run Helios non-interactively.
     #[clap(visible_alias = "e")]
     Exec(ExecCli),
 
@@ -93,23 +93,23 @@ enum Subcommand {
     /// Remove stored authentication credentials.
     Logout(LogoutCommand),
 
-    /// Manage external MCP servers for Codex.
+    /// Manage external MCP servers for Helios.
     Mcp(McpCli),
 
-    /// Start Codex as an MCP server (stdio).
+    /// Start Helios as an MCP server (stdio).
     McpServer,
 
     /// [experimental] Run the app server or related tooling.
     AppServer(AppServerCommand),
 
-    /// Launch the Codex desktop app (downloads the macOS installer if missing).
+    /// Launch the Helios desktop app (downloads the macOS installer if missing).
     #[cfg(target_os = "macos")]
     App(app_cmd::AppCommand),
 
     /// Generate shell completion scripts.
     Completion(CompletionCommand),
 
-    /// Run commands within a Codex-provided sandbox.
+    /// Run commands within a Helios-provided sandbox.
     Sandbox(SandboxArgs),
 
     /// Debugging tools.
@@ -119,7 +119,7 @@ enum Subcommand {
     #[clap(hide = true)]
     Execpolicy(ExecpolicyCommand),
 
-    /// Apply the latest diff produced by Codex agent as a `git apply` to your local working tree.
+    /// Apply the latest diff produced by Helios agent as a `git apply` to your local working tree.
     #[clap(visible_alias = "a")]
     Apply(ApplyCommand),
 
@@ -129,7 +129,7 @@ enum Subcommand {
     /// Fork a previous interactive session (picker by default; use --last to fork the most recent).
     Fork(ForkCommand),
 
-    /// [EXPERIMENTAL] Browse tasks from Codex Cloud and apply changes locally.
+    /// [EXPERIMENTAL] Browse tasks from Helios Cloud and apply changes locally.
     #[clap(name = "cloud", alias = "cloud-tasks")]
     Cloud(CloudTasksCli),
 
@@ -315,6 +315,16 @@ struct AppServerCommand {
     )]
     listen: helios_app_server::AppServerTransport,
 
+    /// Advanced transport selector for app-server internals. `auto` falls back to
+    /// platform detection.
+    #[arg(
+        long = "transport",
+        value_name = "transport",
+        value_enum,
+        default_value_t = TransportSelection::Auto
+    )]
+    transport: TransportSelection,
+
     /// Controls whether analytics are enabled by default.
     ///
     /// Analytics are disabled by default for app-server. Users have to explicitly opt in
@@ -332,6 +342,27 @@ struct AppServerCommand {
     /// See https://developers.openai.com/codex/config-advanced/#metrics for more details.
     #[arg(long = "analytics-default-enabled")]
     analytics_default_enabled: bool,
+}
+
+#[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
+enum TransportSelection {
+    Auto,
+    Unix,
+    Ws,
+    Http2,
+    Grpc,
+}
+
+impl From<TransportSelection> for Option<helios_core::transport::TransportType> {
+    fn from(value: TransportSelection) -> Self {
+        match value {
+            TransportSelection::Auto => None,
+            TransportSelection::Unix => Some(helios_core::transport::TransportType::UnixSocket),
+            TransportSelection::Ws => Some(helios_core::transport::TransportType::WebSocket),
+            TransportSelection::Http2 => Some(helios_core::transport::TransportType::Http2),
+            TransportSelection::Grpc => Some(helios_core::transport::TransportType::Grpc),
+        }
+    }
 }
 
 #[derive(Debug, clap::Subcommand)]
@@ -432,7 +463,7 @@ fn handle_app_exit(exit_info: AppExitInfo) -> anyhow::Result<()> {
 fn run_update_action(action: UpdateAction) -> anyhow::Result<()> {
     println!();
     let cmd_str = action.command_str();
-    println!("Updating Codex via `{cmd_str}`...");
+    println!("Updating Helios via `{cmd_str}`...");
 
     let status = {
         #[cfg(windows)]
@@ -458,7 +489,7 @@ fn run_update_action(action: UpdateAction) -> anyhow::Result<()> {
     if !status.success() {
         anyhow::bail!("`{cmd_str}` failed with status {status}");
     }
-    println!("\n🎉 Update ran successfully! Please restart Codex.");
+    println!("\n🎉 Update ran successfully! Please restart Helios.");
     Ok(())
 }
 
@@ -470,7 +501,12 @@ fn run_debug_app_server_command(cmd: DebugAppServerCommand) -> anyhow::Result<()
     match cmd.subcommand {
         DebugAppServerSubcommand::SendMessageV2(cmd) => {
             let helios_bin = std::env::current_exe()?;
-            helios_app_server_test_client::send_message_v2(&helios_bin, &[], cmd.user_message, &None)
+            helios_app_server_test_client::send_message_v2(
+                &helios_bin,
+                &[],
+                cmd.user_message,
+                &None,
+            )
         }
     }
 }
@@ -603,6 +639,10 @@ async fn cli_main(
         }
         Some(Subcommand::AppServer(app_server_cli)) => match app_server_cli.subcommand {
             None => {
+                let _selected_transport = helios_core::transport::TransportSelector::new(
+                    helios_core::transport::TransportConfig::default(),
+                )
+                .select_with_preference(app_server_cli.transport.into());
                 let transport = app_server_cli.listen;
                 helios_app_server::run_main_with_transport(
                     helios_linux_sandbox_exe,
@@ -910,7 +950,7 @@ async fn run_interactive_tui(
         }
 
         eprintln!(
-            "WARNING: TERM is set to \"dumb\". Codex's interactive TUI may not work in this terminal."
+            "WARNING: TERM is set to \"dumb\". Helios's interactive TUI may not work in this terminal."
         );
         if !confirm("Continue anyway? [y/N]: ")? {
             return Ok(AppExitInfo::fatal(
@@ -1386,6 +1426,26 @@ mod tests {
     fn app_server_listen_invalid_url_fails_to_parse() {
         let parse_result =
             MultitoolCli::try_parse_from(["codex", "app-server", "--listen", "http://foo"]);
+        assert!(parse_result.is_err());
+    }
+
+    #[test]
+    fn app_server_transport_auto_is_default() {
+        let app_server = app_server_from_args(["codex", "app-server"].as_ref());
+        assert_eq!(app_server.transport, TransportSelection::Auto);
+    }
+
+    #[test]
+    fn app_server_transport_parses_explicit_value() {
+        let app_server =
+            app_server_from_args(["codex", "app-server", "--transport", "ws"].as_ref());
+        assert_eq!(app_server.transport, TransportSelection::Ws);
+    }
+
+    #[test]
+    fn app_server_transport_rejects_unknown_value() {
+        let parse_result =
+            MultitoolCli::try_parse_from(["codex", "app-server", "--transport", "invalid"]);
         assert!(parse_result.is_err());
     }
 

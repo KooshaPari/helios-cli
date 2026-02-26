@@ -82,7 +82,7 @@ pub(crate) fn migration_copy_for_models(
     }
 
     let heading_text = Span::from(format!(
-        "Codex just got an upgrade. Introducing {target_display_name}."
+        "Helios just got an upgrade. Introducing {target_display_name}."
     ))
     .bold();
     let description_line: Line<'static>;
@@ -334,7 +334,7 @@ impl ModelMigrationScreen {
     fn render_menu(&self, column: &mut ColumnRenderable) {
         column.push(Line::from(""));
         column.push(
-            Paragraph::new("Choose how you'd like Codex to proceed.")
+            Paragraph::new("Choose how you'd like Helios to proceed.")
                 .wrap(Wrap { trim: false })
                 .inset(Insets::tlbr(0, 2, 0, 0)),
         );
@@ -428,7 +428,7 @@ mod tests {
                 ),
                 None,
                 "gpt-5.1-helios-max".to_string(),
-                Some("Codex-optimized flagship for deep and fast reasoning.".to_string()),
+                Some("Helios-optimized flagship for deep and fast reasoning.".to_string()),
                 true,
             ),
         );
@@ -484,7 +484,7 @@ mod tests {
                 None,
                 None,
                 "gpt-5.1-helios-max".to_string(),
-                Some("Codex-optimized flagship for deep and fast reasoning.".to_string()),
+                Some("Helios-optimized flagship for deep and fast reasoning.".to_string()),
                 false,
             ),
         );
@@ -520,7 +520,10 @@ mod tests {
             frame.render_widget_ref(&screen, frame.area());
         }
         terminal.flush().expect("flush");
-        assert_snapshot!("model_migration_prompt_gpt5_helios_mini", terminal.backend());
+        assert_snapshot!(
+            "model_migration_prompt_gpt5_helios_mini",
+            terminal.backend()
+        );
     }
 
     #[test]

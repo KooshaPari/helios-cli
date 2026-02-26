@@ -449,7 +449,8 @@ mod tests {
             &self,
             _task: TaskId,
             _turn_id: String,
-        ) -> helios_cloud_tasks_client::Result<Vec<helios_cloud_tasks_client::TurnAttempt>> {
+        ) -> helios_cloud_tasks_client::Result<Vec<helios_cloud_tasks_client::TurnAttempt>>
+        {
             Ok(Vec::new())
         }
 

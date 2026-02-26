@@ -1,17 +1,17 @@
-use codex_protocol::protocol::Event;
-use codex_protocol::protocol::EventMsg;
-use codex_protocol::protocol::Op;
+use helios_protocol::protocol::Event;
+use helios_protocol::protocol::EventMsg;
+use helios_protocol::protocol::Op;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct ElicitationRequestKey {
     server_name: String,
-    request_id: codex_protocol::mcp::RequestId,
+    request_id: helios_protocol::mcp::RequestId,
 }
 
 impl ElicitationRequestKey {
-    fn new(server_name: String, request_id: codex_protocol::mcp::RequestId) -> Self {
+    fn new(server_name: String, request_id: helios_protocol::mcp::RequestId) -> Self {
         Self {
             server_name,
             request_id,
@@ -325,10 +325,10 @@ impl PendingInteractiveReplayState {
 #[cfg(test)]
 mod tests {
     use super::super::ThreadEventStore;
-    use codex_protocol::protocol::Event;
-    use codex_protocol::protocol::EventMsg;
-    use codex_protocol::protocol::Op;
-    use codex_protocol::protocol::TurnAbortReason;
+    use helios_protocol::protocol::Event;
+    use helios_protocol::protocol::EventMsg;
+    use helios_protocol::protocol::Op;
+    use helios_protocol::protocol::TurnAbortReason;
     use pretty_assertions::assert_eq;
     use std::collections::HashMap;
     use std::path::PathBuf;
@@ -339,7 +339,7 @@ mod tests {
         let request = Event {
             id: "ev-1".to_string(),
             msg: EventMsg::RequestUserInput(
-                codex_protocol::request_user_input::RequestUserInputEvent {
+                helios_protocol::request_user_input::RequestUserInputEvent {
                     call_id: "call-1".to_string(),
                     turn_id: "turn-1".to_string(),
                     questions: Vec::new(),
@@ -363,7 +363,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::RequestUserInput(
-                codex_protocol::request_user_input::RequestUserInputEvent {
+                helios_protocol::request_user_input::RequestUserInputEvent {
                     call_id: "call-1".to_string(),
                     turn_id: "turn-1".to_string(),
                     questions: Vec::new(),
@@ -373,7 +373,7 @@ mod tests {
 
         store.note_outbound_op(&Op::UserInputAnswer {
             id: "turn-1".to_string(),
-            response: codex_protocol::request_user_input::RequestUserInputResponse {
+            response: helios_protocol::request_user_input::RequestUserInputResponse {
                 answers: HashMap::new(),
             },
         });
@@ -391,7 +391,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::ExecApprovalRequest(
-                codex_protocol::protocol::ExecApprovalRequestEvent {
+                helios_protocol::protocol::ExecApprovalRequestEvent {
                     call_id: "call-1".to_string(),
                     approval_id: Some("approval-1".to_string()),
                     turn_id: "turn-1".to_string(),
@@ -410,7 +410,7 @@ mod tests {
         store.note_outbound_op(&Op::ExecApproval {
             id: "approval-1".to_string(),
             turn_id: Some("turn-1".to_string()),
-            decision: codex_protocol::protocol::ReviewDecision::Approved,
+            decision: helios_protocol::protocol::ReviewDecision::Approved,
         });
 
         let snapshot = store.snapshot();
@@ -426,7 +426,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::RequestUserInput(
-                codex_protocol::request_user_input::RequestUserInputEvent {
+                helios_protocol::request_user_input::RequestUserInputEvent {
                     call_id: "call-1".to_string(),
                     turn_id: "turn-1".to_string(),
                     questions: Vec::new(),
@@ -436,7 +436,7 @@ mod tests {
 
         store.note_outbound_op(&Op::UserInputAnswer {
             id: "turn-1".to_string(),
-            response: codex_protocol::request_user_input::RequestUserInputResponse {
+            response: helios_protocol::request_user_input::RequestUserInputResponse {
                 answers: HashMap::new(),
             },
         });
@@ -444,7 +444,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-2".to_string(),
             msg: EventMsg::RequestUserInput(
-                codex_protocol::request_user_input::RequestUserInputEvent {
+                helios_protocol::request_user_input::RequestUserInputEvent {
                     call_id: "call-2".to_string(),
                     turn_id: "turn-1".to_string(),
                     questions: Vec::new(),
@@ -466,7 +466,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::RequestUserInput(
-                codex_protocol::request_user_input::RequestUserInputEvent {
+                helios_protocol::request_user_input::RequestUserInputEvent {
                     call_id: "call-1".to_string(),
                     turn_id: "turn-1".to_string(),
                     questions: Vec::new(),
@@ -476,7 +476,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-2".to_string(),
             msg: EventMsg::RequestUserInput(
-                codex_protocol::request_user_input::RequestUserInputEvent {
+                helios_protocol::request_user_input::RequestUserInputEvent {
                     call_id: "call-2".to_string(),
                     turn_id: "turn-1".to_string(),
                     questions: Vec::new(),
@@ -486,7 +486,7 @@ mod tests {
 
         store.note_outbound_op(&Op::UserInputAnswer {
             id: "turn-1".to_string(),
-            response: codex_protocol::request_user_input::RequestUserInputResponse {
+            response: helios_protocol::request_user_input::RequestUserInputResponse {
                 answers: HashMap::new(),
             },
         });
@@ -505,7 +505,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::ApplyPatchApprovalRequest(
-                codex_protocol::protocol::ApplyPatchApprovalRequestEvent {
+                helios_protocol::protocol::ApplyPatchApprovalRequestEvent {
                     call_id: "call-1".to_string(),
                     turn_id: "turn-1".to_string(),
                     changes: HashMap::new(),
@@ -517,7 +517,7 @@ mod tests {
 
         store.note_outbound_op(&Op::PatchApproval {
             id: "call-1".to_string(),
-            decision: codex_protocol::protocol::ReviewDecision::Approved,
+            decision: helios_protocol::protocol::ReviewDecision::Approved,
         });
 
         let snapshot = store.snapshot();
@@ -533,7 +533,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::ExecApprovalRequest(
-                codex_protocol::protocol::ExecApprovalRequestEvent {
+                helios_protocol::protocol::ExecApprovalRequestEvent {
                     call_id: "exec-call-1".to_string(),
                     approval_id: Some("approval-1".to_string()),
                     turn_id: "turn-1".to_string(),
@@ -551,7 +551,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-2".to_string(),
             msg: EventMsg::ApplyPatchApprovalRequest(
-                codex_protocol::protocol::ApplyPatchApprovalRequestEvent {
+                helios_protocol::protocol::ApplyPatchApprovalRequestEvent {
                     call_id: "patch-call-1".to_string(),
                     turn_id: "turn-1".to_string(),
                     changes: HashMap::new(),
@@ -562,7 +562,7 @@ mod tests {
         });
         store.push_event(Event {
             id: "ev-3".to_string(),
-            msg: EventMsg::TurnAborted(codex_protocol::protocol::TurnAbortedEvent {
+            msg: EventMsg::TurnAborted(helios_protocol::protocol::TurnAbortedEvent {
                 turn_id: Some("turn-1".to_string()),
                 reason: TurnAbortReason::Replaced,
             }),
@@ -580,10 +580,10 @@ mod tests {
     #[test]
     fn thread_event_snapshot_drops_resolved_elicitation_after_outbound_resolution() {
         let mut store = ThreadEventStore::new(8);
-        let request_id = codex_protocol::mcp::RequestId::String("request-1".to_string());
+        let request_id = helios_protocol::mcp::RequestId::String("request-1".to_string());
         store.push_event(Event {
             id: "ev-1".to_string(),
-            msg: EventMsg::ElicitationRequest(codex_protocol::approvals::ElicitationRequestEvent {
+            msg: EventMsg::ElicitationRequest(helios_protocol::approvals::ElicitationRequestEvent {
                 server_name: "server-1".to_string(),
                 id: request_id.clone(),
                 message: "Please confirm".to_string(),
@@ -593,7 +593,7 @@ mod tests {
         store.note_outbound_op(&Op::ResolveElicitation {
             server_name: "server-1".to_string(),
             request_id,
-            decision: codex_protocol::approvals::ElicitationAction::Accept,
+            decision: helios_protocol::approvals::ElicitationAction::Accept,
         });
 
         let snapshot = store.snapshot();
@@ -611,7 +611,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::ExecApprovalRequest(
-                codex_protocol::protocol::ExecApprovalRequestEvent {
+                helios_protocol::protocol::ExecApprovalRequestEvent {
                     call_id: "call-1".to_string(),
                     approval_id: None,
                     turn_id: "turn-1".to_string(),
@@ -632,7 +632,7 @@ mod tests {
         store.note_outbound_op(&Op::ExecApproval {
             id: "call-1".to_string(),
             turn_id: Some("turn-1".to_string()),
-            decision: codex_protocol::protocol::ReviewDecision::Approved,
+            decision: helios_protocol::protocol::ReviewDecision::Approved,
         });
 
         assert_eq!(store.has_pending_thread_approvals(), false);
@@ -644,7 +644,7 @@ mod tests {
         store.push_event(Event {
             id: "ev-1".to_string(),
             msg: EventMsg::RequestUserInput(
-                codex_protocol::request_user_input::RequestUserInputEvent {
+                helios_protocol::request_user_input::RequestUserInputEvent {
                     call_id: "call-1".to_string(),
                     turn_id: "turn-1".to_string(),
                     questions: Vec::new(),

@@ -1,14 +1,14 @@
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
+use cpal::traits::DeviceTrait;
+use cpal::traits::HostTrait;
+use cpal::traits::StreamTrait;
 use helios_core::auth::AuthCredentialsStoreMode;
 use helios_core::config::Config;
 use helios_core::config::find_helios_home;
 use helios_core::default_client::get_helios_user_agent;
 use helios_login::AuthMode;
 use helios_login::CodexAuth;
-use cpal::traits::DeviceTrait;
-use cpal::traits::HostTrait;
-use cpal::traits::StreamTrait;
 use hound::SampleFormat;
 use hound::WavSpec;
 use hound::WavWriter;
@@ -413,7 +413,7 @@ async fn resolve_auth() -> Result<TranscriptionAuthContext, String> {
     let helios_home = find_helios_home().map_err(|e| format!("failed to find codex home: {e}"))?;
     let auth = CodexAuth::from_auth_storage(&helios_home, AuthCredentialsStoreMode::Auto)
         .map_err(|e| format!("failed to read auth.json: {e}"))?
-        .ok_or_else(|| "No Codex auth is configured; please run `codex login`".to_string())?;
+        .ok_or_else(|| "No Helios auth is configured; please run `codex login`".to_string())?;
 
     let chatgpt_account_id = auth.get_account_id();
 

@@ -27,6 +27,7 @@ use crate::tools::sandboxing::ToolRuntime;
 use crate::tools::sandboxing::default_exec_approval_requirement;
 use helios_otel::ToolDecisionSource;
 use helios_protocol::protocol::AskForApproval;
+use helios_protocol::protocol::NetworkPolicyRuleAction;
 use helios_protocol::protocol::ReviewDecision;
 
 pub(crate) struct ToolOrchestrator {
@@ -142,6 +143,14 @@ impl ToolOrchestrator {
                     ReviewDecision::Denied | ReviewDecision::Abort => {
                         return Err(ToolError::Rejected("rejected by user".to_string()));
                     }
+                    ReviewDecision::NetworkPolicyAmendment {
+                        network_policy_amendment,
+                    } => match network_policy_amendment.action {
+                        NetworkPolicyRuleAction::Allow => {}
+                        NetworkPolicyRuleAction::Deny => {
+                            return Err(ToolError::Rejected("rejected by user".to_string()));
+                        }
+                    },
                     ReviewDecision::Approved
                     | ReviewDecision::ApprovedExecpolicyAmendment { .. }
                     | ReviewDecision::ApprovedForSession => {}
@@ -197,7 +206,7 @@ impl ToolOrchestrator {
                     deferred_network_approval: first_deferred_network_approval,
                 })
             }
-            Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Denied {
+            Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Denied {
                 output,
                 network_policy_decision,
             }))) => {
@@ -209,13 +218,13 @@ impl ToolOrchestrator {
                     None
                 };
                 if network_policy_decision.is_some() && network_approval_context.is_none() {
-                    return Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Denied {
+                    return Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Denied {
                         output,
                         network_policy_decision,
                     })));
                 }
                 if !tool.escalate_on_failure() {
-                    return Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Denied {
+                    return Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Denied {
                         output,
                         network_policy_decision,
                     })));
@@ -234,7 +243,7 @@ impl ToolOrchestrator {
                                 ExecApprovalRequirement::NeedsApproval { .. }
                             );
                     if !allow_on_request_network_prompt {
-                        return Err(ToolError::Codex(CodexErr::Sandbox(SandboxErr::Denied {
+                        return Err(ToolError::Helios(CodexErr::Sandbox(SandboxErr::Denied {
                             output,
                             network_policy_decision,
                         })));
@@ -270,6 +279,14 @@ impl ToolOrchestrator {
                         ReviewDecision::Denied | ReviewDecision::Abort => {
                             return Err(ToolError::Rejected("rejected by user".to_string()));
                         }
+                        ReviewDecision::NetworkPolicyAmendment {
+                            network_policy_amendment,
+                        } => match network_policy_amendment.action {
+                            NetworkPolicyRuleAction::Allow => {}
+                            NetworkPolicyRuleAction::Deny => {
+                                return Err(ToolError::Rejected("rejected by user".to_string()));
+                            }
+                        },
                         ReviewDecision::Approved
                         | ReviewDecision::ApprovedExecpolicyAmendment { .. }
                         | ReviewDecision::ApprovedForSession => {}

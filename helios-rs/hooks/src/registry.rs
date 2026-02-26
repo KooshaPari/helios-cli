@@ -23,7 +23,7 @@ impl Default for Hooks {
 }
 
 // Hooks are arbitrary, user-specified functions that are deterministically
-// executed after specific events in the Codex lifecycle.
+// executed after specific events in the Helios lifecycle.
 impl Hooks {
     pub fn new(config: HooksConfig) -> Self {
         let after_agent = config

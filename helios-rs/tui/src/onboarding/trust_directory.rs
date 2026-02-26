@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use helios_core::config::set_project_trust_level;
-use helios_core::git_info::resolve_root_git_project_for_trust;
-use helios_protocol::config_types::TrustLevel;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyEventKind;
+use helios_core::config::set_project_trust_level;
+use helios_core::git_info::resolve_root_git_project_for_trust;
+use helios_protocol::config_types::TrustLevel;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize;

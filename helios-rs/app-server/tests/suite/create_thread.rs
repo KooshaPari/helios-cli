@@ -27,7 +27,7 @@ async fn test_conversation_create_and_send_message_ok() -> Result<()> {
     let server = responses::start_mock_server().await;
     let response_mock = responses::mount_sse_sequence(&server, vec![response_body]).await;
 
-    // Temporary Codex home with config pointing at the mock server.
+    // Temporary Helios home with config pointing at the mock server.
     let helios_home = TempDir::new()?;
     create_config_toml(helios_home.path(), &server.uri())?;
 

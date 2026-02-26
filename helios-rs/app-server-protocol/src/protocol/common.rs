@@ -23,13 +23,13 @@ impl GitSha {
     }
 }
 
-/// Authentication mode for OpenAI-backed providers.
+/// Authentication mode for Phenotype-backed providers.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Display, JsonSchema, TS)]
 #[serde(rename_all = "lowercase")]
 pub enum AuthMode {
-    /// OpenAI API key provided by the caller and stored by Codex.
+    /// Phenotype API key provided by the caller and stored by Helios.
     ApiKey,
-    /// ChatGPT OAuth managed by Codex (tokens persisted and refreshed by Codex).
+    /// ChatGPT OAuth managed by Helios (tokens persisted and refreshed by Helios).
     Chatgpt,
     /// [UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE.
     ///
@@ -386,17 +386,17 @@ client_request_definitions! {
         params: v1::GetConversationSummaryParams,
         response: v1::GetConversationSummaryResponse,
     },
-    /// List recorded Codex conversations (rollouts) with optional pagination and search.
+    /// List recorded Helios conversations (rollouts) with optional pagination and search.
     ListConversations {
         params: v1::ListConversationsParams,
         response: v1::ListConversationsResponse,
     },
-    /// Resume a recorded Codex conversation from a rollout file.
+    /// Resume a recorded Helios conversation from a rollout file.
     ResumeConversation {
         params: v1::ResumeConversationParams,
         response: v1::ResumeConversationResponse,
     },
-    /// Fork a recorded Codex conversation into a new session.
+    /// Fork a recorded Helios conversation into a new session.
     ForkConversation {
         params: v1::ForkConversationParams,
         response: v1::ForkConversationResponse,
@@ -800,7 +800,7 @@ server_notification_definitions! {
     TurnPlanUpdated => "turn/plan/updated" (v2::TurnPlanUpdatedNotification),
     ItemStarted => "item/started" (v2::ItemStartedNotification),
     ItemCompleted => "item/completed" (v2::ItemCompletedNotification),
-    /// This event is internal-only. Used by Codex Cloud.
+    /// This event is internal-only. Used by Helios Cloud.
     RawResponseItemCompleted => "rawResponseItem/completed" (v2::RawResponseItemCompletedNotification),
     AgentMessageDelta => "item/agentMessage/delta" (v2::AgentMessageDeltaNotification),
     /// EXPERIMENTAL - proposed plan streaming deltas for plan items.
@@ -903,7 +903,7 @@ mod tests {
             params: v1::InitializeParams {
                 client_info: v1::ClientInfo {
                     name: "helios_vscode".to_string(),
-                    title: Some("Codex VS Code Extension".to_string()),
+                    title: Some("Helios VS Code Extension".to_string()),
                     version: "0.1.0".to_string(),
                 },
                 capabilities: Some(v1::InitializeCapabilities {
@@ -923,7 +923,7 @@ mod tests {
                 "params": {
                     "clientInfo": {
                         "name": "helios_vscode",
-                        "title": "Codex VS Code Extension",
+                        "title": "Helios VS Code Extension",
                         "version": "0.1.0"
                     },
                     "capabilities": {
@@ -948,7 +948,7 @@ mod tests {
             "params": {
                 "clientInfo": {
                     "name": "helios_vscode",
-                    "title": "Codex VS Code Extension",
+                    "title": "Helios VS Code Extension",
                     "version": "0.1.0"
                 },
                 "capabilities": {
@@ -968,7 +968,7 @@ mod tests {
                 params: v1::InitializeParams {
                     client_info: v1::ClientInfo {
                         name: "helios_vscode".to_string(),
-                        title: Some("Codex VS Code Extension".to_string()),
+                        title: Some("Helios VS Code Extension".to_string()),
                         version: "0.1.0".to_string(),
                     },
                     capabilities: Some(v1::InitializeCapabilities {

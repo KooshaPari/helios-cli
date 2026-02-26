@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-23T10:13:12.962507+00:00`
 - Command: `/bin/sh -c 'i=0; while [  -lt 500000 ]; do i=1; :; done'`

@@ -9,13 +9,13 @@ use tokio_util::sync::CancellationToken;
 use tracing::error;
 use uuid::Uuid;
 
-use crate::codex::TurnContext;
 use crate::exec::ExecToolCallOutput;
 use crate::exec::SandboxType;
 use crate::exec::StdoutStream;
 use crate::exec::StreamOutput;
 use crate::exec::execute_exec_env;
 use crate::exec_env::create_env;
+use crate::helios::TurnContext;
 use crate::parse_command::parse_command;
 use crate::protocol::EventMsg;
 use crate::protocol::ExecCommandBeginEvent;
@@ -33,7 +33,7 @@ use crate::user_shell_command::user_shell_command_record_item;
 
 use super::SessionTask;
 use super::SessionTaskContext;
-use crate::codex::Session;
+use crate::helios::Session;
 use helios_protocol::models::ResponseInputItem;
 use helios_protocol::models::ResponseItem;
 
@@ -147,7 +147,6 @@ pub(crate) async fn execute_user_shell_command(
         )
         .await;
 
-    let sandbox_policy = SandboxPolicy::DangerFullAccess;
     let exec_env = ExecRequest {
         command: exec_command.clone(),
         cwd: cwd.clone(),
@@ -162,7 +161,6 @@ pub(crate) async fn execute_user_shell_command(
         sandbox: SandboxType::None,
         windows_sandbox_level: turn_context.windows_sandbox_level,
         sandbox_permissions: SandboxPermissions::UseDefault,
-        sandbox_policy: sandbox_policy.clone(),
         justification: None,
         arg0: None,
     };
@@ -173,6 +171,7 @@ pub(crate) async fn execute_user_shell_command(
         tx_event: session.get_tx_event(),
     });
 
+    let sandbox_policy = SandboxPolicy::DangerFullAccess;
     let exec_result = execute_exec_env(exec_env, &sandbox_policy, stdout_stream)
         .or_cancel(&cancellation_token)
         .await;

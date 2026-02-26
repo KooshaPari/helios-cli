@@ -27,18 +27,11 @@ use crate::tools::sandboxing::ToolError;
 use crate::tools::sandboxing::ToolRuntime;
 use crate::tools::sandboxing::with_cached_approval;
 use crate::zsh_exec_bridge::ZSH_EXEC_BRIDGE_WRAPPER_SOCKET_ENV_VAR;
-use helios_network_proxy::NetworkProxy;
-use helios_protocol::protocol::ReviewDecision;
-use helios_protocol::models::PermissionProfile;
 use futures::future::BoxFuture;
+use helios_network_proxy::NetworkProxy;
+use helios_protocol::models::PermissionProfile;
+use helios_protocol::protocol::ReviewDecision;
 use std::path::PathBuf;
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ShellRuntimeBackend {
-    Generic,
-    ShellCommandClassic,
-    ShellCommandZshFork,
-}
 
 #[derive(Clone, Debug)]
 pub struct ShellRequest {
@@ -54,8 +47,17 @@ pub struct ShellRequest {
     pub exec_approval_requirement: ExecApprovalRequirement,
 }
 
-#[derive(Default)]
-pub struct ShellRuntime;
+#[derive(Clone, Copy, Debug)]
+pub enum ShellRuntimeBackend {
+    Generic,
+    ShellCommandClassic,
+    ShellCommandZshFork,
+}
+
+#[derive(Debug)]
+pub struct ShellRuntime {
+    shell_runtime_backend: ShellRuntimeBackend,
+}
 
 #[derive(serde::Serialize, Clone, Debug, Eq, PartialEq, Hash)]
 pub(crate) struct ApprovalKey {
@@ -66,11 +68,15 @@ pub(crate) struct ApprovalKey {
 
 impl ShellRuntime {
     pub fn new() -> Self {
-        Self
+        Self {
+            shell_runtime_backend: ShellRuntimeBackend::Generic,
+        }
     }
 
-    pub fn for_shell_command(_backend: ShellRuntimeBackend) -> Self {
-        Self
+    pub(crate) fn for_shell_command(backend: ShellRuntimeBackend) -> Self {
+        Self {
+            shell_runtime_backend: backend,
+        }
     }
 
     fn stdout_stream(ctx: &ToolCtx) -> Option<crate::exec::StdoutStream> {
@@ -131,6 +137,8 @@ impl Approvable<ShellRequest> for ShellRuntime {
                         req.exec_approval_requirement
                             .proposed_execpolicy_amendment()
                             .cloned(),
+                        None,
+                        req.additional_permissions.clone(),
                     )
                     .await
             })
@@ -211,12 +219,11 @@ impl ToolRuntime<ShellRequest, ExecToolCallOutput> for ShellRuntime {
                 &zsh_fork_env,
                 req.timeout_ms.into(),
                 req.sandbox_permissions,
-                req.additional_permissions.clone(),
                 req.justification.clone(),
             )?;
             let env = attempt
                 .env_for(spec, req.network.as_ref())
-                .map_err(|err| ToolError::Codex(err.into()))?;
+                .map_err(|err| ToolError::Helios(err.into()))?;
             return ctx
                 .session
                 .services
@@ -225,21 +232,20 @@ impl ToolRuntime<ShellRequest, ExecToolCallOutput> for ShellRuntime {
                 .await;
         }
 
-            let spec = build_command_spec(
-                &command,
-                &req.cwd,
-                &req.env,
-                req.timeout_ms.into(),
-                req.sandbox_permissions,
-                req.additional_permissions.clone(),
-                req.justification.clone(),
-            )?;
+        let spec = build_command_spec(
+            &command,
+            &req.cwd,
+            &req.env,
+            req.timeout_ms.into(),
+            req.sandbox_permissions,
+            req.justification.clone(),
+        )?;
         let env = attempt
             .env_for(spec, req.network.as_ref())
-            .map_err(|err| ToolError::Codex(err.into()))?;
+            .map_err(|err| ToolError::Helios(err.into()))?;
         let out = execute_env(env, attempt.policy, Self::stdout_stream(ctx))
             .await
-            .map_err(ToolError::Codex)?;
+            .map_err(ToolError::Helios)?;
         Ok(out)
     }
 }

@@ -60,17 +60,17 @@ pub fn blocked_header_value(reason: &str) -> &'static str {
 pub fn blocked_message(reason: &str) -> &'static str {
     match reason {
         REASON_NOT_ALLOWED => {
-            "Codex blocked this request: domain not in allowlist (this is not a denylist block)."
+            "Helios blocked this request: domain not in allowlist (this is not a denylist block)."
         }
         REASON_NOT_ALLOWED_LOCAL => {
-            "Codex blocked this request: local/private addresses not allowed."
+            "Helios blocked this request: local/private addresses not allowed."
         }
-        REASON_DENIED => "Codex blocked this request: domain denied by policy.",
+        REASON_DENIED => "Helios blocked this request: domain denied by policy.",
         REASON_METHOD_NOT_ALLOWED => {
-            "Codex blocked this request: method not allowed in limited mode."
+            "Helios blocked this request: method not allowed in limited mode."
         }
-        REASON_MITM_REQUIRED => "Codex blocked this request: MITM required for limited HTTPS.",
-        _ => "Codex blocked this request by network policy.",
+        REASON_MITM_REQUIRED => "Helios blocked this request: MITM required for limited HTTPS.",
+        _ => "Helios blocked this request by network policy.",
     }
 }
 
@@ -119,7 +119,7 @@ mod tests {
         let message = blocked_message_with_policy(REASON_NOT_ALLOWED, &details);
         assert_eq!(
             message,
-            "Codex blocked this request: domain not in allowlist (this is not a denylist block)."
+            "Helios blocked this request: domain not in allowlist (this is not a denylist block)."
         );
     }
 }

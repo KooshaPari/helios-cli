@@ -56,9 +56,48 @@ where
     })
 }
 
+fn normalize_additional_permissions(
+    additional_permissions: PermissionProfile,
+    cwd: &Path,
+) -> Result<PermissionProfile, String> {
+    let cwd = cwd.to_path_buf();
+
+    let Some(file_system) = additional_permissions.file_system else {
+        return Ok(additional_permissions);
+    };
+
+    let normalize_paths = |paths: Option<Vec<PathBuf>>| -> Result<Option<Vec<PathBuf>>, String> {
+        let Some(paths) = paths else {
+            return Ok(None);
+        };
+
+        let normalized = paths
+            .into_iter()
+            .map(|path| {
+                if path.is_absolute() {
+                    Ok(path)
+                } else {
+                    Ok(cwd.join(path))
+                }
+            })
+            .collect::<Result<Vec<PathBuf>, String>>()?;
+
+        Ok(Some(normalized))
+    };
+
+    Ok(PermissionProfile {
+        network: additional_permissions.network,
+        file_system: Some(codex_protocol::models::FileSystemPermissions {
+            read: normalize_paths(file_system.read)?,
+            write: normalize_paths(file_system.write)?,
+        }),
+        macos: additional_permissions.macos,
+    })
+}
+
 /// Validates feature/policy constraints for `with_additional_permissions` and
 /// returns normalized absolute paths. Errors if paths are invalid.
-pub(super) fn normalize_and_validate_additional_permissions(
+pub(crate) fn normalize_and_validate_additional_permissions(
     request_permission_enabled: bool,
     approval_policy: AskForApproval,
     sandbox_permissions: SandboxPermissions,

@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-23T10:02:17.881407+00:00`
 - Command: `sleep 0.6`

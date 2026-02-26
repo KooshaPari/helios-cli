@@ -13,6 +13,8 @@ pub mod exec_events;
 pub use cli::Cli;
 pub use cli::Command;
 pub use cli::ReviewArgs;
+use event_processor_with_human_output::EventProcessorWithHumanOutput;
+use event_processor_with_jsonl_output::EventProcessorWithJsonOutput;
 use helios_cloud_requirements::cloud_requirements_loader;
 use helios_core::AuthManager;
 use helios_core::LMSTUDIO_OSS_PROVIDER_ID;
@@ -45,8 +47,6 @@ use helios_protocol::user_input::UserInput;
 use helios_utils_absolute_path::AbsolutePathBuf;
 use helios_utils_oss::ensure_oss_provider_ready;
 use helios_utils_oss::get_default_model_for_oss_provider;
-use event_processor_with_human_output::EventProcessorWithHumanOutput;
-use event_processor_with_jsonl_output::EventProcessorWithJsonOutput;
 use serde_json::Value;
 use std::collections::HashSet;
 use std::io::IsTerminal;
@@ -102,6 +102,7 @@ pub async fn run_main(cli: Cli, helios_linux_sandbox_exe: Option<PathBuf>) -> an
         config_profile,
         full_auto,
         dangerously_bypass_approvals_and_sandbox,
+        progress_cursor,
         cwd,
         skip_git_repo_check,
         add_dir,
@@ -319,6 +320,7 @@ pub async fn run_main(cli: Cli, helios_linux_sandbox_exe: Option<PathBuf>) -> an
         true => Box::new(EventProcessorWithJsonOutput::new(last_message_file.clone())),
         _ => Box::new(EventProcessorWithHumanOutput::create_with_ansi(
             stdout_with_ansi,
+            progress_cursor,
             &config,
             last_message_file.clone(),
         )),
@@ -458,11 +460,11 @@ pub async fn run_main(cli: Cli, helios_linux_sandbox_exe: Option<PathBuf>) -> an
         }
     };
 
-    // Print the effective configuration and initial request so users can see what Codex
+    // Print the effective configuration and initial request so users can see what Helios
     // is using.
     event_processor.print_config_summary(&config, &prompt_summary, &session_configured);
 
-    info!("Codex initialized with event: {session_configured:?}");
+    info!("Helios initialized with event: {session_configured:?}");
 
     let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<ThreadEventEnvelope>();
     let attached_threads = Arc::new(Mutex::new(HashSet::from([primary_thread_id])));
@@ -473,7 +475,7 @@ pub async fn run_main(cli: Cli, helios_linux_sandbox_exe: Option<PathBuf>) -> an
         tokio::spawn(async move {
             if tokio::signal::ctrl_c().await.is_ok() {
                 tracing::debug!("Keyboard interrupt");
-                // Immediately notify Codex to abort any in-flight task.
+                // Immediately notify Helios to abort any in-flight task.
                 thread.submit(Op::Interrupt).await.ok();
             }
         });

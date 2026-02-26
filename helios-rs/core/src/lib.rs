@@ -1,26 +1,13 @@
 //! Root of the `helios-core` library.
+
+// Prevent accidental direct writes to stdout/stderr in library code. All
+// user-visible output must go through the appropriate abstraction (e.g.,
+// the TUI or the tracing stack).
 #![deny(clippy::print_stdout, clippy::print_stderr)]
+extern crate helios_app_server_protocol as codex_app_server_protocol;
+extern crate helios_protocol as codex_protocol;
+extern crate helios_state as codex_state;
 pub mod transport;
-
-// Legacy compatibility surface kept for forked names used in the Rust sources.
-pub(crate) mod helios {
-    pub(crate) use crate::codex::*;
-    pub(crate) use crate::codex_delegate::*;
-    pub(crate) use crate::state::*;
-    pub(crate) use crate::state_db::*;
-    pub(crate) use crate::thread_manager::*;
-    pub(crate) use crate::compact::*;
-    pub(crate) use crate::mcp::*;
-    pub(crate) use crate::environment_context::*;
-}
-
-extern crate helios_app_server_protocol as helios_app_server_protocol;
-extern crate helios_execpolicy as helios_execpolicy;
-extern crate helios_network_proxy as helios_network_proxy;
-extern crate helios_protocol as helios_protocol;
-extern crate helios_shell_command as helios_shell_command;
-extern crate helios_state as helios_state;
-extern crate helios_utils_absolute_path as helios_utils_absolute_path;
 
 mod analytics_client;
 pub mod api_bridge;
@@ -30,14 +17,19 @@ pub mod auth;
 mod client;
 mod client_common;
 pub mod codex;
+pub mod helios {
+    pub use crate::codex::*;
+}
 mod realtime_conversation;
 pub use helios::SteerInputError;
+mod codex_delegate;
 mod codex_thread;
 mod compact_remote;
-pub use codex_thread::CodexThread;
-pub use codex_thread::ThreadConfigSnapshot;
+mod helios_delegate;
+mod helios_thread;
+pub use helios_thread::CodexThread;
+pub use helios_thread::ThreadConfigSnapshot;
 mod agent;
-mod codex_delegate;
 mod command_canonicalization;
 mod commit_attribution;
 pub mod config;

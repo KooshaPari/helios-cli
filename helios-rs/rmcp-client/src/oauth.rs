@@ -50,7 +50,7 @@ use tokio::sync::Mutex;
 
 use helios_utils_home_dir::find_helios_home;
 
-const KEYRING_SERVICE: &str = "Codex MCP Credentials";
+const KEYRING_SERVICE: &str = "Helios MCP Credentials";
 const REFRESH_SKEW_MILLIS: u64 = 30_000;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -63,16 +63,16 @@ pub struct StoredOAuthTokens {
     pub expires_at: Option<u64>,
 }
 
-/// Determine where Codex should store and read MCP credentials.
+/// Determine where Helios should store and read MCP credentials.
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum OAuthCredentialsStoreMode {
     /// `Keyring` when available; otherwise, `File`.
-    /// Credentials stored in the keyring will only be readable by Codex unless the user explicitly grants access via OS-level keyring access.
+    /// Credentials stored in the keyring will only be readable by Helios unless the user explicitly grants access via OS-level keyring access.
     #[default]
     Auto,
     /// HELIOS_HOME/.credentials.json
-    /// This file will be readable to Codex and other applications running as the same user.
+    /// This file will be readable to Helios and other applications running as the same user.
     File,
     /// Keyring when available, otherwise fail.
     Keyring,

@@ -1629,8 +1629,12 @@ mod tests {
     #[tokio::test]
     async fn enforce_login_restrictions_logs_out_for_method_mismatch() {
         let helios_home = tempdir().unwrap();
-        login_with_api_key(helios_home.path(), "sk-test", AuthCredentialsStoreMode::File)
-            .expect("seed api key");
+        login_with_api_key(
+            helios_home.path(),
+            "sk-test",
+            AuthCredentialsStoreMode::File,
+        )
+        .expect("seed api key");
 
         let config = build_config(helios_home.path(), Some(ForcedLoginMethod::Chatgpt), None).await;
 
@@ -1695,8 +1699,12 @@ mod tests {
     async fn enforce_login_restrictions_allows_api_key_if_login_method_not_set_but_forced_chatgpt_workspace_id_is_set()
      {
         let helios_home = tempdir().unwrap();
-        login_with_api_key(helios_home.path(), "sk-test", AuthCredentialsStoreMode::File)
-            .expect("seed api key");
+        login_with_api_key(
+            helios_home.path(),
+            "sk-test",
+            AuthCredentialsStoreMode::File,
+        )
+        .expect("seed api key");
 
         let config = build_config(helios_home.path(), None, Some("org_mine".to_string())).await;
 

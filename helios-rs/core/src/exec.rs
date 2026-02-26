@@ -244,7 +244,6 @@ pub(crate) async fn execute_exec_env(
         sandbox,
         windows_sandbox_level,
         sandbox_permissions,
-        sandbox_policy: _sandbox_policy_from_env,
         justification,
         arg0,
     } = env;
@@ -522,9 +521,6 @@ pub(crate) mod errors {
                 SandboxTransformError::SeatbeltUnavailable => CodexErr::UnsupportedOperation(
                     "seatbelt sandbox is only available on macOS".to_string(),
                 ),
-                SandboxTransformError::InvalidAdditionalPermissionsPath(path) => {
-                    CodexErr::InvalidRequest(format!("invalid additional_permissions path: {path}"))
-                }
             }
         }
     }

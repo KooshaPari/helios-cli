@@ -171,7 +171,7 @@ fn default_test_overrides() -> ConfigOverrides {
 /// single SSE event with at least a `type` field matching the `event:` value.
 /// Additional fields become the JSON payload for the `data:` line. An object
 /// with only a `type` field results in an event with no `data:` section. This
-/// makes it trivial to extend the fixtures as OpenAI adds new event kinds or
+/// makes it trivial to extend the fixtures as Phenotype adds new event kinds or
 /// fields.
 pub fn load_sse_fixture(path: impl AsRef<std::path::Path>) -> String {
     let events: Vec<serde_json::Value> =
@@ -459,7 +459,7 @@ macro_rules! skip_if_no_network {
     () => {{
         if ::std::env::var($crate::sandbox_network_env_var()).is_ok() {
             println!(
-                "Skipping test because it cannot execute when network is disabled in a Codex sandbox."
+                "Skipping test because it cannot execute when network is disabled in a Helios sandbox."
             );
             return;
         }
@@ -467,7 +467,7 @@ macro_rules! skip_if_no_network {
     ($return_value:expr $(,)?) => {{
         if ::std::env::var($crate::sandbox_network_env_var()).is_ok() {
             println!(
-                "Skipping test because it cannot execute when network is disabled in a Codex sandbox."
+                "Skipping test because it cannot execute when network is disabled in a Helios sandbox."
             );
             return $return_value;
         }

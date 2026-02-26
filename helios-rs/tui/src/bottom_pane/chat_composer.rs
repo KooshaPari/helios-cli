@@ -389,6 +389,7 @@ pub(crate) struct ChatComposer {
     collaboration_mode_indicator: Option<CollaborationModeIndicator>,
     connectors_enabled: bool,
     personality_command_enabled: bool,
+    realtime_conversation_enabled: bool,
     windows_degraded_sandbox_active: bool,
     status_line_value: Option<Line<'static>>,
     status_line_enabled: bool,
@@ -494,6 +495,7 @@ impl ChatComposer {
             collaboration_mode_indicator: None,
             connectors_enabled: false,
             personality_command_enabled: false,
+            realtime_conversation_enabled: false,
             windows_degraded_sandbox_active: false,
             status_line_value: None,
             status_line_enabled: false,
@@ -576,6 +578,10 @@ impl ChatComposer {
 
     pub fn set_personality_command_enabled(&mut self, enabled: bool) {
         self.personality_command_enabled = enabled;
+    }
+
+    pub fn set_realtime_conversation_enabled(&mut self, enabled: bool) {
+        self.realtime_conversation_enabled = enabled;
     }
 
     pub fn set_voice_transcription_enabled(&mut self, enabled: bool) {
@@ -2245,6 +2251,7 @@ impl ChatComposer {
                     self.collaboration_modes_enabled,
                     self.connectors_enabled,
                     self.personality_command_enabled,
+                    self.realtime_conversation_enabled,
                     self.windows_degraded_sandbox_active,
                 )
                 .is_some();
@@ -2439,13 +2446,14 @@ impl ChatComposer {
         let first_line = self.textarea.text().lines().next().unwrap_or("");
         if let Some((name, rest, _rest_offset)) = parse_slash_name(first_line)
             && rest.is_empty()
-            && let Some(cmd) = slash_commands::find_builtin_command(
-                name,
-                self.collaboration_modes_enabled,
-                self.connectors_enabled,
-                self.personality_command_enabled,
-                self.windows_degraded_sandbox_active,
-            )
+                && let Some(cmd) = slash_commands::find_builtin_command(
+                    name,
+                    self.collaboration_modes_enabled,
+                    self.connectors_enabled,
+                    self.personality_command_enabled,
+                    self.realtime_conversation_enabled,
+                    self.windows_degraded_sandbox_active,
+                )
         {
             if self.reject_slash_command_if_unavailable(cmd) {
                 return Some(InputResult::None);
@@ -2478,6 +2486,7 @@ impl ChatComposer {
             self.collaboration_modes_enabled,
             self.connectors_enabled,
             self.personality_command_enabled,
+            self.realtime_conversation_enabled,
             self.windows_degraded_sandbox_active,
         )?;
 
@@ -3310,6 +3319,7 @@ impl ChatComposer {
             self.collaboration_modes_enabled,
             self.connectors_enabled,
             self.personality_command_enabled,
+            self.realtime_conversation_enabled,
             self.windows_degraded_sandbox_active,
         )
         .is_some();
@@ -3371,6 +3381,7 @@ impl ChatComposer {
             self.collaboration_modes_enabled,
             self.connectors_enabled,
             self.personality_command_enabled,
+            self.realtime_conversation_enabled,
             self.windows_degraded_sandbox_active,
         ) {
             return true;
@@ -3426,13 +3437,14 @@ impl ChatComposer {
                     let personality_command_enabled = self.personality_command_enabled;
                     let mut command_popup = CommandPopup::new(
                         self.custom_prompts.clone(),
-                        CommandPopupFlags {
-                            collaboration_modes_enabled,
-                            connectors_enabled,
-                            personality_command_enabled,
-                            windows_degraded_sandbox_active: self.windows_degraded_sandbox_active,
-                        },
-                    );
+                    CommandPopupFlags {
+                        collaboration_modes_enabled,
+                        connectors_enabled,
+                        personality_command_enabled,
+                        realtime_conversation_enabled: self.realtime_conversation_enabled,
+                        windows_degraded_sandbox_active: self.windows_degraded_sandbox_active,
+                    },
+                );
                     command_popup.on_composer_text_change(first_line.to_string());
                     self.active_popup = ActivePopup::Command(command_popup);
                 }
@@ -3674,6 +3686,12 @@ impl ChatComposer {
 
 #[cfg(not(target_os = "linux"))]
 impl ChatComposer {
+    pub(crate) fn insert_transcription_placeholder(&mut self, text: &str) -> String {
+        let id = self.next_id();
+        self.textarea.insert_named_element(text, id.clone());
+        id
+    }
+
     pub(crate) fn process_space_hold_trigger(&mut self) {
         if self.voice_transcription_enabled()
             && let Some(flag) = self.voice_state.space_hold_trigger.as_ref()
@@ -4410,7 +4428,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -4464,7 +4482,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_footer_hint_override(Some(vec![("K".to_string(), "label".to_string())]));
@@ -4502,7 +4520,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_footer_hint_override(Some(vec![("K".to_string(), "label".to_string())]));
@@ -4551,7 +4569,7 @@ mod tests {
             true,
             sender,
             enhanced_keys_supported,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         setup(&mut composer);
@@ -4822,7 +4840,7 @@ mod tests {
             true,
             sender,
             true,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -4849,7 +4867,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -4872,7 +4890,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -4903,7 +4921,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -4966,7 +4984,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5009,7 +5027,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         let remote_image_url = "https://example.com/one.png".to_string();
@@ -5051,7 +5069,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5094,7 +5112,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5143,7 +5161,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5176,7 +5194,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_connectors_enabled(true);
@@ -5217,7 +5235,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_connectors_enabled(true);
@@ -5254,7 +5272,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5435,7 +5453,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5470,7 +5488,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5498,7 +5516,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5531,7 +5549,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5579,7 +5597,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5616,7 +5634,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5673,7 +5691,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5702,7 +5720,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5737,7 +5755,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -5770,7 +5788,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5802,7 +5820,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5834,7 +5852,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5872,7 +5890,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -5914,7 +5932,7 @@ mod tests {
                 true,
                 sender.clone(),
                 false,
-                "Ask Codex to do anything".to_string(),
+                "Ask Helios to do anything".to_string(),
                 false,
             );
 
@@ -6006,7 +6024,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -6035,7 +6053,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -6067,7 +6085,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -6093,7 +6111,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         type_chars_humanlike(&mut composer, &['/', 'r', 'e', 's']);
@@ -6149,7 +6167,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6192,7 +6210,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_task_running(true);
@@ -6236,7 +6254,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             true,
         );
         composer.set_text_content("x".to_string(), Vec::new(), Vec::new());
@@ -6265,7 +6283,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_voice_transcription_enabled(true);
@@ -6297,7 +6315,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_voice_transcription_enabled(true);
@@ -6331,7 +6349,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_voice_transcription_enabled(true);
@@ -6365,7 +6383,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6392,7 +6410,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6462,7 +6480,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6483,7 +6501,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6521,7 +6539,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_collaboration_modes_enabled(true);
@@ -6543,7 +6561,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_collaboration_modes_enabled(true);
@@ -6564,7 +6582,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6596,7 +6614,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -6625,7 +6643,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -6655,7 +6673,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6696,7 +6714,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_collaboration_modes_enabled(true);
@@ -6736,7 +6754,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -6816,7 +6834,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6890,7 +6908,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6929,7 +6947,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -6969,7 +6987,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -7017,7 +7035,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7056,7 +7074,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7090,7 +7108,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7125,7 +7143,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         let remote_image_urls = vec![
@@ -7157,7 +7175,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7201,7 +7219,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -7223,7 +7241,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7267,7 +7285,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7311,7 +7329,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7355,7 +7373,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7402,7 +7420,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7442,7 +7460,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         let path = PathBuf::from("/tmp/image_dup.png");
@@ -7465,7 +7483,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         let path = PathBuf::from("/tmp/image3.png");
@@ -7505,7 +7523,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -7531,7 +7549,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -7591,7 +7609,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -7654,7 +7672,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -7692,7 +7710,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -7714,7 +7732,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7754,7 +7772,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7790,7 +7808,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7830,7 +7848,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7886,7 +7904,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7943,7 +7961,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -7992,7 +8010,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8057,7 +8075,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8116,7 +8134,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8153,7 +8171,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8186,7 +8204,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8236,7 +8254,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8291,7 +8309,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8330,7 +8348,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8369,7 +8387,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8413,7 +8431,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8454,7 +8472,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(false);
@@ -8527,7 +8545,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8564,7 +8582,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8600,7 +8618,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8639,7 +8657,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
         composer.set_steer_enabled(true);
@@ -8683,7 +8701,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8712,7 +8730,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8759,7 +8777,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8798,7 +8816,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8823,7 +8841,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8853,7 +8871,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8896,7 +8914,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8930,7 +8948,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8955,7 +8973,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -8983,7 +9001,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -9008,7 +9026,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -9036,7 +9054,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -9057,7 +9075,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -9079,7 +9097,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -9116,7 +9134,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -9136,7 +9154,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 
@@ -9175,7 +9193,7 @@ mod tests {
             true,
             sender,
             false,
-            "Ask Codex to do anything".to_string(),
+            "Ask Helios to do anything".to_string(),
             false,
         );
 

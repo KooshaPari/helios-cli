@@ -2,11 +2,11 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 use std::time::Duration;
 
+use futures::FutureExt as _;
 use helios_rmcp_client::ElicitationAction;
 use helios_rmcp_client::ElicitationResponse;
 use helios_rmcp_client::RmcpClient;
 use helios_utils_cargo_bin::CargoBinError;
-use futures::FutureExt as _;
 use rmcp::model::AnnotateAble;
 use rmcp::model::ClientCapabilities;
 use rmcp::model::ElicitationCapability;
@@ -44,7 +44,7 @@ fn init_params() -> InitializeRequestParams {
         client_info: Implementation {
             name: "helios-test".into(),
             version: "0.0.0-test".into(),
-            title: Some("Codex rmcp resource test".into()),
+            title: Some("Helios rmcp resource test".into()),
             description: None,
             icons: None,
             website_url: None,
@@ -114,7 +114,7 @@ async fn rmcp_client_can_list_and_read_resources() -> anyhow::Result<()> {
                 rmcp::model::RawResourceTemplate {
                     uri_template: "memo://codex/{slug}".to_string(),
                     name: "helios-memo".to_string(),
-                    title: Some("Codex Memo".to_string()),
+                    title: Some("Helios Memo".to_string()),
                     description: Some(
                         "Template for memo://codex/{slug} resources used in tests.".to_string(),
                     ),

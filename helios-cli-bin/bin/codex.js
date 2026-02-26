@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Unified entry point for the Codex CLI.
+// Unified entry point for the Helios CLI.
 
 import { spawn } from "node:child_process";
 import { existsSync } from "fs";
@@ -13,12 +13,12 @@ const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 
 const PLATFORM_PACKAGE_BY_TARGET = {
-  "x86_64-unknown-linux-musl": "@openai/codex-linux-x64",
-  "aarch64-unknown-linux-musl": "@openai/codex-linux-arm64",
-  "x86_64-apple-darwin": "@openai/codex-darwin-x64",
-  "aarch64-apple-darwin": "@openai/codex-darwin-arm64",
-  "x86_64-pc-windows-msvc": "@openai/codex-win32-x64",
-  "aarch64-pc-windows-msvc": "@openai/codex-win32-arm64",
+  "x86_64-unknown-linux-musl": "@phenotype/helios-linux-x64",
+  "aarch64-unknown-linux-musl": "@phenotype/helios-linux-arm64",
+  "x86_64-apple-darwin": "@phenotype/helios-darwin-x64",
+  "aarch64-apple-darwin": "@phenotype/helios-darwin-arm64",
+  "x86_64-pc-windows-msvc": "@phenotype/helios-win32-x64",
+  "aarch64-pc-windows-msvc": "@phenotype/helios-win32-arm64",
 };
 
 const { platform, arch } = process;
@@ -75,13 +75,14 @@ if (!platformPackage) {
   throw new Error(`Unsupported target triple: ${targetTriple}`);
 }
 
-const codexBinaryName = process.platform === "win32" ? "codex.exe" : "codex";
+const HELIOS_BINARY_BASE_NAME = process.platform === "win32" ? "helios.exe" : "helios";
+const CODEX_BINARY_BASE_NAME = process.platform === "win32" ? "codex.exe" : "codex";
 const localVendorRoot = path.join(__dirname, "..", "vendor");
 const localBinaryPath = path.join(
   localVendorRoot,
   targetTriple,
-  "codex",
-  codexBinaryName,
+  "helios",
+  HELIOS_BINARY_BASE_NAME,
 );
 
 let vendorRoot;
@@ -92,13 +93,13 @@ try {
   if (existsSync(localBinaryPath)) {
     vendorRoot = localVendorRoot;
   } else {
-    const packageManager = detectPackageManager();
-    const updateCommand =
-      packageManager === "bun"
-        ? "bun install -g @openai/codex@latest"
-        : "npm install -g @openai/codex@latest";
+  const packageManager = detectPackageManager();
+  const updateCommand =
+    packageManager === "bun"
+      ? "bun install -g @phenotype/helios@latest"
+      : "npm install -g @phenotype/helios@latest";
     throw new Error(
-      `Missing optional dependency ${platformPackage}. Reinstall Codex: ${updateCommand}`,
+      `Missing optional dependency ${platformPackage}. Reinstall Helios: ${updateCommand}`,
     );
   }
 }
@@ -107,15 +108,32 @@ if (!vendorRoot) {
   const packageManager = detectPackageManager();
   const updateCommand =
     packageManager === "bun"
-      ? "bun install -g @openai/codex@latest"
-      : "npm install -g @openai/codex@latest";
+      ? "bun install -g @phenotype/helios@latest"
+      : "npm install -g @phenotype/helios@latest";
   throw new Error(
-    `Missing optional dependency ${platformPackage}. Reinstall Codex: ${updateCommand}`,
+    `Missing optional dependency ${platformPackage}. Reinstall Helios: ${updateCommand}`,
   );
 }
 
 const archRoot = path.join(vendorRoot, targetTriple);
-const binaryPath = path.join(archRoot, "codex", codexBinaryName);
+const binaryPathCandidates = [
+  path.join(archRoot, "helios", HELIOS_BINARY_BASE_NAME),
+  path.join(archRoot, "codex", CODEX_BINARY_BASE_NAME),
+];
+
+let binaryPath = null;
+for (const candidate of binaryPathCandidates) {
+  if (existsSync(candidate)) {
+    binaryPath = candidate;
+    break;
+  }
+}
+
+if (!binaryPath) {
+  throw new Error(
+    `Unable to locate Helios binary in ${archRoot}. Expected ${HELIOS_BINARY_BASE_NAME} (or ${CODEX_BINARY_BASE_NAME}).`,
+  );
+}
 
 // Use an asynchronous spawn instead of spawnSync so that Node is able to
 // respond to signals (e.g. Ctrl-C / SIGINT) while the native binary is
@@ -134,7 +152,7 @@ function getUpdatedPath(newDirs) {
 }
 
 /**
- * Use heuristics to detect the package manager that was used to install Codex
+ * Use heuristics to detect the package manager that was used to install Helios
  * in order to give the user a hint about how to update it.
  */
 function detectPackageManager() {
@@ -168,9 +186,12 @@ const updatedPath = getUpdatedPath(additionalDirs);
 const env = { ...process.env, PATH: updatedPath };
 const packageManagerEnvVar =
   detectPackageManager() === "bun"
-    ? "CODEX_MANAGED_BY_BUN"
-    : "CODEX_MANAGED_BY_NPM";
+    ? "HELIOS_MANAGED_BY_BUN"
+    : "HELIOS_MANAGED_BY_NPM";
 env[packageManagerEnvVar] = "1";
+env[
+  detectPackageManager() === "bun" ? "CODEX_MANAGED_BY_BUN" : "CODEX_MANAGED_BY_NPM"
+] = "1";
 
 const child = spawn(binaryPath, process.argv.slice(2), {
   stdio: "inherit",

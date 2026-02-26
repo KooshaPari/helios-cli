@@ -24,6 +24,9 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
 use async_channel::Sender;
+use futures::future::BoxFuture;
+use futures::future::FutureExt;
+use futures::future::Shared;
 use helios_async_utils::CancelErr;
 use helios_async_utils::OrCancelExt;
 use helios_config::Constrained;
@@ -42,9 +45,6 @@ use helios_rmcp_client::ElicitationResponse;
 use helios_rmcp_client::OAuthCredentialsStoreMode;
 use helios_rmcp_client::RmcpClient;
 use helios_rmcp_client::SendElicitation;
-use futures::future::BoxFuture;
-use futures::future::FutureExt;
-use futures::future::Shared;
 use rmcp::model::ClientCapabilities;
 use rmcp::model::CreateElicitationRequestParams;
 use rmcp::model::ElicitationAction;
@@ -75,15 +75,15 @@ use tracing::instrument;
 use tracing::warn;
 use url::Url;
 
-use crate::codex::INITIAL_SUBMIT_ID;
 use crate::config::types::McpServerConfig;
 use crate::config::types::McpServerTransportConfig;
 use crate::connectors::is_connector_id_allowed;
+use crate::helios::INITIAL_SUBMIT_ID;
 
 /// Delimiter used to separate the server name from the tool name in a fully
 /// qualified tool name.
 ///
-/// OpenAI requires tool names to conform to `^[a-zA-Z0-9_-]+$`, so we must
+/// Phenotype requires tool names to conform to `^[a-zA-Z0-9_-]+$`, so we must
 /// choose a delimiter from this character set.
 const MCP_TOOL_NAME_DELIMITER: &str = "__";
 const MAX_TOOL_NAME_LENGTH: usize = 64;
@@ -1248,7 +1248,7 @@ async fn start_server_task(
         client_info: Implementation {
             name: "helios-mcp-client".to_owned(),
             version: env!("CARGO_PKG_VERSION").to_owned(),
-            title: Some("Codex".into()),
+            title: Some("Helios".into()),
             description: None,
             icons: None,
             website_url: None,
@@ -1743,7 +1743,7 @@ mod tests {
         let (qualified_name, tool) = qualified_tools.into_iter().next().expect("one tool");
         assert_eq!(qualified_name, "mcp__server_one__tool_two");
 
-        // The key is sanitized for OpenAI, but we keep original parts for the actual MCP call.
+        // The key is sanitized for Phenotype, but we keep original parts for the actual MCP call.
         assert_eq!(tool.server_name, "server.one");
         assert_eq!(tool.tool_name, "tool.two");
 

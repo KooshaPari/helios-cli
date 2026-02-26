@@ -4,15 +4,15 @@ use std::time::Duration;
 use anyhow::Context;
 use chrono::DateTime;
 use clap::Parser;
+use dirs::home_dir;
 use helios_state::LogQuery;
 use helios_state::LogRow;
 use helios_state::StateRuntime;
-use dirs::home_dir;
 use owo_colors::OwoColorize;
 
 #[derive(Debug, Parser)]
 #[command(name = "helios-state-logs")]
-#[command(about = "Tail Codex logs from the state SQLite DB with simple filters")]
+#[command(about = "Tail Helios logs from the state SQLite DB with simple filters")]
 struct Args {
     /// Path to HELIOS_HOME. Defaults to $HELIOS_HOME or ~/.codex.
     #[arg(long, env = "HELIOS_HOME")]

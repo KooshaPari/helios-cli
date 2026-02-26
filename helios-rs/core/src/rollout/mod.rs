@@ -15,8 +15,8 @@ pub mod recorder;
 pub(crate) mod session_index;
 pub(crate) mod truncation;
 
-pub use helios_protocol::protocol::SessionMeta;
 pub(crate) use error::map_session_init_error;
+pub use helios_protocol::protocol::SessionMeta;
 pub use list::find_archived_thread_path_by_id_str;
 pub use list::find_thread_path_by_id_str;
 #[deprecated(note = "use find_thread_path_by_id_str")]

@@ -15,7 +15,6 @@ pub(crate) use injection::SkillInjections;
 pub(crate) use injection::build_skill_injections;
 pub(crate) use injection::collect_explicit_skill_mentions;
 pub(crate) use invocation_utils::SKILL_APPROVAL_DECLINED_MESSAGE;
-pub(crate) use invocation_utils::build_implicit_skill_path_indexes;
 pub(crate) use invocation_utils::ensure_skill_approval_for_command;
 pub(crate) use invocation_utils::maybe_emit_implicit_skill_invocation;
 pub use loader::load_skills;

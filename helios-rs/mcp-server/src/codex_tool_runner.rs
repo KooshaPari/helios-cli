@@ -1,4 +1,4 @@
-//! Asynchronous worker that executes a **Codex** tool-call inside a spawned
+//! Asynchronous worker that executes a **Helios** tool-call inside a spawned
 //! Tokio task. Separated from `message_processor.rs` to keep that file small
 //! and to make future feature-growth easier to manage.
 
@@ -29,7 +29,7 @@ use rmcp::model::RequestId;
 use serde_json::json;
 use tokio::sync::Mutex;
 
-/// To adhere to MCP `tools/call` response format, include the Codex
+/// To adhere to MCP `tools/call` response format, include the Helios
 /// `threadId` in the `structured_content` field of the response.
 /// Some MCP clients ignore `content` when `structuredContent` is present, so
 /// mirror the text there as well.
@@ -52,7 +52,7 @@ pub(crate) fn create_call_tool_result_with_thread_id(
     }
 }
 
-/// Run a complete Codex session and stream events back to the client.
+/// Run a complete Helios session and stream events back to the client.
 ///
 /// On completion (success or error) the function sends the appropriate
 /// `tools/call` response so the LLM can continue the conversation.
@@ -72,7 +72,7 @@ pub async fn run_helios_tool_session(
         Ok(res) => res,
         Err(e) => {
             let result = CallToolResult {
-                content: vec![Content::text(format!("Failed to start Codex session: {e}"))],
+                content: vec![Content::text(format!("Failed to start Helios session: {e}"))],
                 is_error: Some(true),
                 structured_content: None,
                 meta: None,
@@ -97,7 +97,7 @@ pub async fn run_helios_tool_session(
         )
         .await;
 
-    // Use the original MCP request ID as the `sub_id` for the Codex submission so that
+    // Use the original MCP request ID as the `sub_id` for the Helios submission so that
     // any events emitted for this tool-call can be correlated with the
     // originating `tools/call` request.
     let sub_id = id.to_string();
@@ -393,7 +393,7 @@ async fn run_helios_tool_session_inner(
             Err(e) => {
                 let result = create_call_tool_result_with_thread_id(
                     thread_id,
-                    format!("Codex runtime error: {e}"),
+                    format!("Helios runtime error: {e}"),
                     Some(true),
                 );
                 outgoing.send_response(request_id.clone(), result).await;

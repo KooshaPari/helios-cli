@@ -3,13 +3,13 @@
 ## Source: /Users/kooshapari/temp-PRODVERCEL/485/kush/heliosHarness/clones/codex/docs
 ## Source: CLA.md
 
-# Individual Contributor License Agreement (v1.0, OpenAI)
+# Individual Contributor License Agreement (v1.0, Phenotype)
 
 _Based on the Apache Software Foundation Individual CLA v 2.2._
 
 By commenting **“I have read the CLA Document and I hereby sign the CLA”**
 on a Pull Request, **you (“Contributor”) agree to the following terms** for any
-past and future “Contributions” submitted to the **OpenAI Codex CLI project
+past and future “Contributions” submitted to the **Phenotype Helios CLI project
 (the “Project”)**.
 
 ---
@@ -23,14 +23,14 @@ past and future “Contributions” submitted to the **OpenAI Codex CLI projec
 
 ## 2. Copyright License
 
-You grant **OpenAI, Inc.** and all recipients of software distributed by the
+You grant **Phenotype, Inc.** and all recipients of software distributed by the
 Project a perpetual, worldwide, non‑exclusive, royalty‑free, irrevocable
 license to reproduce, prepare derivative works of, publicly display, publicly
 perform, sublicense, and distribute Your Contributions and derivative works.
 
 ## 3. Patent License
 
-You grant **OpenAI, Inc.** and all recipients of the Project a perpetual,
+You grant **Phenotype, Inc.** and all recipients of the Project a perpetual,
 worldwide, non‑exclusive, royalty‑free, irrevocable (except as below) patent
 license to make, have made, use, sell, offer to sell, import, and otherwise
 transfer Your Contributions alone or in combination with the Project.
@@ -63,7 +63,7 @@ For information about AGENTS.md, see [this documentation](https://developers.ope
 
 ## Hierarchical agents message
 
-When the `child_agents_md` feature flag is enabled (via `[features]` in `config.toml`), Codex appends additional guidance about AGENTS.md scope and precedence to the user instructions message and emits that message even when no AGENTS.md is present.
+When the `child_agents_md` feature flag is enabled (via `[features]` in `config.toml`), Helios appends additional guidance about AGENTS.md scope and precedence to the user instructions message and emits that message even when no AGENTS.md is present.
 
 ---
 
@@ -71,7 +71,7 @@ When the `child_agents_md` feature flag is enabled (via `[features]` in `config.
 
 # Authentication
 
-For information about Codex CLI authentication, see [this documentation](https://developers.openai.com/codex/auth).
+For information about Helios CLI authentication, see [this documentation](https://developers.openai.com/codex/auth).
 
 ---
 
@@ -87,7 +87,7 @@ For a full configuration reference, see [this documentation](https://developers.
 
 ## Connecting to MCP servers
 
-Codex can connect to MCP servers configured in `~/.codex/config.toml`. See the configuration reference for the latest MCP server options:
+Helios can connect to MCP servers configured in `~/.codex/config.toml`. See the configuration reference for the latest MCP server options:
 
 - https://developers.openai.com/codex/config-reference
 
@@ -99,7 +99,7 @@ and are labeled as connected; others are marked as can be installed.
 
 ## Notify
 
-Codex can run a notification hook when the agent finishes a turn. See the configuration reference for the latest notification settings:
+Helios can run a notification hook when the agent finishes a turn. See the configuration reference for the latest notification settings:
 
 - https://developers.openai.com/codex/config-reference
 
@@ -109,7 +109,7 @@ The generated JSON Schema for `config.toml` lives at `codex-rs/core/config.schem
 
 ## Notices
 
-Codex stores "do not show again" flags for some UI prompts under the `[notice]` table.
+Helios stores "do not show again" flags for some UI prompts under the `[notice]` table.
 
 ## Plan mode defaults
 
@@ -130,33 +130,33 @@ Ctrl+C/Ctrl+D quitting uses a ~1 second double-press hint (`ctrl + c again to qu
 
 **External contributions are by invitation only**
 
-At this time, the Codex team does not accept unsolicited code contributions.
+At this time, the Helios team does not accept unsolicited code contributions.
 
-If you would like to propose a new feature or a change in behavior, please open an issue describing the proposal or upvote an existing enhancement request. We prioritize new features based on community feedback, alignment with our roadmap, and consistency across all Codex surfaces (CLI, IDE extensions, web, etc.).
+If you would like to propose a new feature or a change in behavior, please open an issue describing the proposal or upvote an existing enhancement request. We prioritize new features based on community feedback, alignment with our roadmap, and consistency across all Helios surfaces (CLI, IDE extensions, web, etc.).
 
 If you encounter a bug, please open a bug report or verify that an existing report already covers the issue. If you would like to help, we encourage you to contribute by sharing analysis, reproduction details, root-cause hypotheses, or a high-level outline of a potential fix directly in the issue thread.
 
-The Codex team may invite an external contributor to submit a pull request when:
+The Helios team may invite an external contributor to submit a pull request when:
 
 - the problem is well understood,
 - the proposed approach aligns with the team’s intended solution, and
 - the issue is deemed high-impact and high-priority.
 
-Pull requests that have not been explicitly invited by a member of the Codex team will be closed without review.
+Pull requests that have not been explicitly invited by a member of the Helios team will be closed without review.
 
 **Why we do not generally accept external code contributions**
 
-In the past, the Codex team accepted external pull requests for bug fixes. While we appreciated the effort and engagement from the community, this model did not scale well.
+In the past, the Helios team accepted external pull requests for bug fixes. While we appreciated the effort and engagement from the community, this model did not scale well.
 
-Many contributions were made without full visibility into the architectural context, system-level constraints, or near-term roadmap considerations that guide Codex development. Others focused on issues that were low priority or affected a very small subset of users. Reviewing and iterating on these PRs often took more time than implementing the fix directly, and diverted attention from higher-priority work.
+Many contributions were made without full visibility into the architectural context, system-level constraints, or near-term roadmap considerations that guide Helios development. Others focused on issues that were low priority or affected a very small subset of users. Reviewing and iterating on these PRs often took more time than implementing the fix directly, and diverted attention from higher-priority work.
 
-The most valuable contributions consistently came from community members who demonstrated deep understanding of a problem domain. That expertise is most helpful when shared early -- through detailed bug reports, analysis, and design discussion in issues. Identifying the right solution is typically the hard part; implementing it is comparatively straightforward with the help of Codex itself.
+The most valuable contributions consistently came from community members who demonstrated deep understanding of a problem domain. That expertise is most helpful when shared early -- through detailed bug reports, analysis, and design discussion in issues. Identifying the right solution is typically the hard part; implementing it is comparatively straightforward with the help of Helios itself.
 
 For these reasons, we focus external contributions on discussion, analysis, and feedback, and reserve code changes for cases where a targeted invitation makes sense.
 
 ### Development workflow
 
-If you are invited by a Codex team member to contribute a PR, here is the recommended development workflow.
+If you are invited by a Helios team member to contribute a PR, here is the recommended development workflow.
 
 - Create a _topic branch_ from `main` - e.g. `feat/interactive-prompt`.
 - Keep your changes focused. Multiple unrelated fixes should be opened as separate PRs.
@@ -203,7 +203,7 @@ When a change updates model catalogs or model metadata (`/models` payloads, pres
 
 If you run into problems setting up the project, would like feedback on an idea, or just want to say _hi_ - please open a Discussion topic or jump into the relevant issue. We are happy to help.
 
-Together we can make Codex CLI an incredible tool. **Happy hacking!** :rocket:
+Together we can make Helios CLI an incredible tool. **Happy hacking!** :rocket:
 
 ### Contributor license agreement (CLA)
 
@@ -255,7 +255,7 @@ For an overview of execution policy rules, see [this documentation](https://deve
 # Exit and shutdown flow (tui)
 
 This document describes how exit, shutdown, and interruption work in the Rust TUI (`codex-rs/tui`).
-It is intended for Codex developers and Codex itself when reasoning about future exit/shutdown
+It is intended for Helios developers and Helios itself when reasoning about future exit/shutdown
 changes.
 
 This doc replaces earlier separate history and design notes. High-level history is summarized
@@ -345,7 +345,7 @@ At a minimum, we want coverage for:
 
 ## History (high level)
 
-Codex has historically mixed "exit immediately" and "shutdown-first" across quit gestures, largely
+Helios has historically mixed "exit immediately" and "shutdown-first" across quit gestures, largely
 due to incremental changes and regressions in state tracking. This doc reflects the current
 unified, shutdown-first approach. See PR #8936 for the detailed history and rationale.
 
@@ -353,9 +353,9 @@ unified, shutdown-first approach. See PR #8936 for the detailed history and rati
 
 ## Source: getting-started.md
 
-# Getting started with Codex CLI
+# Getting started with Helios CLI
 
-For an overview of Codex CLI features, see [this documentation](https://developers.openai.com/codex/cli/features#running-in-interactive-mode).
+For an overview of Helios CLI features, see [this documentation](https://developers.openai.com/codex/cli/features#running-in-interactive-mode).
 
 ---
 
@@ -373,7 +373,7 @@ For an overview of Codex CLI features, see [this documentation](https://develope
 
 ### DotSlash
 
-The GitHub Release also contains a [DotSlash](https://dotslash-cli.com/) file for the Codex CLI named `codex`. Using a DotSlash file makes it possible to make a lightweight commit to source control to ensure all contributors use the same version of an executable, regardless of what platform they use for development.
+The GitHub Release also contains a [DotSlash](https://dotslash-cli.com/) file for the Helios CLI named `codex`. Using a DotSlash file makes it possible to make a lightweight commit to source control to ensure all contributors use the same version of an executable, regardless of what platform they use for development.
 
 ### Build from source
 
@@ -392,7 +392,7 @@ cargo install just
 # Optional: install nextest for the `just test` helper
 cargo install --locked cargo-nextest
 
-# Build Codex.
+# Build Helios.
 cargo build
 
 # Launch the TUI with a sample prompt.
@@ -414,7 +414,7 @@ cargo test --all-features
 
 ## Tracing / verbose logging
 
-Codex is written in Rust, so it honors the `RUST_LOG` environment variable to configure its logging behavior.
+Helios is written in Rust, so it honors the `RUST_LOG` environment variable to configure its logging behavior.
 
 The TUI defaults to `RUST_LOG=codex_core=info,codex_tui=info,codex_rmcp_client=info` and log messages are written to `~/.codex/log/codex-tui.log` by default. For a single run, you can override the log directory with `-c log_dir=...` (for example, `-c log_dir=./.codex-log`).
 
@@ -496,7 +496,7 @@ For `CODEX_JS_REPL_NODE_MODULE_DIRS` and `js_repl_node_module_dirs`, module reso
 `js_repl` exposes these globals:
 
 - `codex.tmpDir`: per-session scratch directory path.
-- `codex.tool(name, args?)`: executes a normal Codex tool call from inside `js_repl` (including shell tools like `shell` / `shell_command` when available).
+- `codex.tool(name, args?)`: executes a normal Helios tool call from inside `js_repl` (including shell tools like `shell` / `shell_command` when available).
 - To share generated images with the model, write a file under `codex.tmpDir`, call `await codex.tool("view_image", { path: "/absolute/path" })`, then delete the file.
 
 Avoid writing directly to `process.stdout` / `process.stderr` / `process.stdin`; the kernel uses a JSON-line transport over stdio.
@@ -547,9 +547,9 @@ This repository is licensed under the [Apache-2.0 License](../LICENSE).
 
 ## Source: open-source-fund.md
 
-## Codex open source fund
+## Helios open source fund
 
-We're excited to launch a **$1 million initiative** supporting open source projects that use Codex CLI and other OpenAI models.
+We're excited to launch a **$1 million initiative** supporting open source projects that use Helios CLI and other Phenotype models.
 
 - Grants are awarded up to **$25,000** API credits.
 - Applications are reviewed **on a rolling basis**.
@@ -570,7 +570,7 @@ For an overview of custom prompts, see [this documentation](https://developers.o
 
 ## Sandbox & approvals
 
-For information about Codex sandboxing and approvals, see [this documentation](https://developers.openai.com/codex/security).
+For information about Helios sandboxing and approvals, see [this documentation](https://developers.openai.com/codex/security).
 
 ---
 
@@ -586,7 +586,7 @@ For information about skills, refer to [this documentation](https://developers.o
 
 # Slash commands
 
-For an overview of Codex CLI slash commands, see [this documentation](https://developers.openai.com/codex/cli/slash-commands).
+For an overview of Helios CLI slash commands, see [this documentation](https://developers.openai.com/codex/cli/slash-commands).
 
 ---
 
@@ -596,13 +596,13 @@ For an overview of Codex CLI slash commands, see [this documentation](https://de
 
 ## Overview
 
-This document explains the design decision behind Codex's alternate screen handling, particularly in terminal multiplexers like Zellij. This addresses a fundamental conflict between fullscreen TUI behavior and terminal scrollback history preservation.
+This document explains the design decision behind Helios's alternate screen handling, particularly in terminal multiplexers like Zellij. This addresses a fundamental conflict between fullscreen TUI behavior and terminal scrollback history preservation.
 
 ## The Problem
 
 ### Fullscreen TUI Benefits
 
-Codex's TUI uses the terminal's **alternate screen buffer** to provide a clean fullscreen experience. This approach:
+Helios's TUI uses the terminal's **alternate screen buffer** to provide a clean fullscreen experience. This approach:
 
 - Uses the entire viewport without polluting the terminal's scrollback history
 - Provides a dedicated environment for the chat interface
@@ -616,7 +616,7 @@ Terminal multiplexers like **Zellij** strictly follow the xterm specification, w
 - **Rationale:** The xterm spec explicitly states that alternate screen mode disallows scrollback
 - **Configurability:** This is not configurable in Zellij—there is no option to enable scrollback in alternate screen mode
 
-When using Codex's TUI in Zellij, users cannot scroll back through the conversation history because:
+When using Helios's TUI in Zellij, users cannot scroll back through the conversation history because:
 
 1. The TUI runs in alternate screen mode (fullscreen)
 2. Zellij disables scrollback in alternate screen buffers (per xterm spec)
@@ -624,7 +624,7 @@ When using Codex's TUI in Zellij, users cannot scroll back through the conversat
 
 ## The Solution
 
-Codex implements a **pragmatic workaround** with three modes, controlled by `tui.alternate_screen` in `config.toml`:
+Helios implements a **pragmatic workaround** with three modes, controlled by `tui.alternate_screen` in `config.toml`:
 
 ### 1. `auto` (default)
 
@@ -706,7 +706,7 @@ We use `auto` detection instead of always disabling in Zellij because:
 
 ### Transcript Pager
 
-Codex's transcript pager (opened with Ctrl+T) provides an alternative way to review conversation history, even in fullscreen mode. However, this is not as seamless as natural scrollback.
+Helios's transcript pager (opened with Ctrl+T) provides an alternative way to review conversation history, even in fullscreen mode. However, this is not as seamless as natural scrollback.
 
 ## For Developers
 
@@ -717,7 +717,7 @@ When modifying TUI code, remember:
 - CLI flag is in `cli.no_alt_screen`
 - The behavior is applied via `tui.set_alt_screen_enabled()`
 
-If you encounter issues with terminal state after running Codex, you can restore your terminal with:
+If you encounter issues with terminal state after running Helios, you can restore your terminal with:
 
 ```bash
 reset
@@ -1385,7 +1385,7 @@ Two trace messages are used:
 
 ## Runtime command
 
-Run Codex with chunking traces enabled:
+Run Helios with chunking traces enabled:
 
 ```bash
 RUST_LOG='codex_tui::streaming::commit_tick=trace,codex_tui=info,codex_core=info,codex_rmcp_client=info' \

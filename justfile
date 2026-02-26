@@ -1,61 +1,27 @@
-set working-directory := "helios-rs"
+set working-directory := "codex-rs"
 set positional-arguments
 
 # Display help
 help:
     just -l
 
-# Build and install a dev copy in ~/.local/bin with a stable entrypoint pair:
-# ~/.local/bin/helios and ~/.local/bin/helios-dev.
-build-dev *args:
-    cargo build --release -p helios-cli --bin helios "$@"
-    mkdir -p ~/.local/bin
-    ln -sf "$(pwd)/target/release/helios" ~/.local/bin/helios
-    ln -sf ~/.local/bin/helios ~/.local/bin/helios-dev
+# `codex`
+alias c := codex
+codex *args:
+    cargo run --bin codex -- "$@"
 
-install-dev *args:
-    just build-dev "$@"
-
-# Install to system path (non-dev, no local dev symlink).
-install *args:
-    cargo install --locked --force --path ./cli --package helios-cli --bin helios --root ~/.local "$@"
-    ln -sf ~/.local/bin/helios ~/.local/bin/helios-dev
-
-debug *args:
-    cargo run --quiet --bin helios -- "$@"
-
-# Backward-compatible extension/IDE entrypoint in just-based command form.
-debug-helios *args:
-    cargo run --quiet --bin helios -- "$@"
-
-# `helios`
-alias h := helios
-alias c := helios
-helios *args:
-    cargo run --bin helios -- "$@"
-
-# `helios exec`
+# `codex exec`
 exec *args:
-    cargo run --bin helios -- exec "$@"
+    cargo run --bin codex -- exec "$@"
 
 # Run the CLI version of the file-search crate.
 file-search *args:
-    cargo run -p helios-file-search -- "$@"
-
-# Run the Rust CLI directly in release mode (useful as DX startup entry)
-start *args:
-    cargo run --release --bin helios -- "$@"
-
-build *args:
-    cargo build -p helios-cli "$@"
-
-build-release *args:
-    cargo build --release -p helios-cli "$@"
+    cargo run --bin codex-file-search -- "$@"
 
 # Build the CLI and run the app-server test client
 app-server-test-client *args:
-    cargo build -p helios-app-server-test-client
-    cargo run -p helios-app-server-test-client -- --helios-bin ./target/debug/helios "$@"
+    cargo build -p codex-cli
+    cargo run -p codex-app-server-test-client -- --codex-bin ./target/debug/codex "$@"
 
 # format code
 fmt:
@@ -67,9 +33,12 @@ fix *args:
 clippy:
     cargo clippy --tests "$@"
 
-deps:
+install:
     rustup show active-toolchain
     cargo fetch
+
+install-dev *args:
+    ../scripts/install-helios-dev.sh "$@"
 
 # Run `cargo nextest` since it's faster than `cargo test`, though including
 # --no-fail-fast is important to ensure all tests are run.
@@ -80,17 +49,20 @@ deps:
 test:
     cargo nextest run --no-fail-fast
 
+# Build and run Helios from source using Bazel.
+# Note we have to use the combination of `[no-cd]` and `--run_under="cd $PWD &&"`
+# to ensure that Bazel runs the command in the current working directory.
+[no-cd]
+bazel-codex *args:
+    bazel run //codex-rs/cli:codex --run_under="cd $PWD &&" -- "$@"
+
 [no-cd]
 bazel-lock-update:
     bazel mod deps --lockfile_mode=update
 
 [no-cd]
 bazel-lock-check:
-    if ! bazel mod deps --lockfile_mode=error; then
-      echo "MODULE.bazel.lock is out of date."
-      echo "Run 'just bazel-lock-update' and commit the updated lockfile."
-      exit 1
-    fi
+    ./scripts/check-module-bazel-lock.sh
 
 bazel-test:
     bazel test //... --keep_going
@@ -99,20 +71,20 @@ bazel-remote-test:
     bazel test //... --config=remote --platforms=//:rbe --keep_going
 
 build-for-release:
-    bazel build //helios-rs/cli:release_binaries --config=remote
+    bazel build //codex-rs/cli:release_binaries --config=remote
 
 # Run the MCP server
 mcp-server-run *args:
-    cargo run -p helios-mcp-server -- "$@"
+    cargo run -p codex-mcp-server -- "$@"
 
 # Regenerate the json schema for config.toml from the current config types.
 write-config-schema:
-    cargo run -p helios-core --bin helios-write-config-schema
+    cargo run -p codex-core --bin codex-write-config-schema
 
 # Regenerate vendored app-server protocol schema artifacts.
 write-app-server-schema *args:
-    cargo run -p helios-app-server-protocol --bin write_schema_fixtures -- "$@"
+    cargo run -p codex-app-server-protocol --bin write_schema_fixtures -- "$@"
 
 # Tail logs from the state SQLite database
 log *args:
-    if [ "${1:-}" = "--" ]; then shift; fi; cargo run -p helios-state --bin logs_client -- "$@"
+    if [ "${1:-}" = "--" ]; then shift; fi; cargo run -p codex-state --bin logs_client -- "$@"

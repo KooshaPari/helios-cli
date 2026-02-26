@@ -1,6 +1,6 @@
-# Codex MCP Server Interface [experimental]
+# Helios MCP Server Interface [experimental]
 
-This document describes Codex’s experimental MCP server interface: a JSON‑RPC API that runs over the Model Context Protocol (MCP) transport to control a local Codex engine.
+This document describes Helios’s experimental MCP server interface: a JSON‑RPC API that runs over the Model Context Protocol (MCP) transport to control a local Helios engine.
 
 - Status: experimental and subject to change without notice
 - Server binary: `codex mcp-server` (or `codex-mcp-server`)
@@ -8,12 +8,12 @@ This document describes Codex’s experimental MCP server interface: a JSON‑RP
 
 ## Overview
 
-Codex exposes a small set of MCP‑compatible methods to create and manage conversations, send user input, receive live events, and handle approval prompts. The types are defined in `protocol/src/mcp_protocol.rs` and re‑used by the MCP server implementation in `mcp-server/`.
+Helios exposes a small set of MCP‑compatible methods to create and manage conversations, send user input, receive live events, and handle approval prompts. The types are defined in `protocol/src/mcp_protocol.rs` and re‑used by the MCP server implementation in `mcp-server/`.
 
 At a glance:
 
 - Conversations
-  - `newConversation` → start a Codex session
+  - `newConversation` → start a Helios session
   - `sendUserMessage` / `sendUserTurn` → send user input into a conversation
   - `interruptConversation` → stop the current turn
   - `listConversations`, `resumeConversation`, `archiveConversation`
@@ -36,7 +36,7 @@ See code for full type definitions and exact shapes: `protocol/src/mcp_protocol.
 
 ## Starting the server
 
-Run Codex as an MCP server and connect an MCP client:
+Run Helios as an MCP server and connect an MCP client:
 
 ```bash
 codex mcp-server | your_mcp_client
@@ -88,7 +88,7 @@ directory (it returns the restored thread summary).
 
 ## Models
 
-Fetch the catalog of models available in the current Codex build with `model/list`. The request accepts optional pagination inputs:
+Fetch the catalog of models available in the current Helios build with `model/list`. The request accepts optional pagination inputs:
 
 - `pageSize` – number of models to return (defaults to a server-selected value)
 - `cursor` – opaque string from the previous response’s `nextCursor`
@@ -119,7 +119,7 @@ When sending `turn/start` with `collaborationMode`, `settings.developer_instruct
 
 While a conversation runs, the server sends notifications:
 
-- `codex/event` with the serialized Codex event payload. The shape matches `core/src/protocol.rs`’s `Event` and `EventMsg` types. Some notifications include a `_meta.requestId` to correlate with the originating request.
+- `codex/event` with the serialized Helios event payload. The shape matches `core/src/protocol.rs`’s `Event` and `EventMsg` types. Some notifications include a `_meta.requestId` to correlate with the originating request.
 - Auth notifications via method names `loginChatGptComplete` and `authStatusChange`.
 
 Clients should render events and, when present, surface approval requests (see next section).
@@ -127,24 +127,24 @@ Clients should render events and, when present, surface approval requests (see n
 ## Tool responses
 
 The `codex` and `codex-reply` tools return standard MCP `CallToolResult` payloads. For
-compatibility with MCP clients that prefer `structuredContent`, Codex mirrors the
+compatibility with MCP clients that prefer `structuredContent`, Helios mirrors the
 content blocks inside `structuredContent` alongside the `threadId`.
 
 Example:
 
 ```json
 {
-  "content": [{ "type": "text", "text": "Hello from Codex" }],
+  "content": [{ "type": "text", "text": "Hello from Helios" }],
   "structuredContent": {
     "threadId": "019bbed6-1e9e-7f31-984c-a05b65045719",
-    "content": "Hello from Codex"
+    "content": "Hello from Helios"
   }
 }
 ```
 
 ## Approvals (server → client)
 
-When Codex needs approval to apply changes or run commands, the server issues JSON‑RPC requests to the client:
+When Helios needs approval to apply changes or run commands, the server issues JSON‑RPC requests to the client:
 
 - `applyPatchApproval { conversationId, callId, fileChanges, reason?, grantRoot? }`
 - `execCommandApproval { conversationId, callId, approvalId?, command, cwd, reason? }`
@@ -170,7 +170,7 @@ Server responds:
 Then send input:
 
 ```json
-{ "jsonrpc": "2.0", "id": 2, "method": "sendUserMessage", "params": { "conversationId": "c7b0…", "items": [{ "type": "text", "text": "Hello Codex" }] } }
+{ "jsonrpc": "2.0", "id": 2, "method": "sendUserMessage", "params": { "conversationId": "c7b0…", "items": [{ "type": "text", "text": "Hello Helios" }] } }
 ```
 
 While processing, the server emits `codex/event` notifications containing agent output, approvals, and status updates.

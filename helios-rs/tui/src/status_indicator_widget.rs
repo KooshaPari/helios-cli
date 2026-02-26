@@ -7,8 +7,8 @@
 use std::time::Duration;
 use std::time::Instant;
 
-use helios_protocol::protocol::Op;
 use crossterm::event::KeyCode;
+use helios_protocol::protocol::Op;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize;
