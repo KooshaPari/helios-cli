@@ -3,6 +3,7 @@ use clap::CommandFactory;
 use clap::Parser;
 use clap_complete::Shell;
 use clap_complete::generate;
+use helios_arg0::Arg0DispatchPaths;
 use helios_arg0::arg0_dispatch_or_else;
 use helios_chatgpt::apply_command::ApplyCommand;
 use helios_chatgpt::apply_command::run_apply_command;
@@ -49,20 +50,20 @@ use helios_core::features::Stage;
 use helios_core::features::is_known_feature_key;
 use helios_core::terminal::TerminalName;
 
-/// Codex CLI
+/// Helios CLI
 ///
 /// If no subcommand is specified, options will be forwarded to the interactive CLI.
 #[derive(Debug, Parser)]
 #[clap(
     author,
-    version,
+    version = "0.2.1-105.1",
     // If a sub‑command is given, ignore requirements of the default args.
     subcommand_negates_reqs = true,
     // The executable is sometimes invoked via a platform‑specific name like
     // `helios-x86_64-unknown-linux-musl`, but the help output should always use
-    // the generic `codex` command name that users run.
-    bin_name = "codex",
-    override_usage = "codex [OPTIONS] [PROMPT]\n       codex [OPTIONS] <COMMAND> [ARGS]"
+    // the generic `helios` command name that users run.
+    bin_name = "helios",
+    override_usage = "helios [OPTIONS] [PROMPT]\n       helios [OPTIONS] <COMMAND> [ARGS]"
 )]
 struct MultitoolCli {
     #[clap(flatten)]
@@ -260,7 +261,7 @@ struct LoginCommand {
 
     #[arg(
         long = "with-api-key",
-        help = "Read the API key from stdin (e.g. `printenv OPENAI_API_KEY | codex login --with-api-key`)"
+        help = "Read the API key from stdin (e.g. `printenv OPENAI_API_KEY | helios login --with-api-key`)"
     )]
     with_api_key: bool,
 
@@ -543,20 +544,13 @@ fn stage_str(stage: helios_core::features::Stage) -> &'static str {
 }
 
 fn main() -> anyhow::Result<()> {
-    if helios_core::maybe_run_zsh_exec_wrapper_mode()? {
-        return Ok(());
-    }
-    let cli = MultitoolCli::parse();
-    arg0_dispatch_or_else(|helios_linux_sandbox_exe| async move {
-        cli_main(cli, helios_linux_sandbox_exe).await?;
+    arg0_dispatch_or_else(|arg0_paths: Arg0DispatchPaths| async move {
+        cli_main(arg0_paths).await?;
         Ok(())
     })
 }
 
-async fn cli_main(
-    cli: MultitoolCli,
-    helios_linux_sandbox_exe: Option<PathBuf>,
-) -> anyhow::Result<()> {
+async fn cli_main(arg0_paths: Arg0DispatchPaths) -> anyhow::Result<()> {
     let MultitoolCli {
         config_overrides: mut root_config_overrides,
         feature_toggles,
@@ -574,7 +568,7 @@ async fn cli_main(
                 &mut interactive.config_overrides,
                 root_config_overrides.clone(),
             );
-            let exit_info = run_interactive_tui(interactive, helios_linux_sandbox_exe).await?;
+            let exit_info = run_interactive_tui(interactive, arg0_paths.clone()).await?;
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Exec(mut exec_cli)) => {
@@ -582,19 +576,19 @@ async fn cli_main(
                 &mut exec_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            helios_exec::run_main(exec_cli, helios_linux_sandbox_exe).await?;
+            helios_exec::run_main(exec_cli, arg0_paths.clone()).await?;
         }
         Some(Subcommand::Review(review_args)) => {
-            let mut exec_cli = ExecCli::try_parse_from(["codex", "exec"])?;
+            let mut exec_cli = ExecCli::try_parse_from(["helios", "exec"])?;
             exec_cli.command = Some(ExecCommand::Review(review_args));
             prepend_config_flags(
                 &mut exec_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            helios_exec::run_main(exec_cli, helios_linux_sandbox_exe).await?;
+            helios_exec::run_main(exec_cli, arg0_paths.clone()).await?;
         }
         Some(Subcommand::McpServer) => {
-            helios_mcp_server::run_main(helios_linux_sandbox_exe, root_config_overrides).await?;
+            helios_mcp_server::run_main(arg0_paths.clone(), root_config_overrides).await?;
         }
         Some(Subcommand::Mcp(mut mcp_cli)) => {
             // Propagate any root-level config overrides (e.g. `-c key=value`).
@@ -605,7 +599,7 @@ async fn cli_main(
             None => {
                 let transport = app_server_cli.listen;
                 helios_app_server::run_main_with_transport(
-                    helios_linux_sandbox_exe,
+                    arg0_paths.clone(),
                     root_config_overrides,
                     helios_core::config_loader::LoaderOverrides::default(),
                     app_server_cli.analytics_default_enabled,
@@ -649,7 +643,7 @@ async fn cli_main(
                 all,
                 config_overrides,
             );
-            let exit_info = run_interactive_tui(interactive, helios_linux_sandbox_exe).await?;
+            let exit_info = run_interactive_tui(interactive, arg0_paths.clone()).await?;
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Fork(ForkCommand {
@@ -666,7 +660,7 @@ async fn cli_main(
                 all,
                 config_overrides,
             );
-            let exit_info = run_interactive_tui(interactive, helios_linux_sandbox_exe).await?;
+            let exit_info = run_interactive_tui(interactive, arg0_paths.clone()).await?;
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Login(mut login_cli)) => {
@@ -688,7 +682,7 @@ async fn cli_main(
                         .await;
                     } else if login_cli.api_key.is_some() {
                         eprintln!(
-                            "The --api-key flag is no longer supported. Pipe the key instead, e.g. `printenv OPENAI_API_KEY | codex login --with-api-key`."
+                            "The --api-key flag is no longer supported. Pipe the key instead, e.g. `printenv OPENAI_API_KEY | helios login --with-api-key`."
                         );
                         std::process::exit(1);
                     } else if login_cli.with_api_key {
@@ -715,7 +709,8 @@ async fn cli_main(
                 &mut cloud_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            helios_cloud_tasks::run_main(cloud_cli, helios_linux_sandbox_exe).await?;
+            helios_cloud_tasks::run_main(cloud_cli, arg0_paths.helios_linux_sandbox_exe.clone())
+                .await?;
         }
         Some(Subcommand::Sandbox(sandbox_args)) => match sandbox_args.cmd {
             SandboxCommand::Macos(mut seatbelt_cli) => {
@@ -725,7 +720,7 @@ async fn cli_main(
                 );
                 helios_cli::debug_sandbox::run_command_under_seatbelt(
                     seatbelt_cli,
-                    helios_linux_sandbox_exe,
+                    arg0_paths.helios_linux_sandbox_exe.clone(),
                 )
                 .await?;
             }
@@ -736,7 +731,7 @@ async fn cli_main(
                 );
                 helios_cli::debug_sandbox::run_command_under_landlock(
                     landlock_cli,
-                    helios_linux_sandbox_exe,
+                    arg0_paths.helios_linux_sandbox_exe.clone(),
                 )
                 .await?;
             }
@@ -747,7 +742,7 @@ async fn cli_main(
                 );
                 helios_cli::debug_sandbox::run_command_under_windows(
                     windows_cli,
-                    helios_linux_sandbox_exe,
+                    arg0_paths.helios_linux_sandbox_exe.clone(),
                 )
                 .await?;
             }
@@ -894,7 +889,7 @@ fn prepend_config_flags(
 
 async fn run_interactive_tui(
     mut interactive: TuiCli,
-    helios_linux_sandbox_exe: Option<PathBuf>,
+    arg0_paths: Arg0DispatchPaths,
 ) -> std::io::Result<AppExitInfo> {
     if let Some(prompt) = interactive.prompt.take() {
         // Normalize CRLF/CR to LF so CLI-provided text can't leak `\r` into TUI state.
@@ -919,7 +914,7 @@ async fn run_interactive_tui(
         }
     }
 
-    helios_tui::run_main(interactive, helios_linux_sandbox_exe).await
+    helios_tui::run_main(interactive, arg0_paths).await
 }
 
 fn confirm(prompt: &str) -> std::io::Result<bool> {
@@ -931,7 +926,7 @@ fn confirm(prompt: &str) -> std::io::Result<bool> {
     Ok(answer.eq_ignore_ascii_case("y") || answer.eq_ignore_ascii_case("yes"))
 }
 
-/// Build the final `TuiCli` for a `codex resume` invocation.
+/// Build the final `TuiCli` for a `helios resume` invocation.
 fn finalize_resume_interactive(
     mut interactive: TuiCli,
     root_config_overrides: CliConfigOverrides,
@@ -941,7 +936,7 @@ fn finalize_resume_interactive(
     resume_cli: TuiCli,
 ) -> TuiCli {
     // Start with the parsed interactive CLI so resume shares the same
-    // configuration surface area as `codex` without additional flags.
+    // configuration surface area as `helios` without additional flags.
     let resume_session_id = session_id;
     interactive.resume_picker = resume_session_id.is_none() && !last;
     interactive.resume_last = last;
@@ -957,7 +952,7 @@ fn finalize_resume_interactive(
     interactive
 }
 
-/// Build the final `TuiCli` for a `codex fork` invocation.
+/// Build the final `TuiCli` for a `helios fork` invocation.
 fn finalize_fork_interactive(
     mut interactive: TuiCli,
     root_config_overrides: CliConfigOverrides,
@@ -967,7 +962,7 @@ fn finalize_fork_interactive(
     fork_cli: TuiCli,
 ) -> TuiCli {
     // Start with the parsed interactive CLI so fork shares the same
-    // configuration surface area as `codex` without additional flags.
+    // configuration surface area as `helios` without additional flags.
     let fork_session_id = session_id;
     interactive.fork_picker = fork_session_id.is_none() && !last;
     interactive.fork_last = last;
@@ -983,7 +978,7 @@ fn finalize_fork_interactive(
     interactive
 }
 
-/// Merge flags provided to `codex resume`/`codex fork` so they take precedence over any
+/// Merge flags provided to `helios resume`/`helios fork` so they take precedence over any
 /// root-level flags. Only overrides fields explicitly set on the subcommand-scoped
 /// CLI. Also appends `-c key=value` overrides with highest precedence.
 fn merge_interactive_cli_flags(interactive: &mut TuiCli, subcommand_cli: TuiCli) {
@@ -1033,7 +1028,7 @@ fn merge_interactive_cli_flags(interactive: &mut TuiCli, subcommand_cli: TuiCli)
 
 fn print_completion(cmd: CompletionCommand) {
     let mut app = MultitoolCli::command();
-    let name = "codex";
+    let name = "helios";
     generate(cmd.shell, &mut app, name, &mut std::io::stdout());
 }
 
@@ -1099,7 +1094,7 @@ mod tests {
     #[test]
     fn exec_resume_last_accepts_prompt_positional() {
         let cli =
-            MultitoolCli::try_parse_from(["codex", "exec", "--json", "resume", "--last", "2+2"])
+            MultitoolCli::try_parse_from(["helios", "exec", "--json", "resume", "--last", "2+2"])
                 .expect("parse should succeed");
 
         let Some(Subcommand::Exec(exec)) = cli.subcommand else {
@@ -1160,7 +1155,7 @@ mod tests {
             lines,
             vec![
                 "Token usage: total=2 input=0 output=2".to_string(),
-                "To continue this session, run codex resume 123e4567-e89b-12d3-a456-426614174000"
+                "To continue this session, run helios resume 123e4567-e89b-12d3-a456-426614174000"
                     .to_string(),
             ]
         );
@@ -1185,7 +1180,7 @@ mod tests {
             lines,
             vec![
                 "Token usage: total=2 input=0 output=2".to_string(),
-                "To continue this session, run codex resume my-thread".to_string(),
+                "To continue this session, run helios resume my-thread".to_string(),
             ]
         );
     }
@@ -1193,7 +1188,7 @@ mod tests {
     #[test]
     fn resume_model_flag_applies_when_no_root_flags() {
         let interactive =
-            finalize_resume_from_args(["codex", "resume", "-m", "gpt-5.1-test"].as_ref());
+            finalize_resume_from_args(["helios", "resume", "-m", "gpt-5.1-test"].as_ref());
 
         assert_eq!(interactive.model.as_deref(), Some("gpt-5.1-test"));
         assert!(interactive.resume_picker);
@@ -1203,7 +1198,7 @@ mod tests {
 
     #[test]
     fn resume_picker_logic_none_and_not_last() {
-        let interactive = finalize_resume_from_args(["codex", "resume"].as_ref());
+        let interactive = finalize_resume_from_args(["helios", "resume"].as_ref());
         assert!(interactive.resume_picker);
         assert!(!interactive.resume_last);
         assert_eq!(interactive.resume_session_id, None);
@@ -1212,7 +1207,7 @@ mod tests {
 
     #[test]
     fn resume_picker_logic_last() {
-        let interactive = finalize_resume_from_args(["codex", "resume", "--last"].as_ref());
+        let interactive = finalize_resume_from_args(["helios", "resume", "--last"].as_ref());
         assert!(!interactive.resume_picker);
         assert!(interactive.resume_last);
         assert_eq!(interactive.resume_session_id, None);
@@ -1221,7 +1216,7 @@ mod tests {
 
     #[test]
     fn resume_picker_logic_with_session_id() {
-        let interactive = finalize_resume_from_args(["codex", "resume", "1234"].as_ref());
+        let interactive = finalize_resume_from_args(["helios", "resume", "1234"].as_ref());
         assert!(!interactive.resume_picker);
         assert!(!interactive.resume_last);
         assert_eq!(interactive.resume_session_id.as_deref(), Some("1234"));
@@ -1230,7 +1225,7 @@ mod tests {
 
     #[test]
     fn resume_all_flag_sets_show_all() {
-        let interactive = finalize_resume_from_args(["codex", "resume", "--all"].as_ref());
+        let interactive = finalize_resume_from_args(["helios", "resume", "--all"].as_ref());
         assert!(interactive.resume_picker);
         assert!(interactive.resume_show_all);
     }
@@ -1239,7 +1234,7 @@ mod tests {
     fn resume_merges_option_flags_and_full_auto() {
         let interactive = finalize_resume_from_args(
             [
-                "codex",
+                "helios",
                 "resume",
                 "sid",
                 "--oss",
@@ -1296,7 +1291,7 @@ mod tests {
     fn resume_merges_dangerously_bypass_flag() {
         let interactive = finalize_resume_from_args(
             [
-                "codex",
+                "helios",
                 "resume",
                 "--dangerously-bypass-approvals-and-sandbox",
             ]
@@ -1310,7 +1305,7 @@ mod tests {
 
     #[test]
     fn fork_picker_logic_none_and_not_last() {
-        let interactive = finalize_fork_from_args(["codex", "fork"].as_ref());
+        let interactive = finalize_fork_from_args(["helios", "fork"].as_ref());
         assert!(interactive.fork_picker);
         assert!(!interactive.fork_last);
         assert_eq!(interactive.fork_session_id, None);
@@ -1319,7 +1314,7 @@ mod tests {
 
     #[test]
     fn fork_picker_logic_last() {
-        let interactive = finalize_fork_from_args(["codex", "fork", "--last"].as_ref());
+        let interactive = finalize_fork_from_args(["helios", "fork", "--last"].as_ref());
         assert!(!interactive.fork_picker);
         assert!(interactive.fork_last);
         assert_eq!(interactive.fork_session_id, None);
@@ -1328,7 +1323,7 @@ mod tests {
 
     #[test]
     fn fork_picker_logic_with_session_id() {
-        let interactive = finalize_fork_from_args(["codex", "fork", "1234"].as_ref());
+        let interactive = finalize_fork_from_args(["helios", "fork", "1234"].as_ref());
         assert!(!interactive.fork_picker);
         assert!(!interactive.fork_last);
         assert_eq!(interactive.fork_session_id.as_deref(), Some("1234"));
@@ -1337,14 +1332,14 @@ mod tests {
 
     #[test]
     fn fork_all_flag_sets_show_all() {
-        let interactive = finalize_fork_from_args(["codex", "fork", "--all"].as_ref());
+        let interactive = finalize_fork_from_args(["helios", "fork", "--all"].as_ref());
         assert!(interactive.fork_picker);
         assert!(interactive.fork_show_all);
     }
 
     #[test]
     fn app_server_analytics_default_disabled_without_flag() {
-        let app_server = app_server_from_args(["codex", "app-server"].as_ref());
+        let app_server = app_server_from_args(["helios", "app-server"].as_ref());
         assert!(!app_server.analytics_default_enabled);
         assert_eq!(
             app_server.listen,
@@ -1355,14 +1350,14 @@ mod tests {
     #[test]
     fn app_server_analytics_default_enabled_with_flag() {
         let app_server =
-            app_server_from_args(["codex", "app-server", "--analytics-default-enabled"].as_ref());
+            app_server_from_args(["helios", "app-server", "--analytics-default-enabled"].as_ref());
         assert!(app_server.analytics_default_enabled);
     }
 
     #[test]
     fn app_server_listen_websocket_url_parses() {
         let app_server = app_server_from_args(
-            ["codex", "app-server", "--listen", "ws://127.0.0.1:4500"].as_ref(),
+            ["helios", "app-server", "--listen", "ws://127.0.0.1:4500"].as_ref(),
         );
         assert_eq!(
             app_server.listen,
@@ -1375,7 +1370,7 @@ mod tests {
     #[test]
     fn app_server_listen_stdio_url_parses() {
         let app_server =
-            app_server_from_args(["codex", "app-server", "--listen", "stdio://"].as_ref());
+            app_server_from_args(["helios", "app-server", "--listen", "stdio://"].as_ref());
         assert_eq!(
             app_server.listen,
             helios_app_server::AppServerTransport::Stdio
@@ -1385,13 +1380,13 @@ mod tests {
     #[test]
     fn app_server_listen_invalid_url_fails_to_parse() {
         let parse_result =
-            MultitoolCli::try_parse_from(["codex", "app-server", "--listen", "http://foo"]);
+            MultitoolCli::try_parse_from(["helios", "app-server", "--listen", "http://foo"]);
         assert!(parse_result.is_err());
     }
 
     #[test]
     fn features_enable_parses_feature_name() {
-        let cli = MultitoolCli::try_parse_from(["codex", "features", "enable", "unified_exec"])
+        let cli = MultitoolCli::try_parse_from(["helios", "features", "enable", "unified_exec"])
             .expect("parse should succeed");
         let Some(Subcommand::Features(FeaturesCli { sub })) = cli.subcommand else {
             panic!("expected features subcommand");
@@ -1404,7 +1399,7 @@ mod tests {
 
     #[test]
     fn features_disable_parses_feature_name() {
-        let cli = MultitoolCli::try_parse_from(["codex", "features", "disable", "shell_tool"])
+        let cli = MultitoolCli::try_parse_from(["helios", "features", "disable", "shell_tool"])
             .expect("parse should succeed");
         let Some(Subcommand::Features(FeaturesCli { sub })) = cli.subcommand else {
             panic!("expected features subcommand");
