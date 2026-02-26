@@ -60,8 +60,9 @@ use helios_core::terminal::TerminalName;
 /// If no subcommand is specified, options will be forwarded to the interactive CLI.
 #[derive(Debug, Parser)]
 #[clap(
+    name = "helios",
     author,
-    version = "0.2.1-105.1",
+    version = env!("CARGO_PKG_VERSION"),
     // If a sub‑command is given, ignore requirements of the default args.
     subcommand_negates_reqs = true,
     // The executable is sometimes invoked via a platform‑specific name like
