@@ -16,6 +16,11 @@ pub fn find_helios_home() -> std::io::Result<PathBuf> {
     find_helios_home_from_env(helios_home_env.as_deref())
 }
 
+// Backward-compatible alias for legacy callers that still import `find_codex_home`.
+pub fn find_codex_home() -> std::io::Result<PathBuf> {
+    find_helios_home()
+}
+
 fn find_helios_home_from_env(helios_home_env: Option<&str>) -> std::io::Result<PathBuf> {
     // Honor the `HELIOS_HOME` environment variable when it is set to allow users
     // (and tests) to override the default location.

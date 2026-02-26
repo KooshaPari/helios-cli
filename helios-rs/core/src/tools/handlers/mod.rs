@@ -19,10 +19,10 @@ mod view_image;
 pub use plan::PLAN_TOOL;
 use serde::Deserialize;
 use std::path::Path;
+use std::path::PathBuf;
 
 use crate::function_tool::FunctionCallError;
 use crate::sandboxing::SandboxPermissions;
-use crate::sandboxing::normalize_additional_permissions;
 pub use apply_patch::ApplyPatchHandler;
 use codex_protocol::models::PermissionProfile;
 use codex_protocol::protocol::AskForApproval;
@@ -109,4 +109,42 @@ pub(super) fn normalize_and_validate_additional_permissions(
     } else {
         Ok(None)
     }
+}
+
+fn normalize_additional_permissions(
+    mut additional_permissions: PermissionProfile,
+    cwd: &Path,
+) -> Result<PermissionProfile, String> {
+    let Some(file_system) = additional_permissions.file_system.as_mut() else {
+        return Ok(additional_permissions);
+    };
+
+    file_system.read = file_system
+        .read
+        .take()
+        .map(|paths| normalize_path_list(paths, cwd))
+        .transpose()?;
+    file_system.write = file_system
+        .write
+        .take()
+        .map(|paths| normalize_path_list(paths, cwd))
+        .transpose()?;
+
+    Ok(additional_permissions)
+}
+
+fn normalize_path_list(paths: Vec<PathBuf>, cwd: &Path) -> Result<Vec<PathBuf>, String> {
+    paths
+        .into_iter()
+        .map(|path| normalize_additional_permissions_path(path.as_path(), cwd))
+        .collect()
+}
+
+fn normalize_additional_permissions_path(path: &Path, cwd: &Path) -> Result<PathBuf, String> {
+    let normalized = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        cwd.join(path)
+    };
+    Ok(normalized)
 }

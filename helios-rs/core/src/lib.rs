@@ -1,6 +1,5 @@
-pub mod transport;
-
 //! Root of the `helios-core` library.
+pub mod transport;
 
 // Prevent accidental direct writes to stdout/stderr in library code. All
 // user-visible output must go through the appropriate abstraction (e.g.,
@@ -17,12 +16,12 @@ mod client_common;
 pub mod codex;
 mod realtime_conversation;
 pub use helios::SteerInputError;
-mod helios_thread;
+mod codex_thread;
 mod compact_remote;
-pub use helios_thread::CodexThread;
-pub use helios_thread::ThreadConfigSnapshot;
+pub use codex_thread::CodexThread;
+pub use codex_thread::ThreadConfigSnapshot;
 mod agent;
-mod helios_delegate;
+mod codex_delegate;
 mod command_canonicalization;
 mod commit_attribution;
 pub mod config;

@@ -65,7 +65,7 @@ mod auth_refresh;
 mod cli_stream;
 mod client;
 mod client_websockets;
-mod helios_delegate;
+mod codex_delegate;
 mod collaboration_instructions;
 mod compact;
 mod compact_remote;

@@ -592,8 +592,6 @@ sqlite = true
 
     Ok(())
 }
-
-#[tokio::test]
 async fn thread_list_empty_source_kinds_defaults_to_interactive_only() -> Result<()> {
     let helios_home = TempDir::new()?;
     create_minimal_config(helios_home.path())?;

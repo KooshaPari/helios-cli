@@ -5,7 +5,7 @@ use crate::agent::AgentControl;
 use crate::helios::Codex;
 use crate::helios::CodexSpawnOk;
 use crate::helios::INITIAL_SUBMIT_ID;
-use crate::helios_thread::CodexThread;
+use crate::codex_thread::CodexThread;
 use crate::config::Config;
 use crate::error::CodexErr;
 use crate::error::Result as CodexResult;
@@ -321,7 +321,7 @@ impl ThreadManager {
     pub async fn start_thread_with_tools_and_service_name(
         &self,
         config: Config,
-        dynamic_tools: Vec<codex_protocol::dynamic_tools::DynamicToolSpec>,
+        dynamic_tools: Vec<helios_protocol::dynamic_tools::DynamicToolSpec>,
         persist_extended_history: bool,
         metrics_service_name: Option<String>,
     ) -> CodexResult<NewThread> {

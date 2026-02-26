@@ -17,7 +17,7 @@ use tokio_util::sync::CancellationToken;
 
 use crate::helios::Session;
 use crate::helios::TurnContext;
-use crate::helios_delegate::run_helios_thread_one_shot;
+use crate::codex_delegate::run_helios_thread_one_shot;
 use crate::config::Constrained;
 use crate::features::Feature;
 use crate::review_format::format_review_findings_block;
