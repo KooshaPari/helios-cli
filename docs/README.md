@@ -73,3 +73,10 @@ docs/
 - Factory Droids: https://factory.ai/news/ga
 - SDD Research: arXiv:2602.00180
 - AWS AutoPilot: Self-driving DevOps patterns
+
+## Governance
+
+- [Stacked PRs and Release Channels](./context/governance/STACKED_PRS_AND_RELEASE_CHANNELS.md)
+- [Stacked PR Bookset](./context/governance/bookset/README.md)
+- [Git-Backed Documentation](./context/governance/git-backed-documentation/README.md)
+
