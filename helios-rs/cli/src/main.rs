@@ -31,6 +31,11 @@ use owo_colors::OwoColorize;
 use std::io::IsTerminal;
 use std::path::PathBuf;
 use supports_color::Stream;
+const OSS_PROVIDER_OVERRIDE_ALIASES: [(&str, &str); 3] = [
+    ("oss-provider", "oss_provider"),
+    ("oss_provider", "oss_provider"),
+    ("local-provider", "oss_provider"),
+];
 
 #[cfg(target_os = "macos")]
 mod app_cmd;
@@ -882,9 +887,11 @@ fn prepend_config_flags(
     subcommand_config_overrides: &mut CliConfigOverrides,
     cli_config_overrides: CliConfigOverrides,
 ) {
+    let mut canonicalized_root_overrides = cli_config_overrides;
+    normalize_oss_provider_overrides(&mut canonicalized_root_overrides.raw_overrides);
     subcommand_config_overrides
         .raw_overrides
-        .splice(0..0, cli_config_overrides.raw_overrides);
+        .splice(0..0, canonicalized_root_overrides.raw_overrides);
 }
 
 async fn run_interactive_tui(
@@ -1020,10 +1027,26 @@ fn merge_interactive_cli_flags(interactive: &mut TuiCli, subcommand_cli: TuiCli)
         interactive.prompt = Some(prompt.replace("\r\n", "\n").replace('\r', "\n"));
     }
 
+    let mut subcommand_config_overrides = subcommand_cli.config_overrides;
+    normalize_oss_provider_overrides(&mut subcommand_config_overrides.raw_overrides);
     interactive
         .config_overrides
         .raw_overrides
-        .extend(subcommand_cli.config_overrides.raw_overrides);
+        .extend(subcommand_config_overrides.raw_overrides);
+}
+
+fn normalize_oss_provider_overrides(raw_overrides: &mut Vec<String>) {
+    raw_overrides.iter_mut().for_each(|raw| {
+        if let Some((key, value)) = raw.split_once('=') {
+            let key = key.trim().to_ascii_lowercase();
+            if let Some((_, canonical_key)) = OSS_PROVIDER_OVERRIDE_ALIASES
+                .iter()
+                .find(|(from, _)| key == *from)
+            {
+                *raw = format!("{}={}", canonical_key, value);
+            }
+        }
+    });
 }
 
 fn print_completion(cmd: CompletionCommand) {
@@ -1181,6 +1204,28 @@ mod tests {
             vec![
                 "Token usage: total=2 input=0 output=2".to_string(),
                 "To continue this session, run codex resume my-thread".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn normalize_oss_provider_overrides_remaps_legacy_flags() {
+        let mut raw_overrides = vec![
+            "oss-provider=ollama-chat".to_string(),
+            "local-provider=ollama".to_string(),
+            "oss_provider=gpt-4o".to_string(),
+            "other_key=value".to_string(),
+        ];
+
+        normalize_oss_provider_overrides(&mut raw_overrides);
+
+        assert_eq!(
+            raw_overrides,
+            vec![
+                "oss_provider=ollama-chat",
+                "oss_provider=ollama",
+                "oss_provider=gpt-4o",
+                "other_key=value"
             ]
         );
     }
