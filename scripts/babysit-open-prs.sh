@@ -194,11 +194,11 @@ status_badge() {
   local cr_rate="$4"
   local mergeable="$5"
 
-  if [[ "$fail_total" == "0" && "$merge_state" == "CLEAN" && "$mergeable" == "true" ]]; then
+  if [[ "$fail_total" == "0" && "$merge_state" == "CLEAN" && "$mergeable" == "MERGEABLE" ]]; then
     echo "READY"
     return
   fi
-  if [[ "$mergeable" != "true" ]]; then
+  if [[ "$mergeable" != "MERGEABLE" ]]; then
     echo "BLOCKED-MERGE"
     return
   fi
@@ -305,7 +305,11 @@ while true; do
   echo "PR   | branch                    | mergeState       | mergeable | CI(fail/other/rate) | state"
   echo "--------------------------------------------------------------------------------"
 
-  open_json=$(run_gh pr list --repo "$REPO" --state open --json number,title,headRefName,mergeStateStatus,mergeable --jq '.[]' || echo '[]')
+  open_json=$(run_gh pr list \
+    --repo "$REPO" \
+    --state open \
+    --limit 100 \
+    --json number,title,headRefName,mergeStateStatus,mergeable || echo '[]')
 
   if [[ -z "$open_json" ]]; then
     echo "No open PRs in $REPO"
@@ -313,7 +317,7 @@ while true; do
     while IFS= read -r pr_json; do
       [[ -z "$pr_json" ]] && continue
       classify_cycle "$pr_json"
-    done <<<"$open_json"
+    done < <(echo "$open_json" | jq -c '.[]')
   fi
 
   if [[ "$ONCE" -eq 1 ]]; then
