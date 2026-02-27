@@ -229,6 +229,36 @@ use tokio::runtime::Handle;
 /// placeholder in the UI.
 const LARGE_PASTE_CHAR_THRESHOLD: usize = 1000;
 
+/// On macOS, Finder can produce paths without a leading `/` (e.g. `Users/alice/img.png`).
+/// This detects well-known root directory prefixes and prepends the slash.
+fn maybe_prefix_root_like(path: &std::path::Path) -> Option<std::path::PathBuf> {
+    #[cfg(windows)]
+    {
+        let _ = path;
+        None
+    }
+
+    #[cfg(not(windows))]
+    {
+        if path.has_root() {
+            return None;
+        }
+
+        let path_str = path.to_string_lossy();
+        const ROOT_PREFIXES: [&str; 5] =
+            ["Applications/", "Library/", "System/", "Users/", "Volumes/"];
+
+        if ROOT_PREFIXES
+            .iter()
+            .any(|prefix| path_str.starts_with(prefix))
+        {
+            return Some(std::path::PathBuf::from(format!("/{path_str}")));
+        }
+
+        None
+    }
+}
+
 /// Result returned when the user interacts with the text area.
 #[derive(Debug, PartialEq)]
 pub enum InputResult {
@@ -760,18 +790,40 @@ impl ChatComposer {
 
         // normalize_pasted_path already handles Windows → WSL path conversion,
         // so we can directly try to read the image dimensions.
-        match image::image_dimensions(&path_buf) {
-            Ok((width, height)) => {
+        match Self::resolve_image_path_with_fallback(path_buf) {
+            Ok((resolved_path, _w, _h)) => {
                 tracing::info!("OK: {pasted}");
-                tracing::debug!("image dimensions={}x{}", width, height);
-                let format = pasted_image_format(&path_buf);
+                let format = pasted_image_format(&resolved_path);
                 tracing::debug!("attached image format={}", format.label());
-                self.attach_image(path_buf);
+                self.attach_image(resolved_path);
                 true
             }
             Err(err) => {
                 tracing::trace!("ERR: {err}");
                 false
+            }
+        }
+    }
+
+    /// Try to get image dimensions for `path`; if the file is not found, attempt a
+    /// root-prefix fallback (e.g. `Users/...` → `/Users/...`) which helps when
+    /// macOS Finder drops paths without a leading slash.
+    fn resolve_image_path_with_fallback(
+        path: std::path::PathBuf,
+    ) -> Result<(std::path::PathBuf, u32, u32), image::ImageError> {
+        match image::image_dimensions(&path) {
+            Ok((w, h)) => Ok((path, w, h)),
+            Err(err) => {
+                if let image::ImageError::IoError(ref io_err) = err {
+                    if io_err.kind() == std::io::ErrorKind::NotFound {
+                        if let Some(fallback) = maybe_prefix_root_like(&path) {
+                            if let Ok((w, h)) = image::image_dimensions(&fallback) {
+                                return Ok((fallback, w, h));
+                            }
+                        }
+                    }
+                }
+                Err(err)
             }
         }
     }
