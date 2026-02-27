@@ -20,6 +20,7 @@ use crate::codex::TurnContext;
 use crate::codex_delegate::run_codex_thread_one_shot;
 use crate::config::Constrained;
 use crate::features::Feature;
+use crate::protocol::SandboxPolicy;
 use crate::review_format::format_review_findings_block;
 use crate::review_format::render_review_output_text;
 use crate::state::TaskKind;
@@ -100,6 +101,13 @@ async fn start_review_conversation(
     // Set explicit review rubric for the sub-agent
     sub_agent_config.base_instructions = Some(crate::REVIEW_PROMPT.to_string());
     sub_agent_config.permissions.approval_policy = Constrained::allow_only(AskForApproval::Never);
+    // Enforce read-only sandbox for the review child session.
+    sub_agent_config.permissions.sandbox_policy =
+        Constrained::allow_only(SandboxPolicy::ReadOnly {
+            access: Default::default(),
+        });
+    // Avoid loading project docs; reviewer only needs findings.
+    sub_agent_config.project_doc_max_bytes = 0;
 
     let model = config
         .review_model

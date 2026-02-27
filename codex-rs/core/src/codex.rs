@@ -4743,7 +4743,11 @@ async fn spawn_review_thread(
         collaboration_mode: parent_turn_context.collaboration_mode.clone(),
         personality: parent_turn_context.personality,
         approval_policy: parent_turn_context.approval_policy.clone(),
-        sandbox_policy: parent_turn_context.sandbox_policy.clone(),
+        // Enforce read-only sandbox for review threads so the reviewer cannot
+        // modify files.
+        sandbox_policy: Constrained::allow_only(SandboxPolicy::ReadOnly {
+            access: Default::default(),
+        }),
         network: parent_turn_context.network.clone(),
         windows_sandbox_level: parent_turn_context.windows_sandbox_level,
         shell_environment_policy: parent_turn_context.shell_environment_policy.clone(),
