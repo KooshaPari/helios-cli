@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Unified entry point for the Codex CLI.
 
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { existsSync } from "fs";
 import { createRequire } from "node:module";
 import path from "path";
@@ -22,6 +22,45 @@ const PLATFORM_PACKAGE_BY_TARGET = {
 };
 
 const { platform, arch } = process;
+
+const isTty = process.stdin.isTTY && process.stdout.isTTY && process.platform !== "win32";
+let terminalState = null;
+let hasCustomSuspendKey = false;
+
+const restoreTerminalState = () => {
+  if (!terminalState) {
+    return;
+  }
+
+  try {
+    execFileSync("stty", [terminalState], { stdio: "inherit" });
+  } catch {
+    /* ignore */
+  }
+};
+
+const configureSuspendCharToCtrlB = () => {
+  if (!isTty) {
+    return;
+  }
+
+  try {
+    terminalState = execFileSync("stty", ["-g"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    }).trim();
+
+    execFileSync("stty", ["susp", "^B"], {
+      stdio: ["ignore", "inherit", "inherit"],
+    });
+    hasCustomSuspendKey = true;
+  } catch {
+    terminalState = null;
+    hasCustomSuspendKey = false;
+  }
+};
+
+configureSuspendCharToCtrlB();
 
 let targetTriple = null;
 switch (platform) {
@@ -194,16 +233,33 @@ const forwardSignal = (signal) => {
   if (child.killed) {
     return;
   }
+  if (signal === "SIGTSTP" && hasCustomSuspendKey) {
+    restoreTerminalState();
+  }
   try {
     child.kill(signal);
   } catch {
     /* ignore */
   }
+  if (signal === "SIGTSTP" && hasCustomSuspendKey) {
+    // Re-emit stop signal so the shell receives expected job-control behavior.
+    process.kill(process.pid, signal);
+  }
 };
 
-["SIGINT", "SIGTERM", "SIGHUP"].forEach((sig) => {
+[
+  "SIGINT",
+  "SIGTERM",
+  "SIGHUP",
+].forEach((sig) => {
   process.on(sig, () => forwardSignal(sig));
 });
+
+if (hasCustomSuspendKey) {
+  process.on("SIGTSTP", () => forwardSignal("SIGTSTP"));
+}
+
+process.on("exit", restoreTerminalState);
 
 // When the child exits, mirror its termination reason in the parent so that
 // shell scripts and other tooling observe the correct exit status.
@@ -220,7 +276,14 @@ const childResult = await new Promise((resolve) => {
   });
 });
 
+restoreTerminalState();
+
 if (childResult.type === "signal") {
+  if (childResult.signal === "SIGTSTP") {
+    restoreTerminalState();
+    process.kill(process.pid, childResult.signal);
+    process.exit(1);
+  }
   // Re-emit the same signal so that the parent terminates with the expected
   // semantics (this also sets the correct exit code of 128 + n).
   process.kill(process.pid, childResult.signal);
