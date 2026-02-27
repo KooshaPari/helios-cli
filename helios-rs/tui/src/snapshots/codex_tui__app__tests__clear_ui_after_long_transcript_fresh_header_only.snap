@@ -4,7 +4,7 @@ assertion_line: 3452
 expression: rendered
 ---
 ╭─────────────────────────────────────────────╮
-│ >_ OpenAI Codex (v<VERSION>)                │
+│ >_ Phenotype Helios (v<VERSION>)                │
 │                                             │
 │ model:     gpt-test high   /model to change │
 │ directory: /tmp/project                     │

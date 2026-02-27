@@ -423,7 +423,7 @@ fn rewrite_claude_terms(content: &str) -> String {
         "claudecode",
         "claude",
     ] {
-        rewritten = replace_case_insensitive_with_boundaries(&rewritten, from, "Codex");
+        rewritten = replace_case_insensitive_with_boundaries(&rewritten, from, "Helios");
     }
     rewritten
 }
@@ -749,7 +749,7 @@ mod tests {
 
         assert_eq!(
             fs::read_to_string(codex_home.join("AGENTS.md")).expect("read agents"),
-            "Codex guidance"
+            "Helios guidance"
         );
 
         let parsed_config: TomlValue = toml::from_str(
@@ -772,7 +772,7 @@ mod tests {
         assert_eq!(
             fs::read_to_string(agents_skills.join("skill-a").join("SKILL.md"))
                 .expect("read copied skill"),
-            "Use Codex and Codex utilities."
+            "Use Helios and Helios utilities."
         );
     }
 
@@ -887,7 +887,7 @@ mod tests {
 
         assert_eq!(
             fs::read_to_string(repo_root.join("AGENTS.md")).expect("read target"),
-            "Codex\nCodex\nCodex\nSee AGENTS.md\n"
+            "Helios\nCodex\nCodex\nSee AGENTS.md\n"
         );
         assert_eq!(
             fs::read_to_string(repo_with_existing_target.join("AGENTS.md"))
@@ -914,7 +914,7 @@ mod tests {
 
         assert_eq!(
             fs::read_to_string(repo_root.join("AGENTS.md")).expect("read target"),
-            "Codex guidance"
+            "Helios guidance"
         );
     }
 }

@@ -1,8 +1,6 @@
 use std::sync::Arc;
 
 use crate::Prompt;
-use crate::helios::Session;
-use crate::helios::TurnContext;
 use crate::compact::InitialContextInjection;
 use crate::compact::extract_trailing_model_switch_update_for_compaction_request;
 use crate::compact::insert_initial_context_before_last_real_user_or_summary;
@@ -12,15 +10,17 @@ use crate::context_manager::estimate_response_item_model_visible_bytes;
 use crate::context_manager::is_helios_generated_item;
 use crate::error::CodexErr;
 use crate::error::Result as CodexResult;
+use crate::helios::Session;
+use crate::helios::TurnContext;
 use crate::protocol::CompactedItem;
 use crate::protocol::EventMsg;
 use crate::protocol::RolloutItem;
 use crate::protocol::TurnStartedEvent;
+use futures::TryFutureExt;
 use helios_protocol::items::ContextCompactionItem;
 use helios_protocol::items::TurnItem;
 use helios_protocol::models::BaseInstructions;
 use helios_protocol::models::ResponseItem;
-use futures::TryFutureExt;
 use tracing::error;
 use tracing::info;
 

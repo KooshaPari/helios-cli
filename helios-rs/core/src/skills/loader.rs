@@ -15,10 +15,10 @@ use crate::skills::model::SkillToolDependency;
 use crate::skills::permissions::SkillManifestPermissions;
 use crate::skills::permissions::compile_permission_profile;
 use crate::skills::system::system_cache_root_dir;
-use helios_app_server_protocol::ConfigLayerSource;
-use helios_protocol::protocol::SkillScope;
 use dirs::home_dir;
 use dunce::canonicalize as canonicalize_path;
+use helios_app_server_protocol::ConfigLayerSource;
+use helios_protocol::protocol::SkillScope;
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::collections::VecDeque;
@@ -379,7 +379,7 @@ fn discover_skills_under_root(root: &Path, scope: SkillScope, outcome: &mut Skil
         }
     }
 
-    // Follow symlinked directories for user, admin, and repo skills. System skills are written by Codex itself.
+    // Follow symlinked directories for user, admin, and repo skills. System skills are written by Helios itself.
     let follow_symlinks = matches!(
         scope,
         SkillScope::Repo | SkillScope::User | SkillScope::Admin

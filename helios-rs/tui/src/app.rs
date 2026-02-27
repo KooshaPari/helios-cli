@@ -35,6 +35,11 @@ use crate::tui;
 use crate::tui::TuiEvent;
 use crate::update_action::UpdateAction;
 use crate::version::HELIOS_CLI_VERSION;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
 use helios_ansi_escape::ansi_escape_line;
 use helios_app_server_protocol::ConfigLayerSource;
 use helios_core::AuthManager;
@@ -74,11 +79,6 @@ use helios_protocol::protocol::SessionSource;
 use helios_protocol::protocol::SkillErrorInfo;
 use helios_protocol::protocol::TokenUsage;
 use helios_utils_absolute_path::AbsolutePathBuf;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
 use ratatui::style::Stylize;
 use ratatui::text::Line;
 use ratatui::widgets::Paragraph;
@@ -2087,8 +2087,9 @@ impl App {
 
                     // If the elevated setup already ran on this machine, don't prompt for
                     // elevation again - just flip the config to use the elevated path.
-                    if helios_core::windows_sandbox::sandbox_setup_is_complete(helios_home.as_path())
-                    {
+                    if helios_core::windows_sandbox::sandbox_setup_is_complete(
+                        helios_home.as_path(),
+                    ) {
                         tx.send(AppEvent::EnableWindowsSandboxForAgentMode {
                             preset,
                             mode: WindowsSandboxEnableMode::Elevated,
@@ -2340,7 +2341,7 @@ impl App {
                                     Line::from(vec!["• ".dim(), "Sandbox ready".into()]),
                                     Line::from(vec![
                                         "  ".into(),
-                                        "Codex can now safely edit files and execute commands in your computer"
+                                        "Helios can now safely edit files and execute commands in your computer"
                                             .dark_gray(),
                                     ]),
                                 ]);
@@ -3101,8 +3102,10 @@ impl App {
 
     fn restore_runtime_theme_from_config(&self) {
         if let Some(name) = self.config.tui_theme.as_deref()
-            && let Some(theme) =
-                crate::render::highlight::resolve_theme_by_name(name, Some(&self.config.helios_home))
+            && let Some(theme) = crate::render::highlight::resolve_theme_by_name(
+                name,
+                Some(&self.config.helios_home),
+            )
         {
             crate::render::highlight::set_syntax_theme(theme);
             return;
@@ -3131,7 +3134,7 @@ impl App {
             Err(external_editor::EditorError::MissingEditor) => {
                 self.chat_widget
                     .add_to_history(history_cell::new_error_event(
-                    "Cannot open external editor: set $VISUAL or $EDITOR before starting Codex."
+                    "Cannot open external editor: set $VISUAL or $EDITOR before starting Helios."
                         .to_string(),
                 ));
                 self.reset_external_editor_state(tui);
@@ -3328,6 +3331,7 @@ mod tests {
     use crate::history_cell::HistoryCell;
     use crate::history_cell::UserHistoryCell;
     use crate::history_cell::new_session_info;
+    use crossterm::event::KeyModifiers;
     use helios_core::CodexAuth;
     use helios_core::config::ConfigBuilder;
     use helios_core::config::ConfigOverrides;
@@ -3343,7 +3347,6 @@ mod tests {
     use helios_protocol::protocol::UserMessageEvent;
     use helios_protocol::user_input::TextElement;
     use helios_protocol::user_input::UserInput;
-    use crossterm::event::KeyModifiers;
     use insta::assert_snapshot;
     use pretty_assertions::assert_eq;
     use ratatui::prelude::Line;
@@ -3552,7 +3555,7 @@ mod tests {
             store.push_event(Event {
                 id: "ev-1".to_string(),
                 msg: EventMsg::ExecApprovalRequest(
-                    codex_protocol::protocol::ExecApprovalRequestEvent {
+                    helios_protocol::protocol::ExecApprovalRequestEvent {
                         call_id: "call-1".to_string(),
                         approval_id: None,
                         turn_id: "turn-1".to_string(),

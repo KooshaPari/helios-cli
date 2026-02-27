@@ -34,16 +34,16 @@ use crate::history_cell::UserHistoryCell;
 use crate::pager_overlay::Overlay;
 use crate::tui;
 use crate::tui::TuiEvent;
+use color_eyre::eyre::Result;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
 use helios_protocol::ThreadId;
 use helios_protocol::protocol::CodexErrorInfo;
 use helios_protocol::protocol::ErrorEvent;
 use helios_protocol::protocol::EventMsg;
 use helios_protocol::protocol::Op;
 use helios_protocol::user_input::TextElement;
-use color_eyre::eyre::Result;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
 
 /// Aggregates all backtrack-related state used by the App.
 #[derive(Default)]

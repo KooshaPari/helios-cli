@@ -16,11 +16,11 @@ anyhow = { workspace = true }
 async-trait = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
 helios-utils-absolute-path = { workspace = true }
+helios-utils-home-dir = { workspace = true }
 helios-utils-rustls-provider = { workspace = true }
 globset = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-codex_utils_home_dir = { workspace = true }
 thiserror = { workspace = true }
 time = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

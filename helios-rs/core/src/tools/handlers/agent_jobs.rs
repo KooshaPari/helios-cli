@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::agent::exceeds_thread_spawn_depth_limit;
 use crate::agent::max_thread_spawn_depth;
 use crate::agent::next_thread_spawn_depth;
@@ -310,10 +312,7 @@ mod spawn_agents_on_csv {
         );
         let job_suffix = &job_id[..8];
         let job_name = format!("agent-job-{job_suffix}");
-        let max_runtime_seconds = normalize_max_runtime_seconds(
-            args.max_runtime_seconds
-                .or(turn.config.agent_job_max_runtime_seconds),
-        )?;
+        let max_runtime_seconds = normalize_max_runtime_seconds(args.max_runtime_seconds)?;
         let _job = db
             .create_agent_job(
                 &codex_state::AgentJobCreateParams {
@@ -531,7 +530,7 @@ async fn build_runner_options(
 ) -> Result<JobRunnerOptions, FunctionCallError> {
     let session_source = turn.session_source.clone();
     let child_depth = next_thread_spawn_depth(&session_source);
-    let max_depth = max_thread_spawn_depth(turn.config.agent_max_spawn_depth);
+    let max_depth = max_thread_spawn_depth(turn.config.agent_max_depth);
     if exceeds_thread_spawn_depth_limit(child_depth, max_depth) {
         return Err(FunctionCallError::RespondToModel(
             "agent depth limit reached; this session cannot spawn more subagents".to_string(),

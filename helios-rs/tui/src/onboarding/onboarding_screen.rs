@@ -1,12 +1,12 @@
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
 use helios_core::AuthManager;
 use helios_core::config::Config;
 #[cfg(target_os = "windows")]
 use helios_core::windows_sandbox::WindowsSandboxLevelExt;
 #[cfg(target_os = "windows")]
 use helios_protocol::config_types::WindowsSandboxLevel;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::prelude::Widget;

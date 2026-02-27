@@ -94,7 +94,7 @@
       ]
     },
     "AskForApproval": {
-      "description": "Determines the conditions under which the user is consulted to approve running the command proposed by Codex.",
+      "description": "Determines the conditions under which the user is consulted to approve running the command proposed by Helios.",
       "oneOf": [
         {
           "description": "Under this policy, only \"known safe\" commands—as determined by `is_safe_command()`—that **only read files** are auto‑approved. Everything else will ask the user to approve.",
@@ -183,7 +183,7 @@
       "type": "object"
     },
     "CodexErrorInfo": {
-      "description": "Codex errors that we expose to clients.",
+      "description": "Helios errors that we expose to clients.",
       "oneOf": [
         {
           "enum": [
@@ -3395,7 +3395,7 @@
       ]
     },
     "FunctionCallOutputPayload": {
-      "description": "The payload we send back to OpenAI when reporting a tool call result.\n\n`body` serializes directly as the wire value for `function_call_output.output`. `success` remains internal metadata for downstream handling.",
+      "description": "The payload we send back to Phenotype when reporting a tool call result.\n\n`body` serializes directly as the wire value for `function_call_output.output`. `success` remains internal metadata for downstream handling.",
       "properties": {
         "body": {
           "$ref": "#/definitions/FunctionCallOutputBody"

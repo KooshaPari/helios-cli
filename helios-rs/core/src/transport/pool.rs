@@ -1,7 +1,7 @@
 //! Connection Pool for HTTP/2 multiplexing
 
-use std::sync::Arc;
 use std::collections::VecDeque;
+use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// Pooled connection wrapper
@@ -28,35 +28,36 @@ impl ConnectionPool {
             next_id: Arc::new(Mutex::new(1)),
         }
     }
-    
+
     pub async fn acquire(&self) -> PooledConnection {
         let mut connections = self.connections.lock().await;
-        
+
         // Try to reuse existing connection
         if let Some(conn) = connections.pop_front() {
             return conn;
         }
-        
+
         // Create new connection
         let mut next_id = self.next_id.lock().await;
         let id = *next_id;
         *next_id += 1;
-        
+
         PooledConnection {
             id,
             created_at: std::time::Instant::now(),
             last_used: std::time::Instant::now(),
         }
     }
-    
+
     pub async fn release(&self, conn: PooledConnection) {
         let mut connections = self.connections.lock().await;
         if connections.len() < self.keepalive {
             connections.push_back(conn);
         }
     }
-    
+
     pub async fn size(&self) -> usize {
+        let _ = self.max_connections;
         self.connections.lock().await.len()
     }
 }

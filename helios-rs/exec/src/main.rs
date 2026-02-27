@@ -1,7 +1,7 @@
 //! Entry-point for the `helios-exec` binary.
 //!
 //! When this CLI is invoked normally, it parses the standard `helios-exec` CLI
-//! options and launches the non-interactive Codex agent. However, if it is
+//! options and launches the non-interactive Helios agent. However, if it is
 //! invoked with arg0 as `helios-linux-sandbox`, we instead treat the invocation
 //! as a request to run the logic for the standalone `helios-linux-sandbox`
 //! executable (i.e., parse any -s args and then run a *sandboxed* command under

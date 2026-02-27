@@ -10,18 +10,18 @@ pub async fn run_mac_app_open_or_install(
 ) -> anyhow::Result<()> {
     if let Some(app_path) = find_existing_helios_app_path() {
         eprintln!(
-            "Opening Codex Desktop at {app_path}...",
+            "Opening Helios Desktop at {app_path}...",
             app_path = app_path.display()
         );
         open_helios_app(&app_path, &workspace).await?;
         return Ok(());
     }
-    eprintln!("Codex Desktop not found; downloading installer...");
+    eprintln!("Helios Desktop not found; downloading installer...");
     let installed_app = download_and_install_helios_to_user_applications(&download_url)
         .await
-        .context("failed to download/install Codex Desktop")?;
+        .context("failed to download/install Helios Desktop")?;
     eprintln!(
-        "Launching Codex Desktop from {installed_app}...",
+        "Launching Helios Desktop from {installed_app}...",
         installed_app = installed_app.display()
     );
     open_helios_app(&installed_app, &workspace).await?;
@@ -35,9 +35,9 @@ fn find_existing_helios_app_path() -> Option<PathBuf> {
 }
 
 fn candidate_helios_app_paths() -> Vec<PathBuf> {
-    let mut paths = vec![PathBuf::from("/Applications/Codex.app")];
+    let mut paths = vec![PathBuf::from("/Applications/Helios.app")];
     if let Some(home) = std::env::var_os("HOME") {
-        paths.push(PathBuf::from(home).join("Applications").join("Codex.app"));
+        paths.push(PathBuf::from(home).join("Applications").join("Helios.app"));
     }
     paths
 }
@@ -66,7 +66,9 @@ async fn open_helios_app(app_path: &Path, workspace: &Path) -> anyhow::Result<()
     );
 }
 
-async fn download_and_install_helios_to_user_applications(dmg_url: &str) -> anyhow::Result<PathBuf> {
+async fn download_and_install_helios_to_user_applications(
+    dmg_url: &str,
+) -> anyhow::Result<PathBuf> {
     let temp_dir = Builder::new()
         .prefix("helios-app-installer-")
         .tempdir()
@@ -74,10 +76,10 @@ async fn download_and_install_helios_to_user_applications(dmg_url: &str) -> anyh
     let tmp_root = temp_dir.path().to_path_buf();
     let _temp_dir = temp_dir;
 
-    let dmg_path = tmp_root.join("Codex.dmg");
+    let dmg_path = tmp_root.join("Helios.dmg");
     download_dmg(dmg_url, &dmg_path).await?;
 
-    eprintln!("Mounting Codex Desktop installer...");
+    eprintln!("Mounting Helios Desktop installer...");
     let mount_point = mount_dmg(&dmg_path).await?;
     eprintln!(
         "Installer mounted at {mount_point}.",
@@ -85,7 +87,7 @@ async fn download_and_install_helios_to_user_applications(dmg_url: &str) -> anyh
     );
     let result = async {
         let app_in_volume = find_helios_app_in_mount(&mount_point)
-            .context("failed to locate Codex.app in mounted dmg")?;
+            .context("failed to locate Helios.app in mounted dmg")?;
         install_helios_app_bundle(&app_in_volume).await
     }
     .await;
@@ -104,7 +106,7 @@ async fn download_and_install_helios_to_user_applications(dmg_url: &str) -> anyh
 async fn install_helios_app_bundle(app_in_volume: &Path) -> anyhow::Result<PathBuf> {
     for applications_dir in candidate_applications_dirs()? {
         eprintln!(
-            "Installing Codex Desktop into {applications_dir}...",
+            "Installing Helios Desktop into {applications_dir}...",
             applications_dir = applications_dir.display()
         );
         std::fs::create_dir_all(&applications_dir).with_context(|| {
@@ -114,7 +116,7 @@ async fn install_helios_app_bundle(app_in_volume: &Path) -> anyhow::Result<PathB
             )
         })?;
 
-        let dest_app = applications_dir.join("Codex.app");
+        let dest_app = applications_dir.join("Helios.app");
         if dest_app.is_dir() {
             return Ok(dest_app);
         }
@@ -123,14 +125,14 @@ async fn install_helios_app_bundle(app_in_volume: &Path) -> anyhow::Result<PathB
             Ok(()) => return Ok(dest_app),
             Err(err) => {
                 eprintln!(
-                    "warning: failed to install Codex.app to {applications_dir}: {err}",
+                    "warning: failed to install Helios.app to {applications_dir}: {err}",
                     applications_dir = applications_dir.display()
                 );
             }
         }
     }
 
-    anyhow::bail!("failed to install Codex.app to any applications directory");
+    anyhow::bail!("failed to install Helios.app to any applications directory");
 }
 
 fn candidate_applications_dirs() -> anyhow::Result<Vec<PathBuf>> {
@@ -199,7 +201,7 @@ async fn detach_dmg(mount_point: &Path) -> anyhow::Result<()> {
 }
 
 fn find_helios_app_in_mount(mount_point: &Path) -> anyhow::Result<PathBuf> {
-    let direct = mount_point.join("Codex.app");
+    let direct = mount_point.join("Helios.app");
     if direct.is_dir() {
         return Ok(direct);
     }
@@ -263,19 +265,19 @@ mod tests {
 
     #[test]
     fn parses_mount_point_from_tab_separated_hdiutil_output() {
-        let output = "/dev/disk2s1\tApple_HFS\tCodex\t/Volumes/Codex\n";
+        let output = "/dev/disk2s1\tApple_HFS\tCodex\t/Volumes/Helios\n";
         assert_eq!(
             parse_hdiutil_attach_mount_point(output).as_deref(),
-            Some("/Volumes/Codex")
+            Some("/Volumes/Helios")
         );
     }
 
     #[test]
     fn parses_mount_point_with_spaces() {
-        let output = "/dev/disk2s1\tApple_HFS\tCodex Installer\t/Volumes/Codex Installer\n";
+        let output = "/dev/disk2s1\tApple_HFS\tCodex Installer\t/Volumes/Helios Installer\n";
         assert_eq!(
             parse_hdiutil_attach_mount_point(output).as_deref(),
-            Some("/Volumes/Codex Installer")
+            Some("/Volumes/Helios Installer")
         );
     }
 }

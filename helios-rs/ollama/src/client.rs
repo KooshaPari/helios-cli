@@ -47,8 +47,10 @@ impl OllamaClient {
 
     #[cfg(test)]
     async fn try_from_provider_with_base_url(base_url: &str) -> io::Result<Self> {
-        let provider =
-            helios_core::create_oss_provider_with_base_url(base_url, helios_core::WireApi::Responses);
+        let provider = helios_core::create_oss_provider_with_base_url(
+            base_url,
+            helios_core::WireApi::Responses,
+        );
         Self::try_from_provider(&provider).await
     }
 
@@ -351,7 +353,7 @@ mod tests {
         let native = OllamaClient::from_host_root(server.uri());
         native.probe_server().await.expect("probe native");
 
-        // OpenAI compatibility endpoint
+        // Phenotype compatibility endpoint
         wiremock::Mock::given(wiremock::matchers::method("GET"))
             .and(wiremock::matchers::path("/v1/models"))
             .respond_with(wiremock::ResponseTemplate::new(200))
@@ -360,11 +362,11 @@ mod tests {
         let ollama_client =
             OllamaClient::try_from_provider_with_base_url(&format!("{}/v1", server.uri()))
                 .await
-                .expect("probe OpenAI compat");
+                .expect("probe Phenotype compat");
         ollama_client
             .probe_server()
             .await
-            .expect("probe OpenAI compat");
+            .expect("probe Phenotype compat");
     }
 
     #[tokio::test]
@@ -379,7 +381,7 @@ mod tests {
 
         let server = wiremock::MockServer::start().await;
 
-        // OpenAI‑compat models endpoint responds OK.
+        // Phenotype‑compat models endpoint responds OK.
         wiremock::Mock::given(wiremock::matchers::method("GET"))
             .and(wiremock::matchers::path("/v1/models"))
             .respond_with(wiremock::ResponseTemplate::new(200))

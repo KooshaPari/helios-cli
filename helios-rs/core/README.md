@@ -1,6 +1,6 @@
 # codex-core
 
-This crate implements the business logic for Codex. It is designed to be used by the various Codex UIs written in Rust.
+This crate implements the business logic for Helios. It is designed to be used by the various Helios UIs written in Rust.
 
 ## Dependencies
 

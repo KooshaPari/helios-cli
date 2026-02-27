@@ -3,14 +3,14 @@
 use super::TransportConfig;
 
 pub struct GrpcTransport {
-    config: TransportConfig,
+    _config: TransportConfig,
 }
 
 impl GrpcTransport {
     pub fn new(config: TransportConfig) -> Self {
-        Self { config }
+        Self { _config: config }
     }
-    
+
     pub async fn chat(&self, _request: ChatRequest) -> Result<ChatResponse, String> {
         // Placeholder - would use tonic
         Ok(ChatResponse::default())

@@ -1222,24 +1222,8 @@ pub(crate) async fn apply_bespoke_event_handling(
                 {
                     Ok(summary) => {
                         let mut thread = summary_to_thread(summary);
-                        match read_rollout_items_from_rollout(rollout_path.as_path()).await {
-                            Ok(items) => {
-                                thread.turns = build_turns_from_rollout_items(&items);
-                                thread.status = thread_watch_manager
-                                    .loaded_status_for_thread(&thread.id)
-                                    .await;
-                                match find_thread_name_by_id(helios_home, &conversation_id).await {
-                                    Ok(name) => {
-                                        thread.name = name;
-                                    }
-                                    Err(err) => {
-                                        warn!(
-                                            "Failed to read thread name for {conversation_id}: {err}"
-                                        );
-                                    }
-                                }
-                                ThreadRollbackResponse { thread }
-                            }
+                        let items = match read_rollout_items_from_rollout(rollout_path.as_path()).await {
+                            Ok(items) => items,
                             Err(err) => {
                                 let error = JSONRPCErrorError {
                                     code: INTERNAL_ERROR_CODE,
@@ -1252,7 +1236,20 @@ pub(crate) async fn apply_bespoke_event_handling(
                                 outgoing.send_error(request_id.clone(), error).await;
                                 return;
                             }
+                        };
+                        thread.turns = build_turns_from_rollout_items(&items);
+                        thread.status = thread_watch_manager
+                            .loaded_status_for_thread(&thread.id)
+                            .await;
+                        match find_thread_name_by_id(helios_home, &conversation_id).await {
+                            Ok(name) => {
+                                thread.name = name;
+                            }
+                            Err(err) => {
+                                warn!("Failed to read thread name for {conversation_id}: {err}");
+                            }
                         }
+                        ThreadRollbackResponse { thread }
                     }
                     Err(err) => {
                         let error = JSONRPCErrorError {

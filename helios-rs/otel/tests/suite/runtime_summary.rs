@@ -1,3 +1,4 @@
+use eventsource_stream::Event as StreamEvent;
 use helios_otel::OtelManager;
 use helios_otel::RuntimeMetricTotals;
 use helios_otel::RuntimeMetricsSummary;
@@ -7,7 +8,6 @@ use helios_otel::metrics::MetricsConfig;
 use helios_otel::metrics::Result;
 use helios_protocol::ThreadId;
 use helios_protocol::protocol::SessionSource;
-use eventsource_stream::Event as StreamEvent;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
 use pretty_assertions::assert_eq;
 use std::time::Duration;

@@ -6,15 +6,15 @@
 //! - Unix Domain Socket (local)
 //! - gRPC (typed)
 
-pub mod http2;
-pub mod websocket;
-pub mod unix_socket;
 pub mod grpc;
+pub mod http2;
 pub mod pool;
 pub mod selector;
+pub mod unix_socket;
+pub mod websocket;
 
-pub use selector::TransportSelector;
 pub use pool::ConnectionPool;
+pub use selector::TransportSelector;
 
 /// Transport types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

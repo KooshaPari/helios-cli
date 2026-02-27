@@ -6,7 +6,9 @@ license.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
 async-trait = { workspace = true }
+helios-utils-absolute-path = { workspace = true }
 helios-core = { workspace = true }
 helios-execpolicy = { workspace = true }
 helios-protocol = { workspace = true }
@@ -24,6 +26,7 @@ tokio = { workspace = true, features = [
 ] }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter", "fmt"] }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

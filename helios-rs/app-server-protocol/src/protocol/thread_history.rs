@@ -600,7 +600,10 @@ impl ThreadHistoryBuilder {
         self.upsert_item_in_current_turn(item);
     }
 
-    fn handle_collab_close_end(&mut self, payload: &helios_protocol::protocol::CollabCloseEndEvent) {
+    fn handle_collab_close_end(
+        &mut self,
+        payload: &helios_protocol::protocol::CollabCloseEndEvent,
+    ) {
         let status = match &payload.status {
             AgentStatus::Errored(_) | AgentStatus::NotFound => CollabAgentToolCallStatus::Failed,
             _ => CollabAgentToolCallStatus::Completed,
@@ -917,9 +920,11 @@ fn map_patch_change_kind(change: &helios_protocol::protocol::FileChange) -> Patc
     match change {
         helios_protocol::protocol::FileChange::Add { .. } => PatchChangeKind::Add,
         helios_protocol::protocol::FileChange::Delete { .. } => PatchChangeKind::Delete,
-        helios_protocol::protocol::FileChange::Update { move_path, .. } => PatchChangeKind::Update {
-            move_path: move_path.clone(),
-        },
+        helios_protocol::protocol::FileChange::Update { move_path, .. } => {
+            PatchChangeKind::Update {
+                move_path: move_path.clone(),
+            }
+        }
     }
 }
 

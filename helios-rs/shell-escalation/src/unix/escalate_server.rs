@@ -8,8 +8,9 @@ use std::time::Duration;
 
 use anyhow::Context as _;
 use helios_core::SandboxState;
+use helios_core::sandboxing::SandboxPermissions;
+use helios_utils_absolute_path::AbsolutePathBuf;
 use helios_execpolicy::Policy;
-use path_absolutize::Absolutize as _;
 use tokio::process::Command;
 use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
@@ -70,7 +71,7 @@ impl EscalateServer {
         &self,
         params: ExecParams,
         cancel_rx: CancellationToken,
-        sandbox_state: &SandboxState,
+        command_executor: &impl ShellCommandExecutor,
     ) -> anyhow::Result<ExecResult> {
         let (escalate_server, escalate_client) = AsyncDatagramSocket::pair()?;
         let client_socket = escalate_client.into_inner();
@@ -97,38 +98,25 @@ impl EscalateServer {
             timeout_ms: _,
             login,
         } = params;
-        let result = helios_core::exec::process_exec_tool_call(
-            helios_core::exec::ExecParams {
-                command: vec![
-                    self.bash_path.to_string_lossy().to_string(),
-                    if login == Some(false) {
-                        "-c".to_string()
-                    } else {
-                        "-lc".to_string()
-                    },
-                    command,
-                ],
-                cwd: PathBuf::from(&workdir),
-                expiration: helios_core::exec::ExecExpiration::Cancellation(cancel_rx),
-                env,
-                network: None,
-                sandbox_permissions: helios_core::sandboxing::SandboxPermissions::UseDefault,
-                windows_sandbox_level: helios_protocol::config_types::WindowsSandboxLevel::Disabled,
-                justification: None,
-                arg0: None,
+        let mut exec_env = env;
+        let command = vec![
+            self.bash_path.to_string_lossy().to_string(),
+            if login == Some(false) {
+                "-c".to_string()
+            } else {
+                "-lc".to_string()
             },
-            &sandbox_state.sandbox_policy,
-            &sandbox_state.sandbox_cwd,
-            &sandbox_state.helios_linux_sandbox_exe,
-            sandbox_state.use_linux_sandbox_bwrap,
-            None,
-        )
-        .await?;
+            command,
+        ];
+        let result = command_executor
+            .run(command, PathBuf::from(&workdir), std::mem::take(&mut exec_env), cancel_rx)
+            .await?;
+
         escalate_task.abort();
 
         Ok(ExecResult {
             exit_code: result.exit_code,
-            output: result.aggregated_output.text,
+            output: result.output,
             duration: result.duration,
             timed_out: result.timed_out,
         })
@@ -136,12 +124,14 @@ impl EscalateServer {
 }
 
 /// Factory for creating escalation policy instances for a single shell run.
+#[allow(dead_code)]
 pub trait EscalationPolicyFactory {
     type Policy: EscalationPolicy + Send + Sync + 'static;
 
     fn create_policy(&self, policy: Arc<RwLock<Policy>>, stopwatch: Stopwatch) -> Self::Policy;
 }
 
+#[allow(dead_code)]
 pub async fn run_escalate_server(
     exec_params: ExecParams,
     sandbox_state: &SandboxState,
@@ -158,9 +148,12 @@ pub async fn run_escalate_server(
         execve_wrapper.as_ref().to_path_buf(),
         escalation_policy_factory.create_policy(policy, stopwatch),
     );
+    let command_executor = DefaultShellCommandExecutor {
+        sandbox_state,
+    };
 
     escalate_server
-        .exec(exec_params, cancel_token, sandbox_state)
+        .exec(exec_params, cancel_token, &command_executor)
         .await
 }
 
@@ -184,6 +177,51 @@ async fn escalate_task(
     }
 }
 
+#[allow(dead_code)]
+struct DefaultShellCommandExecutor<'a> {
+    sandbox_state: &'a SandboxState,
+}
+
+#[async_trait::async_trait]
+impl<'a> ShellCommandExecutor for DefaultShellCommandExecutor<'a> {
+    async fn run(
+        &self,
+        command: Vec<String>,
+        cwd: PathBuf,
+        env: HashMap<String, String>,
+        cancel_rx: CancellationToken,
+    ) -> anyhow::Result<ExecResult> {
+        let original_command = command.join(" ");
+        let result = helios_core::exec::process_exec_tool_call(
+            helios_core::exec::ExecParams {
+                command,
+                original_command,
+                cwd,
+                expiration: helios_core::exec::ExecExpiration::Cancellation(cancel_rx),
+                env,
+                network: None,
+                sandbox_permissions: SandboxPermissions::UseDefault,
+                windows_sandbox_level: helios_protocol::config_types::WindowsSandboxLevel::Disabled,
+                justification: None,
+                arg0: None,
+            },
+            &self.sandbox_state.sandbox_policy,
+            &self.sandbox_state.sandbox_cwd,
+            &self.sandbox_state.helios_linux_sandbox_exe,
+            self.sandbox_state.use_linux_sandbox_bwrap,
+            None,
+        )
+        .await
+        .map_err(|err| anyhow::Error::from(err))?;
+        Ok(ExecResult {
+            exit_code: result.exit_code,
+            output: result.aggregated_output.text,
+            duration: result.duration,
+            timed_out: result.timed_out,
+        })
+    }
+}
+
 async fn handle_escalate_session_with_policy(
     socket: AsyncSocket,
     policy: Arc<dyn EscalationPolicy>,
@@ -194,12 +232,12 @@ async fn handle_escalate_session_with_policy(
         workdir,
         env,
     } = socket.receive::<EscalateRequest>().await?;
-    let file = PathBuf::from(&file).absolutize()?.into_owned();
-    let workdir = PathBuf::from(&workdir).absolutize()?.into_owned();
-    let action = policy
-        .determine_action(file.as_path(), &argv, &workdir)
-        .await
-        .context("failed to determine escalation action")?;
+    let file: AbsolutePathBuf = AbsolutePathBuf::try_from(file)?;
+    let workdir: AbsolutePathBuf = AbsolutePathBuf::try_from(workdir)?;
+        let action = policy
+            .determine_action(&file, &argv, &workdir)
+            .await
+            .context("failed to determine escalation action")?;
 
     tracing::debug!("decided {action:?} for {file:?} {argv:?} {workdir:?}");
 
@@ -239,12 +277,12 @@ async fn handle_escalate_session_with_policy(
                 ));
             }
 
-            let mut command = Command::new(file);
+        let mut command = Command::new(file.to_path_buf());
             command
                 .args(&argv[1..])
                 .arg0(argv[0].clone())
                 .envs(&env)
-                .current_dir(&workdir)
+                .current_dir(&workdir.to_path_buf())
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())
                 .stderr(Stdio::null());
@@ -280,7 +318,6 @@ mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
     use std::collections::HashMap;
-    use std::path::Path;
     use std::path::PathBuf;
 
     struct DeterministicEscalationPolicy {
@@ -291,9 +328,9 @@ mod tests {
     impl EscalationPolicy for DeterministicEscalationPolicy {
         async fn determine_action(
             &self,
-            _file: &Path,
+            _file: &AbsolutePathBuf,
             _argv: &[String],
-            _workdir: &Path,
+            _workdir: &AbsolutePathBuf,
         ) -> anyhow::Result<EscalateAction> {
             Ok(self.action.clone())
         }
@@ -374,4 +411,14 @@ mod tests {
 
         server_task.await?
     }
+}
+#[async_trait::async_trait]
+pub trait ShellCommandExecutor: Send + Sync {
+    async fn run(
+        &self,
+        command: Vec<String>,
+        cwd: PathBuf,
+        env: HashMap<String, String>,
+        cancel_rx: CancellationToken,
+    ) -> anyhow::Result<ExecResult>;
 }

@@ -1,6 +1,6 @@
 //! Session- and turn-scoped helpers for talking to model provider APIs.
 //!
-//! `ModelClient` is intended to live for the lifetime of a Codex session and holds the stable
+//! `ModelClient` is intended to live for the lifetime of a Helios session and holds the stable
 //! configuration and state needed to talk to a provider (auth, provider selection, conversation id,
 //! and feature-gated request behavior).
 //!
@@ -61,6 +61,9 @@ use helios_api::error::ApiError;
 use helios_api::requests::responses::Compression;
 use helios_otel::OtelManager;
 
+use eventsource_stream::Event;
+use eventsource_stream::EventStreamError;
+use futures::StreamExt;
 use helios_protocol::ThreadId;
 use helios_protocol::config_types::ReasoningSummary as ReasoningSummaryConfig;
 use helios_protocol::config_types::Verbosity as VerbosityConfig;
@@ -68,9 +71,6 @@ use helios_protocol::models::ResponseItem;
 use helios_protocol::openai_models::ModelInfo;
 use helios_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
 use helios_protocol::protocol::SessionSource;
-use eventsource_stream::Event;
-use eventsource_stream::EventStreamError;
-use futures::StreamExt;
 use http::HeaderMap as ApiHeaderMap;
 use http::HeaderValue;
 use http::StatusCode as HttpStatusCode;
@@ -99,7 +99,7 @@ use crate::model_provider_info::ModelProviderInfo;
 use crate::model_provider_info::WireApi;
 use crate::tools::spec::create_tools_json_for_responses_api;
 
-pub const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
+pub const OPENAI_BETA_HEADER: &str = "Phenotype-Beta";
 pub const OPENAI_BETA_RESPONSES_WEBSOCKETS: &str = "responses_websockets=2026-02-04";
 pub const X_HELIOS_TURN_STATE_HEADER: &str = "x-helios-turn-state";
 pub const X_HELIOS_TURN_METADATA_HEADER: &str = "x-helios-turn-metadata";
@@ -159,7 +159,7 @@ struct CurrentClientSetup {
 
 /// A session-scoped client for model-provider API calls.
 ///
-/// This holds configuration and state that should be shared across turns within a Codex session
+/// This holds configuration and state that should be shared across turns within a Helios session
 /// (auth, provider selection, conversation id, feature-gated request behavior, and transport
 /// fallback state).
 ///
@@ -184,7 +184,7 @@ pub struct ModelClient {
 /// - The `x-helios-turn-state` sticky-routing token, which must be replayed for all requests within
 ///   the same turn.
 ///
-/// Create a fresh `ModelClientSession` for each Codex turn. Reusing it across turns would replay
+/// Create a fresh `ModelClientSession` for each Helios turn. Reusing it across turns would replay
 /// the previous turn's sticky-routing token into the next turn, which violates the client/server
 /// contract and can cause routing bugs.
 pub struct ModelClientSession {
@@ -226,7 +226,7 @@ impl ModelClient {
     #[allow(clippy::too_many_arguments)]
     /// Creates a new session-scoped `ModelClient`.
     ///
-    /// All arguments are expected to be stable for the lifetime of a Codex session. Per-turn values
+    /// All arguments are expected to be stable for the lifetime of a Helios session. Per-turn values
     /// are passed to [`ModelClientSession::stream`] (and other turn-scoped methods) explicitly.
     pub fn new(
         auth_manager: Option<Arc<AuthManager>>,
@@ -778,7 +778,7 @@ impl ModelClientSession {
         }
     }
 
-    /// Streams a turn via the OpenAI Responses API.
+    /// Streams a turn via the Phenotype Responses API.
     ///
     /// Handles SSE fixtures, reasoning summaries, verbosity, and the
     /// `text` controls used for output schemas.
@@ -1056,7 +1056,7 @@ impl ModelClientSession {
         }
     }
 
-    /// Permanently disables WebSockets for this Codex session and resets WebSocket state.
+    /// Permanently disables WebSockets for this Helios session and resets WebSocket state.
     ///
     /// This is used after exhausting the provider retry budget, to force subsequent requests onto
     /// the HTTP transport.
@@ -1103,7 +1103,7 @@ fn build_ws_client_metadata(turn_metadata_header: Option<&str>) -> Option<HashMa
 
 /// Builds the extra headers attached to Responses API requests.
 ///
-/// These headers implement Codex-specific conventions:
+/// These headers implement Helios-specific conventions:
 ///
 /// - `x-helios-beta-features`: comma-separated beta feature keys enabled for the session.
 /// - `x-helios-turn-state`: sticky routing token captured earlier in the turn.

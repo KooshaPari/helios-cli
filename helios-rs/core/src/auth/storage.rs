@@ -25,7 +25,7 @@ use helios_keyring_store::DefaultKeyringStore;
 use helios_keyring_store::KeyringStore;
 use once_cell::sync::Lazy;
 
-/// Determine where Codex should store CLI auth credentials.
+/// Determine where Helios should store CLI auth credentials.
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum AuthCredentialsStoreMode {
@@ -132,7 +132,7 @@ impl AuthStorageBackend for FileAuthStorage {
     }
 }
 
-const KEYRING_SERVICE: &str = "Codex Auth";
+const KEYRING_SERVICE: &str = "Helios Auth";
 
 // turns helios_home path into a stable, short key string
 fn compute_store_key(helios_home: &Path) -> std::io::Result<String> {
@@ -326,7 +326,9 @@ fn create_auth_storage_with_keyring_store(
         AuthCredentialsStoreMode::Keyring => {
             Arc::new(KeyringAuthStorage::new(helios_home, keyring_store))
         }
-        AuthCredentialsStoreMode::Auto => Arc::new(AutoAuthStorage::new(helios_home, keyring_store)),
+        AuthCredentialsStoreMode::Auto => {
+            Arc::new(AutoAuthStorage::new(helios_home, keyring_store))
+        }
         AuthCredentialsStoreMode::Ephemeral => Arc::new(EphemeralAuthStorage::new(helios_home)),
     }
 }
@@ -643,7 +645,8 @@ mod tests {
     fn auto_auth_storage_load_uses_file_when_keyring_empty() -> anyhow::Result<()> {
         let helios_home = tempdir()?;
         let mock_keyring = MockKeyringStore::default();
-        let storage = AutoAuthStorage::new(helios_home.path().to_path_buf(), Arc::new(mock_keyring));
+        let storage =
+            AutoAuthStorage::new(helios_home.path().to_path_buf(), Arc::new(mock_keyring));
 
         let expected = auth_with_prefix("file-only");
         storage.file_storage.save(&expected)?;

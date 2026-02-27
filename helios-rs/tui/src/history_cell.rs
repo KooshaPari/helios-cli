@@ -1,4 +1,4 @@
-//! Transcript/history cells for the Codex TUI.
+//! Transcript/history cells for the Helios TUI.
 //!
 //! A `HistoryCell` is the unit of display in the conversation UI, representing both committed
 //! transcript entries and, transiently, an in-flight active cell that can mutate in place while
@@ -828,6 +828,26 @@ pub fn new_approval_decision_cell(
                 ],
             )
         }
+        NetworkPolicyAmendment {
+            network_policy_amendment,
+        } => {
+            let action = match network_policy_amendment.action {
+                helios_protocol::approvals::NetworkPolicyRuleAction::Allow => "allow",
+                helios_protocol::approvals::NetworkPolicyRuleAction::Deny => "deny",
+            };
+            (
+                "✔ ".green(),
+                vec![
+                    "You ".into(),
+                    "approved ".into(),
+                    format!(
+                        "codex to {} network access for {}.",
+                        action, network_policy_amendment.host
+                    )
+                    .into(),
+                ],
+            )
+        }
         Denied => {
             let snippet = Span::from(exec_snippet(&command)).dim();
             (
@@ -1043,7 +1063,7 @@ pub(crate) fn new_session_info(
             Line::from(vec![
                 "  ".into(),
                 "/init".into(),
-                " - create an AGENTS.md file with instructions for Codex".dim(),
+                " - create an AGENTS.md file with instructions for Helios".dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
@@ -1053,7 +1073,7 @@ pub(crate) fn new_session_info(
             Line::from(vec![
                 "  ".into(),
                 "/permissions".into(),
-                " - choose what Codex is allowed to do".dim(),
+                " - choose what Helios is allowed to do".dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
@@ -1189,10 +1209,10 @@ impl HistoryCell for SessionHeaderHistoryCell {
 
         let make_row = |spans: Vec<Span<'static>>| Line::from(spans);
 
-        // Title line rendered inside the box: ">_ OpenAI Codex (vX)"
+        // Title line rendered inside the box: ">_ Phenotype Helios (vX)"
         let title_spans: Vec<Span<'static>> = vec![
             Span::from(">_ ").dim(),
-            Span::from("OpenAI Codex").bold(),
+            Span::from("Phenotype Helios").bold(),
             Span::from(" ").dim(),
             Span::from(format!("(v{})", self.version)).dim(),
         ];
@@ -2366,6 +2386,7 @@ mod tests {
     use crate::exec_cell::CommandOutput;
     use crate::exec_cell::ExecCall;
     use crate::exec_cell::ExecCell;
+    use dirs::home_dir;
     use helios_core::config::Config;
     use helios_core::config::ConfigBuilder;
     use helios_core::config::types::McpServerConfig;
@@ -2375,7 +2396,6 @@ mod tests {
     use helios_protocol::models::WebSearchAction;
     use helios_protocol::parse_command::ParsedCommand;
     use helios_protocol::protocol::McpAuthStatus;
-    use dirs::home_dir;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use std::collections::HashMap;

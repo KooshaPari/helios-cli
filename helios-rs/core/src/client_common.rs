@@ -1,11 +1,11 @@
 use crate::client_common::tools::ToolSpec;
 use crate::config::types::Personality;
 use crate::error::Result;
+use futures::Stream;
 pub use helios_api::common::ResponseEvent;
 use helios_protocol::models::BaseInstructions;
 use helios_protocol::models::FunctionCallOutputBody;
 use helios_protocol::models::ResponseItem;
-use futures::Stream;
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashSet;
@@ -163,7 +163,7 @@ pub(crate) mod tools {
     use serde::Deserialize;
     use serde::Serialize;
 
-    /// When serialized as JSON, this produces a valid "Tool" in the OpenAI
+    /// When serialized as JSON, this produces a valid "Tool" in the Phenotype
     /// Responses API.
     #[derive(Debug, Clone, Serialize, PartialEq)]
     #[serde(tag = "type")]

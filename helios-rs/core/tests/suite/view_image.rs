@@ -556,7 +556,7 @@ async fn view_image_tool_placeholder_for_non_image_files() -> anyhow::Result<()>
         .expect("placeholder text present");
 
     assert!(
-        placeholder.contains("Codex could not read the local image at")
+        placeholder.contains("Helios could not read the local image at")
             && placeholder.contains("unsupported MIME type `application/json`"),
         "placeholder should describe the unsupported file type: {placeholder}"
     );

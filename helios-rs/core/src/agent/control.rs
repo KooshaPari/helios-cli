@@ -31,7 +31,7 @@ fn agent_nickname_list() -> Vec<&'static str> {
 /// `AgentControl` is held by each session (via `SessionServices`). It provides capability to
 /// spawn new agents and the inter-agent communication layer.
 /// An `AgentControl` instance is shared per "user session" which means the same `AgentControl`
-/// is used for every sub-agent spawned by Codex. By doing so, we make sure the guards are
+/// is used for every sub-agent spawned by Helios. By doing so, we make sure the guards are
 /// scoped to a user session.
 #[derive(Clone, Default)]
 pub(crate) struct AgentControl {

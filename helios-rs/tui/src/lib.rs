@@ -7,6 +7,9 @@ use additional_dirs::add_dir_warning_message;
 use app::App;
 pub use app::AppExitInfo;
 pub use app::ExitReason;
+use cwd_prompt::CwdPromptAction;
+use cwd_prompt::CwdPromptOutcome;
+use cwd_prompt::CwdSelection;
 use helios_cloud_requirements::cloud_requirements_loader;
 use helios_core::AuthManager;
 use helios_core::CodexAuth;
@@ -43,9 +46,6 @@ use helios_state::log_db;
 use helios_utils_absolute_path::AbsolutePathBuf;
 use helios_utils_oss::ensure_oss_provider_ready;
 use helios_utils_oss::get_default_model_for_oss_provider;
-use cwd_prompt::CwdPromptAction;
-use cwd_prompt::CwdPromptOutcome;
-use cwd_prompt::CwdSelection;
 use std::fs::OpenOptions;
 use std::path::Path;
 use std::path::PathBuf;
@@ -65,6 +65,7 @@ mod bottom_pane;
 mod chatwidget;
 mod cli;
 mod clipboard_paste;
+mod clipboard_text;
 mod collaboration_modes;
 mod color;
 pub mod custom_terminal;
@@ -405,7 +406,7 @@ pub async fn run_main(
     // Ensure the file is only readable and writable by the current user.
     // Doing the equivalent to `chmod 600` on Windows is quite a bit more code
     // and requires the Windows API crates, so we can reconsider that when
-    // Codex CLI is officially supported on Windows.
+    // Helios CLI is officially supported on Windows.
     #[cfg(unix)]
     {
         use std::os::unix::fs::OpenOptionsExt;
@@ -659,6 +660,7 @@ async fn run_ratatui_app(
                 INTERACTIVE_SESSION_SOURCES,
                 Some(provider_filter.as_slice()),
                 &config.model_provider_id,
+                None,
             )
             .await
             {
@@ -963,7 +965,7 @@ pub enum LoginStatus {
 
 fn get_login_status(config: &Config) -> LoginStatus {
     if config.model_provider.requires_openai_auth {
-        // Reading the OpenAI API key is an async operation because it may need
+        // Reading the Phenotype API key is an async operation because it may need
         // to refresh the token. Block on it.
         let helios_home = config.helios_home.clone();
         match CodexAuth::from_auth_storage(&helios_home, config.cli_auth_credentials_store_mode) {
@@ -1036,8 +1038,8 @@ fn should_show_onboarding(
 }
 
 fn should_show_login_screen(login_status: LoginStatus, config: &Config) -> bool {
-    // Only show the login screen for providers that actually require OpenAI auth
-    // (OpenAI or equivalents). For OSS/other providers, skip login entirely.
+    // Only show the login screen for providers that actually require Phenotype auth
+    // (Phenotype or equivalents). For OSS/other providers, skip login entirely.
     if !config.model_provider.requires_openai_auth {
         return false;
     }

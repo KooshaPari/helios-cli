@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage and optionally package the @openai/codex npm module."""
+"""Stage and optionally package the @phenotype/helios npm module."""
 
 import argparse
 import json
@@ -14,48 +14,48 @@ CODEX_CLI_ROOT = SCRIPT_DIR.parent
 REPO_ROOT = CODEX_CLI_ROOT.parent
 RESPONSES_API_PROXY_NPM_ROOT = REPO_ROOT / "codex-rs" / "responses-api-proxy" / "npm"
 CODEX_SDK_ROOT = REPO_ROOT / "sdk" / "typescript"
-CODEX_NPM_NAME = "@openai/codex"
+CODEX_NPM_NAME = "@phenotype/helios"
 
 # `npm_name` is the local optional-dependency alias consumed by `bin/codex.js`.
-# The underlying package published to npm is always `@openai/codex`.
-CODEX_PLATFORM_PACKAGES: dict[str, dict[str, str]] = {
-    "codex-linux-x64": {
-        "npm_name": "@openai/codex-linux-x64",
+# The underlying package published to npm is always `@phenotype/helios`.
+HELIOS_PLATFORM_PACKAGES: dict[str, dict[str, str]] = {
+    "helios-linux-x64": {
+        "npm_name": "@phenotype/helios-linux-x64",
         "npm_tag": "linux-x64",
         "target_triple": "x86_64-unknown-linux-musl",
         "os": "linux",
         "cpu": "x64",
     },
-    "codex-linux-arm64": {
-        "npm_name": "@openai/codex-linux-arm64",
+    "helios-linux-arm64": {
+        "npm_name": "@phenotype/helios-linux-arm64",
         "npm_tag": "linux-arm64",
         "target_triple": "aarch64-unknown-linux-musl",
         "os": "linux",
         "cpu": "arm64",
     },
-    "codex-darwin-x64": {
-        "npm_name": "@openai/codex-darwin-x64",
+    "helios-darwin-x64": {
+        "npm_name": "@phenotype/helios-darwin-x64",
         "npm_tag": "darwin-x64",
         "target_triple": "x86_64-apple-darwin",
         "os": "darwin",
         "cpu": "x64",
     },
-    "codex-darwin-arm64": {
-        "npm_name": "@openai/codex-darwin-arm64",
+    "helios-darwin-arm64": {
+        "npm_name": "@phenotype/helios-darwin-arm64",
         "npm_tag": "darwin-arm64",
         "target_triple": "aarch64-apple-darwin",
         "os": "darwin",
         "cpu": "arm64",
     },
-    "codex-win32-x64": {
-        "npm_name": "@openai/codex-win32-x64",
+    "helios-win32-x64": {
+        "npm_name": "@phenotype/helios-win32-x64",
         "npm_tag": "win32-x64",
         "target_triple": "x86_64-pc-windows-msvc",
         "os": "win32",
         "cpu": "x64",
     },
-    "codex-win32-arm64": {
-        "npm_name": "@openai/codex-win32-arm64",
+    "helios-win32-arm64": {
+        "npm_name": "@phenotype/helios-win32-arm64",
         "npm_tag": "win32-arm64",
         "target_triple": "aarch64-pc-windows-msvc",
         "os": "win32",
@@ -64,27 +64,35 @@ CODEX_PLATFORM_PACKAGES: dict[str, dict[str, str]] = {
 }
 
 PACKAGE_EXPANSIONS: dict[str, list[str]] = {
-    "codex": ["codex", *CODEX_PLATFORM_PACKAGES],
+    "helios": ["helios", *HELIOS_PLATFORM_PACKAGES],
+}
+
+PACKAGE_ALIAS: dict[str, str] = {
+    "codex": "helios",
+    "codex-responses-api-proxy": "helios-responses-api-proxy",
+    "codex-sdk": "helios-sdk",
 }
 
 PACKAGE_NATIVE_COMPONENTS: dict[str, list[str]] = {
-    "codex": [],
-    "codex-linux-x64": ["codex", "rg"],
-    "codex-linux-arm64": ["codex", "rg"],
-    "codex-darwin-x64": ["codex", "rg"],
-    "codex-darwin-arm64": ["codex", "rg"],
-    "codex-win32-x64": ["codex", "rg", "codex-windows-sandbox-setup", "codex-command-runner"],
-    "codex-win32-arm64": ["codex", "rg", "codex-windows-sandbox-setup", "codex-command-runner"],
-    "codex-responses-api-proxy": ["codex-responses-api-proxy"],
-    "codex-sdk": [],
+    "helios": [],
+    "helios-linux-x64": ["codex", "rg"],
+    "helios-linux-arm64": ["codex", "rg"],
+    "helios-darwin-x64": ["codex", "rg"],
+    "helios-darwin-arm64": ["codex", "rg"],
+    "helios-win32-x64": ["codex", "rg", "codex-windows-sandbox-setup", "codex-command-runner"],
+    "helios-win32-arm64": ["codex", "rg", "codex-windows-sandbox-setup", "codex-command-runner"],
+    "helios-responses-api-proxy": ["codex-responses-api-proxy"],
+    "helios-sdk": [],
 }
 
 PACKAGE_TARGET_FILTERS: dict[str, str] = {
     package_name: package_config["target_triple"]
-    for package_name, package_config in CODEX_PLATFORM_PACKAGES.items()
+    for package_name, package_config in HELIOS_PLATFORM_PACKAGES.items()
 }
 
-PACKAGE_CHOICES = tuple(PACKAGE_NATIVE_COMPONENTS)
+PACKAGE_CHOICES = tuple(
+    sorted(set(PACKAGE_NATIVE_COMPONENTS.keys()) | set(PACKAGE_ALIAS.keys()))
+)
 
 COMPONENT_DEST_DIR: dict[str, str] = {
     "codex": "codex",
@@ -96,12 +104,12 @@ COMPONENT_DEST_DIR: dict[str, str] = {
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build or stage the Codex CLI npm package.")
+    parser = argparse.ArgumentParser(description="Build or stage the Helios CLI npm package.")
     parser.add_argument(
         "--package",
         choices=PACKAGE_CHOICES,
-        default="codex",
-        help="Which npm package to stage (default: codex).",
+        default="helios",
+        help="Which npm package to stage (default: helios).",
     )
     parser.add_argument(
         "--version",
@@ -143,7 +151,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
 
-    package = args.package
+    package = PACKAGE_ALIAS.get(args.package, args.package)
     version = args.version
     release_version = args.release_version
     if release_version:
@@ -181,20 +189,20 @@ def main() -> int:
 
         if release_version:
             staging_dir_str = str(staging_dir)
-            if package == "codex":
+            if package == "helios":
                 print(
                     f"Staged version {version} for release in {staging_dir_str}\n\n"
                     "Verify the CLI:\n"
                     f"    node {staging_dir_str}/bin/codex.js --version\n"
                     f"    node {staging_dir_str}/bin/codex.js --help\n\n"
                 )
-            elif package == "codex-responses-api-proxy":
+            elif package == "helios-responses-api-proxy":
                 print(
                     f"Staged version {version} for release in {staging_dir_str}\n\n"
                     "Verify the responses API proxy:\n"
                     f"    node {staging_dir_str}/bin/codex-responses-api-proxy.js --help\n\n"
                 )
-            elif package in CODEX_PLATFORM_PACKAGES:
+            elif package in HELIOS_PLATFORM_PACKAGES:
                 print(
                     f"Staged version {version} for release in {staging_dir_str}\n\n"
                     "Verify native payload contents:\n"
@@ -229,7 +237,7 @@ def prepare_staging_dir(staging_dir: Path | None) -> tuple[Path, bool]:
             raise RuntimeError(f"Staging directory {staging_dir} is not empty.")
         return staging_dir, False
 
-    temp_dir = Path(tempfile.mkdtemp(prefix="codex-npm-stage-"))
+    temp_dir = Path(tempfile.mkdtemp(prefix="helios-npm-stage-"))
     return temp_dir, True
 
 
@@ -237,10 +245,11 @@ def stage_sources(staging_dir: Path, version: str, package: str) -> None:
     package_json: dict
     package_json_path: Path | None = None
 
-    if package == "codex":
+    if package == "helios":
         bin_dir = staging_dir / "bin"
         bin_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(CODEX_CLI_ROOT / "bin" / "codex.js", bin_dir / "codex.js")
+        shutil.copy2(CODEX_CLI_ROOT / "bin" / "codex.js", bin_dir / "helios.js")
         rg_manifest = CODEX_CLI_ROOT / "bin" / "rg"
         if rg_manifest.exists():
             shutil.copy2(rg_manifest, bin_dir / "rg")
@@ -250,8 +259,8 @@ def stage_sources(staging_dir: Path, version: str, package: str) -> None:
             shutil.copy2(readme_src, staging_dir / "README.md")
 
         package_json_path = CODEX_CLI_ROOT / "package.json"
-    elif package in CODEX_PLATFORM_PACKAGES:
-        platform_package = CODEX_PLATFORM_PACKAGES[package]
+    elif package in HELIOS_PLATFORM_PACKAGES:
+        platform_package = HELIOS_PLATFORM_PACKAGES[package]
         platform_npm_tag = platform_package["npm_tag"]
         platform_version = compute_platform_package_version(version, platform_npm_tag)
 
@@ -279,18 +288,19 @@ def stage_sources(staging_dir: Path, version: str, package: str) -> None:
         package_manager = codex_package_json.get("packageManager")
         if isinstance(package_manager, str):
             package_json["packageManager"] = package_manager
-    elif package == "codex-responses-api-proxy":
+    elif package == "helios-responses-api-proxy":
         bin_dir = staging_dir / "bin"
         bin_dir.mkdir(parents=True, exist_ok=True)
         launcher_src = RESPONSES_API_PROXY_NPM_ROOT / "bin" / "codex-responses-api-proxy.js"
         shutil.copy2(launcher_src, bin_dir / "codex-responses-api-proxy.js")
+        shutil.copy2(launcher_src, bin_dir / "helios-responses-api-proxy.js")
 
         readme_src = RESPONSES_API_PROXY_NPM_ROOT / "README.md"
         if readme_src.exists():
             shutil.copy2(readme_src, staging_dir / "README.md")
 
         package_json_path = RESPONSES_API_PROXY_NPM_ROOT / "package.json"
-    elif package == "codex-sdk":
+    elif package == "helios-sdk":
         package_json_path = CODEX_SDK_ROOT / "package.json"
         stage_codex_sdk_sources(staging_dir)
     else:
@@ -301,18 +311,18 @@ def stage_sources(staging_dir: Path, version: str, package: str) -> None:
             package_json = json.load(fh)
         package_json["version"] = version
 
-    if package == "codex":
+    if package == "helios":
         package_json["files"] = ["bin"]
         package_json["optionalDependencies"] = {
-            CODEX_PLATFORM_PACKAGES[platform_package]["npm_name"]: (
+            HELIOS_PLATFORM_PACKAGES[platform_package]["npm_name"]: (
                 f"npm:{CODEX_NPM_NAME}@"
-                f"{compute_platform_package_version(version, CODEX_PLATFORM_PACKAGES[platform_package]['npm_tag'])}"
+                f"{compute_platform_package_version(version, HELIOS_PLATFORM_PACKAGES[platform_package]['npm_tag'])}"
             )
-            for platform_package in PACKAGE_EXPANSIONS["codex"]
-            if platform_package != "codex"
+            for platform_package in PACKAGE_EXPANSIONS["helios"]
+            if platform_package != "helios"
         }
 
-    elif package == "codex-sdk":
+    elif package == "helios-sdk":
         scripts = package_json.get("scripts")
         if isinstance(scripts, dict):
             scripts.pop("prepare", None)
@@ -347,7 +357,7 @@ def stage_codex_sdk_sources(staging_dir: Path) -> None:
 
     dist_src = package_root / "dist"
     if not dist_src.exists():
-        raise RuntimeError("codex-sdk build did not produce a dist directory.")
+        raise RuntimeError("helios-sdk build did not produce a dist directory.")
 
     shutil.copytree(dist_src, staging_dir / "dist")
 
@@ -419,7 +429,7 @@ def run_npm_pack(staging_dir: Path, output_path: Path) -> Path:
     output_path = output_path.resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with tempfile.TemporaryDirectory(prefix="codex-npm-pack-") as pack_dir_str:
+    with tempfile.TemporaryDirectory(prefix="helios-npm-pack-") as pack_dir_str:
         pack_dir = Path(pack_dir_str)
         stdout = subprocess.check_output(
             ["npm", "pack", "--json", "--pack-destination", str(pack_dir)],

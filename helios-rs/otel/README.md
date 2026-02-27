@@ -1,6 +1,6 @@
 # codex-otel
 
-`codex-otel` is the OpenTelemetry integration crate for Codex. It provides:
+`codex-otel` is the OpenTelemetry integration crate for Helios. It provides:
 
 - Trace/log/metrics exporters and tracing subscriber layers (`codex_otel::otel_provider`).
 - A structured event helper (`codex_otel::OtelManager`).
@@ -51,7 +51,7 @@ if let Some(provider) = OtelProvider::from(&settings)? {
 ## OtelManager (events)
 
 `OtelManager` adds consistent metadata to tracing events and helps record
-Codex-specific events.
+Helios-specific events.
 
 ```rust
 use codex_otel::OtelManager;
@@ -79,7 +79,7 @@ Modes:
 - In-memory: records via `opentelemetry_sdk::metrics::InMemoryMetricExporter` for tests/assertions; call `shutdown()` to flush.
 
 `codex-otel` also provides `OtelExporter::Statsig`, a shorthand for exporting OTLP/HTTP JSON metrics
-to Statsig using Codex-internal defaults.
+to Statsig using Helios-internal defaults.
 
 Statsig ingestion (OTLP/HTTP JSON) example:
 

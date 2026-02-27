@@ -1,4 +1,4 @@
-use codex_utils_absolute_path::AbsolutePathBuf;
+use helios_utils_absolute_path::AbsolutePathBuf;
 
 use crate::unix::escalate_protocol::EscalateAction;
 

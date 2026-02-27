@@ -1,4 +1,4 @@
-# Codex Local Perf Summary
+# Helios Local Perf Summary
 
 - Generated: `2026-02-23T10:12:23.162086+00:00`
 - Command: `python3 -c 'import math,time; t=time.time()+2.0; x=0.0\nwhile time.time()<t: x+=math.sqrt(12345.6789)\nprint(x)'`

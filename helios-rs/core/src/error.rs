@@ -75,7 +75,7 @@ pub enum CodexErr {
     Stream(String, Option<Duration>),
 
     #[error(
-        "Codex ran out of room in the model's context window. Start a new thread or clear earlier history before retrying."
+        "Helios ran out of room in the model's context window. Start a new thread or clear earlier history before retrying."
     )]
     ContextWindowExceeded,
 
@@ -130,7 +130,7 @@ pub enum CodexErr {
     QuotaExceeded,
 
     #[error(
-        "To use Codex with your ChatGPT plan, upgrade to Plus: https://chatgpt.com/explore/plus."
+        "To use Helios with your ChatGPT plan, upgrade to Plus: https://chatgpt.com/explore/plus."
     )]
     UsageNotIncluded,
 
@@ -455,7 +455,7 @@ impl std::fmt::Display for UsageLimitReachedError {
             }
             Some(PlanType::Known(KnownPlan::Free)) | Some(PlanType::Known(KnownPlan::Go)) => {
                 format!(
-                    "You've hit your usage limit. Upgrade to Plus to continue using Codex (https://chatgpt.com/explore/plus),{}",
+                    "You've hit your usage limit. Upgrade to Plus to continue using Helios (https://chatgpt.com/explore/plus),{}",
                     retry_suffix_after_or(self.resets_at.as_ref())
                 )
             }
@@ -836,7 +836,7 @@ mod tests {
         };
         assert_eq!(
             err.to_string(),
-            "You've hit your usage limit. Upgrade to Plus to continue using Codex (https://chatgpt.com/explore/plus), or try again later."
+            "You've hit your usage limit. Upgrade to Plus to continue using Helios (https://chatgpt.com/explore/plus), or try again later."
         );
     }
 
@@ -850,7 +850,7 @@ mod tests {
         };
         assert_eq!(
             err.to_string(),
-            "You've hit your usage limit. Upgrade to Plus to continue using Codex (https://chatgpt.com/explore/plus), or try again later."
+            "You've hit your usage limit. Upgrade to Plus to continue using Helios (https://chatgpt.com/explore/plus), or try again later."
         );
     }
 
@@ -1134,11 +1134,11 @@ mod tests {
                 resets_at: Some(resets_at),
                 rate_limits: Some(Box::new(rate_limit_snapshot())),
                 promo_message: Some(
-                    "To continue using Codex, start a free trial of <PLAN> today".to_string(),
+                    "To continue using Helios, start a free trial of <PLAN> today".to_string(),
                 ),
             };
             let expected = format!(
-                "You've hit your usage limit. To continue using Codex, start a free trial of <PLAN> today, or try again at {expected_time}."
+                "You've hit your usage limit. To continue using Helios, start a free trial of <PLAN> today, or try again at {expected_time}."
             );
             assert_eq!(err.to_string(), expected);
         });

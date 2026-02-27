@@ -78,7 +78,7 @@ async fn turn_start_sends_originator_header() -> Result<()> {
         DEFAULT_READ_TIMEOUT,
         mcp.initialize_with_client_info(ClientInfo {
             name: TEST_ORIGINATOR.to_string(),
-            title: Some("Codex VS Code Extension".to_string()),
+            title: Some("Helios VS Code Extension".to_string()),
             version: "0.1.0".to_string(),
         }),
     )
@@ -224,7 +224,7 @@ async fn turn_start_emits_user_message_item_with_text_elements() -> Result<()> {
 #[tokio::test]
 async fn turn_start_emits_notifications_and_accepts_model_override() -> Result<()> {
     // Provide a mock server and config so model wiring is valid.
-    // Three Codex turns hit the mock model (session start + two turn/start calls).
+    // Three Helios turns hit the mock model (session start + two turn/start calls).
     let responses = vec![
         create_final_assistant_message_sse_response("Done")?,
         create_final_assistant_message_sse_response("Done")?,
@@ -696,7 +696,7 @@ async fn turn_start_uses_migrated_pragmatic_personality_without_override_v2() ->
 
 #[tokio::test]
 async fn turn_start_accepts_local_image_input() -> Result<()> {
-    // Two Codex turns hit the mock model (session start + turn/start).
+    // Two Helios turns hit the mock model (session start + turn/start).
     let responses = vec![
         create_final_assistant_message_sse_response("Done")?,
         create_final_assistant_message_sse_response("Done")?,

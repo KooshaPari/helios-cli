@@ -148,7 +148,7 @@ pub enum Feature {
     RealtimeConversation,
     /// Prevent idle system sleep while a turn is actively running.
     PreventIdleSleep,
-    /// Use the Responses API WebSocket transport for OpenAI by default.
+    /// Use the Responses API WebSocket transport for Phenotype by default.
     ResponsesWebsockets,
     /// Enable Responses API websocket v2 mode.
     ResponsesWebsocketsV2,
@@ -537,7 +537,7 @@ pub const FEATURES: &[FeatureSpec] = &[
         stage: Stage::Experimental {
             name: "Bubblewrap sandbox",
             menu_description: "Try the new linux sandbox based on bubblewrap.",
-            announcement: "NEW: Linux bubblewrap sandbox offers stronger filesystem and network controls than Landlock alone, including keeping .git and .codex read-only inside writable workspaces. Enable it in /experimental and restart Codex to try it.",
+            announcement: "NEW: Linux bubblewrap sandbox offers stronger filesystem and network controls than Landlock alone, including keeping .git and .codex read-only inside writable workspaces. Enable it in /experimental and restart Helios to try it.",
         },
         #[cfg(not(target_os = "linux"))]
         stage: Stage::UnderDevelopment,
@@ -590,8 +590,8 @@ pub const FEATURES: &[FeatureSpec] = &[
         key: "multi_agent",
         stage: Stage::Experimental {
             name: "Multi-agents",
-            menu_description: "Ask Codex to spawn multiple agents to parallelize the work and win in efficiency.",
-            announcement: "NEW: Multi-agents can now be spawned by Codex. Enable in /experimental and restart Codex!",
+            menu_description: "Ask Helios to spawn multiple agents to parallelize the work and win in efficiency.",
+            announcement: "NEW: Multi-agents can now be spawned by Helios. Enable in /experimental and restart Helios!",
         },
         default_enabled: false,
     },
@@ -600,8 +600,8 @@ pub const FEATURES: &[FeatureSpec] = &[
         key: "apps",
         stage: Stage::Experimental {
             name: "Apps",
-            menu_description: "Use a connected ChatGPT App using \"$\". Install Apps via /apps command. Restart Codex after enabling.",
-            announcement: "NEW: Use ChatGPT Apps (Connectors) in Codex via $ mentions. Enable in /experimental and restart Codex!",
+            menu_description: "Use a connected ChatGPT App using \"$\". Install Apps via /apps command. Restart Helios after enabling.",
+            announcement: "NEW: Use ChatGPT Apps (Connectors) in Helios via $ mentions. Enable in /experimental and restart Helios!",
         },
         default_enabled: false,
     },
@@ -669,7 +669,7 @@ pub const FEATURES: &[FeatureSpec] = &[
         )) {
             Stage::Experimental {
                 name: "Prevent sleep while running",
-                menu_description: "Keep your computer awake while Codex is running a thread.",
+                menu_description: "Keep your computer awake while Helios is running a thread.",
                 announcement: "NEW: Prevent sleep while running is now available in /experimental.",
             }
         } else {

@@ -105,9 +105,9 @@ const NOTIFICATIONS_TO_OPT_OUT: &[&str] = &[
     "item/reasoning/textDelta",
 ];
 
-/// Minimal launcher that initializes the Codex app-server and logs the handshake.
+/// Minimal launcher that initializes the Helios app-server and logs the handshake.
 #[derive(Parser)]
-#[command(author = "Codex", version, about = "Bootstrap Codex app-server", long_about = None)]
+#[command(author = "Helios", version, about = "Bootstrap Helios app-server", long_about = None)]
 struct Cli {
     /// Path to the `codex` CLI binary. When set, requests use stdio by
     /// spawning `codex app-server` as a child process.
@@ -161,21 +161,21 @@ enum CliCommand {
         #[arg(long, default_value_t = false)]
         kill: bool,
     },
-    /// Send a user message through the Codex app-server.
+    /// Send a user message through the Helios app-server.
     SendMessage {
-        /// User message to send to Codex.
+        /// User message to send to Helios.
         user_message: String,
     },
     /// Send a user message through the app-server V2 thread/turn APIs.
     SendMessageV2 {
-        /// User message to send to Codex.
+        /// User message to send to Helios.
         user_message: String,
     },
     /// Resume a V2 thread by id, then send a user message.
     ResumeMessageV2 {
         /// Existing thread id to resume.
         thread_id: String,
-        /// User message to send to Codex.
+        /// User message to send to Helios.
         user_message: String,
     },
     /// Resume a V2 thread and continuously stream notifications/events.
@@ -221,12 +221,12 @@ enum CliCommand {
     },
     /// Trigger the ChatGPT login flow and wait for completion.
     TestLogin,
-    /// Fetch the current account rate limits from the Codex app-server.
+    /// Fetch the current account rate limits from the Helios app-server.
     GetAccountRateLimits,
-    /// List the available models from the Codex app-server.
+    /// List the available models from the Helios app-server.
     #[command(name = "model-list")]
     ModelList,
-    /// List stored threads from the Codex app-server.
+    /// List stored threads from the Helios app-server.
     #[command(name = "thread-list")]
     ThreadList {
         /// Number of threads to return.
@@ -1035,7 +1035,7 @@ impl CodexClient {
             params: InitializeParams {
                 client_info: ClientInfo {
                     name: "helios-toy-app-server".to_string(),
-                    title: Some("Codex Toy App Server".to_string()),
+                    title: Some("Helios Toy App Server".to_string()),
                     version: env!("CARGO_PKG_VERSION").to_string(),
                 },
                 capabilities: Some(InitializeCapabilities {
@@ -1092,7 +1092,9 @@ impl CodexClient {
         let request_id = self.request_id();
         let request = ClientRequest::RemoveConversationListener {
             request_id: request_id.clone(),
-            params: helios_app_server_protocol::RemoveConversationListenerParams { subscription_id },
+            params: helios_app_server_protocol::RemoveConversationListenerParams {
+                subscription_id,
+            },
         };
 
         self.send_request::<helios_app_server_protocol::RemoveConversationSubscriptionResponse>(

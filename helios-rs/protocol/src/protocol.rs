@@ -1,4 +1,4 @@
-//! Defines the protocol for a Codex session between a client and an agent.
+//! Defines the protocol for a Helios session between a client and an agent.
 //!
 //! Uses a SQ (Submission Queue) / EQ (Event Queue) pattern to asynchronously communicate
 //! between user and agent.
@@ -71,7 +71,7 @@ pub const ENVIRONMENT_CONTEXT_OPEN_TAG: &str = "<environment_context>";
 pub const ENVIRONMENT_CONTEXT_CLOSE_TAG: &str = "</environment_context>";
 pub const COLLABORATION_MODE_OPEN_TAG: &str = "<collaboration_mode>";
 pub const COLLABORATION_MODE_CLOSE_TAG: &str = "</collaboration_mode>";
-pub const USER_MESSAGE_BEGIN: &str = "## My request for Codex:";
+pub const USER_MESSAGE_BEGIN: &str = "## My request for Helios:";
 
 /// Submission Queue Entry - requests from user
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema)]
@@ -370,10 +370,10 @@ pub enum Op {
     /// involve the model.
     SetThreadName { name: String },
 
-    /// Request Codex to undo a turn (turn are stacked so it is the same effect as CMD + Z).
+    /// Request Helios to undo a turn (turn are stacked so it is the same effect as CMD + Z).
     Undo,
 
-    /// Request Codex to drop the last N user turns from in-memory context.
+    /// Request Helios to drop the last N user turns from in-memory context.
     ///
     /// This does not attempt to revert local filesystem changes. Clients are
     /// responsible for undoing any edits on disk.
@@ -400,7 +400,7 @@ pub enum Op {
 }
 
 /// Determines the conditions under which the user is consulted to approve
-/// running the command proposed by Codex.
+/// running the command proposed by Helios.
 #[derive(
     Debug,
     Clone,
@@ -1244,7 +1244,7 @@ pub enum AgentStatus {
     NotFound,
 }
 
-/// Codex errors that we expose to clients.
+/// Helios errors that we expose to clients.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema, TS)]
 #[serde(rename_all = "snake_case")]
 #[ts(rename_all = "snake_case")]
@@ -2584,7 +2584,7 @@ pub enum RemoteSkillHazelnutScope {
 #[ts(rename_all = "lowercase")]
 pub enum RemoteSkillProductSurface {
     Chatgpt,
-    Codex,
+    Helios,
     Api,
     Atlas,
 }

@@ -1,6 +1,10 @@
 use std::process::Command;
 use std::sync::Arc;
 
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
+use core_test_support::test_helios::test_codex;
+use futures::StreamExt;
 use helios_core::CodexAuth;
 use helios_core::ModelClient;
 use helios_core::ModelProviderInfo;
@@ -16,10 +20,6 @@ use helios_protocol::models::ContentItem;
 use helios_protocol::models::ResponseItem;
 use helios_protocol::protocol::SessionSource;
 use helios_protocol::protocol::SubAgentSource;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
-use core_test_support::test_helios::test_codex;
-use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use wiremock::matchers::header;

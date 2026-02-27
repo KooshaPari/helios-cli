@@ -6,16 +6,16 @@ example, to stage the CLI, responses proxy, and SDK packages for version `0.6.0`
 ```bash
 ./scripts/stage_npm_packages.py \
   --release-version 0.6.0 \
-  --package codex \
-  --package codex-responses-api-proxy \
-  --package codex-sdk
+  --package helios \
+  --package helios-responses-api-proxy \
+  --package helios-sdk
 ```
 
 This downloads the native artifacts once, hydrates `vendor/` for each package, and writes
 tarballs to `dist/npm/`.
 
-When `--package codex` is provided, the staging helper builds the lightweight
-`@openai/codex` meta package plus all platform-native `@openai/codex` variants
+When `--package helios` is provided, the staging helper builds the lightweight
+`@phenotype/helios` meta package plus all platform-native `@phenotype/helios` variants
 that are later published under platform-specific dist-tags.
 
 If you need to invoke `build_npm_package.py` directly, run

@@ -132,7 +132,7 @@
       "type": "object"
     },
     "CollaborationMode": {
-      "description": "Collaboration mode for a Codex session.",
+      "description": "Collaboration mode for a Helios session.",
       "properties": {
         "mode": {
           "$ref": "#/definitions/ModeKind"
@@ -535,7 +535,7 @@
       ]
     },
     "FunctionCallOutputPayload": {
-      "description": "The payload we send back to OpenAI when reporting a tool call result.\n\n`body` serializes directly as the wire value for `function_call_output.output`. `success` remains internal metadata for downstream handling.",
+      "description": "The payload we send back to Phenotype when reporting a tool call result.\n\n`body` serializes directly as the wire value for `function_call_output.output`. `success` remains internal metadata for downstream handling.",
       "properties": {
         "body": {
           "$ref": "#/definitions/FunctionCallOutputBody"
@@ -793,7 +793,7 @@
           "type": "object"
         },
         {
-          "description": "[UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE. The access token must contain the same scopes that Codex-managed ChatGPT auth tokens have.",
+          "description": "[UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE. The access token must contain the same scopes that Helios-managed ChatGPT auth tokens have.",
           "properties": {
             "accessToken": {
               "description": "Access token (JWT) supplied by the client. This token is used for backend API requests and email extraction.",
@@ -804,7 +804,7 @@
               "type": "string"
             },
             "chatgptPlanType": {
-              "description": "Optional plan type supplied by the client.\n\nWhen `null`, Codex attempts to derive the plan type from access-token claims. If unavailable, the plan defaults to `unknown`.",
+              "description": "Optional plan type supplied by the client.\n\nWhen `null`, Helios attempts to derive the plan type from access-token claims. If unavailable, the plan defaults to `unknown`.",
               "type": [
                 "string",
                 "null"

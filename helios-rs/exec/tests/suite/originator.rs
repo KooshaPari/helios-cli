@@ -1,9 +1,9 @@
 #![cfg(not(target_os = "windows"))]
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
-use helios_core::default_client::HELIOS_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use core_test_support::responses;
 use core_test_support::test_helios_exec::test_helios_exec;
+use helios_core::default_client::HELIOS_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use wiremock::matchers::header;
 
 /// Verify that when the server reports an error, `helios-exec` exits with a
@@ -44,7 +44,10 @@ async fn supports_originator_override() -> anyhow::Result<()> {
         .await;
 
     test.cmd_with_server(&server)
-        .env("HELIOS_INTERNAL_ORIGINATOR_OVERRIDE", "helios_exec_override")
+        .env(
+            "HELIOS_INTERNAL_ORIGINATOR_OVERRIDE",
+            "helios_exec_override",
+        )
         .arg("--skip-git-repo-check")
         .arg("tell me something")
         .assert()

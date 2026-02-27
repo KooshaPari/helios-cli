@@ -1,9 +1,9 @@
 use crate::CodexAuth;
 use crate::api_bridge::map_api_error;
-use crate::helios::Session;
 use crate::default_client::default_headers;
 use crate::error::CodexErr;
 use crate::error::Result as CodexResult;
+use crate::helios::Session;
 use async_channel::Receiver;
 use async_channel::Sender;
 use async_channel::TrySendError;
@@ -218,7 +218,9 @@ pub(crate) async fn handle_start(
             };
             if let Some(text) = maybe_routed_text {
                 let sess_for_routed_text = Arc::clone(&sess_clone);
-                sess_for_routed_text.route_realtime_text_input(text).await;
+                if let Err(err) = sess_for_routed_text.conversation.text_in(text).await {
+                    warn!("failed to route realtime conversation text input: {err}");
+                }
             }
             sess_clone
                 .send_event_raw(ev(EventMsg::RealtimeConversationRealtime(

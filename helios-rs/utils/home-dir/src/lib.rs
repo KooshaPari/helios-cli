@@ -1,7 +1,7 @@
 use dirs::home_dir;
 use std::path::PathBuf;
 
-/// Returns the path to the Codex configuration directory, which can be
+/// Returns the path to the Helios configuration directory, which can be
 /// specified by the `HELIOS_HOME` environment variable. If not set, defaults to
 /// `~/.codex`.
 ///

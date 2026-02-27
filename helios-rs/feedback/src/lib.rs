@@ -285,7 +285,7 @@ impl CodexLogSnapshot {
 
         let mut envelope = Envelope::new();
         let title = format!(
-            "[{}]: Codex session {}",
+            "[{}]: Helios session {}",
             display_classification(classification),
             self.thread_id
         );

@@ -1,14 +1,12 @@
 //! Root of the `helios-core` library.
-pub mod transport;
-
 // Prevent accidental direct writes to stdout/stderr in library code. All
 // user-visible output must go through the appropriate abstraction (e.g.,
 // the TUI or the tracing stack).
 #![deny(clippy::print_stdout, clippy::print_stderr)]
+pub mod transport;
 extern crate helios_app_server_protocol as codex_app_server_protocol;
 extern crate helios_protocol as codex_protocol;
 extern crate helios_state as codex_state;
-pub mod transport;
 
 mod analytics_client;
 pub mod api_bridge;

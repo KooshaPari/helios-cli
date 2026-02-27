@@ -3431,6 +3431,7 @@ dependencies = [
  "clap",
  "core-foundation 0.9.4",
  "core_test_support",
+ "csv",
  "ctor 0.6.3",
  "dashmap",
  "dirs",
@@ -3973,9 +3974,11 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "clap",
  "helios-core",
  "helios-execpolicy",
  "helios-protocol",
+ "helios-utils-absolute-path",
  "libc",
  "path-absolutize",
  "pretty_assertions",
@@ -3986,6 +3989,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

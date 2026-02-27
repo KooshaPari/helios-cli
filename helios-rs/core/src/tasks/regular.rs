@@ -3,12 +3,15 @@ use std::sync::Mutex;
 
 use crate::client::ModelClient;
 use crate::client::ModelClientSession;
+use crate::client_common::Prompt;
 use crate::helios::TurnContext;
 use crate::helios::run_turn;
 use crate::state::TaskKind;
 use async_trait::async_trait;
 use helios_otel::OtelManager;
+use helios_protocol::config_types::ReasoningSummary as ReasoningSummaryConfig;
 use helios_protocol::openai_models::ModelInfo;
+use helios_protocol::openai_models::ReasoningEffort as ReasoningEffortConfig;
 use helios_protocol::user_input::UserInput;
 use tokio::task::JoinHandle;
 use tokio_util::sync::CancellationToken;
@@ -42,7 +45,14 @@ impl RegularTask {
         let prewarmed_session_task = tokio::spawn(async move {
             let mut client_session = model_client.new_session();
             match client_session
-                .prewarm_websocket(&otel_manager, &model_info)
+                .prewarm_websocket(
+                    &Prompt::default(),
+                    &model_info,
+                    &otel_manager,
+                    None::<ReasoningEffortConfig>,
+                    ReasoningSummaryConfig::default(),
+                    None,
+                )
                 .await
             {
                 Ok(()) => Some(client_session),

@@ -15,6 +15,9 @@ use crate::history_cell::UserHistoryCell;
 use crate::test_backend::VT100Backend;
 use crate::tui::FrameRequester;
 use assert_matches::assert_matches;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyModifiers;
 use helios_core::CodexAuth;
 use helios_core::config::Config;
 use helios_core::config::ConfigBuilder;
@@ -93,9 +96,6 @@ use helios_protocol::user_input::TextElement;
 use helios_protocol::user_input::UserInput;
 use helios_utils_absolute_path::AbsolutePathBuf;
 use helios_utils_approval_presets::builtin_approval_presets;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyModifiers;
 use insta::assert_snapshot;
 use pretty_assertions::assert_eq;
 #[cfg(target_os = "windows")]
@@ -1622,7 +1622,7 @@ async fn make_chatwidget_manual(
         frame_requester: FrameRequester::test_dummy(),
         has_input_focus: true,
         enhanced_keys_supported: false,
-        placeholder_text: "Ask Codex to do anything".to_string(),
+        placeholder_text: "Ask Helios to do anything".to_string(),
         disable_paste_burst: false,
         animations_enabled: cfg.animations,
         skills: None,
@@ -3914,7 +3914,12 @@ async fn unified_exec_wait_after_final_agent_message_snapshot() {
         }),
     });
 
-    begin_unified_exec_startup(&mut chat, "call-wait", "proc-1", "cargo test -p helios-core");
+    begin_unified_exec_startup(
+        &mut chat,
+        "call-wait",
+        "proc-1",
+        "cargo test -p helios-core",
+    );
     terminal_interaction(&mut chat, "call-wait-stdin", "proc-1", "");
 
     chat.handle_helios_event(Event {
@@ -4172,7 +4177,7 @@ async fn slash_init_skips_when_project_doc_exists() {
 
     match op_rx.try_recv() {
         Err(TryRecvError::Empty) => {}
-        other => panic!("expected no Codex op to be sent, got {other:?}"),
+        other => panic!("expected no Helios op to be sent, got {other:?}"),
     }
 
     let cells = drain_insert_history(&mut rx);
@@ -5412,7 +5417,7 @@ async fn apps_partial_refresh_uses_same_filtering_as_full_refresh() {
                 },
                 helios_chatgpt::connectors::AppInfo {
                     id: "connector_openai_hidden".to_string(),
-                    name: "Hidden OpenAI".to_string(),
+                    name: "Hidden Phenotype".to_string(),
                     description: Some("Should be filtered".to_string()),
                     logo_url: None,
                     logo_url_dark: None,
@@ -5440,7 +5445,7 @@ async fn apps_partial_refresh_uses_same_filtering_as_full_refresh() {
         "expected partial refresh popup to use filtered connectors, got:\n{popup}"
     );
     assert!(
-        !popup.contains("Hidden OpenAI"),
+        !popup.contains("Hidden Phenotype"),
         "expected disallowed connector to be filtered from partial refresh popup, got:\n{popup}"
     );
 }
@@ -6443,7 +6448,7 @@ async fn permissions_full_access_history_cell_emitted_only_after_confirmation() 
 //
 // Snapshot test: command approval modal
 //
-// Synthesizes a Codex ExecApprovalRequest event to trigger the approval modal
+// Synthesizes a Helios ExecApprovalRequest event to trigger the approval modal
 // and snapshots the visual output using the ratatui TestBackend.
 #[tokio::test]
 async fn approval_modal_exec_snapshot() -> anyhow::Result<()> {
@@ -7285,7 +7290,10 @@ async fn apply_patch_approval_sends_op_with_call_id() {
     while let Ok(app_ev) = rx.try_recv() {
         if let AppEvent::CodexOp(Op::PatchApproval { id, decision }) = app_ev {
             assert_eq!(id, "call-999");
-            assert_matches!(decision, helios_protocol::protocol::ReviewDecision::Approved);
+            assert_matches!(
+                decision,
+                helios_protocol::protocol::ReviewDecision::Approved
+            );
             found = true;
             break;
         }
@@ -7333,7 +7341,10 @@ async fn apply_patch_full_flow_integration_like() {
     match forwarded {
         Op::PatchApproval { id, decision } => {
             assert_eq!(id, "call-1");
-            assert_matches!(decision, helios_protocol::protocol::ReviewDecision::Approved);
+            assert_matches!(
+                decision,
+                helios_protocol::protocol::ReviewDecision::Approved
+            );
         }
         other => panic!("unexpected op forwarded: {other:?}"),
     }

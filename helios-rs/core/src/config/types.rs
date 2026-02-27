@@ -63,7 +63,7 @@ pub struct McpServerConfig {
     #[serde(flatten)]
     pub transport: McpServerTransportConfig,
 
-    /// When `false`, Codex skips initializing this MCP server.
+    /// When `false`, Helios skips initializing this MCP server.
     #[serde(default = "default_enabled")]
     pub enabled: bool,
 
@@ -346,14 +346,14 @@ pub enum HistoryPersistence {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct AnalyticsConfigToml {
-    /// When `false`, disables analytics across Codex product surfaces in this profile.
+    /// When `false`, disables analytics across Helios product surfaces in this profile.
     pub enabled: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct FeedbackConfigToml {
-    /// When `false`, disables the feedback flow across Codex product surfaces.
+    /// When `false`, disables the feedback flow across Helios product surfaces.
     pub enabled: Option<bool>,
 }
 
@@ -483,7 +483,7 @@ pub struct AppToolsConfig {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct AppConfig {
-    /// When `false`, Codex does not surface this app.
+    /// When `false`, Helios does not surface this app.
     #[serde(default = "default_enabled")]
     pub enabled: bool,
 
@@ -695,7 +695,7 @@ const fn default_true() -> bool {
 }
 
 /// Settings for notices we display to users via the tui and app-server clients
-/// (primarily the Codex IDE extension). NOTE: these are different from
+/// (primarily the Helios IDE extension). NOTE: these are different from
 /// notifications - notices are warnings, NUX screens, acknowledgements, etc.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default, JsonSchema)]
 pub struct Notice {

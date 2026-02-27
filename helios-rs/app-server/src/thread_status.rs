@@ -130,6 +130,7 @@ impl ThreadWatchManager {
             .count()
     }
 
+    #[allow(dead_code)]
     pub(crate) fn subscribe_running_turn_count(&self) -> watch::Receiver<usize> {
         self.running_turn_count_tx.subscribe()
     }

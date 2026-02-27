@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run reproducible Codex perf benchmarks with local OTEL capture."""
+"""Run reproducible Helios perf benchmarks with local OTEL capture."""
 
 from __future__ import annotations
 
@@ -1690,7 +1690,7 @@ def write_markdown(summary: dict[str, Any], out_path: Path) -> None:
         return str(value)
 
     lines = [
-        "# Codex Local Perf Summary",
+        "# Helios Local Perf Summary",
         "",
         f"- Generated: `{summary['generated_at']}`",
         f"- Command: `{summary['command']}`",

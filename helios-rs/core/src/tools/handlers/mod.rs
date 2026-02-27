@@ -58,7 +58,7 @@ where
 
 /// Validates feature/policy constraints for `with_additional_permissions` and
 /// returns normalized absolute paths. Errors if paths are invalid.
-pub(super) fn normalize_and_validate_additional_permissions(
+pub(crate) fn normalize_and_validate_additional_permissions(
     request_permission_enabled: bool,
     approval_policy: AskForApproval,
     sandbox_permissions: SandboxPermissions,

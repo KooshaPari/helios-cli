@@ -22,7 +22,7 @@ use std::sync::RwLock;
 ///
 /// A space is automatically added between the suffix and the rest of the User-Agent string.
 /// The full user agent string is returned from the mcp initialize response.
-/// Parenthesis will be added by Codex. This should only specify what goes inside of the parenthesis.
+/// Parenthesis will be added by Helios. This should only specify what goes inside of the parenthesis.
 pub static USER_AGENT_SUFFIX: LazyLock<Mutex<Option<String>>> = LazyLock::new(|| Mutex::new(None));
 pub const DEFAULT_ORIGINATOR: &str = "helios_cli_rs";
 pub const HELIOS_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR: &str = "HELIOS_INTERNAL_ORIGINATOR_OVERRIDE";
@@ -111,7 +111,7 @@ pub fn originator() -> Originator {
 pub fn is_first_party_originator(originator_value: &str) -> bool {
     originator_value == DEFAULT_ORIGINATOR
         || originator_value == "helios_vscode"
-        || originator_value.starts_with("Codex ")
+        || originator_value.starts_with("Helios ")
 }
 
 pub fn is_first_party_chat_originator(originator_value: &str) -> bool {
@@ -160,17 +160,17 @@ fn sanitize_user_agent(candidate: String, fallback: &str) -> String {
         .collect();
     if !sanitized.is_empty() && HeaderValue::from_str(sanitized.as_str()).is_ok() {
         tracing::warn!(
-            "Sanitized Codex user agent because provided suffix contained invalid header characters"
+            "Sanitized Helios user agent because provided suffix contained invalid header characters"
         );
         sanitized
     } else if HeaderValue::from_str(fallback).is_ok() {
         tracing::warn!(
-            "Falling back to base Codex user agent because provided suffix could not be sanitized"
+            "Falling back to base Helios user agent because provided suffix could not be sanitized"
         );
         fallback.to_string()
     } else {
         tracing::warn!(
-            "Falling back to default Codex originator because base user agent string is invalid"
+            "Falling back to default Helios originator because base user agent string is invalid"
         );
         originator().value
     }
@@ -233,7 +233,7 @@ mod tests {
     fn is_first_party_originator_matches_known_values() {
         assert_eq!(is_first_party_originator(DEFAULT_ORIGINATOR), true);
         assert_eq!(is_first_party_originator("helios_vscode"), true);
-        assert_eq!(is_first_party_originator("Codex Something Else"), true);
+        assert_eq!(is_first_party_originator("Helios Something Else"), true);
         assert_eq!(is_first_party_originator("helios_cli"), false);
         assert_eq!(is_first_party_originator("Other"), false);
     }
@@ -291,7 +291,7 @@ mod tests {
             .expect("originator header missing");
         assert_eq!(originator_header.to_str().unwrap(), originator().value);
 
-        // User-Agent matches the computed Codex UA for that originator
+        // User-Agent matches the computed Helios UA for that originator
         let expected_ua = get_helios_user_agent();
         let ua_header = headers
             .get("user-agent")

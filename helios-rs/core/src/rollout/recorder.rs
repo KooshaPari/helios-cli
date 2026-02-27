@@ -1,4 +1,4 @@
-//! Persist Codex session rollouts (.jsonl) so sessions can be replayed or inspected later.
+//! Persist Helios session rollouts (.jsonl) so sessions can be replayed or inspected later.
 
 use std::fs::File;
 use std::fs::{self};
@@ -159,7 +159,7 @@ fn sanitize_rollout_item_for_persistence(
 }
 
 impl RolloutRecorder {
-    /// List threads (rollout files) under the provided Codex home directory.
+    /// List threads (rollout files) under the provided Helios home directory.
     #[allow(clippy::too_many_arguments)]
     pub async fn list_threads(
         config: &Config,

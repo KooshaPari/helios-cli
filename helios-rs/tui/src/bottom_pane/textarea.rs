@@ -1,10 +1,10 @@
 use crate::key_hint::is_altgr;
-use helios_protocol::user_input::ByteRange;
-use helios_protocol::user_input::TextElement as UserTextElement;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyEventKind;
 use crossterm::event::KeyModifiers;
+use helios_protocol::user_input::ByteRange;
+use helios_protocol::user_input::TextElement as UserTextElement;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Color;

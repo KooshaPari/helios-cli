@@ -4,7 +4,7 @@ use std::os::fd::FromRawFd as _;
 use std::os::fd::OwnedFd;
 
 use anyhow::Context as _;
-use codex_utils_absolute_path::AbsolutePathBuf;
+use helios_utils_absolute_path::AbsolutePathBuf;
 
 use crate::unix::escalate_protocol::ESCALATE_SOCKET_ENV_VAR;
 use crate::unix::escalate_protocol::EXEC_WRAPPER_ENV_VAR;
@@ -51,7 +51,7 @@ pub async fn run_shell_escalation_execve_wrapper(
         .send(EscalateRequest {
             file: file.clone().into(),
             argv: argv.clone(),
-            workdir: AbsolutePathBuf::current_dir()?,
+            workdir: AbsolutePathBuf::current_dir()?.to_path_buf(),
             env,
         })
         .await

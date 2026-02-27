@@ -9,6 +9,7 @@ use crate::config::ConfigToml;
 use crate::config::deserialize_config_toml_with_base;
 use crate::config_loader::layer_io::LoadedConfigLayers;
 use crate::git_info::resolve_root_git_project_for_trust;
+use dunce::canonicalize as normalize_path;
 use helios_app_server_protocol::ConfigLayerSource;
 use helios_config::CONFIG_TOML_FILE;
 use helios_config::ConfigRequirementsWithSources;
@@ -17,7 +18,6 @@ use helios_protocol::config_types::TrustLevel;
 use helios_protocol::protocol::AskForApproval;
 use helios_utils_absolute_path::AbsolutePathBuf;
 use helios_utils_absolute_path::AbsolutePathBufGuard;
-use dunce::canonicalize as normalize_path;
 use serde::Deserialize;
 use std::io;
 use std::path::Path;
@@ -83,7 +83,7 @@ pub(crate) async fn first_layer_config_error_from_entries(
 /// - cloud:    managed cloud requirements
 /// - admin:    managed preferences (*)
 /// - system    `/etc/codex/requirements.toml` (Unix) or
-///   `%ProgramData%\OpenAI\Codex\requirements.toml` (Windows)
+///   `%ProgramData%\Phenotype\Helios\requirements.toml` (Windows)
 ///
 /// For backwards compatibility, we also load from
 /// `managed_config.toml` and map it to `requirements.toml`.
@@ -92,7 +92,7 @@ pub(crate) async fn first_layer_config_error_from_entries(
 ///
 /// - admin:    managed preferences (*)
 /// - system    `/etc/codex/config.toml` (Unix) or
-///   `%ProgramData%\OpenAI\Codex\config.toml` (Windows)
+///   `%ProgramData%\Phenotype\Helios\config.toml` (Windows)
 /// - user      `${HELIOS_HOME}/config.toml`
 /// - cwd       `${PWD}/config.toml` (loaded but disabled when the directory is untrusted)
 /// - tree      parent directories up to root looking for `./.codex/config.toml` (loaded but disabled when untrusted)
@@ -136,7 +136,8 @@ pub async fn load_config_layers_state(
 
     // Make a best-effort to support the legacy `managed_config.toml` as a
     // requirements specification.
-    let loaded_config_layers = layer_io::load_config_layers_internal(helios_home, overrides).await?;
+    let loaded_config_layers =
+        layer_io::load_config_layers_internal(helios_home, overrides).await?;
     load_requirements_from_legacy_scheme(
         &mut config_requirements_toml,
         loaded_config_layers.clone(),
@@ -412,7 +413,7 @@ fn windows_helios_system_dir() -> PathBuf {
         );
         PathBuf::from(DEFAULT_PROGRAM_DATA_DIR_WINDOWS)
     });
-    program_data.join("OpenAI").join("Codex")
+    program_data.join("Phenotype").join("Helios")
 }
 
 #[cfg(windows)]
@@ -813,8 +814,8 @@ async fn load_project_layers(
         let layer_dir = AbsolutePathBuf::from_absolute_path(dir)?;
         let decision = trust_context.decision_for_dir(&layer_dir);
         let dot_helios_abs = AbsolutePathBuf::from_absolute_path(&dot_codex)?;
-        let dot_helios_normalized =
-            normalize_path(dot_helios_abs.as_path()).unwrap_or_else(|_| dot_helios_abs.to_path_buf());
+        let dot_helios_normalized = normalize_path(dot_helios_abs.as_path())
+            .unwrap_or_else(|_| dot_helios_abs.to_path_buf());
         if dot_helios_abs == helios_home_abs || dot_helios_normalized == helios_home_normalized {
             continue;
         }
@@ -902,7 +903,7 @@ impl From<LegacyManagedConfigToml> for ConfigRequirementsToml {
         }
         if let Some(sandbox_mode) = sandbox_mode {
             let required_mode: SandboxModeRequirement = sandbox_mode.into();
-            // Allowing read-only is a requirement for Codex to function correctly.
+            // Allowing read-only is a requirement for Helios to function correctly.
             // So in this backfill path, we append read-only if it's not already specified.
             let mut allowed_modes = vec![SandboxModeRequirement::ReadOnly];
             if required_mode != SandboxModeRequirement::ReadOnly {
@@ -982,8 +983,8 @@ foo = "xyzzy"
     fn windows_system_requirements_toml_file_uses_expected_suffix() {
         let expected = windows_program_data_dir_from_known_folder()
             .unwrap_or_else(|_| PathBuf::from(DEFAULT_PROGRAM_DATA_DIR_WINDOWS))
-            .join("OpenAI")
-            .join("Codex")
+            .join("Phenotype")
+            .join("Helios")
             .join("requirements.toml");
         assert_eq!(
             windows_system_requirements_toml_file()
@@ -995,7 +996,7 @@ foo = "xyzzy"
             windows_system_requirements_toml_file()
                 .expect("requirements.toml path")
                 .as_path()
-                .ends_with(Path::new("OpenAI").join("Codex").join("requirements.toml"))
+                .ends_with(Path::new("Phenotype").join("Helios").join("requirements.toml"))
         );
     }
 
@@ -1004,8 +1005,8 @@ foo = "xyzzy"
     fn windows_system_config_toml_file_uses_expected_suffix() {
         let expected = windows_program_data_dir_from_known_folder()
             .unwrap_or_else(|_| PathBuf::from(DEFAULT_PROGRAM_DATA_DIR_WINDOWS))
-            .join("OpenAI")
-            .join("Codex")
+            .join("Phenotype")
+            .join("Helios")
             .join("config.toml");
         assert_eq!(
             windows_system_config_toml_file()
@@ -1017,7 +1018,7 @@ foo = "xyzzy"
             windows_system_config_toml_file()
                 .expect("config.toml path")
                 .as_path()
-                .ends_with(Path::new("OpenAI").join("Codex").join("config.toml"))
+                .ends_with(Path::new("Phenotype").join("Helios").join("config.toml"))
         );
     }
 }

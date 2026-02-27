@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import readline from "node:readline";
 import { createRequire } from "node:module";
+import { existsSync } from "node:fs";
 
 import type { CodexConfigObject, CodexConfigValue } from "./codexOptions";
 import { SandboxMode, ModelReasoningEffort, ApprovalMode, WebSearchMode } from "./threadOptions";
@@ -41,15 +42,15 @@ export type CodexExecArgs = {
 
 const INTERNAL_ORIGINATOR_ENV = "CODEX_INTERNAL_ORIGINATOR_OVERRIDE";
 const TYPESCRIPT_SDK_ORIGINATOR = "codex_sdk_ts";
-const CODEX_NPM_NAME = "@openai/codex";
+const CODEX_NPM_NAME = "@phenotype/helios";
 
 const PLATFORM_PACKAGE_BY_TARGET: Record<string, string> = {
-  "x86_64-unknown-linux-musl": "@openai/codex-linux-x64",
-  "aarch64-unknown-linux-musl": "@openai/codex-linux-arm64",
-  "x86_64-apple-darwin": "@openai/codex-darwin-x64",
-  "aarch64-apple-darwin": "@openai/codex-darwin-arm64",
-  "x86_64-pc-windows-msvc": "@openai/codex-win32-x64",
-  "aarch64-pc-windows-msvc": "@openai/codex-win32-arm64",
+  "x86_64-unknown-linux-musl": "@phenotype/helios-linux-x64",
+  "aarch64-unknown-linux-musl": "@phenotype/helios-linux-arm64",
+  "x86_64-apple-darwin": "@phenotype/helios-darwin-x64",
+  "aarch64-apple-darwin": "@phenotype/helios-darwin-arm64",
+  "x86_64-pc-windows-msvc": "@phenotype/helios-win32-x64",
+  "aarch64-pc-windows-msvc": "@phenotype/helios-win32-arm64",
 };
 
 const moduleRequire = createRequire(import.meta.url);
@@ -208,7 +209,7 @@ export class CodexExec {
       if (code !== 0 || signal) {
         const stderrBuffer = Buffer.concat(stderrChunks);
         const detail = signal ? `signal ${signal}` : `code ${code ?? 1}`;
-        throw new Error(`Codex Exec exited with ${detail}: ${stderrBuffer.toString("utf8")}`);
+        throw new Error(`Helios Exec exited with ${detail}: ${stderrBuffer.toString("utf8")}`);
       }
     } finally {
       rl.close();
@@ -238,7 +239,7 @@ function flattenConfigOverrides(
       overrides.push(`${prefix}=${toTomlValue(value, prefix)}`);
       return;
     } else {
-      throw new Error("Codex config overrides must be a plain object");
+      throw new Error("Helios config overrides must be a plain object");
     }
   }
 
@@ -254,7 +255,7 @@ function flattenConfigOverrides(
 
   for (const [key, child] of entries) {
     if (!key) {
-      throw new Error("Codex config override keys must be non-empty strings");
+      throw new Error("Helios config override keys must be non-empty strings");
     }
     if (child === undefined) {
       continue;
@@ -273,7 +274,7 @@ function toTomlValue(value: CodexConfigValue, path: string): string {
     return JSON.stringify(value);
   } else if (typeof value === "number") {
     if (!Number.isFinite(value)) {
-      throw new Error(`Codex config override at ${path} must be a finite number`);
+      throw new Error(`Helios config override at ${path} must be a finite number`);
     }
     return `${value}`;
   } else if (typeof value === "boolean") {
@@ -285,7 +286,7 @@ function toTomlValue(value: CodexConfigValue, path: string): string {
     const parts: string[] = [];
     for (const [key, child] of Object.entries(value)) {
       if (!key) {
-        throw new Error("Codex config override keys must be non-empty strings");
+        throw new Error("Helios config override keys must be non-empty strings");
       }
       if (child === undefined) {
         continue;
@@ -294,10 +295,10 @@ function toTomlValue(value: CodexConfigValue, path: string): string {
     }
     return `{${parts.join(", ")}}`;
   } else if (value === null) {
-    throw new Error(`Codex config override at ${path} cannot be null`);
+    throw new Error(`Helios config override at ${path} cannot be null`);
   } else {
     const typeName = typeof value;
-    throw new Error(`Unsupported Codex config override value at ${path}: ${typeName}`);
+    throw new Error(`Unsupported Helios config override value at ${path}: ${typeName}`);
   }
 }
 
@@ -373,13 +374,31 @@ function findCodexPath() {
     vendorRoot = path.join(path.dirname(platformPackageJsonPath), "vendor");
   } catch {
     throw new Error(
-      `Unable to locate Codex CLI binaries. Ensure ${CODEX_NPM_NAME} is installed with optional dependencies.`,
+      `Unable to locate Helios CLI binaries. Ensure ${CODEX_NPM_NAME} is installed with optional dependencies.`,
     );
   }
 
   const archRoot = path.join(vendorRoot, targetTriple);
+  const heliosBinaryName = process.platform === "win32" ? "helios.exe" : "helios";
   const codexBinaryName = process.platform === "win32" ? "codex.exe" : "codex";
-  const binaryPath = path.join(archRoot, "codex", codexBinaryName);
+  const binaryPathCandidates = [
+    path.join(archRoot, "helios", heliosBinaryName),
+    path.join(archRoot, "codex", codexBinaryName),
+  ];
+
+  let binaryPath: string | null = null;
+  for (const candidate of binaryPathCandidates) {
+    if (existsSync(candidate)) {
+      binaryPath = candidate;
+      break;
+    }
+  }
+
+  if (!binaryPath) {
+    throw new Error(
+      `Unable to locate Helios binary in ${archRoot}. Expected ${heliosBinaryName} (or ${codexBinaryName}).`,
+    );
+  }
 
   return binaryPath;
 }

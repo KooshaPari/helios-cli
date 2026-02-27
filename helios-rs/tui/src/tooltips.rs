@@ -8,12 +8,12 @@ const ANNOUNCEMENT_TIP_URL: &str =
 
 const IS_MACOS: bool = cfg!(target_os = "macos");
 
-const PAID_TOOLTIP: &str = "*New* Try the **Codex App** with 2x rate limits until *April 2nd*. Run 'codex app' or visit https://chatgpt.com/codex?app-landing-page=true";
+const PAID_TOOLTIP: &str = "*New* Try the **Helios App** with 2x rate limits until *April 2nd*. Run 'codex app' or visit https://chatgpt.com/codex?app-landing-page=true";
 const PAID_TOOLTIP_NON_MAC: &str = "*New* 2x rate limits until *April 2nd*.";
-const OTHER_TOOLTIP: &str = "*New* Build faster with the **Codex App**. Run 'codex app' or visit https://chatgpt.com/codex?app-landing-page=true";
-const OTHER_TOOLTIP_NON_MAC: &str = "*New* Build faster with Codex.";
+const OTHER_TOOLTIP: &str = "*New* Build faster with the **Helios App**. Run 'codex app' or visit https://chatgpt.com/codex?app-landing-page=true";
+const OTHER_TOOLTIP_NON_MAC: &str = "*New* Build faster with Helios.";
 const FREE_GO_TOOLTIP: &str =
-    "*New* Codex is included in your plan for free through *March 2nd* – let’s build together.";
+    "*New* Helios is included in your plan for free through *March 2nd* – let’s build together.";
 
 const RAW_TOOLTIPS: &str = include_str!("../tooltips.txt");
 
@@ -46,7 +46,7 @@ fn experimental_tooltips() -> Vec<&'static str> {
         .collect()
 }
 
-/// Pick a random tooltip to show to the user when starting Codex.
+/// Pick a random tooltip to show to the user when starting Helios.
 pub(crate) fn get_tooltip(plan: Option<PlanType>) -> Option<String> {
     let mut rng = rand::rng();
 
@@ -341,14 +341,14 @@ from_date = "2000-01-01"
     #[test]
     fn announcement_tip_toml_parse_comments() {
         let toml = r#"
-# Example announcement tips for Codex TUI.
+# Example announcement tips for Helios TUI.
 # Each [[announcements]] entry is evaluated in order; the last matching one is shown.
 # Dates are UTC, formatted as YYYY-MM-DD. The from_date is inclusive and the to_date is exclusive.
 # version_regex matches against the CLI version (env!("CARGO_PKG_VERSION")); omit to apply to all versions.
 # target_app specify which app should display the announcement (cli, vsce, ...).
 
 [[announcements]]
-content = "Welcome to Codex! Check out the new onboarding flow."
+content = "Welcome to Helios! Check out the new onboarding flow."
 from_date = "2024-10-01"
 to_date = "2024-10-15"
 target_app = "cli"

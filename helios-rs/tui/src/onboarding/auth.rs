@@ -1,5 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use helios_core::AuthManager;
 use helios_core::auth::AuthCredentialsStoreMode;
 use helios_core::auth::CLIENT_ID;
@@ -9,10 +13,6 @@ use helios_login::DeviceCode;
 use helios_login::ServerOptions;
 use helios_login::ShutdownHandle;
 use helios_login::run_login_server;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -294,7 +294,7 @@ impl AuthModeWidget {
         let mut lines: Vec<Line> = vec![
             Line::from(vec![
                 "  ".into(),
-                "Sign in with ChatGPT to use Codex as part of your paid plan".into(),
+                "Sign in with ChatGPT to use Helios as part of your paid plan".into(),
             ]),
             Line::from(vec![
                 "  ".into(),
@@ -444,14 +444,14 @@ impl AuthModeWidget {
             "".into(),
             "  Before you start:".into(),
             "".into(),
-            "  Decide how much autonomy you want to grant Codex".into(),
+            "  Decide how much autonomy you want to grant Helios".into(),
             Line::from(vec![
                 "  For more details see the ".into(),
-                "\u{1b}]8;;https://github.com/openai/codex\u{7}Codex docs\u{1b}]8;;\u{7}".underlined(),
+                "\u{1b}]8;;https://github.com/openai/codex\u{7}Helios docs\u{1b}]8;;\u{7}".underlined(),
             ])
             .dim(),
             "".into(),
-            "  Codex can make mistakes".into(),
+            "  Helios can make mistakes".into(),
             "  Review the code it writes and commands it runs".dim().into(),
             "".into(),
             "  Powered by your ChatGPT account".into(),
@@ -485,7 +485,7 @@ impl AuthModeWidget {
         let lines = vec![
             "✓ API key configured".fg(Color::Green).into(),
             "".into(),
-            "  Codex will use usage-based billing with your API key.".into(),
+            "  Helios will use usage-based billing with your API key.".into(),
         ];
 
         Paragraph::new(lines)
@@ -504,7 +504,7 @@ impl AuthModeWidget {
         let mut intro_lines: Vec<Line> = vec![
             Line::from(vec![
                 "> ".into(),
-                "Use your own OpenAI API key for usage-based billing".bold(),
+                "Use your own Phenotype API key for usage-based billing".bold(),
             ]),
             "".into(),
             "  Paste or type your API key below. It will be stored locally in auth.json.".into(),
