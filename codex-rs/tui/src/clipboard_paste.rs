@@ -270,14 +270,39 @@ pub fn normalize_pasted_path(pasted: &str) -> Option<PathBuf> {
     // shell-escaped single path → unescaped
     let parts: Vec<String> = shlex::Shlex::new(pasted).collect();
     if parts.len() == 1 {
-        let part = parts.into_iter().next()?;
+        let mut part = parts.into_iter().next()?;
         if let Some(path) = normalize_windows_path(&part) {
             return Some(path);
         }
+
+        #[cfg(not(windows))]
+        {
+            part = fixup_unix_root_relative_path(part);
+        }
+
         return Some(PathBuf::from(part));
     }
 
     None
+}
+
+/// On macOS, Finder drag-and-drop can produce paths like `Users/alice/image.png`
+/// (missing the leading `/`). Detect well-known root prefixes and add the slash.
+#[cfg(not(windows))]
+fn fixup_unix_root_relative_path(mut path: String) -> String {
+    use std::path::Path;
+
+    if Path::new(&path).has_root() {
+        return path;
+    }
+
+    const ROOT_PREFIXES: [&str; 5] = ["Applications/", "Library/", "System/", "Users/", "Volumes/"];
+
+    if ROOT_PREFIXES.iter().any(|prefix| path.starts_with(prefix)) {
+        path.insert(0, '/');
+    }
+
+    path
 }
 
 #[cfg(target_os = "linux")]
