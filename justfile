@@ -53,6 +53,11 @@ test:
 bazel-codex *args:
     bazel run //codex-rs/cli:codex --run_under="cd $PWD &&" -- "$@"
 
+# Pre-push Bazel codex gate. Keep local-only to avoid requiring billable CI runners.
+[no-cd]
+bazel-codex-prepush *args:
+    bazel build //codex-rs/cli:codex --features=-layering_check --host_features=-layering_check "$@"
+
 [no-cd]
 bazel-lock-update:
     bazel mod deps --lockfile_mode=update
@@ -94,3 +99,40 @@ feature-matrix:
 # Tail logs from the state SQLite database
 log *args:
     if [ "${1:-}" = "--" ]; then shift; fi; cargo run -p codex-state --bin logs_client -- "$@"
+
+# Validate local toolchain prerequisites for dev orchestration.
+[no-cd]
+dev-preflight profile="fast":
+    node scripts/dev/preflight.mjs --profile {{profile}}
+
+# Start hybrid HMR + incremental dev loop (TypeScript watch + Rust incremental checks).
+[no-cd]
+dev-fast:
+    just dev-preflight profile=fast
+    process-compose -f .process-compose/dev-fast.yaml up
+
+# Start full hybrid loop including Bazel incremental lane (requires ibazel).
+[no-cd]
+dev-full:
+    just dev-preflight profile=full
+    process-compose -f .process-compose/dev-full.yaml up
+
+# Default dev loop.
+alias dev := dev-fast
+
+[no-cd]
+dev-status profile="fast":
+    process-compose -f .process-compose/dev-{{profile}}.yaml list
+
+[no-cd]
+dev-down profile="fast":
+    process-compose -f .process-compose/dev-{{profile}}.yaml down
+
+# Local pre-push CI gate (does not run in GitHub Actions).
+[no-cd]
+prepush:
+    node scripts/dev/prepush.mjs
+
+[no-cd]
+install-prepush-hook:
+    pre-commit install --hook-type pre-push
