@@ -37,7 +37,7 @@ runs:
         # 1) Fix branches must be layered; direct fix/* -> main/master is blocked unless explicitly overridden.
         if [[ "$HEAD_REF" == fix/* ]]; then
           if [[ "$BASE_REF" == "main" || "$BASE_REF" == "master" ]]; then
-            if [[ "$PR_LABELS" != *"layered-pr-exception"* ]]; then
+            if [[ "$PR_LABELS" != *"\"layered-pr-exception\""* ]]; then
               echo "ERROR: fix/* PRs must target a layered branch, not main/master."
               echo "Use stack/*, layer/*, release/*, or add label layered-pr-exception."
               exit 1
@@ -46,8 +46,8 @@ runs:
         fi
 
         # 2) Prevent merge commits in PR branch diff range.
-        git fetch origin "$BASE_REF" --depth=1 || true
-        MERGES=$(git rev-list --merges "origin/$BASE_REF..HEAD" || true)
+        git fetch origin "$BASE_REF" --depth=1
+        MERGES=$(git rev-list --merges "origin/$BASE_REF..HEAD")
         if [[ -n "$MERGES" ]]; then
           echo "ERROR: merge commits detected in PR diff range:"
           echo "$MERGES"
