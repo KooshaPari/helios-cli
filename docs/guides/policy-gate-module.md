@@ -17,6 +17,8 @@ This repository exposes the policy gate checks as a reusable composite action:
 
 ## Usage
 
+`actions/checkout` must use `fetch-depth: 0` for this action so branch history is available for merge-commit checks.
+
 ```yaml
 jobs:
   policy-gate:
