@@ -10,5 +10,5 @@ permissions:
 
 jobs:
   policy-gate:
-    uses: KooshaPari/phenotypeActions/.github/workflows/policy-gate.yml@v0
+    uses: KooshaPari/phenotypeActions/.github/workflows/policy-gate.yml@c7e43facecdef5942f591ee72cb204b076ba23fd # v0
     secrets: inherit
