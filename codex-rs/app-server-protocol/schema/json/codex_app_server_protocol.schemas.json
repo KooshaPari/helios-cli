@@ -1248,54 +1248,6 @@
             },
             "method": {
               "enum": [
-                "externalAgentConfig/detect"
-              ],
-              "title": "ExternalAgentConfig/detectRequestMethod",
-              "type": "string"
-            },
-            "params": {
-              "$ref": "#/definitions/v2/ExternalAgentConfigDetectParams"
-            }
-          },
-          "required": [
-            "id",
-            "method",
-            "params"
-          ],
-          "title": "ExternalAgentConfig/detectRequest",
-          "type": "object"
-        },
-        {
-          "properties": {
-            "id": {
-              "$ref": "#/definitions/RequestId"
-            },
-            "method": {
-              "enum": [
-                "externalAgentConfig/import"
-              ],
-              "title": "ExternalAgentConfig/importRequestMethod",
-              "type": "string"
-            },
-            "params": {
-              "$ref": "#/definitions/v2/ExternalAgentConfigImportParams"
-            }
-          },
-          "required": [
-            "id",
-            "method",
-            "params"
-          ],
-          "title": "ExternalAgentConfig/importRequest",
-          "type": "object"
-        },
-        {
-          "properties": {
-            "id": {
-              "$ref": "#/definitions/RequestId"
-            },
-            "method": {
-              "enum": [
                 "config/value/write"
               ],
               "title": "Config/value/writeRequestMethod",
