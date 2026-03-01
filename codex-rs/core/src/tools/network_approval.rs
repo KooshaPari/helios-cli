@@ -1,6 +1,6 @@
 use crate::codex::Session;
-use crate::network_policy_decision::execpolicy_network_rule_amendment;
 use crate::network_policy_decision::denied_network_policy_message;
+use crate::network_policy_decision::execpolicy_network_rule_amendment;
 use crate::tools::sandboxing::ToolError;
 use codex_network_proxy::BlockedRequest;
 use codex_network_proxy::BlockedRequestObserver;
@@ -417,8 +417,10 @@ impl NetworkApprovalService {
                             })
                             .await;
                     }
-                    self.record_outcome_for_single_active_call(NetworkApprovalOutcome::DeniedByUser)
-                        .await;
+                    self.record_outcome_for_single_active_call(
+                        NetworkApprovalOutcome::DeniedByUser,
+                    )
+                    .await;
                     cache_session_deny = true;
                     PendingApprovalDecision::Deny
                 }
