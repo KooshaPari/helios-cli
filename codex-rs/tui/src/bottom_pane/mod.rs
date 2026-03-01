@@ -471,6 +471,7 @@ impl BottomPane {
         }
     }
 
+    #[allow(dead_code)]
     pub fn handle_verbatim_paste(&mut self, pasted: String) {
         if let Some(view) = self.view_stack.last_mut() {
             let needs_redraw = view.handle_paste(pasted);

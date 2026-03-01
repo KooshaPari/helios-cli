@@ -2431,6 +2431,7 @@ impl Session {
         }
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn persist_network_policy_amendment(
         &self,
         amendment: &NetworkPolicyAmendment,
@@ -2479,6 +2480,7 @@ impl Session {
         Ok(())
     }
 
+    #[allow(dead_code)]
     fn validated_network_policy_amendment_host(
         amendment: &NetworkPolicyAmendment,
         network_approval_context: &NetworkApprovalContext,
@@ -2495,6 +2497,7 @@ impl Session {
         Ok(approved_host)
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn record_network_policy_amendment_message(
         &self,
         sub_id: &str,
