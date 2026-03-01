@@ -121,19 +121,12 @@ jobs:
 
       - name: Run feature-matrix guard for feature-sensitive changes
         if: ${{ needs.changed.outputs.feature_drift == 'true' }}
-        shell: bash
         run: |
-          set -euo pipefail
-          if ! command -v just >/dev/null 2>&1; then
-            if command -v apt-get >/dev/null 2>&1; then
-              sudo apt-get update -y
-              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends just || true
-            fi
-          fi
-          if ! command -v just >/dev/null 2>&1; then
-            cargo install just --locked
-          fi
-          just feature-matrix
+          cargo check -p codex-tui --no-default-features
+          cargo check -p codex-tui --no-default-features --features debug-logs
+          cargo check -p codex-cloud-tasks-client --no-default-features
+          cargo check -p codex-cloud-tasks-client --no-default-features --features mock
+          cargo check -p codex-otel --features disable-default-metrics-exporter
 
       - name: Enforce no rust_core edits
         if: ${{ needs.changed.outputs.rust_core == 'true' }}
