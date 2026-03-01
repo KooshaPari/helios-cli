@@ -30,7 +30,6 @@ result
 
 # cli tools
 CLAUDE.md
-.claude/
 AGENTS.override.md
 
 # caches
@@ -91,3 +90,25 @@ CHANGELOG.ignore.md
 __pycache__/
 *.pyc
 
+# Added by Spec Kitty CLI (auto-managed)
+.opencode/
+.windsurf/
+.qwen/
+.augment/
+.roo/
+.amazonq/
+.github/copilot/
+.kittify/.dashboard
+
+
+# AI tool artifacts
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kittify/
+.kilocode/
+.github/prompts/
+.github/copilot-instructions.md
+.claudeignore
+.llmignore
