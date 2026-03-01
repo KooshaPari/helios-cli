@@ -22,6 +22,7 @@ impl std::fmt::Display for PasteImageError {
 }
 impl std::error::Error for PasteImageError {}
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum PasteTextError {
     ClipboardUnavailable(String),
@@ -253,6 +254,7 @@ pub fn paste_image_to_temp_png() -> Result<(PathBuf, PastedImageInfo), PasteImag
     ))
 }
 
+#[allow(dead_code)]
 #[cfg(not(target_os = "android"))]
 pub fn paste_text() -> Result<String, PasteTextError> {
     let mut cb = arboard::Clipboard::new()
@@ -262,6 +264,7 @@ pub fn paste_text() -> Result<String, PasteTextError> {
         .map_err(|e| PasteTextError::NoText(e.to_string()))
 }
 
+#[allow(dead_code)]
 #[cfg(target_os = "android")]
 pub fn paste_text() -> Result<String, PasteTextError> {
     Err(PasteTextError::ClipboardUnavailable(

@@ -759,6 +759,7 @@ impl ChatComposer {
     ///
     /// This is used for explicit "verbatim paste" entry points where callers
     /// want the exact text inserted as-is.
+    #[allow(dead_code)]
     pub fn handle_verbatim_paste(&mut self, pasted: String) -> bool {
         #[cfg(not(target_os = "linux"))]
         if self.voice_state.voice.is_some() {
