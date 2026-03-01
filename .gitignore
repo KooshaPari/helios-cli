@@ -91,3 +91,16 @@ CHANGELOG.ignore.md
 __pycache__/
 *.pyc
 
+# Added by Spec Kitty CLI (auto-managed)
+.codex/
+.opencode/
+.windsurf/
+.gemini/
+.cursor/
+.qwen/
+.kilocode/
+.augment/
+.roo/
+.amazonq/
+.github/copilot/
+.kittify/.dashboard
