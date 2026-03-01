@@ -755,6 +755,22 @@ impl ChatComposer {
         true
     }
 
+    /// Integrate pasted text verbatim, bypassing burst/image/placeholder heuristics.
+    ///
+    /// This is used for explicit "verbatim paste" entry points where callers
+    /// want the exact text inserted as-is.
+    pub fn handle_verbatim_paste(&mut self, pasted: String) -> bool {
+        #[cfg(not(target_os = "linux"))]
+        if self.voice_state.voice.is_some() {
+            return false;
+        }
+        let pasted = pasted.replace("\r\n", "\n").replace('\r', "\n");
+        self.insert_str(&pasted);
+        self.paste_burst.clear_after_explicit_paste();
+        self.sync_popups();
+        true
+    }
+
     pub fn handle_paste_image_path(&mut self, pasted: String) -> bool {
         let Some(path_buf) = normalize_pasted_path(&pasted) else {
             return false;
