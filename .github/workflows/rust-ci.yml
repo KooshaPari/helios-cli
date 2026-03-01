@@ -121,7 +121,19 @@ jobs:
 
       - name: Run feature-matrix guard for feature-sensitive changes
         if: ${{ needs.changed.outputs.feature_drift == 'true' }}
-        run: just feature-matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v just >/dev/null 2>&1; then
+            if command -v apt-get >/dev/null 2>&1; then
+              sudo apt-get update -y
+              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends just || true
+            fi
+          fi
+          if ! command -v just >/dev/null 2>&1; then
+            cargo install just --locked
+          fi
+          just feature-matrix
 
       - name: Enforce no rust_core edits
         if: ${{ needs.changed.outputs.rust_core == 'true' }}
