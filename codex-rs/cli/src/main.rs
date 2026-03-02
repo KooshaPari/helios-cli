@@ -550,8 +550,8 @@ fn stage_str(stage: codex_core::features::Stage) -> &'static str {
 }
 
 fn main() -> anyhow::Result<()> {
-    let cli = MultitoolCli::parse();
     arg0_dispatch_or_else(|codex_linux_sandbox_exe: Arg0DispatchPaths| async move {
+        let cli = MultitoolCli::parse();
         cli_main(cli, codex_linux_sandbox_exe).await?;
         Ok(())
     })
