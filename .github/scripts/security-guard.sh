@@ -7,6 +7,7 @@ cd "$ROOT_DIR"
 PRE_COMMIT_CONFIG=".pre-commit-config.yaml"
 RUN_FAST=${SECURITY_GUARD_RUN_FAST:-1}
 REQUIRE_FAST_TOOLS=${SECURITY_GUARD_REQUIRE_FAST_TOOLS:-0}
+RESOLVED_RUNNER=()
 
 log() {
   echo "[security-guard] $*"
@@ -20,27 +21,26 @@ fail() {
 resolve_runner() {
   local tool="$1"
   if command -v "$tool" >/dev/null 2>&1; then
-    printf '%s\0' "$tool"
+    RESOLVED_RUNNER=("$tool")
     return 0
   fi
   if command -v uvx >/dev/null 2>&1; then
-    printf '%s\0' "uvx" "$tool"
+    RESOLVED_RUNNER=("uvx" "$tool")
     return 0
   fi
   if command -v uv >/dev/null 2>&1; then
-    printf '%s\0' "uv" "tool" "run" "$tool"
+    RESOLVED_RUNNER=("uv" "tool" "run" "$tool")
     return 0
   fi
   return 1
 }
 
 run_ggshield() {
-  local runner
   local -a runner_args
-  if ! runner="$(resolve_runner "ggshield")"; then
+  if ! resolve_runner "ggshield"; then
     fail "ggshield is required. Install via pipx install ggshield or uv tool install ggshield"
   fi
-  read -r -d '' -a runner_args <<< "$runner"
+  runner_args=("${RESOLVED_RUNNER[@]}")
   log "running mandatory secret scan"
   "${runner_args[@]}" secret scan pre-commit
 }
@@ -51,7 +51,8 @@ run_fast_optional_checks() {
     return 0
   fi
 
-  local files cmd runner
+  local files
+  local filtered
   local -a cmd_args
   files="$(git diff --cached --name-only --diff-filter=ACM || true)"
   if [ -z "$files" ]; then
@@ -62,19 +63,22 @@ run_fast_optional_checks() {
     return 0
   fi
 
-  if ! runner="$(resolve_runner "codespell")"; then
+  if ! resolve_runner "codespell"; then
     if [ "$REQUIRE_FAST_TOOLS" -eq 1 ]; then
       fail "optional fast check tool missing: codespell"
     fi
     log "codespell not found; skipping optional fast check"
     return 0
   fi
-  read -r -d '' -a cmd_args <<< "$runner"
+  cmd_args=("${RESOLVED_RUNNER[@]}")
 
   log "running optional FAST checks (codespell)"
-  echo "$files" \
-    | grep -E '\.(md|txt|py|ts|tsx|js|go|rs|kt|java|yaml|yml)$' \
-    | xargs -r "${cmd_args[@]}" -q 2 -L "hte,teh"
+  filtered="$(printf '%s\n' "$files" | grep -E '\.(md|txt|py|ts|tsx|js|go|rs|kt|java|yaml|yml)$' || true)"
+  if [ -z "$filtered" ]; then
+    log "no FAST-check eligible files found"
+    return 0
+  fi
+  printf '%s\n' "$filtered" | xargs -r "${cmd_args[@]}" -q 2 -L "hte,teh"
 }
 
 append_precommit_block() {
