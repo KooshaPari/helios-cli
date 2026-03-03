@@ -3,11 +3,14 @@
   "private": true,
   "description": "Tools for repo-wide maintenance.",
   "scripts": {
-    "format": "prettier --check *.json *.md docs/*.md .github/workflows/*.yml **/*.js",
-    "format:fix": "prettier --write *.json *.md docs/*.md .github/workflows/*.yml **/*.js"
+    "lint": "oxlint .",
+    "format": "oxfmt --check *.json *.md docs/*.md .github/workflows/*.yml **/*.js",
+    "format:fix": "oxfmt --write *.json *.md docs/*.md .github/workflows/*.yml **/*.js"
   },
   "devDependencies": {
-    "prettier": "^3.5.3"
+    "oxfmt": "^0.35.0",
+    "oxlint": "^1.50.0",
+    "tsgolint": "^0.0.1"
   },
   "resolutions": {
     "braces": "^3.0.3",

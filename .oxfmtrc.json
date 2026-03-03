@@ -1,0 +1,18 @@
+{
+  "printWidth": 100,
+  "tabWidth": 2,
+  "ignorePatterns": [
+    "codex-cli/dist",
+    "codex-cli/node_modules",
+    "node_modules",
+    "**/node_modules/**",
+    "dist",
+    "**/dist/**",
+    "coverage",
+    "**/coverage/**",
+    "pnpm-lock.yaml",
+    "prompt.md",
+    "*_prompt.md",
+    "*_instructions.md"
+  ]
+}
