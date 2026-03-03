@@ -2,8 +2,8 @@
 
 **Feature**: 002-phenotype-modular-arch
 **Generated**: 2026-03-03
-**Total Subtasks**: 68 | **Work Packages**: 22
-**Revised**: 2026-03-03 (library leverage research + codebase quality analysis)
+**Total Subtasks**: 85 | **Work Packages**: 28
+**Revised**: 2026-03-03 (library leverage research + codebase quality analysis + prior session gap recovery)
 
 ---
 
@@ -79,6 +79,23 @@
 | T066 | heliosApp: Test audit subsystem (2,577L, 0 tests) | L4 | [P] | WP22 |
 | T067 | heliosApp: Test protocol bus (805L) + critical runtime modules | L4 | [P] | WP22 |
 | T068 | agentapi++: Remove inner directory duplication (~8K LOC) | L6 | — | WP22 |
+| T069 | heliosCLI: Define HttpPort, StatePort, SecretsPort, SandboxPort traits | L2 | [P] | WP23 |
+| T070 | cliproxy++: HTTPClient, ConfigProvider, ThinkingBehavior port interfaces | L2 | [P] | WP23 |
+| T071 | thegent+portage+trace: httpx routing, ProcessExecutionPort, CloudProviderPort, repository layer | L2 | [P] | WP23 |
+| T072 | heliosCLI: Decompose main.rs (1,485L), archive perf-results, connector dedup | L1 | [P] | WP24 |
+| T073 | cliproxy++: Delete dup executor dir, split service.go; thegent namespace reorg | L3 | [P] | WP24 |
+| T074 | trace: NATS debug consolidation, lint artifacts; portage: terminus_2 decomp; heliosApp: boundary docs | L4 | [P] | WP24 |
+| T075 | Go shared extractions: screentracker, msgfmt, termexec, llm-auth, codeindex | L2 | [P] | WP25 |
+| T076 | Python shared extractions: jsonrpc-agent-server, agent-orchestration, audit-trail, terminus2, eval-viewer, harbor-registry | L3 | [P] | WP25 |
+| T077 | TS shared extractions: shell-tool-mcp, provider-registry, agent-protocol-bridge, embeddings, graph | L4 | [P] | WP25 |
+| T078 | Define shared PTY protocol format, align Go+Python implementations | L2 | — | WP26 |
+| T079 | Publish phenotype-py-cliproxy SDK + define cross-language PolicyPort | L3 | — | WP26 |
+| T080 | Designate canonical routing implementation, reduce non-canonical to thin client | L2 | — | WP26 |
+| T081 | Alias map CI check + upstream-diff.sh drift tracking script | L1 | [P] | WP27 |
+| T082 | Create Tauri 2.0 evaluation ADR with migration assessment | L1 | — | WP27 |
+| T083 | agentapi++ phenotype boundary completion + trace plugin registry | L6 | [P] | WP28 |
+| T084 | heliosApp sessions/ + workspace/ service separation | L4 | — | WP28 |
+| T085 | thegent PolicyEngine port + portage LiteLLM shared proxy migration + environments extraction | L3 | [P] | WP28 |
 
 ---
 
@@ -296,29 +313,91 @@ Split kiro_executor.go (4,691L), delete dead internal/auth/ (~600L), split remai
 
 Test audit subsystem (2,577L, 0 tests), test protocol bus (805L), remove agentapi++ inner directory duplication (~8K LOC).
 
+### Phase 2-3 Additions (Prior Session Gap Recovery)
+
+#### WP23 — Hexagonal Architecture Enforcement (Cross-Repo)
+- **Priority**: P1
+- **Subtasks**: T069, T070, T071 (3 tasks)
+- **Dependencies**: WP06, WP09
+- **Estimated prompt**: ~500 lines
+- **Implementation**: `spec-kitty implement WP23 --base WP06,WP09`
+
+Introduce hexagonal port/adapter boundaries across all repos: HttpPort, StatePort, SecretsPort, SandboxPort (heliosCLI); HTTPClient, ConfigProvider, ThinkingBehavior (cliproxy++); httpx routing, ProcessExecutionPort, CloudProviderPort, repository layer (thegent, portage, trace).
+
+#### WP24 — KISS Simplification Pass (Cross-Repo)
+- **Priority**: P1
+- **Subtasks**: T072, T073, T074 (3 tasks)
+- **Dependencies**: None
+- **Estimated prompt**: ~500 lines
+- **Implementation**: `spec-kitty implement WP24`
+
+Decompose god modules (main.rs 1,485L, service.go 1,724L), archive committed artifacts (perf-results, lint), delete duplicate directories (cliproxy executor dirs), reorganize thegent namespace (150+ flat entries), resolve naming collisions (govern/governance), document heliosApp boundaries.
+
+#### WP25 — Shared Package Extraction Phase 2 (Polyrepo)
+- **Priority**: P2
+- **Subtasks**: T075, T076, T077 (3 tasks)
+- **Dependencies**: WP02, WP09, WP11
+- **Estimated prompt**: ~500 lines
+- **Implementation**: `spec-kitty implement WP25 --base WP02,WP09,WP11`
+
+Extract 15 additional shared packages: Go (screentracker, msgfmt, termexec, llm-auth, codeindex), Python (jsonrpc-agent-server, agent-orchestration, audit-trail, terminus2-harness, eval-viewer, harbor-registry), TS (shell-tool-mcp, provider-registry, agent-protocol-bridge, embeddings/graph services).
+
+#### WP26 — Polyglot Alignment + Cross-Language Protocol
+- **Priority**: P2
+- **Subtasks**: T078, T079, T080 (3 tasks)
+- **Dependencies**: WP01, WP07, WP09
+- **Estimated prompt**: ~400 lines
+- **Implementation**: `spec-kitty implement WP26 --base WP01,WP07,WP09`
+
+Align cross-language duplications: shared PTY protocol (Go/Python), publish phenotype-py-cliproxy SDK, define cross-language PolicyPort for governance, designate canonical routing implementation.
+
+#### WP27 — Fork Hardening + Upstream Sync Tooling (heliosCLI)
+- **Priority**: P1
+- **Subtasks**: T081, T082 (2 tasks)
+- **Dependencies**: WP03, WP17
+- **Estimated prompt**: ~300 lines
+- **Implementation**: `spec-kitty implement WP27 --base WP03,WP17`
+
+Add CI-enforced alias map validation, automated upstream diff tracking (code-level drift metrics), and Tauri 2.0 evaluation ADR with migration assessment.
+
+#### WP28 — Architectural Stub Completion + Service Boundaries
+- **Priority**: P2
+- **Subtasks**: T083, T084, T085 (3 tasks)
+- **Dependencies**: WP09, WP11, WP14, WP16
+- **Estimated prompt**: ~500 lines
+- **Implementation**: `spec-kitty implement WP28 --base WP09,WP11,WP14,WP16`
+
+Complete agentapi++ phenotype boundary stub, implement trace plugin registry, separate heliosApp sessions/workspace services, refactor thegent governance behind PolicyEngine port, migrate portage LiteLLM to shared proxy, extract portage environments as entry_points plugin.
+
 ---
 
 ## Dependency DAG
 
 ```
 WP01 ──────────────────────────────▶ WP12 ──▶ WP15
+WP01 ──▶ WP26
 WP02 ──▶ WP04, WP07, WP10, WP11 ──────────▶ WP15
+WP02 ──▶ WP25
 WP03 ──▶ WP04, WP05, WP17, WP18
-WP06 ──▶ WP08, WP21
+WP03 ──▶ WP27
+WP06 ──▶ WP08, WP21, WP23
+WP07 ──▶ WP14, WP26
 WP09 ──▶ WP10 ──▶ WP13
-WP09 ──▶ WP19
-WP07 ──▶ WP14
-WP11 ──▶ WP22
-WP16, WP20 (no deps)
+WP09 ──▶ WP19, WP23, WP25, WP26, WP28
+WP11 ──▶ WP22, WP25, WP28
+WP14 ──▶ WP28
+WP16 ──▶ WP28
+WP17 ──▶ WP27
+WP16, WP20, WP24 (no deps)
 ```
 
 ## Parallelization Opportunities
 
-**Batch A** (no deps, fully parallel): WP01, WP02, WP03, WP06, WP09, WP16, WP20
-**Batch B** (after Batch A): WP04, WP05, WP07, WP08, WP10, WP11, WP12, WP17, WP18, WP19, WP21
-**Batch C** (after Batch B): WP13, WP14, WP15, WP22
+**Batch A** (no deps, fully parallel): WP01, WP02, WP03, WP06, WP09, WP16, WP20, WP24
+**Batch B** (after Batch A): WP04, WP05, WP07, WP08, WP10, WP11, WP12, WP17, WP18, WP19, WP21, WP23, WP25, WP26, WP27
+**Batch C** (after Batch B): WP13, WP14, WP15, WP22, WP28
 
-**Maximum parallelism**: 7 agents in Batch A, 11 in Batch B, 4 in Batch C.
+**Maximum parallelism**: 8 agents in Batch A, 15 in Batch B, 5 in Batch C.
 
 ## MVP Scope
 
