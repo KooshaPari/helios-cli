@@ -19,6 +19,7 @@ use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
 use codex_protocol::protocol::WarningEvent;
 use codex_protocol::user_input::UserInput;
+use codex_test_macros::large_stack_test;
 use core_test_support::responses::ResponseMock;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -26,6 +27,7 @@ use core_test_support::responses::mount_sse_once_match;
 use core_test_support::responses::sse;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use codex_test_macros::large_stack_test;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -291,7 +293,7 @@ async fn compact_resume_and_fork_preserve_model_history_view() {
     assert_eq!(requests.len(), 5);
 }
 
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[large_stack_test]
 /// Scenario: after the forked branch is compacted, resuming again should reuse
 /// the compacted history and only append the new user message.
 async fn compact_resume_after_second_compaction_preserves_history() {
