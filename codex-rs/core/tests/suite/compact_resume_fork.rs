@@ -27,7 +27,6 @@ use core_test_support::responses::mount_sse_once_match;
 use core_test_support::responses::sse;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
-use codex_test_macros::large_stack_test;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
