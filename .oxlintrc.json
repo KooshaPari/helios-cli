@@ -1,0 +1,23 @@
+{
+  "plugins": [],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "rules": {},
+  "settings": {},
+  "env": {
+    "builtin": true
+  },
+  "globals": {},
+  "ignorePatterns": [
+    "node_modules",
+    "**/node_modules/**",
+    "dist",
+    "**/dist/**",
+    "coverage",
+    "**/coverage/**",
+    "codex-cli/vendor",
+    "pnpm-lock.yaml"
+  ]
+}
