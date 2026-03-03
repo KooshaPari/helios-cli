@@ -352,5 +352,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh issue edit "${{ github.event.issue.number }}" --remove-label codex-deduplicate || true
+          if ! gh issue edit "${{ github.event.issue.number }}" --remove-label codex-deduplicate; then
+            echo "Warning: failed to remove codex-deduplicate label."
+          fi
           echo "Attempted to remove label: codex-deduplicate"

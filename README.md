@@ -1,3 +1,7 @@
+> [!NOTE]
+> Canonical repository slug for this fork is `kooshapari/helios-CLI`.  
+> Any legacy references without the hyphen should be treated as migration-source text.
+
 <p align="center"><code>npm i -g @openai/codex</code><br />or <code>brew install --cask codex</code></p>
 <p align="center"><strong>Codex CLI</strong> is a coding agent from OpenAI that runs locally on your computer.
 <p align="center">

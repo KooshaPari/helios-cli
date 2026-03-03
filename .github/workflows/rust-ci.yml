@@ -427,7 +427,10 @@ jobs:
       - name: sccache stats
         if: always() && env.USE_SCCACHE == 'true'
         continue-on-error: true
-        run: sccache --show-stats || true
+        run: |
+          if ! sccache --show-stats; then
+            echo "Warning: sccache stats unavailable."
+          fi
 
       - name: sccache summary
         if: always() && env.USE_SCCACHE == 'true'
@@ -437,7 +440,9 @@ jobs:
             echo "### sccache stats — ${{ matrix.target }} (${{ matrix.profile }})";
             echo;
             echo '```';
-            sccache --show-stats || true;
+            if ! sccache --show-stats; then
+              echo "(sccache stats unavailable)";
+            fi;
             echo '```';
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -634,7 +639,10 @@ jobs:
       - name: sccache stats
         if: always() && env.USE_SCCACHE == 'true'
         continue-on-error: true
-        run: sccache --show-stats || true
+        run: |
+          if ! sccache --show-stats; then
+            echo "Warning: sccache stats unavailable."
+          fi
 
       - name: sccache summary
         if: always() && env.USE_SCCACHE == 'true'
@@ -644,7 +652,9 @@ jobs:
             echo "### sccache stats — ${{ matrix.target }} (tests)";
             echo;
             echo '```';
-            sccache --show-stats || true;
+            if ! sccache --show-stats; then
+              echo "(sccache stats unavailable)";
+            fi;
             echo '```';
           } >> "$GITHUB_STEP_SUMMARY"
 

@@ -8,16 +8,16 @@ Forked from https://github.com/openai/codex for performance optimization and cus
 
 ```bash
 # Clone
-git clone https://github.com/openai/codex.git helios-cli
-cd helios-cli
+git clone https://github.com/kooshapari/helios-CLI.git helios-CLI
+cd helios-CLI
 
 # Add upstream for tracking
 git remote add upstream https://github.com/openai/codex.git
 
 # Verify remotes
 git remote -v
-# origin   https://github.com/openai/codex.git (fetch)
-# origin   https://github.com/openai/codex.git (push)
+# origin   https://github.com/kooshapari/helios-CLI.git (fetch)
+# origin   https://github.com/kooshapari/helios-CLI.git (push)
 # upstream https://github.com/openai/codex.git (fetch)
 ```
 

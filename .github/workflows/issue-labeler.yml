@@ -124,10 +124,14 @@ jobs:
             cmd+=(--add-label "$label")
           done <<< "$labels"
 
-          "${cmd[@]}" || true
+          if ! "${cmd[@]}"; then
+            echo "Warning: failed to apply one or more issue labels."
+          fi
 
       - name: Remove codex-label trigger
         if: ${{ always() && github.event.action == 'labeled' && github.event.label.name == 'codex-label' }}
         run: |
-          gh issue edit "$ISSUE_NUMBER" --remove-label codex-label || true
+          if ! gh issue edit "$ISSUE_NUMBER" --remove-label codex-label; then
+            echo "Warning: failed to remove codex-label trigger."
+          fi
           echo "Attempted to remove label: codex-label"
