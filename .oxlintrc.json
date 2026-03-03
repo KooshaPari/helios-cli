@@ -1,0 +1,25 @@
+{
+  "ignorePatterns": [
+    "node_modules/**",
+    "**/node_modules/**",
+    "dist/**",
+    "**/dist/**",
+    "build/**",
+    "out/**",
+    "coverage/**",
+    "**/coverage/**",
+    "bin/**",
+    ".pnpm-store/**",
+    ".turbo/**",
+    ".cache/**",
+    "bazel-*",
+    "codex-rs/**",
+    "codex-cli/dist/**",
+    "shell-tool-mcp/vendor/**",
+    ".kittify/**",
+    ".claude/**",
+    ".codex/**",
+    ".cursor/**",
+    ".gemini/**"
+  ]
+}
