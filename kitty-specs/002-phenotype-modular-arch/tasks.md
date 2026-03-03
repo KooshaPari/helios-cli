@@ -2,8 +2,8 @@
 
 **Feature**: 002-phenotype-modular-arch
 **Generated**: 2026-03-03
-**Total Subtasks**: 52 | **Work Packages**: 17
-**Revised**: 2026-03-03 (incorporated external library leverage research)
+**Total Subtasks**: 68 | **Work Packages**: 22
+**Revised**: 2026-03-03 (library leverage research + codebase quality analysis)
 
 ---
 
@@ -63,6 +63,22 @@
 | T050 | Replace custom Neo4j wrappers + optimize NATS JetStream | L2 | [P] | WP16 |
 | T051 | Extract thegent-* Rust crates to phenotype-rs-agents | L1 | — | WP17 |
 | T052 | Create upstream sync strategy + CI automation | L1 | — | WP17 |
+| T053 | Split top 4 god modules (codex.rs 9.6K, chat_composer 9.5K, etc.) | L1 | [P] | WP18 |
+| T054 | Eliminate 934 production `unwrap()` calls | L1 | [P] | WP18 |
+| T055 | Dead code audit (54 allow(dead_code), 100 TODOs) + connector dedup | L1 | [P] | WP18 |
+| T056 | Delete 469 duplicate files from src/thegent/ (~100K LOC) | L3 | — | WP19 |
+| T057 | Decompose run_impl_core (1,022L function) | L3 | — | WP19 |
+| T058 | Break 221-file circular dep surface (TYPE_CHECKING) | L3 | — | WP19 |
+| T059 | portage: Extract shared BaseAdapter (8 independent definitions) | L5 | [P] | WP20 |
+| T060 | portage: Split god functions (create_app 1,164L, jobs::start 856L) | L5 | [P] | WP20 |
+| T061 | trace: Split api/main.py (9,274L) + remove deprecated deps | L2 | [P] | WP20 |
+| T062 | trace: Clean 390 Python type suppressions | L2 | [P] | WP20 |
+| T063 | cliproxy: Split kiro_executor.go (4,691L) + antigravity (1,783L) | L2 | — | WP21 |
+| T064 | cliproxy: Delete dead internal/auth/ (~600 LOC) | L2 | — | WP21 |
+| T065 | cliproxy: Split remaining god functions (>200L) + config/service files | L2 | — | WP21 |
+| T066 | heliosApp: Test audit subsystem (2,577L, 0 tests) | L4 | [P] | WP22 |
+| T067 | heliosApp: Test protocol bus (805L) + critical runtime modules | L4 | [P] | WP22 |
+| T068 | agentapi++: Remove inner directory duplication (~8K LOC) | L6 | — | WP22 |
 
 ---
 
@@ -233,6 +249,53 @@ Adopt tree-sitter + scip-go (5-14K LOC saved), chromem-go (1-3K LOC), neo4j-go-d
 
 Extract ~20 thegent-* Rust crates to standalone phenotype-rs-agents workspace. Create upstream sync strategy + CI automation.
 
+### Quality-Driven WPs (from codebase analysis)
+
+#### WP18 — heliosCLI: God Module Decomposition + Safety
+- **Priority**: P1 (safety-critical: 934 unwrap() crash risks)
+- **Subtasks**: T053, T054, T055 (3 tasks)
+- **Dependencies**: WP03
+- **Estimated prompt**: ~450 lines
+- **Implementation**: `spec-kitty implement WP18 --base WP03`
+
+Split 4 god modules (codex.rs 9.6K, chat_composer 9.5K, codex_message_processor 8.5K, chatwidget 8.1K). Eliminate 934 production unwrap(). Audit 54 dead_code suppressions + 100 TODOs.
+
+#### WP19 — thegent: Migration Cleanup + God Function Decomposition
+- **Priority**: P0 (immediate ~100K LOC reduction from dup deletion)
+- **Subtasks**: T056, T057, T058 (3 tasks)
+- **Dependencies**: WP09
+- **Estimated prompt**: ~400 lines
+- **Implementation**: `spec-kitty implement WP19 --base WP09`
+
+Delete 469 duplicate files (~100K LOC). Decompose run_impl_core (1,022L function). Break 221-file circular dep surface.
+
+#### WP20 — portage + trace: Code Quality Remediation
+- **Priority**: P1
+- **Subtasks**: T059, T060, T061, T062 (4 tasks)
+- **Dependencies**: None
+- **Estimated prompt**: ~500 lines
+- **Implementation**: `spec-kitty implement WP20`
+
+portage: Extract shared BaseAdapter (8 dups), split god functions. trace: Split api/main.py (9,274L), remove deprecated deps, clean 390 type suppressions.
+
+#### WP21 — cliproxyapi++: God Module Split + Auth Consolidation
+- **Priority**: P1
+- **Subtasks**: T063, T064, T065 (3 tasks)
+- **Dependencies**: WP06
+- **Estimated prompt**: ~400 lines
+- **Implementation**: `spec-kitty implement WP21 --base WP06`
+
+Split kiro_executor.go (4,691L), delete dead internal/auth/ (~600L), split remaining god functions (>200L).
+
+#### WP22 — heliosApp: Critical Test Coverage + agentapi++ Dedup
+- **Priority**: P2
+- **Subtasks**: T066, T067, T068 (3 tasks)
+- **Dependencies**: WP11
+- **Estimated prompt**: ~400 lines
+- **Implementation**: `spec-kitty implement WP22 --base WP11`
+
+Test audit subsystem (2,577L, 0 tests), test protocol bus (805L), remove agentapi++ inner directory duplication (~8K LOC).
+
 ---
 
 ## Dependency DAG
@@ -240,23 +303,27 @@ Extract ~20 thegent-* Rust crates to standalone phenotype-rs-agents workspace. C
 ```
 WP01 ──────────────────────────────▶ WP12 ──▶ WP15
 WP02 ──▶ WP04, WP07, WP10, WP11 ──────────▶ WP15
-WP03 ──▶ WP04, WP05, WP17
-WP06 ──▶ WP08
+WP03 ──▶ WP04, WP05, WP17, WP18
+WP06 ──▶ WP08, WP21
 WP09 ──▶ WP10 ──▶ WP13
+WP09 ──▶ WP19
 WP07 ──▶ WP14
-WP16 (no deps)
+WP11 ──▶ WP22
+WP16, WP20 (no deps)
 ```
 
 ## Parallelization Opportunities
 
-**Batch A** (no deps, fully parallel): WP01, WP02, WP03, WP06, WP09, WP16
-**Batch B** (after Batch A): WP04, WP05, WP07, WP08, WP10, WP11, WP12, WP17
-**Batch C** (after Batch B): WP13, WP14, WP15
+**Batch A** (no deps, fully parallel): WP01, WP02, WP03, WP06, WP09, WP16, WP20
+**Batch B** (after Batch A): WP04, WP05, WP07, WP08, WP10, WP11, WP12, WP17, WP18, WP19, WP21
+**Batch C** (after Batch B): WP13, WP14, WP15, WP22
 
-**Maximum parallelism**: 6 agents in Batch A, 8 in Batch B, 3 in Batch C.
+**Maximum parallelism**: 7 agents in Batch A, 11 in Batch B, 4 in Batch C.
 
 ## MVP Scope
 
-**WP01 + WP03** are the highest-impact starting points:
-- WP01 unblocks the entire audit event integration across all repos
-- WP03 eliminates ~50 redundant crate definitions (biggest single LOC reduction)
+**WP19 + WP03 + WP20** are the highest-impact starting points:
+- WP19: Delete 469 thegent duplicate files (~100K LOC immediate reduction)
+- WP03: Eliminate ~50 redundant Rust crate definitions
+- WP20: Split the 2 worst god modules in ecosystem (api/main.py 9,274L, create_app 1,164L)
+- WP01: Unblocks audit event integration across all repos
