@@ -2,7 +2,7 @@
 work_package_id: WP15
 title: 'heliosApp: Aggregated Audit Trail View'
 lane: planned
-dependencies: []
+dependencies: [WP11]
 subtasks: [T039]
 history:
 - date: '2026-03-03'
@@ -20,27 +20,31 @@ Implement an aggregated audit trail view in heliosApp that consumes structured a
 
 ## Context
 
-- @helios/audit-core extracted in WP11 (Ledger, ReplayEngine, SQLiteStore)
+- @helios/audit-core extracted in WP11, now built on top of **Emmett** event store (see WP11 T034)
 - All repos emit AuditEvent per WP12
 - Events have correlation_id for cross-repo tracing
 - This is the read-side of the CQRS pattern
+- **With Emmett adoption**: the audit trail view should consume Emmett's projection and replay APIs directly rather than reimplementing custom read-model logic
 
 ## Subtasks
 
 ### T039: Aggregated audit trail view
 
+> **Emmett integration**: Use Emmett's projection engine and `readStream` / `readAll` APIs instead of custom ingestion and replay code. Emmett projections automatically maintain read models as events are appended, eliminating the need for manual SQLite read-side updates.
+
 **Steps**:
 1. Create audit trail ingestion:
    - Consume events from all repos (file-based, API, or event bus — start with file-based for MVP)
-   - Store in SQLiteStore via @helios/audit-core Ledger
+   - Append to Emmett event store via @helios/audit-core (which wraps Emmett)
+   - Define Emmett projections for: timeline read-model, per-repo aggregation, correlation trace
 2. Create UI component:
-   - Timeline view showing events chronologically
+   - Timeline view showing events chronologically (reads from Emmett projection)
    - Filter by repo, event type, correlation_id
    - Expand event details (payload, actor, timestamps)
    - Trace view: follow a correlation_id across repos to see full execution path
 3. Implement replay:
-   - Use ReplayEngine from audit-core to replay event sequences
-   - Show state at any point in time
+   - Use Emmett's `readStream` with time-range to replay event sequences
+   - Use Emmett inline snapshots for efficient state reconstruction at any point in time
 4. Wire into heliosApp navigation (new "Audit" tab/panel)
 
 **Files**:

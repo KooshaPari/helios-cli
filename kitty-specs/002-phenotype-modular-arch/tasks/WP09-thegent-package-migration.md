@@ -8,6 +8,9 @@ history:
   - date: "2026-03-03"
     event: "created"
     by: "spec-kitty.tasks"
+  - date: "2026-03-03"
+    event: "revised"
+    by: "external-library-leverage research integration"
 ---
 
 # WP09: thegent — Package Migration Completion
@@ -27,16 +30,22 @@ Complete thegent's partial migration from monolithic `src/thegent/` to `packages
 
 ## Subtasks
 
-### T024: Extract thegent-config
+### T024: Extract thegent-config (pydantic-settings adoption)
 
 **Steps**:
 1. Identify config files: `src/thegent/config.py`, `src/thegent/config_schema.py`, related
 2. Create `packages/thegent-config/`:
-   - `pyproject.toml` with package metadata
+   - `pyproject.toml` with package metadata; add `pydantic-settings` as dependency
    - `src/thegent_config/__init__.py` — re-exports
    - Move config schemas, validation, loading logic
-3. Update `src/thegent/` imports to use `thegent-config`
-4. Add to workspace `pyproject.toml`
+3. **Replace custom config loaders with `pydantic-settings`**: Convert config classes to `BaseSettings` subclasses with env/file/secrets sources. This eliminates custom YAML/env loading logic (~2-4K LOC saved).
+4. Update `src/thegent/` imports to use `thegent-config`
+5. Add to workspace `pyproject.toml`
+
+**Implementation guidance (library research)**:
+- `pydantic/pydantic-settings` is a Phase A drop-in (very low complexity, no risk).
+- Use `SettingsConfigDict` for env prefix, nested model support, and `.env` file loading.
+- Preserve existing config key names via `Field(alias=...)` for backward compatibility.
 
 **Validation**: `uv sync && pytest packages/thegent-config/`
 
@@ -53,25 +62,39 @@ Complete thegent's partial migration from monolithic `src/thegent/` to `packages
 
 **Validation**: `pytest packages/thegent-infra/` passes; no thegent-specific deps
 
-### T026: Extract thegent-governance
+### T026: Extract thegent-governance (OPA + Guardrails AI adoption)
 
 **Steps**:
 1. Identify: `src/thegent/governance/` (~13K LOC) — policy engine, HITL, escalation
 2. Create `packages/thegent-governance/`
 3. Move governance code; update imports
 4. May depend on thegent-core for domain types
+5. **OPA adoption**: Replace the custom policy engine with `open-policy-agent/opa` (sidecar or embedded). Define policies in Rego. This replaces custom RBAC, compliance, and policy evaluation logic (~4-7K LOC saved).
+6. **Guardrails AI adoption**: Integrate `guardrails-ai/guardrails` for semantic validation (output validation, firewall). This replaces custom semantic firewall and output validation code (~4-6K LOC saved).
+
+**Implementation guidance (library research)**:
+- OPA is Phase C (medium complexity): requires Rego DSL for policy definitions and a sidecar process or embedded Go library. Map existing policy rules to Rego before migration.
+- Guardrails AI is Phase C (medium complexity): Flask-based daemon for validation. Evaluate whether to run as sidecar or in-process.
+- Combined, these two libraries save ~8-13K LOC out of the 13K governance module — the extraction and library adoption should be coordinated.
+- Retain HITL and escalation logic as custom code; OPA and Guardrails handle policy evaluation and semantic validation respectively.
 
 **Validation**: `pytest packages/thegent-governance/`
 
-### T027: Merge thegent-protocols + thegent-mcp
+### T027: Merge thegent-protocols + thegent-mcp (official MCP SDK adoption)
 
 **Steps**:
 1. Audit overlap between `packages/thegent-protocols/` and `packages/thegent-mcp/`
 2. Merge into single `packages/thegent-mcp/`:
    - Combine protocol definitions with MCP implementation
    - Remove thegent-protocols package
-3. Update all imports from thegent-protocols → thegent-mcp
-4. Update workspace pyproject.toml
+3. **Replace custom MCP handler with `modelcontextprotocol/python-sdk`**: Swap hand-rolled MCP transport and protocol handling for the official SDK (~2-4K LOC saved). Use the SDK's transport, session, and tool-call primitives directly.
+4. Update all imports from thegent-protocols → thegent-mcp
+5. Update workspace pyproject.toml
+
+**Implementation guidance (library research)**:
+- `modelcontextprotocol/python-sdk` is Phase A (low-medium complexity, no major risk).
+- Note: v2 API changes expected Q1 2026 — pin to a stable release and track upstream.
+- The merge and SDK adoption can be done in one pass since both touch the same code.
 
 **Validation**: `pytest packages/thegent-mcp/` passes; no references to thegent-protocols remain
 

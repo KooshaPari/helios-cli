@@ -8,6 +8,10 @@ history:
   - date: "2026-03-03"
     event: "created"
     by: "spec-kitty.tasks"
+  - date: "2026-03-03"
+    event: "revised"
+    by: "agent"
+    note: "Incorporate external-library-leverage research: Bifrost for standard providers, retry-go, gobreaker, go-retryablehttp"
 ---
 
 # WP06: cliproxyapi++ — Executor Core Extraction
@@ -16,7 +20,9 @@ history:
 
 ## Objective
 
-Extract a shared `sdk/executor-core` package from cliproxyapi++ containing `ExecutorInterface`, `BaseExecutor`, and shared retry/HTTP/streaming helpers. Refactor all 15 executors to use the shared base.
+Define the `ExecutorInterface` port and integrate **maximhq/bifrost** as the primary adapter for all standard LLM providers. Bifrost replaces 9+ custom executors (OpenAI, Anthropic, Gemini, Bedrock, Azure, Cohere, Mistral, Groq, Ollama) with a single unified gateway at 11µs overhead. Keep thin custom executors only for providers Bifrost does not cover (Kiro, Copilot, Cursor). Adopt **avast/retry-go**, **sony/gobreaker**, and **hashicorp/go-retryablehttp** for resilience primitives.
+
+**Estimated LOC savings**: 25-40K (Bifrost) + 1-3K (retry-go) + 0.5-2K (gobreaker).
 
 ## Context
 
@@ -24,14 +30,20 @@ Extract a shared `sdk/executor-core` package from cliproxyapi++ containing `Exec
 - Each executor duplicates: retry logic, HTTP request construction, streaming response handling, error wrapping, timeout management
 - Code reduction phase already extracted `RefreshWithRetry` and `defaultHttpRequest` — build on that
 - See `kitty-specs/002-phenotype-modular-arch/research.md` Decision 5
+- **Library research**: `kitty-specs/002-phenotype-modular-arch/research/external-library-leverage.md` — Bifrost identified as top-1 leverage swap (25-40K LOC)
 
 ## Subtasks
 
-### T015: Extract sdk/executor-core
+### T015: Bifrost integration + ExecutorInterface port + resilience primitives
 
 **Steps**:
 1. Create `sdk/executor-core/` directory in cliproxyapi++
-2. Define `ExecutorInterface`:
+2. Add Go dependencies:
+   - `github.com/maximhq/bifrost` — unified LLM gateway
+   - `github.com/avast/retry-go/v4` — generic retry with backoff
+   - `github.com/sony/gobreaker` — circuit breaker
+   - `github.com/hashicorp/go-retryablehttp` — HTTP retry client
+3. Define `ExecutorInterface` as a hexagonal port:
    ```go
    type ExecutorInterface interface {
        Execute(ctx context.Context, req *ExecuteRequest) (*ExecuteResponse, error)
@@ -41,68 +53,77 @@ Extract a shared `sdk/executor-core` package from cliproxyapi++ containing `Exec
        Health() HealthStatus
    }
    ```
-3. Implement `BaseExecutor` struct with shared functionality:
-   - HTTP client with configurable timeout, retry policy
-   - Token refresh integration (uses authkit pattern)
-   - Streaming response parser (SSE, WebSocket, HTTP chunked)
-   - Error wrapping with provider context
-   - Request/response logging hooks
-4. Create `RetryPolicy` config:
-   ```go
-   type RetryPolicy struct {
-       MaxRetries    int
-       InitialDelay  time.Duration
-       MaxDelay      time.Duration
-       BackoffFactor float64
-       RetryableErrs []int // HTTP status codes
-   }
-   ```
-5. Create `go.mod` for `sdk/executor-core` (internal module, not yet extracted to separate repo)
-
-**Validation**: `go build ./sdk/executor-core/...` passes
-
-### T016: Refactor 15 executors to use executor-core
-
-**Steps**:
-1. For each executor (Claude, Codex, Gemini, Kiro, Copilot, GPT, Mistral, etc.):
-   - Embed `BaseExecutor` struct
-   - Remove duplicated retry/HTTP/streaming logic
-   - Override only provider-specific behavior (auth, request format, response parsing)
-2. Example refactored executor:
-   ```go
-   type ClaudeExecutor struct {
-       executorcore.BaseExecutor
-       apiKey string
-   }
-
-   func (e *ClaudeExecutor) Execute(ctx context.Context, req *ExecuteRequest) (*ExecuteResponse, error) {
-       httpReq := e.BuildRequest("POST", "https://api.anthropic.com/v1/messages", req.ToClaudeFormat())
-       return e.DoWithRetry(ctx, httpReq)
-   }
-   ```
-3. Update executor factory/registry to construct executors with BaseExecutor embedded
-4. Run full test suite after each executor migration (incremental, not big-bang)
+4. Implement `BifrostAdapter` wrapping Bifrost as the primary ExecutorInterface implementation:
+   - Configure Bifrost with provider credentials for: OpenAI, Anthropic, Gemini, Bedrock, Azure, Cohere, Mistral, Groq, Ollama
+   - Map `ExecuteRequest`/`ExecuteResponse` to/from Bifrost's unified request/response types
+   - Wire streaming through Bifrost's native streaming support
+   - Expose per-provider health via Bifrost's built-in provider health tracking
+5. Implement `ThinCustomExecutor` base for providers Bifrost does not cover (Kiro, Copilot, Cursor):
+   - Uses `go-retryablehttp` for HTTP transport with automatic retry
+   - Uses `retry-go` for non-HTTP retry loops (e.g., token refresh)
+   - Uses `gobreaker` for circuit breaking on repeated failures
+   - Minimal struct — only provider-specific request/response mapping
+6. Create `go.mod` for `sdk/executor-core` (internal module, not yet extracted to separate repo)
 
 **Validation**:
-- All 15 executors build and pass existing tests
+- `go build ./sdk/executor-core/...` passes
+- BifrostAdapter can initialize with at least one provider config
+- ThinCustomExecutor base compiles with retry-go + gobreaker wired in
+
+### T016: Migrate standard executors to Bifrost; keep Kiro/Copilot/Cursor as custom
+
+**Steps**:
+1. **Delete** the 9+ standard provider executor files (Claude, Codex/OpenAI, Gemini, Bedrock, Azure, Cohere, Mistral, Groq, Ollama) — Bifrost replaces them entirely
+2. Configure Bifrost provider settings from existing executor configs (API keys, endpoints, model lists)
+3. For each deleted executor, verify the BifrostAdapter produces equivalent request/response behavior:
+   - Same model name resolution
+   - Same streaming chunk format (or mapped to common StreamChunk)
+   - Same error codes and retry semantics
+4. Implement the 3 custom executors (Kiro, Copilot, Cursor) using `ThinCustomExecutor` base:
+   ```go
+   type KiroExecutor struct {
+       ThinCustomExecutor
+       sessionToken string
+   }
+
+   func (e *KiroExecutor) Execute(ctx context.Context, req *ExecuteRequest) (*ExecuteResponse, error) {
+       return retry.Do(func() (*ExecuteResponse, error) {
+           httpReq := e.BuildRequest("POST", kiroEndpoint, req.ToKiroFormat())
+           return e.DoRequest(ctx, httpReq)
+       }, retry.Attempts(3), retry.Delay(500*time.Millisecond))
+   }
+   ```
+5. Update executor factory/registry:
+   - Standard providers → single BifrostAdapter registration (one adapter, multiple provider names)
+   - Kiro, Copilot, Cursor → individual ThinCustomExecutor registrations
+6. Run full test suite after migration (incremental per-provider, not big-bang)
+
+**Validation**:
+- All provider routing works through BifrostAdapter or ThinCustomExecutor
 - No duplicated retry/HTTP/streaming code remains
-- Each executor file is significantly smaller
+- Custom executor files (Kiro, Copilot, Cursor) are each <200 LOC
+- Existing executor tests pass (adapted to new adapter surface)
 
 ## Definition of Done
 
-- [ ] `sdk/executor-core` package with ExecutorInterface, BaseExecutor, RetryPolicy
-- [ ] All 15 executors embed BaseExecutor
+- [ ] `sdk/executor-core` package with ExecutorInterface port, BifrostAdapter, ThinCustomExecutor base
+- [ ] Bifrost handles 9+ standard providers (OpenAI, Anthropic, Gemini, Bedrock, Azure, Cohere, Mistral, Groq, Ollama)
+- [ ] Only Kiro, Copilot, Cursor remain as thin custom executors
+- [ ] `avast/retry-go`, `sony/gobreaker`, `hashicorp/go-retryablehttp` wired into custom executor base
 - [ ] No duplicated retry/HTTP/streaming patterns across executors
-- [ ] All existing executor tests pass
+- [ ] All existing executor tests pass (adapted)
 - [ ] `go build ./...` and `go test ./...` pass
 
 ## Risks
 
-- **Provider-specific edge cases**: Some executors may have unique retry or streaming needs that don't fit BaseExecutor. Allow per-executor overrides.
-- **Test coverage**: Ensure executor tests still exercise the same code paths through the new base.
+- **Bifrost provider coverage gaps**: If Bifrost drops support for a provider or has bugs, we may need to temporarily add a custom executor. Monitor Bifrost releases.
+- **Bifrost streaming fidelity**: Verify that Bifrost's streaming output matches the exact chunk format executors previously emitted. May need a thin mapping layer.
+- **Kiro/Copilot/Cursor edge cases**: These providers have non-standard APIs; the ThinCustomExecutor base must be flexible enough for their auth and streaming patterns.
+- **go-retryablehttp license**: MPL-2.0 — confirm license compatibility before adoption.
 
 ## Reviewer Guidance
 
-- Check each executor's refactoring preserves its specific behavior
-- Verify BaseExecutor is not over-abstracted — it should handle common cases, not force uncommon patterns
-- Confirm no executor test was deleted or weakened during migration
+- Verify Bifrost configuration covers all previously-supported models per provider
+- Check that BifrostAdapter streaming produces the same StreamChunk shape as old executors
+- Confirm custom executors (Kiro, Copilot, Cursor) use retry-go and gobreaker correctly
+- Ensure no executor test was deleted or weakened during migration — adapted tests must cover the same behavior

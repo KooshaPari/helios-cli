@@ -23,10 +23,17 @@ Implement the two-tier plugin architecture for heliosCLI tools. Tier 1: compile-
 - heliosCLI already has `DynamicToolSpec` as an ad-hoc extension point
 - See `docs/governance/plugin_architecture_governance.md` for the two-tier microkernel decision
 - Tier 1 is the primary mechanism for built-in tools; Tier 2 is for user/third-party extensions
+- **Library leverage (from research/external-library-leverage.md)**:
+  - **0xPlaygrounds/rig** provides trait-based provider abstraction that can replace `thegent-router`, `thegent-runtime`, and provider crates (2-4.5K LOC saved). Rig's agent/tool registration model complements the ToolPlugin system — rig handles provider routing while ToolPlugin handles tool extension.
+  - **rmcp 0.16** `#[tool]` proc-macros eliminate MCP schema boilerplate (200-500 LOC saved). This is a drop-in version bump from rmcp 0.15 already in use.
 
 ## Subtasks
 
 ### T012: Tier 1 — ToolPlugin trait + inventory registration
+
+> **Quick win**: Upgrade rmcp from 0.15 → 0.16 as a prerequisite. The `#[tool]` proc-macros in 0.16 auto-generate MCP tool schema from Rust doc comments + types, eliminating 200-500 LOC of hand-written `ToolSpec` JSON. This is a version bump with no architectural change.
+
+> **Rig adoption note**: Evaluate `0xPlaygrounds/rig` for provider-level abstraction alongside the ToolPlugin trait. Rig's `Agent` + `Tool` traits can sit above ToolPlugin — rig routes to providers and orchestrates agent loops, while ToolPlugin defines the tool extension contract. If adopted, `thegent-router` and `thegent-runtime` crates can be replaced (2-4.5K LOC). Rig is pre-1.0; pin to an exact version.
 
 **Steps**:
 1. Add `inventory` crate to workspace dependencies

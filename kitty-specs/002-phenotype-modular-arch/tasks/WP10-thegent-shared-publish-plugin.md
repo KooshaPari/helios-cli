@@ -8,6 +8,9 @@ history:
 - date: '2026-03-03'
   event: created
   by: spec-kitty.tasks
+- date: '2026-03-03'
+  event: revised
+  by: external-library-leverage research integration
 ---
 
 # WP10: thegent — Shared Publish + Plugin System + Re-export Layer
@@ -27,20 +30,25 @@ Publish thegent-infra internals to `phenotype-py-infra` shared repo. Formalize t
 
 ## Subtasks
 
-### T028: Publish to phenotype-py-infra
+### T028: Publish to phenotype-py-infra (+ shared LiteLLM proxy)
 
 **Steps**:
 1. Copy thegent-infra source to `phenotype-py-infra/src/phenotype_py_infra/`
 2. Set up pyproject.toml with proper metadata, version 0.1.0
 3. In thegent, replace local thegent-infra with `phenotype-py-infra` dependency
 4. In portage (future, WP13), will also consume this
+5. **Shared LiteLLM proxy**: Configure `BerriAI/litellm` in proxy mode as a shared gateway for both thegent and portage. This eliminates ~1.7K LOC of duplicate LiteLLM wrappers (1K thegent + 700 portage). Include proxy config and client helpers in phenotype-py-infra.
+
+**Implementation guidance (library research)**:
+- LiteLLM proxy is Phase A (very low complexity, config change only).
+- Run as a shared sidecar; both thegent and portage point to the same proxy endpoint.
 
 **Validation**: `uv pip install -e ./phenotype-py-infra && pytest`
 
-### T029: Formalize AdapterPort pattern
+### T029: Formalize AdapterPort pattern (PydanticAI agent definitions)
 
 **Steps**:
-1. Define `AdapterPort` as a `typing.Protocol`:
+1. Define `AdapterPort` as a `typing.Protocol`, aligning with PydanticAI's agent model:
    ```python
    class AdapterPort(Protocol):
        def name(self) -> str: ...
@@ -48,8 +56,14 @@ Publish thegent-infra internals to `phenotype-py-infra` shared repo. Formalize t
        def execute(self, request: AdapterRequest) -> AdapterResponse: ...
        def health(self) -> HealthStatus: ...
    ```
-2. Audit all existing adapters in thegent-agents; ensure they conform
-3. Add type checking enforcement (pyright/mypy strict mode on adapter modules)
+2. **Adopt `pydantic/pydantic-ai`**: Replace custom agent classes, tool registration, and OTel wiring with PydanticAI's `Agent` definitions, tool decorators, and built-in observability (~5-8K LOC saved). Use PydanticAI agents as the implementation behind AdapterPort where applicable.
+3. Audit all existing adapters in thegent-agents; ensure they conform to AdapterPort (backed by PydanticAI where appropriate)
+4. Add type checking enforcement (pyright/mypy strict mode on adapter modules)
+
+**Implementation guidance (library research)**:
+- `pydantic/pydantic-ai` is Phase B (medium complexity). Note: v0.x API — pin version and track upstream.
+- PydanticAI provides: agent class definitions, typed tool registration via decorators, structured output validation, and OpenTelemetry integration out of the box.
+- AdapterPort remains the contract; PydanticAI is the implementation backbone for agent-type adapters.
 
 **Validation**: All adapters pass type checking against AdapterPort
 
@@ -94,6 +108,11 @@ Publish thegent-infra internals to `phenotype-py-infra` shared repo. Formalize t
 3. Add deprecation warnings for direct `src/thegent/` imports if desired
 
 **Validation**: `from thegent import X` works for all public APIs; `src/thegent/` has minimal code
+
+## Library Adoption Notes (from external-library-leverage research)
+
+- **temporalio/sdk-python**: The hierarchical dispatcher + Redis locks + scheduler in thegent should be replaced with Temporal durable workflows (~6-10K LOC saved). This is Phase C (high complexity, requires Temporal server). Temporal adoption is out of scope for WP10 but should be planned as a follow-on; the plugin system and AdapterPort formalized here should be designed to work with Temporal-based orchestration.
+- **Textualize/textual**: Optional TUI replacement (~1-8K LOC saved). Phase B, v0.x asyncio-only. Not blocking for WP10 but worth evaluating for thegent-cli.
 
 ## Definition of Done
 
