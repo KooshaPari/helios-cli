@@ -38,8 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           # Use a rust-release version that includes all native binaries.
-          # This step is expected to fail in forks without upstream release artifacts.
-          CODEX_VERSION=0.74.0
+          CODEX_VERSION=0.107.0
           OUTPUT_DIR="${RUNNER_TEMP}"
           python3 ./scripts/stage_npm_packages.py \
             --release-version "$CODEX_VERSION" \
