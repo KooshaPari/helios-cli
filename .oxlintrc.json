@@ -1,0 +1,23 @@
+{
+  "ignorePatterns": [
+    "node_modules/**",
+    ".pnpm-store/**",
+    "dist/**",
+    "build/**",
+    "out/**",
+    "storybook-static/**",
+    ".cache/**",
+    ".turbo/**",
+    ".parcel-cache/**",
+    ".nyc_output/**",
+    ".jest/**",
+    "coverage/**",
+    "bazel-*/**",
+    "codex-cli/dist/**",
+    "codex-cli/node_modules/**",
+    "sdk/typescript/dist/**",
+    "sdk/typescript/node_modules/**",
+    "shell-tool-mcp/dist/**",
+    "shell-tool-mcp/node_modules/**"
+  ]
+}
