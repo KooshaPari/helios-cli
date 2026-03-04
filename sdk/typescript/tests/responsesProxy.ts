@@ -58,7 +58,7 @@ export type RecordedRequest = {
 };
 
 function formatSseEvent(event: SseEvent): string {
-  return `event: ${event.type}\n` + `data: ${JSON.stringify(event)}\n\n`;
+  return `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`;
 }
 
 export async function startResponsesTestProxy(

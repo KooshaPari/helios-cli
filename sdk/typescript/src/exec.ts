@@ -259,27 +259,27 @@ function flattenConfigOverrides(
     if (child === undefined) {
       continue;
     }
-    const path = prefix ? `${prefix}.${key}` : key;
+    const fieldPath = prefix ? `${prefix}.${key}` : key;
     if (isPlainObject(child)) {
-      flattenConfigOverrides(child, path, overrides);
+      flattenConfigOverrides(child, fieldPath, overrides);
     } else {
-      overrides.push(`${path}=${toTomlValue(child, path)}`);
+      overrides.push(`${fieldPath}=${toTomlValue(child, fieldPath)}`);
     }
   }
 }
 
-function toTomlValue(value: CodexConfigValue, path: string): string {
+function toTomlValue(value: CodexConfigValue, valuePath: string): string {
   if (typeof value === "string") {
     return JSON.stringify(value);
   } else if (typeof value === "number") {
     if (!Number.isFinite(value)) {
-      throw new Error(`Codex config override at ${path} must be a finite number`);
+      throw new Error(`Codex config override at ${valuePath} must be a finite number`);
     }
     return `${value}`;
   } else if (typeof value === "boolean") {
     return value ? "true" : "false";
   } else if (Array.isArray(value)) {
-    const rendered = value.map((item, index) => toTomlValue(item, `${path}[${index}]`));
+    const rendered = value.map((item, index) => toTomlValue(item, `${valuePath}[${index}]`));
     return `[${rendered.join(", ")}]`;
   } else if (isPlainObject(value)) {
     const parts: string[] = [];
@@ -290,14 +290,14 @@ function toTomlValue(value: CodexConfigValue, path: string): string {
       if (child === undefined) {
         continue;
       }
-      parts.push(`${formatTomlKey(key)} = ${toTomlValue(child, `${path}.${key}`)}`);
+      parts.push(`${formatTomlKey(key)} = ${toTomlValue(child, `${valuePath}.${key}`)}`);
     }
     return `{${parts.join(", ")}}`;
   } else if (value === null) {
-    throw new Error(`Codex config override at ${path} cannot be null`);
+    throw new Error(`Codex config override at ${valuePath} cannot be null`);
   } else {
     const typeName = typeof value;
-    throw new Error(`Unsupported Codex config override value at ${path}: ${typeName}`);
+    throw new Error(`Unsupported Codex config override value at ${valuePath}: ${typeName}`);
   }
 }
 
