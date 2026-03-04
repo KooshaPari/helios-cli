@@ -110,6 +110,19 @@ jobs:
         run: |
           set -o pipefail
 
+          if [[ "${RUNNER_OS:-}" == "macOS" ]]; then
+            for candidate in \
+              "/opt/homebrew/opt/llvm/lib" \
+              "/usr/local/opt/llvm/lib" \
+              "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib" \
+              "/Library/Developer/CommandLineTools/usr/lib"; do
+              if [[ -f "${candidate}/libclang.dylib" ]]; then
+                export LIBCLANG_PATH="${candidate}"
+                break
+              fi
+            done
+          fi
+
           bazel_console_log="$(mktemp)"
 
           print_failed_bazel_test_logs() {

@@ -5,7 +5,7 @@ import { stdin as input, stdout as output } from "node:process";
 
 import { Codex } from "@openai/codex-sdk";
 import type { ThreadEvent, ThreadItem } from "@openai/codex-sdk";
-import { codexPathOverride } from "./helpers.ts";
+import { codexPathOverride } from "./helpers";
 
 const codex = new Codex({ codexPathOverride: codexPathOverride() });
 const thread = codex.startThread();
