@@ -7,10 +7,7 @@ function supportedDetail(variants: ReadonlyArray<{ name: string }>): string {
   return `Supported variants: ${variants.map((variant) => variant.name).join(", ")}`;
 }
 
-export function selectLinuxBash(
-  bashRoot: string,
-  info: OsReleaseInfo,
-): BashSelection {
+export function selectLinuxBash(bashRoot: string, info: OsReleaseInfo): BashSelection {
   const versionId = info.versionId;
   const candidates: Array<{
     variant: (typeof LINUX_BASH_VARIANTS)[number];
@@ -18,24 +15,19 @@ export function selectLinuxBash(
   }> = [];
   for (const variant of LINUX_BASH_VARIANTS) {
     const matchesId =
-      variant.ids.includes(info.id) ||
-      variant.ids.some((id) => info.idLike.includes(id));
+      variant.ids.includes(info.id) || variant.ids.some((id) => info.idLike.includes(id));
     if (!matchesId) {
       continue;
     }
     const matchesVersion = Boolean(
-      versionId &&
-        variant.versions.some((prefix) => versionId.startsWith(prefix)),
+      versionId && variant.versions.some((prefix) => versionId.startsWith(prefix)),
     );
     candidates.push({ variant, matchesVersion });
   }
 
-  const pickVariant = (list: typeof candidates) =>
-    list.find((item) => item.variant)?.variant;
+  const pickVariant = (list: typeof candidates) => list.find((item) => item.variant)?.variant;
 
-  const preferred = pickVariant(
-    candidates.filter((item) => item.matchesVersion),
-  );
+  const preferred = pickVariant(candidates.filter((item) => item.matchesVersion));
   if (preferred) {
     return {
       path: path.join(bashRoot, preferred.name, "bash"),
@@ -65,14 +57,9 @@ export function selectLinuxBash(
   );
 }
 
-export function selectDarwinBash(
-  bashRoot: string,
-  darwinRelease: string,
-): BashSelection {
+export function selectDarwinBash(bashRoot: string, darwinRelease: string): BashSelection {
   const darwinMajor = Number.parseInt(darwinRelease.split(".")[0] || "0", 10);
-  const preferred = DARWIN_BASH_VARIANTS.find(
-    (variant) => darwinMajor >= variant.minDarwin,
-  );
+  const preferred = DARWIN_BASH_VARIANTS.find((variant) => darwinMajor >= variant.minDarwin);
   if (preferred) {
     return {
       path: path.join(bashRoot, preferred.name, "bash"),
@@ -89,9 +76,7 @@ export function selectDarwinBash(
   }
 
   const detail = supportedDetail(DARWIN_BASH_VARIANTS);
-  throw new Error(
-    `Unable to select a macOS Bash build (darwin ${darwinMajor}). ${detail}`,
-  );
+  throw new Error(`Unable to select a macOS Bash build (darwin ${darwinMajor}). ${detail}`);
 }
 
 export function resolveBashPath(
