@@ -239,6 +239,9 @@ impl<S: EventSource + Default + Unpin> TuiEventStream<S> {
             Event::Key(key_event) => {
                 #[cfg(unix)]
                 if crate::tui::job_control::is_suspend_key(key_event) {
+                    if cfg!(test) {
+                        return Some(TuiEvent::Draw);
+                    }
                     let _ = self.suspend_context.suspend(&self.alt_screen_active);
                     return Some(TuiEvent::Draw);
                 }

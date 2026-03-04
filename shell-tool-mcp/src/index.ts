@@ -12,12 +12,7 @@ async function main(): Promise<void> {
   const targetRoot = path.join(vendorRoot, targetTriple);
 
   const osInfo = process.platform === "linux" ? readOsRelease() : null;
-  const { path: bashPath } = resolveBashPath(
-    targetRoot,
-    process.platform,
-    os.release(),
-    osInfo,
-  );
+  const { path: bashPath } = resolveBashPath(targetRoot, process.platform, os.release(), osInfo);
 
   console.log(`Platform Bash is: ${bashPath}`);
 }
