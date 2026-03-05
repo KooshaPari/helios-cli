@@ -1,7 +1,4 @@
-export function resolveTargetTriple(
-  platform: NodeJS.Platform,
-  arch: NodeJS.Architecture,
-): string {
+export function resolveTargetTriple(platform: NodeJS.Platform, arch: NodeJS.Architecture): string {
   if (platform === "linux") {
     if (arch === "x64") {
       return "x86_64-unknown-linux-musl";
