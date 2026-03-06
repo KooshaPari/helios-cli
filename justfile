@@ -107,3 +107,12 @@ surface-fmt:
 
 surface-quality:
     bash ../scripts/task_surface.sh quality
+
+patch-superset-inventory:
+    python3 ../scripts/patch_superset.py inventory
+
+patch-superset-check:
+    python3 ../scripts/patch_superset.py check
+
+patch-superset-compare-secondary *args:
+    python3 ../scripts/patch_superset.py compare-secondary "$@"
