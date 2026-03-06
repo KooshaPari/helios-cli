@@ -85,3 +85,12 @@ write-app-server-schema *args:
 # Tail logs from the state SQLite database
 log *args:
     if [ "${1:-}" = "--" ]; then shift; fi; cargo run -p codex-state --bin logs_client -- "$@"
+
+patch-superset-inventory:
+    python3 ../scripts/patch_superset.py inventory
+
+patch-superset-check:
+    python3 ../scripts/patch_superset.py check
+
+patch-superset-compare-secondary *args:
+    python3 ../scripts/patch_superset.py compare-secondary "$@"
