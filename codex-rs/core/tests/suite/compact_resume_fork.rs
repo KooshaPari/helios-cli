@@ -378,7 +378,10 @@ async fn compact_resume_after_second_compaction_preserves_history() {
         vec!["AFTER_FORK".to_string(), summary_after_second_compact];
     expected_after_second_compact_user_texts.extend_from_slice(seeded_user_prefix);
     expected_after_second_compact_user_texts.push("AFTER_COMPACT_2".to_string());
-    let final_user_texts = json_message_input_texts(&requests[requests.len() - 1], "user");
+    let final_user_texts = json_message_input_texts(&requests[requests.len() - 1], "user")
+        .into_iter()
+        .filter(|text| !text.trim_start().starts_with("<ghost_snapshot>"))
+        .collect::<Vec<_>>();
     let (final_last, final_prefix) = final_user_texts
         .split_last()
         .unwrap_or_else(|| panic!("after-second-resume request missing user messages"));
@@ -498,15 +501,11 @@ async fn mount_second_compact_flow(server: &MockServer) -> Vec<ResponseMock> {
     ]);
     let sse7 = sse(vec![ev_completed("r7")]);
 
-    // Keep this matcher broad enough to survive prompt-shape differences across
-    // platforms/config (history may include either marker text or compact prompt
-    // fragments), but explicitly exclude the final resume turn so these two
-    // one-shot mocks cannot race for the same request.
+    // Match the compact request after `AFTER_COMPACT_2`; this keeps the matcher
+    // specific to the expected second compact round-trip and avoids mock races.
     let match_second_compact = |req: &wiremock::Request| {
         let body = std::str::from_utf8(&req.body).unwrap_or("");
-        (body.contains("AFTER_FORK")
-            || body_contains_text(body, SUMMARIZATION_PROMPT)
-            || body.contains(&json_fragment(FIRST_REPLY)))
+        body.contains("\"text\":\"AFTER_COMPACT_2\"")
             && !body.contains(&format!("\"text\":\"{AFTER_SECOND_RESUME}\""))
     };
     let second_compact = mount_sse_once_match(server, match_second_compact, sse6).await;
