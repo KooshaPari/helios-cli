@@ -241,7 +241,9 @@ pub async fn wait_for_event_with_timeout<F>(
 where
     F: FnMut(&codex_protocol::protocol::EventMsg) -> bool,
 {
-    use tokio::time::{Duration, Instant, timeout};
+    use tokio::time::Duration;
+    use tokio::time::Instant;
+    use tokio::time::timeout;
 
     let per_event_timeout = wait_time.max(Duration::from_secs(10));
     let overall_timeout = Instant::now() + Duration::from_secs(60);
