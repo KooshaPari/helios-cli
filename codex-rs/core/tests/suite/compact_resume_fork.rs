@@ -501,11 +501,12 @@ async fn mount_second_compact_flow(server: &MockServer) -> Vec<ResponseMock> {
     ]);
     let sse7 = sse(vec![ev_completed("r7")]);
 
-    // Match the compact request after `AFTER_COMPACT_2`; this keeps the matcher
-    // specific to the expected second compact round-trip and avoids mock races.
+    // Match the second compaction request by the summarization prompt plus the
+    // forked-history marker, while excluding the later resume turn.
     let match_second_compact = |req: &wiremock::Request| {
         let body = std::str::from_utf8(&req.body).unwrap_or("");
-        body.contains("\"text\":\"AFTER_COMPACT_2\"")
+        body_contains_text(body, SUMMARIZATION_PROMPT)
+            && body.contains("\"text\":\"AFTER_FORK\"")
             && !body.contains(&format!("\"text\":\"{AFTER_SECOND_RESUME}\""))
     };
     let second_compact = mount_sse_once_match(server, match_second_compact, sse6).await;

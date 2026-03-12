@@ -241,14 +241,39 @@ pub async fn wait_for_event_with_timeout<F>(
 where
     F: FnMut(&codex_protocol::protocol::EventMsg) -> bool,
 {
-    use tokio::time::Duration;
-    use tokio::time::timeout;
+    use tokio::time::{timeout, Duration, Instant};
+
+    let per_event_timeout = wait_time.max(Duration::from_secs(10));
+    let overall_timeout = Instant::now() + Duration::from_secs(60);
+    let mut attempts = 0usize;
+    let mut seen_events = Vec::new();
     loop {
-        // Allow a bit more time to accommodate async startup work (e.g. config IO, tool discovery)
-        let ev = timeout(wait_time.max(Duration::from_secs(10)), codex.next_event())
-            .await
-            .expect("timeout waiting for event")
-            .expect("stream ended unexpectedly");
+        let remaining = overall_timeout
+            .checked_duration_since(Instant::now())
+            .unwrap_or_default();
+        if remaining.is_zero() {
+            panic!(
+                "timeout waiting for matching event after 60s (attempts={attempts}, per_event_timeout={per_event_timeout:?}, seen_events={seen_events:?})"
+            );
+        }
+
+        // Allow a bit more time to accommodate async startup work (e.g. config IO, tool discovery).
+        let ev = timeout(
+            std::cmp::min(per_event_timeout, remaining),
+            codex.next_event(),
+        )
+        .await
+        .unwrap_or_else(|_| {
+            panic!(
+                "timeout waiting for event (attempts={attempts}, per_event_timeout={per_event_timeout:?}, remaining={remaining:?}, seen_events={seen_events:?})"
+            )
+        })
+        .expect("stream ended unexpectedly");
+
+        attempts += 1;
+        if seen_events.len() < 16 {
+            seen_events.push(format!("{:?}", ev.msg));
+        }
         if predicate(&ev.msg) {
             return ev.msg;
         }
