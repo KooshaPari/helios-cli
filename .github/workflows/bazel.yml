@@ -184,6 +184,12 @@ jobs:
             bazel_args+=("--test_env=CODEX_JS_REPL_NODE_PATH=${node_bin}")
           fi
 
+          if [[ "${RUNNER_OS:-}" == "macOS" && -n "${LIBCLANG_PATH:-}" ]]; then
+            # Export the host-discovered libclang directory into Bazel actions so
+            # bindgen-backed build scripts can load libclang inside the sandbox.
+            bazel_args+=("--action_env=LIBCLANG_PATH=${LIBCLANG_PATH}")
+          fi
+
           if [[ -n "${BUILDBUDDY_API_KEY:-}" ]]; then
             echo "BuildBuddy API key is available; using remote Bazel configuration."
             # Work around Bazel 9 remote repo contents cache / overlay materialization failures
