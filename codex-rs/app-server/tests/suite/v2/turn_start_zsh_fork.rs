@@ -307,7 +307,7 @@ async fn turn_start_shell_zsh_fork_exec_approval_cancel_v2() -> Result<()> {
     };
     eprintln!("using zsh path for zsh-fork test: {}", zsh_path.display());
 
-    let responses = vec![create_shell_command_sse_response(
+    let response = create_shell_command_sse_response(
         vec![
             "python3".to_string(),
             "-c".to_string(),
@@ -316,8 +316,16 @@ async fn turn_start_shell_zsh_fork_exec_approval_cancel_v2() -> Result<()> {
         None,
         Some(5000),
         "call-zsh-fork-cancel",
-    )?];
-    let server = create_mock_responses_server_sequence(responses).await;
+    )?;
+    let no_op_response = responses::sse(vec![
+        responses::ev_response_created("resp-2"),
+        responses::ev_completed("resp-2"),
+    ]);
+    // Linux GNU Bazel occasionally emits a second `/responses` POST during the
+    // cancel/interrupt teardown path. This test is validating cancellation
+    // semantics, not exact model request count, so tolerate that extra request.
+    let server =
+        create_mock_responses_server_sequence_unchecked(vec![response, no_op_response]).await;
     create_config_toml(
         &codex_home,
         &server.uri(),

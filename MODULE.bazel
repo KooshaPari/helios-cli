@@ -162,7 +162,12 @@ crate.annotation(
         "@macosx15.4.sdk//sysroot",
     ],
     build_script_env = {
+        # `coreaudio-sys` already injects `-isysroot` from `COREAUDIO_SDK_PATH`,
+        # but bindgen still needs an explicit target triple in Bazel's hermetic
+        # macOS builds to parse SDK integer typedefs correctly.
         "BINDGEN_EXTRA_CLANG_ARGS": "-isystem $(location @toolchains_llvm_bootstrapped//:builtin_headers)",
+        "BINDGEN_EXTRA_CLANG_ARGS_aarch64_apple_darwin": "-target aarch64-apple-darwin -isystem $(location @toolchains_llvm_bootstrapped//:builtin_headers)",
+        "BINDGEN_EXTRA_CLANG_ARGS_x86_64_apple_darwin": "-target x86_64-apple-darwin -isystem $(location @toolchains_llvm_bootstrapped//:builtin_headers)",
         "COREAUDIO_SDK_PATH": "$(location @macosx15.4.sdk//sysroot)",
     },
     build_script_tools = [
