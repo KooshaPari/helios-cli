@@ -47,7 +47,11 @@ jobs:
             ]}'
           fi
 
-          echo "bazel_matrix=${bazel_matrix}" >> "$GITHUB_OUTPUT"
+          {
+            echo "bazel_matrix<<EOF"
+            echo "${bazel_matrix}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
       - name: Summarize billed runner policy
         shell: bash
         run: |

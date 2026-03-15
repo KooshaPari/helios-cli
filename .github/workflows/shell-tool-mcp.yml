@@ -127,8 +127,14 @@ jobs:
           fi
 
           echo "enable_billed_runners=${enable_billed}" >> "$GITHUB_OUTPUT"
-          echo "bash_darwin_matrix=${bash_darwin_matrix}" >> "$GITHUB_OUTPUT"
-          echo "zsh_darwin_matrix=${zsh_darwin_matrix}" >> "$GITHUB_OUTPUT"
+          {
+            echo "bash_darwin_matrix<<EOF"
+            echo "${bash_darwin_matrix}"
+            echo "EOF"
+            echo "zsh_darwin_matrix<<EOF"
+            echo "${zsh_darwin_matrix}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
   bash-linux:
     name: Build Bash (Linux) - ${{ matrix.variant }} - ${{ matrix.target }}

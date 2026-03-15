@@ -92,7 +92,11 @@ jobs:
           fi
 
           echo "enable_billed_runners=${enable_billed}" >> "$GITHUB_OUTPUT"
-          echo "build_matrix=${build_matrix}" >> "$GITHUB_OUTPUT"
+          {
+            echo "build_matrix<<EOF"
+            echo "${build_matrix}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
   build:
     needs:
