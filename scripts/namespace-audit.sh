@@ -143,7 +143,7 @@ run_scan() {
 
   if [[ "$SCAN_PRS" -eq 1 ]]; then
     local prs_json
-    prs_json=$(gh pr list --repo "$REPO" --state open --limit 200 --json number,title,url,author,headRepositoryOwner)
+    prs_json=$(gh api --paginate --slurp "repos/$REPO/pulls?state=open&per_page=100")
     if [[ -z "$prs_json" ]] || ! jq -e . >/dev/null 2>&1 <<<"$prs_json"; then
       echo "ERROR: invalid PR JSON from gh pr list" >&2
       return 1
@@ -155,9 +155,9 @@ run_scan() {
       local number title author url head_owner reason=""
       number=$(jq -r '.number // 0' <<<"$item")
       title=$(jq -r '.title // ""' <<<"$item")
-      url=$(jq -r '.url // ""' <<<"$item")
-      author=$(jq -r '.author.login // ""' <<<"$item")
-      head_owner=$(jq -r '.headRepositoryOwner.login // .headRepository.owner.login // ""' <<<"$item")
+      url=$(jq -r '.html_url // ""' <<<"$item")
+      author=$(jq -r '.user.login // ""' <<<"$item")
+      head_owner=$(jq -r '.head.repo.owner.login // ""' <<<"$item")
 
       local bad=0
       if ! is_author_allowed "$author"; then
@@ -190,12 +190,12 @@ run_scan() {
           comment_and_close_pr "$number" "$author" "$title" "$url"
         fi
       fi
-    done < <(jq -c '.[]' <<<"$prs_json")
+    done < <(jq -c '.[][]' <<<"$prs_json")
   fi
 
   if [[ "$SCAN_ISSUES" -eq 1 ]]; then
     local issues_json
-    issues_json=$(gh issue list --repo "$REPO" --state open --limit 200 --json number,title,url,author)
+    issues_json=$(gh api --paginate --slurp "repos/$REPO/issues?state=open&per_page=100")
     if [[ -z "$issues_json" ]] || ! jq -e . >/dev/null 2>&1 <<<"$issues_json"; then
       echo "ERROR: invalid issue JSON from gh issue list" >&2
       return 1
@@ -210,8 +210,8 @@ run_scan() {
       local number title author url reason
       number=$(jq -r '.number // 0' <<<"$item")
       title=$(jq -r '.title // ""' <<<"$item")
-      url=$(jq -r '.url // ""' <<<"$item")
-      author=$(jq -r '.author.login // ""' <<<"$item")
+      url=$(jq -r '.html_url // ""' <<<"$item")
+      author=$(jq -r '.user.login // ""' <<<"$item")
       reason="author"
 
       if ! is_author_allowed "$author"; then
@@ -231,7 +231,7 @@ run_scan() {
           comment_and_close_issue "$number" "$author" "$title" "$url"
         fi
       fi
-    done < <(jq -c '.[]' <<<"$issues_json")
+    done < <(jq -c '.[][]' <<<"$issues_json")
   fi
 
   if [[ -n "$JSON_REPORT" ]]; then

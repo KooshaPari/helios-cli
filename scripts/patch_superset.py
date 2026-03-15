@@ -44,6 +44,8 @@ def check(manifest: dict) -> int:
     errors: list[str] = []
     module_bazel = ""
     shell_readme = ""
+    manifest_paths = {Path(patch["path"]).as_posix() for patch in manifest["patches"]}
+    on_disk_patch_paths: set[str] = set()
 
     if MODULE_BAZEL_PATH.exists():
         module_bazel = MODULE_BAZEL_PATH.read_text()
@@ -54,6 +56,14 @@ def check(manifest: dict) -> int:
         shell_readme = SHELL_README_PATH.read_text()
     else:
         errors.append(f"missing shell escalation README path: {SHELL_README_PATH}")
+
+    for patch_root in (ROOT / "patches", ROOT / "shell-tool-mcp" / "patches"):
+        if patch_root.exists():
+            for patch_path in patch_root.rglob("*.patch"):
+                on_disk_patch_paths.add(patch_path.relative_to(ROOT).as_posix())
+
+    for patch_path in sorted(on_disk_patch_paths - manifest_paths):
+        errors.append(f"unmanaged patch file: {patch_path}")
 
     for patch in manifest["patches"]:
         path = ROOT / patch["path"]
@@ -86,6 +96,10 @@ def compare_secondary(manifest: dict, secondary_root: Path) -> int:
         primary_path = ROOT / patch["path"]
         secondary_path = secondary_root / patch["path"]
         prefer_primary = patch["secondary_policy"] == "prefer_primary"
+        if not primary_path.exists():
+            print(f"- {patch['id']} | primary=missing", file=sys.stderr)
+            mismatches += 1
+            continue
         if not secondary_path.exists():
             if prefer_primary:
                 print(f"- {patch['id']} | secondary=missing (preferred primary)")

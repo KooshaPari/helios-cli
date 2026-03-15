@@ -16,6 +16,31 @@ on:
         required: false
         default: true
         type: boolean
+      enable-billed-runners:
+        description: Whether to opt into GitHub-hosted billed macOS runners for Darwin vendor builds.
+        required: false
+        default: false
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: Version to publish (x.y.z or x.y.z-alpha.N). Defaults to GITHUB_REF_NAME when it starts with rust-v.
+        required: false
+        type: string
+      release-tag:
+        description: Tag name to use when downloading release artifacts (defaults to rust-v<version>).
+        required: false
+        type: string
+      publish:
+        description: Whether to publish to npm when the version is releasable.
+        required: false
+        default: true
+        type: boolean
+      enable-billed-runners:
+        description: Whether to opt into GitHub-hosted billed macOS runners for Darwin vendor builds.
+        required: false
+        default: false
+        type: boolean
 
 env:
   NODE_VERSION: 22
@@ -66,6 +91,44 @@ jobs:
           echo "release_tag=${release_tag}" >> "$GITHUB_OUTPUT"
           echo "npm_tag=${npm_tag}" >> "$GITHUB_OUTPUT"
           echo "should_publish=${should_publish}" >> "$GITHUB_OUTPUT"
+
+  billed-runner-policy:
+    runs-on: ubuntu-latest
+    outputs:
+      enable_billed_runners: ${{ steps.policy.outputs.enable_billed_runners }}
+      bash_darwin_matrix: ${{ steps.policy.outputs.bash_darwin_matrix }}
+      zsh_darwin_matrix: ${{ steps.policy.outputs.zsh_darwin_matrix }}
+    steps:
+      - name: Resolve billed-runner policy
+        id: policy
+        shell: bash
+        env:
+          INPUT_ENABLE_BILLED_RUNNERS: ${{ inputs.enable-billed-runners || github.event.inputs.enable-billed-runners || '' }}
+          VAR_ENABLE_BILLED_RUNNERS: ${{ vars.ENABLE_BILLED_GH_RUNNERS || '' }}
+        run: |
+          set -euo pipefail
+
+          enable_billed="false"
+          if [[ "${INPUT_ENABLE_BILLED_RUNNERS}" == "true" || "${VAR_ENABLE_BILLED_RUNNERS}" == "true" ]]; then
+            enable_billed="true"
+          fi
+
+          bash_darwin_matrix='{"include":[]}'
+          zsh_darwin_matrix='{"include":[]}'
+          if [[ "${enable_billed}" == "true" ]]; then
+            bash_darwin_matrix='{"include":[
+              {"runner":"macos-15-xlarge","target":"aarch64-apple-darwin","variant":"macos-15"},
+              {"runner":"macos-14","target":"aarch64-apple-darwin","variant":"macos-14"}
+            ]}'
+            zsh_darwin_matrix='{"include":[
+              {"runner":"macos-15-xlarge","target":"aarch64-apple-darwin","variant":"macos-15"},
+              {"runner":"macos-14","target":"aarch64-apple-darwin","variant":"macos-14"}
+            ]}'
+          fi
+
+          echo "enable_billed_runners=${enable_billed}" >> "$GITHUB_OUTPUT"
+          echo "bash_darwin_matrix=${bash_darwin_matrix}" >> "$GITHUB_OUTPUT"
+          echo "zsh_darwin_matrix=${zsh_darwin_matrix}" >> "$GITHUB_OUTPUT"
 
   bash-linux:
     name: Build Bash (Linux) - ${{ matrix.variant }} - ${{ matrix.target }}
@@ -167,19 +230,15 @@ jobs:
 
   bash-darwin:
     name: Build Bash (macOS) - ${{ matrix.variant }} - ${{ matrix.target }}
-    needs: metadata
+    if: ${{ needs.billed-runner-policy.outputs.enable_billed_runners == 'true' }}
+    needs:
+      - metadata
+      - billed-runner-policy
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - runner: macos-15-xlarge
-            target: aarch64-apple-darwin
-            variant: macos-15
-          - runner: macos-14
-            target: aarch64-apple-darwin
-            variant: macos-14
+      matrix: ${{ fromJSON(needs.billed-runner-policy.outputs.bash_darwin_matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -335,19 +394,15 @@ jobs:
 
   zsh-darwin:
     name: Build zsh (macOS) - ${{ matrix.variant }} - ${{ matrix.target }}
-    needs: metadata
+    if: ${{ needs.billed-runner-policy.outputs.enable_billed_runners == 'true' }}
+    needs:
+      - metadata
+      - billed-runner-policy
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - runner: macos-15-xlarge
-            target: aarch64-apple-darwin
-            variant: macos-15
-          - runner: macos-14
-            target: aarch64-apple-darwin
-            variant: macos-14
+      matrix: ${{ fromJSON(needs.billed-runner-policy.outputs.zsh_darwin_matrix) }}
     steps:
       - name: Install build prerequisites
         shell: bash

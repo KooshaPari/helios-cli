@@ -10,6 +10,13 @@ on:
   push:
     tags:
       - "rust-v*.*.*"
+  workflow_dispatch:
+    inputs:
+      enable-billed-runners:
+        description: "Set true to opt into GitHub-hosted billed macOS runners for this release run."
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}
@@ -45,8 +52,52 @@ jobs:
           echo "✅  Tag and Cargo.toml agree (${tag_ver})"
           echo "::endgroup::"
 
-  build:
+  billed-runner-policy:
     needs: tag-check
+    runs-on: ubuntu-latest
+    outputs:
+      enable_billed_runners: ${{ steps.policy.outputs.enable_billed_runners }}
+      build_matrix: ${{ steps.policy.outputs.build_matrix }}
+    steps:
+      - name: Resolve billed-runner policy
+        id: policy
+        shell: bash
+        env:
+          INPUT_ENABLE_BILLED_RUNNERS: ${{ github.event.inputs.enable-billed-runners || '' }}
+          VAR_ENABLE_BILLED_RUNNERS: ${{ vars.ENABLE_BILLED_GH_RUNNERS || '' }}
+        run: |
+          set -euo pipefail
+
+          enable_billed="false"
+          if [[ "${INPUT_ENABLE_BILLED_RUNNERS}" == "true" || "${VAR_ENABLE_BILLED_RUNNERS}" == "true" ]]; then
+            enable_billed="true"
+          fi
+
+          build_matrix='{"include":[
+            {"runner":"ubuntu-24.04","target":"x86_64-unknown-linux-musl"},
+            {"runner":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu"},
+            {"runner":"ubuntu-24.04-arm","target":"aarch64-unknown-linux-musl"},
+            {"runner":"ubuntu-24.04-arm","target":"aarch64-unknown-linux-gnu"}
+          ]}'
+
+          if [[ "${enable_billed}" == "true" ]]; then
+            build_matrix='{"include":[
+              {"runner":"macos-15-xlarge","target":"aarch64-apple-darwin"},
+              {"runner":"macos-15-xlarge","target":"x86_64-apple-darwin"},
+              {"runner":"ubuntu-24.04","target":"x86_64-unknown-linux-musl"},
+              {"runner":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu"},
+              {"runner":"ubuntu-24.04-arm","target":"aarch64-unknown-linux-musl"},
+              {"runner":"ubuntu-24.04-arm","target":"aarch64-unknown-linux-gnu"}
+            ]}'
+          fi
+
+          echo "enable_billed_runners=${enable_billed}" >> "$GITHUB_OUTPUT"
+          echo "build_matrix=${build_matrix}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs:
+      - tag-check
+      - billed-runner-policy
     name: Build - ${{ matrix.runner }} - ${{ matrix.target }}
     runs-on: ${{ matrix.runs_on || matrix.runner }}
     timeout-minutes: 60
@@ -61,20 +112,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - runner: macos-15-xlarge
-            target: aarch64-apple-darwin
-          - runner: macos-15-xlarge
-            target: x86_64-apple-darwin
-          - runner: ubuntu-24.04
-            target: x86_64-unknown-linux-musl
-          - runner: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-          - runner: ubuntu-24.04-arm
-            target: aarch64-unknown-linux-musl
-          - runner: ubuntu-24.04-arm
-            target: aarch64-unknown-linux-gnu
+      matrix: ${{ fromJSON(needs.billed-runner-policy.outputs.build_matrix) }}
 
     steps:
       - uses: actions/checkout@v6
@@ -370,11 +408,14 @@ jobs:
 
   shell-tool-mcp:
     name: shell-tool-mcp
-    needs: tag-check
+    needs:
+      - tag-check
+      - billed-runner-policy
     uses: ./.github/workflows/shell-tool-mcp.yml
     with:
       release-tag: ${{ github.ref_name }}
       publish: true
+      enable-billed-runners: ${{ needs.billed-runner-policy.outputs.enable_billed_runners == 'true' }}
     secrets: inherit
 
   release:

@@ -28,7 +28,7 @@ fmt:
     cargo fmt -- --config imports_granularity=Item 2>/dev/null
 
 fmt-check:
-    cargo fmt -- --config imports_granularity=Item --check
+    bash ../scripts/task_surface.sh fmt-check
 
 fix *args:
     cargo clippy --fix --tests --allow-dirty "$@"

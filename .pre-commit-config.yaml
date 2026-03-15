@@ -10,12 +10,18 @@ repos:
       - id: detect-private-key
   - repo: local
     hooks:
-      - id: security-guard-pre-commit-pre-push
-        name: security-guard pre-commit/pre-push
+      - id: security-guard-pre-commit
+        name: security-guard pre-commit
         entry: .github/scripts/security-guard.sh
         language: script
         pass_filenames: false
-        stages: [pre-commit, pre-push]
+        stages: [pre-commit]
+      - id: security-guard-pre-push
+        name: security-guard pre-push
+        entry: env SECURITY_GUARD_SCAN_MODE=pre-push .github/scripts/security-guard.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
       - id: helios-local-ci-pre-push
         name: helios local CI pre-push
         entry: scripts/prepush-ci.sh

@@ -25,7 +25,29 @@ jobs:
   billed_runner_policy:
     name: Hosted runner billing policy
     runs-on: ubuntu-24.04
+    outputs:
+      bazel_matrix: ${{ steps.policy.outputs.bazel_matrix }}
     steps:
+      - name: Resolve billed runner matrix
+        id: policy
+        shell: bash
+        run: |
+          bazel_matrix='{"include":[
+            {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu"},
+            {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-musl"}
+          ]}'
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.enable_billed_runners || 'false' }}" == "true" ]] \
+            || [[ "${{ vars.ENABLE_BILLED_GH_RUNNERS || 'false' }}" == "true" ]]; then
+            bazel_matrix='{"include":[
+              {"os":"macos-latest","target":"aarch64-apple-darwin"},
+              {"os":"macos-latest","target":"x86_64-apple-darwin"},
+              {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu"},
+              {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-musl"}
+            ]}'
+          fi
+
+          echo "bazel_matrix=${bazel_matrix}" >> "$GITHUB_OUTPUT"
       - name: Summarize billed runner policy
         shell: bash
         run: |
@@ -53,31 +75,8 @@ jobs:
     needs: billed_runner_policy
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          # macOS
-          - os: macos-latest
-            target: aarch64-apple-darwin
-          - os: macos-latest
-            target: x86_64-apple-darwin
-
-          # Linux
-          - os: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-          - os: ubuntu-24.04
-            target: x86_64-unknown-linux-musl
-          # 2026-02-27 Bazel tests have been flaky on arm in CI.
-          # Disable until we can investigate and stabilize them.
-          # - os: ubuntu-24.04-arm
-          #   target: aarch64-unknown-linux-musl
-          # - os: ubuntu-24.04-arm
-          #   target: aarch64-unknown-linux-gnu
-
-          # TODO: Enable Windows once we fix the toolchain issues there.
-          #- os: windows-latest
-          #  target: x86_64-pc-windows-gnullvm
+      matrix: ${{ fromJSON(needs.billed_runner_policy.outputs.bazel_matrix) }}
     runs-on: ${{ matrix.os }}
-    if: ${{ matrix.os == 'ubuntu-24.04' || vars.ENABLE_BILLED_GH_RUNNERS == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.enable_billed_runners == 'true') }}
 
     # Configure a human readable name for each job
     name: Local Bazel build on ${{ matrix.os }} for ${{ matrix.target }}
