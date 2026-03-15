@@ -29,14 +29,9 @@ async function main() {
 
   const steps = [
     {
-      label: "codex smoke",
-      command: "just",
-      args: ["codex", "--version"],
-    },
-    {
-      label: "bazel codex prepush",
-      command: "just",
-      args: ["bazel-codex-prepush"],
+      label: "repo prepush CI",
+      command: "bash",
+      args: ["scripts/prepush-ci.sh"],
     },
   ];
 

@@ -1,0 +1,105 @@
+name: Namespace Governance
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  issues:
+    types: [opened]
+
+jobs:
+  prune-non-owner-prs:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Enforce PR owner namespace
+        env:
+          ALLOWED_NAMESPACE: KooshaPari
+          ALLOWED_BOTS: github-actions[bot],dependabot[bot],dependabot-preview[bot],renovate[bot],app/github-actions
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_OWNER: ${{ github.event.pull_request.head.repo.owner.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$PR_AUTHOR" ]]; then
+            echo "Unable to read PR author from event payload."
+            exit 1
+          fi
+
+          is_bot_author=0
+          IFS=',' read -ra bots <<< "$ALLOWED_BOTS"
+          for bot in "${bots[@]}"; do
+            if [[ "$bot" == "$PR_AUTHOR" ]]; then
+              is_bot_author=1
+              break
+            fi
+          done
+
+          if [[ "$is_bot_author" -eq 1 ]]; then
+            echo "Allowed bot author detected: $PR_AUTHOR"
+            exit 0
+          fi
+
+          if [[ "$PR_AUTHOR" != "$ALLOWED_NAMESPACE" || "$HEAD_OWNER" != "$ALLOWED_NAMESPACE" ]]; then
+            echo "Blocked: PR must come from namespace '$ALLOWED_NAMESPACE'."
+            echo "Author: $PR_AUTHOR"
+            echo "Head repo owner: $HEAD_OWNER"
+            if [[ -n "${PR_URL}" ]]; then
+              COMMENT=$'This PR is outside the allowed namespace policy.\n\nAllowed namespace: **'"$ALLOWED_NAMESPACE"'**\n\nPlease move this change to a KooshaPari-owned repository and reopen there.'
+              echo "$COMMENT" | gh pr comment "$PR_NUMBER" --body-file - || true
+            fi
+            exit 1
+          fi
+
+          echo "Namespace check passed for PR #${{ github.event.pull_request.number }}"
+
+  prune-non-owner-issues:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Redirect and close outsider issues
+        env:
+          ALLOWED_NAMESPACE: KooshaPari
+          ALLOWED_BOTS: github-actions[bot],dependabot[bot],dependabot-preview[bot],renovate[bot],app/github-actions
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$ISSUE_AUTHOR" ]]; then
+            echo "Unable to read issue author from event payload."
+            exit 1
+          fi
+
+          is_bot_author=0
+          IFS=',' read -ra bots <<< "$ALLOWED_BOTS"
+          for bot in "${bots[@]}"; do
+            if [[ "$bot" == "$ISSUE_AUTHOR" ]]; then
+              is_bot_author=1
+              break
+            fi
+          done
+
+          if [[ "$is_bot_author" -eq 1 ]]; then
+            echo "Allowed bot author detected: $ISSUE_AUTHOR"
+            exit 0
+          fi
+
+          if [[ "$ISSUE_AUTHOR" == "$ALLOWED_NAMESPACE" ]]; then
+            echo "Issue authored by allowed namespace owner."
+            exit 0
+          fi
+
+          COMMENT=$'This issue was opened outside the allowed namespace policy.\n\nAllowed namespace: **'"$ALLOWED_NAMESPACE"'**\n\nPlease open this issue in a KooshaPari-owned repository so it can be tracked by the right maintainer scope.\n\nIf this was accidental, please recreate it in the intended KooshaPari repo and close this one.'
+          echo "$COMMENT" | gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body-file -
+
+          gh issue close "$ISSUE_NUMBER" --repo "$REPO"
+          echo "Closed issue #$ISSUE_NUMBER from @$ISSUE_AUTHOR"

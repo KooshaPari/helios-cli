@@ -31,9 +31,47 @@ use serde_json::Value;
 use std::path::Path;
 use std::path::PathBuf;
 use tempfile::TempDir;
+use tokio::time::sleep;
 use tokio::time::timeout;
 
 const DEFAULT_READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10);
+const THREAD_NAME_PROPAGATION_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
+const THREAD_NAME_PROPAGATION_POLL_INTERVAL: std::time::Duration =
+    std::time::Duration::from_millis(100);
+
+async fn read_thread_until_name(
+    mcp: &mut McpProcess,
+    thread_id: &str,
+    expected_name: &str,
+) -> Result<(serde_json::Value, ThreadReadResponse)> {
+    let deadline = tokio::time::Instant::now() + THREAD_NAME_PROPAGATION_TIMEOUT;
+
+    loop {
+        let read_id = mcp
+            .send_thread_read_request(ThreadReadParams {
+                thread_id: thread_id.to_string(),
+                include_turns: false,
+            })
+            .await?;
+        let read_resp: JSONRPCResponse = timeout(
+            DEFAULT_READ_TIMEOUT,
+            mcp.read_stream_until_response_message(RequestId::Integer(read_id)),
+        )
+        .await??;
+        let read_result = read_resp.result.clone();
+        let parsed = to_response::<ThreadReadResponse>(read_resp)?;
+
+        if parsed.thread.name.as_deref() == Some(expected_name) {
+            return Ok((read_result, parsed));
+        }
+
+        if tokio::time::Instant::now() >= deadline {
+            return Ok((read_result, parsed));
+        }
+
+        sleep(THREAD_NAME_PROPAGATION_POLL_INTERVAL).await;
+    }
+}
 
 #[tokio::test]
 async fn thread_read_returns_summary_without_turns() -> Result<()> {
@@ -255,19 +293,8 @@ async fn thread_name_set_is_reflected_in_read_list_and_resume() -> Result<()> {
     let _: ThreadSetNameResponse = to_response::<ThreadSetNameResponse>(set_resp)?;
 
     // Read should now surface `thread.name`, and the wire payload must include `name`.
-    let read_id = mcp
-        .send_thread_read_request(ThreadReadParams {
-            thread_id: conversation_id.clone(),
-            include_turns: false,
-        })
-        .await?;
-    let read_resp: JSONRPCResponse = timeout(
-        DEFAULT_READ_TIMEOUT,
-        mcp.read_stream_until_response_message(RequestId::Integer(read_id)),
-    )
-    .await??;
-    let read_result = read_resp.result.clone();
-    let ThreadReadResponse { thread } = to_response::<ThreadReadResponse>(read_resp)?;
+    let (read_result, ThreadReadResponse { thread }) =
+        read_thread_until_name(&mut mcp, &conversation_id, new_name).await?;
     assert_eq!(thread.id, conversation_id);
     assert_eq!(thread.name.as_deref(), Some(new_name));
     let thread_json = read_result
