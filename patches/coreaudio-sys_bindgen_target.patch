@@ -1,5 +1,5 @@
 diff --git a/build.rs b/build.rs
-index 5be154f..df33359 100644
+index 5be154f..7fe53aa 100644
 --- a/build.rs
 +++ b/build.rs
 @@ -119,6 +119,7 @@ fn build(sdk_path: Option<&str>, target: &str) {
@@ -10,3 +10,14 @@ index 5be154f..df33359 100644
  
      if let Some(sdk_path) = sdk_path {
          builder = builder.clang_args(&["-isysroot", sdk_path]);
+@@ -136,7 +137,9 @@ fn build(sdk_path: Option<&str>, target: &str) {
+     builder = builder.layout_tests(false);
+ 
+     let meta_header: Vec<_> = headers
+-        .iter()
++        ["stdint.h", "sys/types.h"]
++        .into_iter()
++        .chain(headers.iter().copied())
+         .map(|h| format!("#include <{}>\n", h))
+         .collect();
+ 
