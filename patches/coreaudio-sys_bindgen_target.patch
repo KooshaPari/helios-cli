@@ -13,9 +13,7 @@ index 5be154f..7fe53aa 100644
 @@ -136,7 +137,9 @@ fn build(sdk_path: Option<&str>, target: &str) {
      builder = builder.layout_tests(false);
  
-     let meta_header: Vec<_> = headers
--        .iter()
-+        ["stdint.h", "sys/types.h"]
+     let meta_header: Vec<_> = ["stdint.h", "sys/types.h"]
 +        .into_iter()
 +        .chain(headers.iter().copied())
          .map(|h| format!("#include <{}>\n", h))
