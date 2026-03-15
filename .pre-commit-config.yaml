@@ -8,4 +8,17 @@ repos:
       - id: check-added-large-files
         args: ["--maxkb=500"]
       - id: detect-private-key
-
+  - repo: local
+    hooks:
+      - id: security-guard-pre-commit-pre-push
+        name: security-guard pre-commit/pre-push
+        entry: .github/scripts/security-guard.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+      - id: helios-local-ci-pre-push
+        name: helios local CI pre-push
+        entry: scripts/prepush-ci.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-push]

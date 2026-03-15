@@ -44,6 +44,7 @@ cargo run --bin codex -- "explain this codebase to me"
 # After making changes, use the root justfile helpers (they default to codex-rs):
 just fmt
 just fix -p <crate-you-touched>
+just install-hooks
 
 # Run the relevant tests (project-specific is fastest), for example:
 cargo test -p codex-tui
@@ -54,6 +55,35 @@ just test
 # If you specifically want full feature coverage, use:
 cargo test --all-features
 ```
+
+### Local hook enforcement
+
+This fork disables GitHub-hosted macOS and Windows PR gates by default because
+billed runners are not reliable under current GitHub billing limits.
+
+Install the repo-local hooks after bootstrapping:
+
+```bash
+just install-hooks
+```
+
+The installed hooks route both `pre-commit` and `pre-push` through the checked-in
+repo policy:
+
+- `pre-commit`: hygiene and secret scanning
+- `pre-push`: local replacement for billed GitHub runner gates
+
+You can run the heavy local gate explicitly without pushing:
+
+```bash
+just prepush-ci
+```
+
+Optional local escape hatches:
+
+- `SKIP_LOCAL_PREPUSH=1`: skip the entire pre-push hook
+- `PREPUSH_SKIP_BAZEL=1`: skip Bazel during local pre-push
+- `PREPUSH_SKIP_NAMESPACE_AUDIT=1`: skip namespace audit during local pre-push
 
 ## Tracing / verbose logging
 

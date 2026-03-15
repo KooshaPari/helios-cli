@@ -11,6 +11,11 @@ on:
         required: false
         default: false
         type: boolean
+      enable_billed_runners:
+        description: "Allow GitHub-hosted macOS/Windows jobs for this manual run"
+        required: false
+        default: false
+        type: boolean
 
 # CI builds in debug (dev) for faster signal.
 
@@ -25,6 +30,7 @@ jobs:
       rust_core: ${{ steps.detect.outputs.rust_core }}
       feature_drift: ${{ steps.detect.outputs.feature_drift }}
       skip_rust_ci: ${{ steps.detect.outputs.skip_rust_ci }}
+      enable_billed_runners: ${{ steps.detect.outputs.enable_billed_runners }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -35,10 +41,17 @@ jobs:
         run: |
           set -euo pipefail
           skip_rust_ci='false'
+          enable_billed_runners='false'
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.skip_rust_ci || 'false' }}" == "true" ]]; then
             skip_rust_ci='true'
           elif [[ "${{ vars.SKIP_RUST_CI || 'false' }}" == "true" ]]; then
             skip_rust_ci='true'
+          fi
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.enable_billed_runners || 'false' }}" == "true" ]]; then
+            enable_billed_runners='true'
+          elif [[ "${{ vars.ENABLE_BILLED_GH_RUNNERS || 'false' }}" == "true" ]]; then
+            enable_billed_runners='true'
           fi
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -84,6 +97,7 @@ jobs:
           echo "workflows=$workflows" >> "$GITHUB_OUTPUT"
           echo "feature_drift=$feature_drift" >> "$GITHUB_OUTPUT"
           echo "skip_rust_ci=$skip_rust_ci" >> "$GITHUB_OUTPUT"
+          echo "enable_billed_runners=$enable_billed_runners" >> "$GITHUB_OUTPUT"
 
           if [[ "$rust_core" == "true" ]]; then
             echo "::warning title=Legacy rust_core touched::This fork treats `codex-rs` as the only active Rust workspace. `rust_core` is de-mirrored legacy and should be treated as inert."
@@ -91,13 +105,42 @@ jobs:
           if [[ "$skip_rust_ci" == "true" ]]; then
             echo "::warning title=Rust CI override active::workflow skip flag is set for this run; heavy Rust jobs will be skipped."
           fi
+          if [[ "$enable_billed_runners" != "true" ]]; then
+            echo "::notice title=Hosted runner policy::GitHub-hosted macOS and Windows jobs are disabled by default because billed runner minutes are unavailable. Equivalent gates must run through local pre-push hooks."
+          fi
+
+  billed_runner_policy:
+    name: Hosted runner billing policy
+    runs-on: ubuntu-24.04
+    needs: changed
+    if: ${{ needs.changed.outputs.skip_rust_ci != 'true' && (needs.changed.outputs.codex == 'true' || needs.changed.outputs.workflows == 'true' || github.event_name == 'push') }}
+    steps:
+      - name: Summarize billed runner policy
+        shell: bash
+        run: |
+          if [[ '${{ needs.changed.outputs.enable_billed_runners }}' == 'true' ]]; then
+            echo "GitHub-hosted macOS/Windows runners are enabled for this run."
+            exit 0
+          fi
+
+          echo "GitHub-hosted macOS/Windows runners are disabled by default in this fork."
+          echo "Reason: GitHub billing limits make billed OS runners unreliable for PR gates."
+          echo "Replacement: install repo hooks and run local pre-push validation."
+          {
+            echo "### Hosted runner billing policy";
+            echo;
+            echo "- macOS and Windows GitHub Actions jobs are disabled by default.";
+            echo "- Install hooks with \`just install-hooks\`.";
+            echo "- Local replacement gate: \`just prepush-ci\` or \`scripts/prepush-ci.sh\`.";
+            echo "- Override for manual GitHub runs only: set repo variable \`ENABLE_BILLED_GH_RUNNERS=true\` or use \`workflow_dispatch.enable_billed_runners=true\`.";
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # --- Drift detection for policy + lockfile sync --------------------------------
   drift_detection:
     name: Drift detection
     runs-on: ubuntu-24.04
     needs: changed
-    if: ${{ needs.changed.outputs.skip_rust_ci != 'true' && (needs.changed.outputs.codex == 'true' || needs.changed.outputs.workflows == 'true' || github.event_name == 'push') }}
+    if: ${{ needs.changed.outputs.skip_rust_ci != 'true' && (needs.changed.outputs.codex == 'true' || needs.changed.outputs.workflows == 'true' || github.event_name == 'push') && (matrix.runner == 'ubuntu-24.04' || needs.changed.outputs.enable_billed_runners == 'true') }}
     defaults:
       run:
         working-directory: codex-rs
@@ -147,7 +190,7 @@ jobs:
     name: Format / etc
     runs-on: ubuntu-24.04
     needs: changed
-    if: ${{ needs.changed.outputs.skip_rust_ci != 'true' && (needs.changed.outputs.codex == 'true' || needs.changed.outputs.workflows == 'true' || github.event_name == 'push') }}
+    if: ${{ needs.changed.outputs.skip_rust_ci != 'true' && (needs.changed.outputs.codex == 'true' || needs.changed.outputs.workflows == 'true' || github.event_name == 'push') && (matrix.runner == 'ubuntu-24.04' || needs.changed.outputs.enable_billed_runners == 'true') }}
     defaults:
       run:
         working-directory: codex-rs
@@ -683,7 +726,7 @@ jobs:
   # --- Gatherer job that you mark as the ONLY required status -----------------
   results:
     name: CI results (required)
-    needs: [changed, drift_detection, general, cargo_shear, lint_build, tests]
+    needs: [changed, billed_runner_policy, drift_detection, general, cargo_shear, lint_build, tests]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -692,6 +735,7 @@ jobs:
         run: |
           echo "general: ${{ needs.general.result }}"
           echo "shear  : ${{ needs.cargo_shear.result }}"
+          echo "billing: ${{ needs.billed_runner_policy.result }}"
           echo "lint   : ${{ needs.lint_build.result }}"
           echo "tests  : ${{ needs.tests.result }}"
           echo "drift  : ${{ needs.drift_detection.result }}"
@@ -710,6 +754,7 @@ jobs:
 
           # Otherwise require the jobs to have succeeded
           [[ '${{ needs.drift_detection.result }}' == 'success' ]] || { echo 'drift_detection failed'; exit 1; }
+          [[ '${{ needs.billed_runner_policy.result }}' == 'success' ]] || { echo 'billed_runner_policy failed'; exit 1; }
           [[ '${{ needs.general.result }}' == 'success' ]] || { echo 'general failed'; exit 1; }
           [[ '${{ needs.cargo_shear.result }}' == 'success' ]] || { echo 'cargo_shear failed'; exit 1; }
           [[ '${{ needs.lint_build.result }}' == 'success' ]] || { echo 'lint_build failed'; exit 1; }

@@ -32,7 +32,7 @@ jobs:
             --repo "${{ github.repository }}"
             --namespace KooshaPari
             --json-report namespace-audit-report.json
-            --allowed-bots github-actions[bot],dependabot[bot],dependabot-preview[bot],renovate[bot],app/github-actions
+            --allowed-bots "github-actions[bot],dependabot[bot],dependabot-preview[bot],renovate[bot],app/github-actions"
             --dry-run
           )
 

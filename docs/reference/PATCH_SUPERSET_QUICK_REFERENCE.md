@@ -14,7 +14,7 @@ Purpose:
 
 - `inventory`: list the current patch superset with category and digest
 - `check`: verify manifest entries still match live repo references
-- `compare-secondary`: compare `heliosCLI` patches to the secondary rewrite repo (`../helios-cli` by default)
+- `compare-secondary`: compare `heliosCLI` patches to the secondary rewrite repo (`../../helios-cli` by default)
 
 Cross-rewrite policy:
 

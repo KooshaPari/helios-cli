@@ -27,6 +27,9 @@ app-server-test-client *args:
 fmt:
     cargo fmt -- --config imports_granularity=Item 2>/dev/null
 
+fmt-check:
+    cargo fmt -- --config imports_granularity=Item --check
+
 fix *args:
     cargo clippy --fix --tests --allow-dirty "$@"
 
@@ -105,8 +108,20 @@ surface-test:
 surface-fmt:
     bash ../scripts/task_surface.sh fmt
 
+surface-fmt-check:
+    bash ../scripts/task_surface.sh fmt-check
+
 surface-quality:
     bash ../scripts/task_surface.sh quality
+
+install-hooks:
+    bash ../scripts/install-git-hooks.sh
+
+prepush-ci:
+    bash ../scripts/prepush-ci.sh
+
+bazel-codex-prepush:
+    bash ../scripts/prepush-ci.sh
 
 patch-superset-inventory:
     python3 ../scripts/patch_superset.py inventory

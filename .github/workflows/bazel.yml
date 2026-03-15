@@ -9,6 +9,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      enable_billed_runners:
+        description: "Allow GitHub-hosted macOS Bazel jobs for this manual run"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   # Cancel previous actions from the same PR or branch except 'main' branch.
@@ -16,7 +22,35 @@ concurrency:
   group: concurrency-group::${{ github.workflow }}::${{ github.event.pull_request.number > 0 && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}${{ github.ref_name == 'main' && format('::{0}', github.run_id) || ''}}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 jobs:
+  billed_runner_policy:
+    name: Hosted runner billing policy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Summarize billed runner policy
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.enable_billed_runners || 'false' }}" == "true" ]]; then
+            echo "GitHub-hosted macOS Bazel jobs are enabled for this manual run."
+            exit 0
+          fi
+          if [[ "${{ vars.ENABLE_BILLED_GH_RUNNERS || 'false' }}" == "true" ]]; then
+            echo "GitHub-hosted macOS Bazel jobs are enabled by repo variable."
+            exit 0
+          fi
+
+          echo "GitHub-hosted macOS Bazel jobs are disabled by default in this fork."
+          echo "Reason: billed OS runners are not reliable under current GitHub billing limits."
+          {
+            echo "### Hosted runner billing policy";
+            echo;
+            echo "- macOS Bazel jobs are disabled by default.";
+            echo "- Linux Bazel jobs still run in GitHub Actions.";
+            echo "- Local replacement gate: \`just prepush-ci\` or \`scripts/prepush-ci.sh\`.";
+            echo "- Override for manual GitHub runs only: set repo variable \`ENABLE_BILLED_GH_RUNNERS=true\` or use \`workflow_dispatch.enable_billed_runners=true\`.";
+          } >> "$GITHUB_STEP_SUMMARY"
+
   test:
+    needs: billed_runner_policy
     strategy:
       fail-fast: false
       matrix:
@@ -43,6 +77,7 @@ jobs:
           #- os: windows-latest
           #  target: x86_64-pc-windows-gnullvm
     runs-on: ${{ matrix.os }}
+    if: ${{ matrix.os == 'ubuntu-24.04' || vars.ENABLE_BILLED_GH_RUNNERS == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.enable_billed_runners == 'true') }}
 
     # Configure a human readable name for each job
     name: Local Bazel build on ${{ matrix.os }} for ${{ matrix.target }}

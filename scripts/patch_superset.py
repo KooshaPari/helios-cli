@@ -42,8 +42,18 @@ def inventory(manifest: dict) -> int:
 
 def check(manifest: dict) -> int:
     errors: list[str] = []
-    module_bazel = MODULE_BAZEL_PATH.read_text()
-    shell_readme = SHELL_README_PATH.read_text()
+    module_bazel = ""
+    shell_readme = ""
+
+    if MODULE_BAZEL_PATH.exists():
+        module_bazel = MODULE_BAZEL_PATH.read_text()
+    else:
+        errors.append(f"missing MODULE.bazel path: {MODULE_BAZEL_PATH}")
+
+    if SHELL_README_PATH.exists():
+        shell_readme = SHELL_README_PATH.read_text()
+    else:
+        errors.append(f"missing shell escalation README path: {SHELL_README_PATH}")
 
     for patch in manifest["patches"]:
         path = ROOT / patch["path"]
@@ -75,16 +85,20 @@ def compare_secondary(manifest: dict, secondary_root: Path) -> int:
     for patch in manifest["patches"]:
         primary_path = ROOT / patch["path"]
         secondary_path = secondary_root / patch["path"]
+        prefer_primary = patch["secondary_policy"] == "prefer_primary"
         if not secondary_path.exists():
-            print(f"- {patch['id']} | secondary=missing")
-            mismatches += 1
+            if prefer_primary:
+                print(f"- {patch['id']} | secondary=missing (preferred primary)")
+            else:
+                print(f"- {patch['id']} | secondary=missing")
+                mismatches += 1
             continue
 
         primary_hash = sha256(primary_path)
         secondary_hash = sha256(secondary_path)
         if primary_hash == secondary_hash:
             status = "match"
-        elif patch["secondary_policy"] == "prefer_primary":
+        elif prefer_primary:
             status = "prefer_primary"
         else:
             status = "mismatch"

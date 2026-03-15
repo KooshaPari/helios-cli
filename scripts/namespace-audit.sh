@@ -143,7 +143,11 @@ run_scan() {
 
   if [[ "$SCAN_PRS" -eq 1 ]]; then
     local prs_json
-    prs_json=$(gh pr list --repo "$REPO" --state open --limit 200 --json number,title,url,author,headRepositoryOwner || true)
+    prs_json=$(gh pr list --repo "$REPO" --state open --limit 200 --json number,title,url,author,headRepositoryOwner)
+    if [[ -z "$prs_json" ]] || ! jq -e . >/dev/null 2>&1 <<<"$prs_json"; then
+      echo "ERROR: invalid PR JSON from gh pr list" >&2
+      return 1
+    fi
 
     while IFS= read -r item; do
       [[ -z "$item" ]] && continue
@@ -191,7 +195,11 @@ run_scan() {
 
   if [[ "$SCAN_ISSUES" -eq 1 ]]; then
     local issues_json
-    issues_json=$(gh issue list --repo "$REPO" --state open --limit 200 --json number,title,url,author || true)
+    issues_json=$(gh issue list --repo "$REPO" --state open --limit 200 --json number,title,url,author)
+    if [[ -z "$issues_json" ]] || ! jq -e . >/dev/null 2>&1 <<<"$issues_json"; then
+      echo "ERROR: invalid issue JSON from gh issue list" >&2
+      return 1
+    fi
 
     while IFS= read -r item; do
       [[ -z "$item" ]] && continue
