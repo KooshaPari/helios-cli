@@ -67,6 +67,9 @@ coverage/
 # personal files
 personal/
 
+# scratch / temp
+.tmp/
+
 # os
 .DS_Store
 Thumbs.db

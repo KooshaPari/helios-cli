@@ -34,6 +34,10 @@ If you are invited by a Codex team member to contribute a PR, here is the recomm
 - Keep your changes focused. Multiple unrelated fixes should be opened as separate PRs.
 - Ensure your change is free of lint warnings and test failures.
 
+### Scratch / temp dirs
+
+Do not commit scratch directories (for example `.tmp/`), runtime-generated secrets, or local-only test output. Before you open a PR, run `git status` and review what you are staging so nothing accidental is included.
+
 ### Guidance for invited code contributions
 
 1. **Start with an issue.** Open a new one or comment on an existing discussion so we can agree on the solution before code is written.
