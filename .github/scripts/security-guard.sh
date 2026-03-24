@@ -7,6 +7,7 @@ cd "$ROOT_DIR"
 PRE_COMMIT_CONFIG=".pre-commit-config.yaml"
 RUN_FAST=${SECURITY_GUARD_RUN_FAST:-1}
 REQUIRE_FAST_TOOLS=${SECURITY_GUARD_REQUIRE_FAST_TOOLS:-0}
+SCAN_MODE=${SECURITY_GUARD_SCAN_MODE:-pre-commit}
 RESOLVED_RUNNER=()
 
 log() {
@@ -41,8 +42,8 @@ run_ggshield() {
     fail "ggshield is required. Install via pipx install ggshield or uv tool install ggshield"
   fi
   runner_args=("${RESOLVED_RUNNER[@]}")
-  log "running mandatory secret scan"
-  "${runner_args[@]}" secret scan pre-commit
+  log "running mandatory secret scan (${SCAN_MODE})"
+  "${runner_args[@]}" secret scan "${SCAN_MODE}"
 }
 
 run_fast_optional_checks() {
@@ -85,7 +86,7 @@ append_precommit_block() {
   if [ ! -f "$PRE_COMMIT_CONFIG" ]; then
     fail "missing pre-commit config: $PRE_COMMIT_CONFIG"
   fi
-  if grep -Eq 'security-guard-pre-commit-pre-push|\.github/scripts/security-guard\.sh' "$PRE_COMMIT_CONFIG"; then
+  if grep -Eq 'security-guard-pre-commit|security-guard-pre-push|\.github/scripts/security-guard\.sh' "$PRE_COMMIT_CONFIG"; then
     log "pre-commit hook block already present"
     return 0
   fi
@@ -94,12 +95,20 @@ append_precommit_block() {
 
   - repo: local
     hooks:
-      - id: security-guard-pre-commit-pre-push
-        name: security-guard pre-commit/pre-push
+      - id: security-guard-pre-commit
+        name: security-guard pre-commit
         entry: .github/scripts/security-guard.sh
         language: script
         pass_filenames: false
-        stages: [pre-commit, pre-push]
+        stages: [pre-commit]
+      - id: security-guard-pre-push
+        name: security-guard pre-push
+        entry: .github/scripts/security-guard.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-push]
+        env:
+          SECURITY_GUARD_SCAN_MODE: pre-push
 EOF
   log "appended pre-commit hook block"
 }

@@ -18,6 +18,43 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Enforce namespace ownership
+        env:
+          ALLOWED_NAMESPACE: KooshaPari
+          ALLOWED_BOTS: github-actions[bot],dependabot[bot],dependabot-preview[bot],renovate[bot],app/github-actions
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_OWNER: ${{ github.event.pull_request.head.repo.owner.login }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$PR_AUTHOR" ]]; then
+            echo "ERROR: Unable to read PR author."
+            exit 1
+          fi
+
+          is_bot_author=0
+          IFS=',' read -ra bots <<< "$ALLOWED_BOTS"
+          for bot in "${bots[@]}"; do
+            if [[ "$bot" == "$PR_AUTHOR" ]]; then
+              is_bot_author=1
+              break
+            fi
+          done
+
+          if [[ "$is_bot_author" -eq 1 ]]; then
+            echo "Allowed bot author: $PR_AUTHOR"
+            exit 0
+          fi
+
+          if [[ "$PR_AUTHOR" != "$ALLOWED_NAMESPACE" || "$HEAD_OWNER" != "$ALLOWED_NAMESPACE" ]]; then
+            echo "ERROR: PR must come from namespace '$ALLOWED_NAMESPACE'."
+            echo "Author: $PR_AUTHOR"
+            echo "Head repo owner: $HEAD_OWNER"
+            exit 1
+          fi
+
+          echo "Namespace ownership policy passed."
+
       - name: Enforce layered fix PR policy
         shell: bash
         env:

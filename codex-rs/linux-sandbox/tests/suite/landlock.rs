@@ -34,6 +34,10 @@ const NETWORK_TIMEOUT_MS: u64 = 2_000;
 const NETWORK_TIMEOUT_MS: u64 = 10_000;
 
 const BWRAP_UNAVAILABLE_ERR: &str = "build-time bubblewrap is not available in this build.";
+const BWRAP_PERMISSION_ERR_SNIPPETS: &[&str] = &[
+    "setting up uid map: Permission denied",
+    "No permissions to create a new namespace",
+];
 
 fn create_env_from_core_vars() -> HashMap<String, String> {
     let policy = ShellEnvironmentPolicy::default();
@@ -112,6 +116,9 @@ async fn run_cmd_result_with_writable_roots(
 
 fn is_bwrap_unavailable_output(output: &codex_core::exec::ExecToolCallOutput) -> bool {
     output.stderr.text.contains(BWRAP_UNAVAILABLE_ERR)
+        || BWRAP_PERMISSION_ERR_SNIPPETS
+            .iter()
+            .any(|snippet| output.stderr.text.contains(snippet))
         || (output
             .stderr
             .text

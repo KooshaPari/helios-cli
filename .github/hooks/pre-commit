@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$HOOK_DIR/../.." && pwd)"
+
+if [ -x "$PROJECT_ROOT/.venv/bin/pre-commit" ]; then
+  PRE_COMMIT="$PROJECT_ROOT/.venv/bin/pre-commit"
+elif [ -x "$PROJECT_ROOT/.venv/Scripts/pre-commit.exe" ]; then
+  PRE_COMMIT="$PROJECT_ROOT/.venv/Scripts/pre-commit.exe"
+elif command -v pre-commit >/dev/null 2>&1; then
+  PRE_COMMIT="pre-commit"
+else
+  echo "pre-commit executable not found. Install pre-commit or add it to PATH." >&2
+  exit 1
+fi
+
+exec "$PRE_COMMIT" run --hook-stage pre-commit --config "$PROJECT_ROOT/.pre-commit-config.yaml" --show-diff-on-failure
