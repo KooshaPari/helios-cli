@@ -6,12 +6,13 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 usage() {
   cat <<'USAGE' >&2
-Usage: scripts/task_surface.sh <lint|test|fmt|quality>
+Usage: scripts/task_surface.sh <lint|test|fmt|fmt-check|quality>
 
 Commands:
   lint     Run lint checks (cargo clippy --tests)
   test     Run test suite (cargo nextest run --no-fail-fast)
   fmt      Format Rust code (cargo fmt -- --config imports_granularity=Item)
+  fmt-check Run Rust format verification
   quality  Run strict quality surface (lint then test)
 USAGE
 }
@@ -37,6 +38,13 @@ run_fmt() {
   )
 }
 
+run_fmt_check() {
+  (
+    cd "${REPO_ROOT}/codex-rs"
+    cargo fmt -- --config imports_granularity=Item --check
+  )
+}
+
 run_quality() {
   run_lint
   run_test
@@ -56,6 +64,9 @@ case "$1" in
     ;;
   fmt)
     run_fmt
+    ;;
+  fmt-check)
+    run_fmt_check
     ;;
   quality)
     run_quality

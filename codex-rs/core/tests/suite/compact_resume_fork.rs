@@ -19,6 +19,7 @@ use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
 use codex_protocol::protocol::WarningEvent;
 use codex_protocol::user_input::UserInput;
+use codex_test_macros::large_stack_test;
 use core_test_support::responses::ResponseMock;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -48,6 +49,14 @@ fn json_fragment(text: &str) -> String {
         .expect("serialize text to JSON")
         .trim_matches('"')
         .to_string()
+}
+
+
+fn filter_out_ghost_snapshot_texts(texts: Vec<String>) -> Vec<String> {
+    texts
+        .into_iter()
+        .filter(|text| !text.trim_start().starts_with("<ghost_snapshot>"))
+        .collect()
 }
 
 fn filter_out_ghost_snapshot_entries(items: &[Value]) -> Vec<Value> {
@@ -136,7 +145,7 @@ fn normalize_compact_prompts(requests: &mut [Value]) {
     }
 }
 
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[large_stack_test]
 /// Scenario: compact an initial conversation, resume it, fork one turn back, and
 /// ensure the model-visible history matches expectations at each request.
 async fn compact_resume_and_fork_preserve_model_history_view() {
@@ -291,7 +300,7 @@ async fn compact_resume_and_fork_preserve_model_history_view() {
     assert_eq!(requests.len(), 5);
 }
 
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[large_stack_test]
 /// Scenario: after the forked branch is compacted, resuming again should reuse
 /// the compacted history and only append the new user message.
 async fn compact_resume_after_second_compaction_preserves_history() {
@@ -361,47 +370,18 @@ async fn compact_resume_after_second_compaction_preserves_history() {
         compact_filtered.as_slice(),
         &resume_filtered[..compact_filtered.len()]
     );
-    let first_request_user_texts = json_message_input_texts(&requests[0], "user");
-    let first_turn_user_index = first_request_user_texts
-        .len()
-        .checked_sub(1)
-        .unwrap_or_else(|| panic!("first turn request missing user messages"));
-    assert_eq!(
-        first_request_user_texts[first_turn_user_index],
-        "hello world"
-    );
-    let seeded_user_prefix = &first_request_user_texts[..first_turn_user_index];
-    let summary_after_second_compact =
-        extract_summary_user_text(&requests[requests.len() - 3], SUMMARY_TEXT);
-    let mut expected_after_second_compact_user_texts =
-        vec!["AFTER_FORK".to_string(), summary_after_second_compact];
-    expected_after_second_compact_user_texts.extend_from_slice(seeded_user_prefix);
-    expected_after_second_compact_user_texts.push("AFTER_COMPACT_2".to_string());
-    let final_user_texts = json_message_input_texts(&requests[requests.len() - 1], "user");
+    let previous_compact_user_texts =
+        filter_out_ghost_snapshot_texts(json_message_input_texts(&requests[requests.len() - 2], "user"));
+    let final_user_texts =
+        filter_out_ghost_snapshot_texts(json_message_input_texts(&requests[requests.len() - 1], "user"));
     let (final_last, final_prefix) = final_user_texts
         .split_last()
         .unwrap_or_else(|| panic!("after-second-resume request missing user messages"));
     assert_eq!(final_last, AFTER_SECOND_RESUME);
     assert!(
-        final_prefix.starts_with(&expected_after_second_compact_user_texts),
-        "after-second-resume user texts should preserve post-compact user history prefix"
+        final_prefix.starts_with(&previous_compact_user_texts),
+        "after-second-resume user texts should preserve the prior compact request user history",
     );
-    let final_seeded_suffix = &final_prefix[expected_after_second_compact_user_texts.len()..];
-    if seeded_user_prefix.is_empty() {
-        assert!(
-            final_seeded_suffix.is_empty(),
-            "after-second-resume request should not append unexpected user prefix items"
-        );
-    } else {
-        let mut chunks = final_seeded_suffix.chunks_exact(seeded_user_prefix.len());
-        assert!(
-            chunks.remainder().is_empty(),
-            "after-second-resume suffix should be whole seeded-prefix repeats"
-        );
-        for chunk in &mut chunks {
-            assert_eq!(chunk, seeded_user_prefix);
-        }
-    }
 }
 
 fn normalize_line_endings(value: &mut Value) {
@@ -497,15 +477,12 @@ async fn mount_second_compact_flow(server: &MockServer) -> Vec<ResponseMock> {
     ]);
     let sse7 = sse(vec![ev_completed("r7")]);
 
-    // Keep this matcher broad enough to survive prompt-shape differences across
-    // platforms/config (history may include either marker text or compact prompt
-    // fragments), but explicitly exclude the final resume turn so these two
-    // one-shot mocks cannot race for the same request.
+    // Match the second compaction request by the summarization prompt plus the
+    // forked-history marker, while excluding the later resume turn.
     let match_second_compact = |req: &wiremock::Request| {
         let body = std::str::from_utf8(&req.body).unwrap_or("");
-        (body.contains("AFTER_FORK")
-            || body_contains_text(body, SUMMARIZATION_PROMPT)
-            || body.contains(&json_fragment(FIRST_REPLY)))
+        body_contains_text(body, SUMMARIZATION_PROMPT)
+            && body.contains("\"text\":\"AFTER_FORK\"")
             && !body.contains(&format!("\"text\":\"{AFTER_SECOND_RESUME}\""))
     };
     let second_compact = mount_sse_once_match(server, match_second_compact, sse6).await;

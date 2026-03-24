@@ -1,0 +1,53 @@
+name: Namespace Audit Retro
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      close_items:
+        description: "Close and keep comment on violating open PRs/issues"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  audit-open-items:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run namespace audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOSE_ITEMS: ${{ github.event_name == 'workflow_dispatch' && inputs.close_items == true }}
+        run: |
+          set -euo pipefail
+
+          args=(
+            --repo "${{ github.repository }}"
+            --namespace KooshaPari
+            --json-report namespace-audit-report.json
+            --allowed-bots "github-actions[bot],dependabot[bot],dependabot-preview[bot],renovate[bot],app/github-actions"
+            --dry-run
+          )
+
+          if [[ "$CLOSE_ITEMS" == "true" ]]; then
+            # Remove --dry-run without leaving an empty string element
+            args=("${args[@]/#--dry-run}")
+            args+=(--close)
+          fi
+
+          ./scripts/namespace-audit.sh "${args[@]}"
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: namespace-audit-report
+          path: namespace-audit-report.json
+          if-no-files-found: ignore

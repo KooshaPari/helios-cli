@@ -9,6 +9,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      enable_billed_runners:
+        description: "Allow GitHub-hosted macOS Bazel jobs for this manual run"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   # Cancel previous actions from the same PR or branch except 'main' branch.
@@ -16,32 +22,64 @@ concurrency:
   group: concurrency-group::${{ github.workflow }}::${{ github.event.pull_request.number > 0 && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}${{ github.ref_name == 'main' && format('::{0}', github.run_id) || ''}}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 jobs:
+  billed_runner_policy:
+    name: Hosted runner billing policy
+    runs-on: ubuntu-24.04
+    outputs:
+      bazel_matrix: ${{ steps.policy.outputs.bazel_matrix }}
+    steps:
+      - name: Resolve billed runner matrix
+        id: policy
+        shell: bash
+        run: |
+          bazel_matrix='{"include":[
+            {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu"},
+            {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-musl"}
+          ]}'
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.enable_billed_runners || 'false' }}" == "true" ]] \
+            || [[ "${{ vars.ENABLE_BILLED_GH_RUNNERS || 'false' }}" == "true" ]]; then
+            bazel_matrix='{"include":[
+              {"os":"macos-latest","target":"aarch64-apple-darwin"},
+              {"os":"macos-latest","target":"x86_64-apple-darwin"},
+              {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-gnu"},
+              {"os":"ubuntu-24.04","target":"x86_64-unknown-linux-musl"}
+            ]}'
+          fi
+
+          {
+            echo "bazel_matrix<<EOF"
+            echo "${bazel_matrix}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      - name: Summarize billed runner policy
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.enable_billed_runners || 'false' }}" == "true" ]]; then
+            echo "GitHub-hosted macOS Bazel jobs are enabled for this manual run."
+            exit 0
+          fi
+          if [[ "${{ vars.ENABLE_BILLED_GH_RUNNERS || 'false' }}" == "true" ]]; then
+            echo "GitHub-hosted macOS Bazel jobs are enabled by repo variable."
+            exit 0
+          fi
+
+          echo "GitHub-hosted macOS Bazel jobs are disabled by default in this fork."
+          echo "Reason: billed OS runners are not reliable under current GitHub billing limits."
+          {
+            echo "### Hosted runner billing policy";
+            echo;
+            echo "- macOS Bazel jobs are disabled by default.";
+            echo "- Linux Bazel jobs still run in GitHub Actions.";
+            echo "- Local replacement gate: \`just prepush-ci\` or \`scripts/prepush-ci.sh\`.";
+            echo "- Override for manual GitHub runs only: set repo variable \`ENABLE_BILLED_GH_RUNNERS=true\` or use \`workflow_dispatch.enable_billed_runners=true\`.";
+          } >> "$GITHUB_STEP_SUMMARY"
+
   test:
+    needs: billed_runner_policy
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          # macOS
-          - os: macos-latest
-            target: aarch64-apple-darwin
-          - os: macos-latest
-            target: x86_64-apple-darwin
-
-          # Linux
-          - os: ubuntu-24.04
-            target: x86_64-unknown-linux-gnu
-          - os: ubuntu-24.04
-            target: x86_64-unknown-linux-musl
-          # 2026-02-27 Bazel tests have been flaky on arm in CI.
-          # Disable until we can investigate and stabilize them.
-          # - os: ubuntu-24.04-arm
-          #   target: aarch64-unknown-linux-musl
-          # - os: ubuntu-24.04-arm
-          #   target: aarch64-unknown-linux-gnu
-
-          # TODO: Enable Windows once we fix the toolchain issues there.
-          #- os: windows-latest
-          #  target: x86_64-pc-windows-gnullvm
+      matrix: ${{ fromJSON(needs.billed_runner_policy.outputs.bazel_matrix) }}
     runs-on: ${{ matrix.os }}
 
     # Configure a human readable name for each job
@@ -117,6 +155,19 @@ jobs:
         run: |
           set -o pipefail
 
+          if [[ "${RUNNER_OS:-}" == "macOS" ]]; then
+            for candidate in \
+              "/opt/homebrew/opt/llvm/lib" \
+              "/usr/local/opt/llvm/lib" \
+              "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib" \
+              "/Library/Developer/CommandLineTools/usr/lib"; do
+              if [[ -f "${candidate}/libclang.dylib" ]]; then
+                export LIBCLANG_PATH="${candidate}"
+                break
+              fi
+            done
+          fi
+
           bazel_console_log="$(mktemp)"
 
           print_failed_bazel_test_logs() {
@@ -169,6 +220,12 @@ jobs:
             # before the `actions/setup-node` runtime on PATH.
             node_bin="$(which node)"
             bazel_args+=("--test_env=CODEX_JS_REPL_NODE_PATH=${node_bin}")
+          fi
+
+          if [[ "${RUNNER_OS:-}" == "macOS" && -n "${LIBCLANG_PATH:-}" ]]; then
+            # Export the host-discovered libclang directory into Bazel actions so
+            # bindgen-backed build scripts can load libclang inside the sandbox.
+            bazel_args+=("--action_env=LIBCLANG_PATH=${LIBCLANG_PATH}")
           fi
 
           if [[ -n "${BUILDBUDDY_API_KEY:-}" ]]; then
