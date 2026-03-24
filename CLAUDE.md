@@ -191,7 +191,8 @@ Root-level markdown: only `README.md`, `CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`.
 
 ## 8. Worktree Discipline
 
-- Feature work goes in `heliosCLI-wtrees/<topic>/` or `PROJECT-wtrees/<topic>/`
+- Feature work goes in `repos/worktrees/heliosCLI/<topic>/`
+- Legacy `heliosCLI-wtrees/` and `PROJECT-wtrees/` roots are migration-only and must not receive new work
 - Canonical `heliosCLI/` stays on `main`
 - Never commit feature branches directly to canonical `main`
 
