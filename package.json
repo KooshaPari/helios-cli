@@ -4,10 +4,16 @@
   "description": "Tools for repo-wide maintenance.",
   "scripts": {
     "format": "prettier --check *.json *.md docs/*.md .github/workflows/*.yml **/*.js",
-    "format:fix": "prettier --write *.json *.md docs/*.md .github/workflows/*.yml **/*.js"
+    "format:fix": "prettier --write *.json *.md docs/*.md .github/workflows/*.yml **/*.js",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs",
+    "docs:dev": "vitepress dev docs",
+    "docs:index": "echo 'Indexing docs...'"
   },
   "devDependencies": {
-    "prettier": "^3.5.3"
+    "@shikijs/transformers": "^4.0.2",
+    "prettier": "^3.5.3",
+    "vitepress": "^1.6.4"
   },
   "resolutions": {
     "braces": "^3.0.3",
