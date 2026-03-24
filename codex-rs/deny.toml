@@ -74,6 +74,14 @@ ignore = [
     { id = "RUSTSEC-2025-0057", reason = "fxhash is unmaintained; pulled in via starlark_map/starlark v0.13.0 used by execpolicy/cli/core; no fixed release yet" },
     { id = "RUSTSEC-2024-0436", reason = "paste is unmaintained; pulled in via ratatui/rmcp/starlark used by tui/execpolicy; no fixed release yet" },
     # TODO(joshka, nornagon): remove this exception when once we update the ratatui fork to a version that uses lru 0.13+.
+        # TODO: remove when aws-lc is updated to a patched version
+    { id = "RUSTSEC-2026-0044", reason = "aws-lc-sys: X.509 Name Constraints Bypass via Wildcard/Unicode CN; no fixed version available yet" },
+    { id = "RUSTSEC-2026-0045", reason = "aws-lc-sys: Timing Side-Channel in AES-CCM Tag Verification; no fixed version available yet" },
+    { id = "RUSTSEC-2026-0046", reason = "aws-lc-sys: PKCS7_verify Certificate Chain Validation Bypass; no fixed version available yet" },
+    { id = "RUSTSEC-2026-0047", reason = "aws-lc-sys: PKCS7_verify Signature Validation Bypass; no fixed version available yet" },
+    { id = "RUSTSEC-2026-0048", reason = "aws-lc-sys: CRL Distribution Point Scope Check Logic Error; no fixed version available yet" },
+    { id = "RUSTSEC-2026-0042", reason = "aws-lc-fips-sys: CRL Distribution Point Scope Check Logic Error; no fixed version available yet" },
+    { id = "RUSTSEC-2026-0043", reason = "aws-lc-fips-sys: Timing Side-Channel in AES-CCM Tag Verification; no fixed version available yet" },
     { id = "RUSTSEC-2026-0002", reason = "lru 0.12.5 is pulled in via ratatui fork; cannot upgrade until the fork is updated" },
     # TODO(fcoury): remove this exception when syntect drops yaml-rust and bincode, or updates to versions that have fixed the vulnerabilities.
     { id = "RUSTSEC-2024-0320", reason = "yaml-rust is unmaintained; pulled in via syntect v5.3.0 used by codex-tui for syntax highlighting; no fixed release yet" },

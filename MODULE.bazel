@@ -164,11 +164,14 @@ crate.annotation(
     build_script_env = {
         "BINDGEN_EXTRA_CLANG_ARGS": "-isystem $(location @toolchains_llvm_bootstrapped//:builtin_headers)",
         "COREAUDIO_SDK_PATH": "$(location @macosx15.4.sdk//sysroot)",
-        "LIBCLANG_PATH": "$(location @helioscli//:clang)",
     },
     build_script_tools = [
         "@helioscli//:clang",
         "@toolchains_llvm_bootstrapped//:builtin_headers",
+    ],
+    patch_args = ["-p1"],
+    patches = [
+        "//patches:coreaudio-sys_bindgen_target.patch",
     ],
     crate = "coreaudio-sys",
 )
