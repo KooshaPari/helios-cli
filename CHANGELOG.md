@@ -12,8 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Release channel framework (stage-gates CI, CodeRabbit, gatekeeper)
 - phenotype-config SDK integration
+- Governance CI (CI Completeness Policy, GitHub Delivery Workflow Protocol)
+- .worktrees/ discipline and legacy wtrees deprecation
 
-## [0.1.0-codex.105.0] - 2026-02-25
+### Changed
+- Mass synchronization of governance/CI/release/docs across codebase
+- Deprecation of PROJECT-wtrees paths in favor of repos/worktrees/
+
+### Security
+- Added esbuild override >=0.25.0 (CVE mitigation)
 
 HELIOS-CODEX version: our v0.1.0, forked from upstream openai/codex at rust-v0.105.0.
 
