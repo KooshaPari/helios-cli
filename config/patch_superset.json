@@ -1,0 +1,52 @@
+{
+  "allowed_secondary_root": "../../helios-cli",
+  "patches": [
+    {
+      "id": "toolchains_llvm_bootstrapped_resource_dir",
+      "category": "workspace-bootstrap",
+      "path": "patches/toolchains_llvm_bootstrapped_resource_dir.patch",
+      "integration": "bazel_module_override",
+      "module_reference": "//patches:toolchains_llvm_bootstrapped_resource_dir.patch",
+      "secondary_policy": "prefer_primary"
+    },
+    {
+      "id": "aws_lc_sys_memcmp_check",
+      "category": "platform-linker",
+      "path": "patches/aws-lc-sys_memcmp_check.patch",
+      "integration": "bazel_crate_annotation",
+      "module_reference": "//patches:aws-lc-sys_memcmp_check.patch",
+      "secondary_policy": "must_match"
+    },
+    {
+      "id": "windows_link",
+      "category": "platform-linker",
+      "path": "patches/windows-link.patch",
+      "integration": "bazel_crate_annotation",
+      "module_reference": "//patches:windows-link.patch",
+      "secondary_policy": "must_match"
+    },
+    {
+      "id": "coreaudio_sys_bindgen_target",
+      "category": "platform-linker",
+      "path": "patches/coreaudio-sys_bindgen_target.patch",
+      "integration": "bazel_crate_annotation",
+      "module_reference": "//patches:coreaudio-sys_bindgen_target.patch",
+      "secondary_policy": "prefer_primary"
+    },
+    {
+      "id": "bash_exec_wrapper",
+      "category": "shell-tool",
+      "path": "shell-tool-mcp/patches/bash-exec-wrapper.patch",
+      "integration": "shell_readme_reference",
+      "readme_reference": "patches/bash-exec-wrapper.patch",
+      "secondary_policy": "must_match"
+    },
+    {
+      "id": "zsh_exec_wrapper",
+      "category": "shell-tool",
+      "path": "shell-tool-mcp/patches/zsh-exec-wrapper.patch",
+      "integration": "artifact_only",
+      "secondary_policy": "must_match"
+    }
+  ]
+}
