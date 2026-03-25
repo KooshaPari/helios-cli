@@ -1,0 +1,8 @@
+{
+  "feature_number": "001",
+  "slug": "codex-tui-renderer-optimization",
+  "friendly_name": "Codex TUI Renderer Optimization",
+  "created_at": "2026-02-28T09:49:48Z",
+  "target_branch": "main",
+  "vcs": "git"
+}
