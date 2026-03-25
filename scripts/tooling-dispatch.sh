@@ -22,19 +22,11 @@ command_exists() {
 }
 
 select_pm() {
-  if [[ "${HELIOS_USE_BUN:-0}" == "1" ]] && command_exists bun; then
-    echo "bun"
-    return
-  fi
-  if command_exists pnpm; then
-    echo "pnpm"
-    return
-  fi
   if command_exists bun; then
     echo "bun"
     return
   fi
-  echo "error: neither pnpm nor bun found in PATH" >&2
+  echo "error: bun is required. Install from https://bun.sh/" >&2
   exit 127
 }
 
