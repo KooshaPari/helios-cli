@@ -7,6 +7,15 @@
         "data": {
           "type": "string"
         },
+<<<<<<< HEAD
+=======
+        "itemId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+>>>>>>> upstream_main
         "numChannels": {
           "format": "uint16",
           "minimum": 0.0,

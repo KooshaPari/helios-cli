@@ -7,16 +7,24 @@ Scenario: Remote pre-turn compaction during model switch currently excludes inco
 
 ## Initial Request (Previous Model)
 00:message/developer:<PERMISSIONS_INSTRUCTIONS>
+<<<<<<< HEAD
 01:message/user[2]:
     [01] <AGENTS_MD>
     [02] <ENVIRONMENT_CONTEXT:cwd=<CWD>>
+=======
+01:message/user:<ENVIRONMENT_CONTEXT:cwd=<CWD>>
+>>>>>>> upstream_main
 02:message/user:BEFORE_SWITCH_USER
 
 ## Remote Compaction Request
 00:message/developer:<PERMISSIONS_INSTRUCTIONS>
+<<<<<<< HEAD
 01:message/user[2]:
     [01] <AGENTS_MD>
     [02] <ENVIRONMENT_CONTEXT:cwd=<CWD>>
+=======
+01:message/user:<ENVIRONMENT_CONTEXT:cwd=<CWD>>
+>>>>>>> upstream_main
 02:message/user:BEFORE_SWITCH_USER
 03:message/assistant:BEFORE_SWITCH_REPLY
 
@@ -27,7 +35,11 @@ Scenario: Remote pre-turn compaction during model switch currently excludes inco
     [01] <model_switch>\nThe user was previously using a different model....
     [02] <PERMISSIONS_INSTRUCTIONS>
     [03] <personality_spec> The user has requested a new communication st...
+<<<<<<< HEAD
 03:message/user[2]:
     [01] <AGENTS_MD>
     [02] <ENVIRONMENT_CONTEXT:cwd=<CWD>>
+=======
+03:message/user:<ENVIRONMENT_CONTEXT:cwd=<CWD>>
+>>>>>>> upstream_main
 04:message/user:AFTER_SWITCH_USER

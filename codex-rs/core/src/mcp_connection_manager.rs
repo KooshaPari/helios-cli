@@ -6,6 +6,7 @@
 //! in a single aggregated map using the fully-qualified tool name
 //! `"<server><MCP_TOOL_NAME_DELIMITER><tool>"` as the key.
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::env;
@@ -19,6 +20,7 @@ use std::time::Duration;
 use std::time::Instant;
 
 use crate::mcp::CODEX_APPS_MCP_SERVER_NAME;
+use crate::mcp::ToolPluginProvenance;
 use crate::mcp::auth::McpAuthStatusEntry;
 use anyhow::Context;
 use anyhow::Result;
@@ -27,6 +29,7 @@ use async_channel::Sender;
 use codex_async_utils::CancelErr;
 use codex_async_utils::OrCancelExt;
 use codex_config::Constrained;
+use codex_protocol::approvals::ElicitationRequest;
 use codex_protocol::approvals::ElicitationRequestEvent;
 use codex_protocol::mcp::CallToolResult;
 use codex_protocol::mcp::RequestId as ProtocolRequestId;
@@ -79,6 +82,7 @@ use crate::codex::INITIAL_SUBMIT_ID;
 use crate::config::types::McpServerConfig;
 use crate::config::types::McpServerTransportConfig;
 use crate::connectors::is_connector_id_allowed;
+use crate::connectors::sanitize_name;
 
 /// Delimiter used to separate the server name from the tool name in a fully
 /// qualified tool name.
@@ -106,7 +110,7 @@ const MCP_TOOLS_CACHE_WRITE_DURATION_METRIC: &str = "codex.mcp.tools.cache_write
 fn sanitize_responses_api_tool_name(name: &str) -> String {
     let mut sanitized = String::with_capacity(name.len());
     for c in name.chars() {
-        if c.is_ascii_alphanumeric() || c == '_' || c == '-' {
+        if c.is_ascii_alphanumeric() || c == '_' {
             sanitized.push(c);
         } else {
             sanitized.push('_');
@@ -156,10 +160,14 @@ where
     let mut seen_raw_names = HashSet::new();
     let mut qualified_tools = HashMap::new();
     for tool in tools {
-        let qualified_name_raw = format!(
-            "mcp{}{}{}{}",
-            MCP_TOOL_NAME_DELIMITER, tool.server_name, MCP_TOOL_NAME_DELIMITER, tool.tool_name
-        );
+        let qualified_name_raw = if tool.server_name != CODEX_APPS_MCP_SERVER_NAME {
+            format!(
+                "mcp{}{}{}{}",
+                MCP_TOOL_NAME_DELIMITER, tool.server_name, MCP_TOOL_NAME_DELIMITER, tool.tool_name
+            )
+        } else {
+            format!("{}{}", tool.tool_namespace, tool.tool_name)
+        };
         if !seen_raw_names.insert(qualified_name_raw.clone()) {
             warn!("skipping duplicated tool {}", qualified_name_raw);
             continue;
@@ -194,9 +202,13 @@ where
 pub(crate) struct ToolInfo {
     pub(crate) server_name: String,
     pub(crate) tool_name: String,
+    pub(crate) tool_namespace: String,
     pub(crate) tool: Tool,
     pub(crate) connector_id: Option<String>,
     pub(crate) connector_name: Option<String>,
+    #[serde(default)]
+    pub(crate) plugin_display_names: Vec<String>,
+    pub(crate) connector_description: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -242,7 +254,7 @@ fn elicitation_is_rejected_by_policy(approval_policy: AskForApproval) -> bool {
         AskForApproval::OnFailure => false,
         AskForApproval::OnRequest => false,
         AskForApproval::UnlessTrusted => false,
-        AskForApproval::Reject(reject_config) => reject_config.rejects_mcp_elicitations(),
+        AskForApproval::Granular(granular_config) => !granular_config.allows_mcp_elicitations(),
     }
 }
 
@@ -291,9 +303,39 @@ impl ElicitationRequestManager {
                     return Ok(ElicitationResponse {
                         action: ElicitationAction::Decline,
                         content: None,
+                        meta: None,
                     });
                 }
 
+                let request = match elicitation {
+                    CreateElicitationRequestParams::FormElicitationParams {
+                        meta,
+                        message,
+                        requested_schema,
+                    } => ElicitationRequest::Form {
+                        meta: meta
+                            .map(serde_json::to_value)
+                            .transpose()
+                            .context("failed to serialize MCP elicitation metadata")?,
+                        message,
+                        requested_schema: serde_json::to_value(requested_schema)
+                            .context("failed to serialize MCP elicitation schema")?,
+                    },
+                    CreateElicitationRequestParams::UrlElicitationParams {
+                        meta,
+                        message,
+                        url,
+                        elicitation_id,
+                    } => ElicitationRequest::Url {
+                        meta: meta
+                            .map(serde_json::to_value)
+                            .transpose()
+                            .context("failed to serialize MCP elicitation metadata")?,
+                        message,
+                        url,
+                        elicitation_id,
+                    },
+                };
                 let (tx, rx) = oneshot::channel();
                 {
                     let mut lock = elicitation_requests.lock().await;
@@ -303,6 +345,7 @@ impl ElicitationRequestManager {
                     .send(Event {
                         id: "mcp_elicitation_request".to_string(),
                         msg: EventMsg::ElicitationRequest(ElicitationRequestEvent {
+                            turn_id: None,
                             server_name,
                             id: match id.clone() {
                                 rmcp::model::NumberOrString::String(value) => {
@@ -312,16 +355,7 @@ impl ElicitationRequestManager {
                                     ProtocolRequestId::Integer(value)
                                 }
                             },
-                            message: match elicitation {
-                                CreateElicitationRequestParams::FormElicitationParams {
-                                    message,
-                                    ..
-                                }
-                                | CreateElicitationRequestParams::UrlElicitationParams {
-                                    message,
-                                    ..
-                                } => message,
-                            },
+                            request,
                         }),
                     })
                     .await;
@@ -391,9 +425,13 @@ struct AsyncManagedClient {
     client: Shared<BoxFuture<'static, Result<ManagedClient, StartupOutcomeError>>>,
     startup_snapshot: Option<Vec<ToolInfo>>,
     startup_complete: Arc<AtomicBool>,
+    tool_plugin_provenance: Arc<ToolPluginProvenance>,
 }
 
 impl AsyncManagedClient {
+    // Keep this constructor flat so the startup inputs remain readable at the
+    // single call site instead of introducing a one-off params wrapper.
+    #[allow(clippy::too_many_arguments)]
     fn new(
         server_name: String,
         config: McpServerConfig,
@@ -402,6 +440,7 @@ impl AsyncManagedClient {
         tx_event: Sender<Event>,
         elicitation_requests: ElicitationRequestManager,
         codex_apps_tools_cache_context: Option<CodexAppsToolsCacheContext>,
+        tool_plugin_provenance: Arc<ToolPluginProvenance>,
     ) -> Self {
         let tool_filter = ToolFilter::from_config(&config);
         let startup_snapshot = load_startup_cached_codex_apps_tools_snapshot(
@@ -458,6 +497,7 @@ impl AsyncManagedClient {
             client,
             startup_snapshot,
             startup_complete,
+            tool_plugin_provenance,
         }
     }
 
@@ -473,14 +513,63 @@ impl AsyncManagedClient {
     }
 
     async fn listed_tools(&self) -> Option<Vec<ToolInfo>> {
-        if let Some(startup_tools) = self.startup_snapshot_while_initializing() {
-            return Some(startup_tools);
-        }
+        let annotate_tools = |tools: Vec<ToolInfo>| {
+            let mut tools = tools;
+            for tool in &mut tools {
+                let plugin_names = match tool.connector_id.as_deref() {
+                    Some(connector_id) => self
+                        .tool_plugin_provenance
+                        .plugin_display_names_for_connector_id(connector_id),
+                    None => self
+                        .tool_plugin_provenance
+                        .plugin_display_names_for_mcp_server_name(tool.server_name.as_str()),
+                };
+                tool.plugin_display_names = plugin_names.to_vec();
 
-        match self.client().await {
-            Ok(client) => Some(client.listed_tools()),
-            Err(_) => self.startup_snapshot.clone(),
-        }
+                if plugin_names.is_empty() {
+                    continue;
+                }
+
+                let plugin_source_note = if plugin_names.len() == 1 {
+                    format!("This tool is part of plugin `{}`.", plugin_names[0])
+                } else {
+                    format!(
+                        "This tool is part of plugins {}.",
+                        plugin_names
+                            .iter()
+                            .map(|plugin_name| format!("`{plugin_name}`"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
+                };
+                let description = tool
+                    .tool
+                    .description
+                    .as_deref()
+                    .map(str::trim)
+                    .unwrap_or("");
+                let annotated_description = if description.is_empty() {
+                    plugin_source_note
+                } else if matches!(description.chars().last(), Some('.' | '!' | '?')) {
+                    format!("{description} {plugin_source_note}")
+                } else {
+                    format!("{description}. {plugin_source_note}")
+                };
+                tool.tool.description = Some(Cow::Owned(annotated_description));
+            }
+            tools
+        };
+
+        // Keep cache payloads raw; plugin provenance is resolved per-session at read time.
+        let tools = if let Some(startup_tools) = self.startup_snapshot_while_initializing() {
+            Some(startup_tools)
+        } else {
+            match self.client().await {
+                Ok(client) => Some(client.listed_tools()),
+                Err(_) => self.startup_snapshot.clone(),
+            }
+        };
+        tools.map(annotate_tools)
     }
 
     async fn notify_sandbox_state_change(&self, sandbox_state: &SandboxState) -> Result<()> {
@@ -502,7 +591,7 @@ pub struct SandboxState {
     pub codex_linux_sandbox_exe: Option<PathBuf>,
     pub sandbox_cwd: PathBuf,
     #[serde(default)]
-    pub use_linux_sandbox_bwrap: bool,
+    pub use_legacy_landlock: bool,
 }
 
 /// A thin wrapper around a set of running [`RmcpClient`] instances.
@@ -552,12 +641,14 @@ impl McpConnectionManager {
         initial_sandbox_state: SandboxState,
         codex_home: PathBuf,
         codex_apps_tools_cache_key: CodexAppsToolsCacheKey,
+        tool_plugin_provenance: ToolPluginProvenance,
     ) -> (Self, CancellationToken) {
         let cancel_token = CancellationToken::new();
         let mut clients = HashMap::new();
         let mut server_origins = HashMap::new();
         let mut join_set = JoinSet::new();
         let elicitation_requests = ElicitationRequestManager::new(approval_policy.value());
+        let tool_plugin_provenance = Arc::new(tool_plugin_provenance);
         let mcp_servers = mcp_servers.clone();
         for (server_name, cfg) in mcp_servers.into_iter().filter(|(_, cfg)| cfg.enabled) {
             if let Some(origin) = transport_origin(&cfg.transport) {
@@ -588,6 +679,7 @@ impl McpConnectionManager {
                 tx_event.clone(),
                 elicitation_requests.clone(),
                 codex_apps_tools_cache_context,
+                Arc::clone(&tool_plugin_provenance),
             );
             clients.insert(server_name.clone(), async_managed_client.clone());
             let tx_event = tx_event.clone();
@@ -735,9 +827,10 @@ impl McpConnectionManager {
 
     /// Force-refresh codex apps tools by bypassing the in-process cache.
     ///
-    /// On success, the refreshed tools replace the cache contents. On failure,
-    /// the existing cache remains unchanged.
-    pub async fn hard_refresh_codex_apps_tools_cache(&self) -> Result<()> {
+    /// On success, the refreshed tools replace the cache contents and the
+    /// latest filtered tool map is returned directly to the caller. On
+    /// failure, the existing cache remains unchanged.
+    pub async fn hard_refresh_codex_apps_tools_cache(&self) -> Result<HashMap<String, ToolInfo>> {
         let managed_client = self
             .clients
             .get(CODEX_APPS_MCP_SERVER_NAME)
@@ -773,7 +866,10 @@ impl McpConnectionManager {
             list_start.elapsed(),
             &[("cache", "miss")],
         );
-        Ok(())
+        Ok(qualify_tools(filter_tools(
+            tools,
+            &managed_client.tool_filter,
+        )))
     }
 
     /// Returns a single map that contains all resources. Each key is the
@@ -918,6 +1014,7 @@ impl McpConnectionManager {
         server: &str,
         tool: &str,
         arguments: Option<serde_json::Value>,
+        meta: Option<serde_json::Value>,
     ) -> Result<CallToolResult> {
         let client = self.client_by_name(server).await?;
         if !client.tool_filter.allows(tool) {
@@ -928,7 +1025,7 @@ impl McpConnectionManager {
 
         let result: rmcp::model::CallToolResult = client
             .client
-            .call_tool(tool.to_string(), arguments, client.tool_timeout)
+            .call_tool(tool.to_string(), arguments, meta, client.tool_timeout)
             .await
             .with_context(|| format!("tool call failed for `{server}/{tool}`"))?;
 
@@ -1002,7 +1099,7 @@ impl McpConnectionManager {
         self.list_all_tools()
             .await
             .get(tool_name)
-            .map(|tool| (tool.server_name.clone(), tool.tool_name.clone()))
+            .map(|tool| (tool.server_name.clone(), tool.tool.name.to_string()))
     }
 
     pub async fn notify_sandbox_state_change(&self, sandbox_state: &SandboxState) -> Result<()> {
@@ -1084,31 +1181,7 @@ impl ToolFilter {
 fn filter_tools(tools: Vec<ToolInfo>, filter: &ToolFilter) -> Vec<ToolInfo> {
     tools
         .into_iter()
-        .filter(|tool| filter.allows(&tool.tool_name))
-        .collect()
-}
-
-pub(crate) fn filter_codex_apps_mcp_tools_only(
-    mcp_tools: &HashMap<String, ToolInfo>,
-    connectors: &[crate::connectors::AppInfo],
-) -> HashMap<String, ToolInfo> {
-    let allowed: HashSet<&str> = connectors
-        .iter()
-        .map(|connector| connector.id.as_str())
-        .collect();
-
-    mcp_tools
-        .iter()
-        .filter(|(_, tool)| {
-            if tool.server_name != CODEX_APPS_MCP_SERVER_NAME {
-                return false;
-            }
-            let Some(connector_id) = tool.connector_id.as_deref() else {
-                return false;
-            };
-            allowed.contains(connector_id)
-        })
-        .map(|(name, tool)| (name.clone(), tool.clone()))
+        .filter(|tool| filter.allows(&tool.tool.name))
         .collect()
 }
 
@@ -1118,19 +1191,6 @@ pub(crate) fn filter_non_codex_apps_mcp_tools_only(
     mcp_tools
         .iter()
         .filter(|(_, tool)| tool.server_name != CODEX_APPS_MCP_SERVER_NAME)
-        .map(|(name, tool)| (name.clone(), tool.clone()))
-        .collect()
-}
-
-pub(crate) fn filter_mcp_tools_by_name(
-    mcp_tools: &HashMap<String, ToolInfo>,
-    selected_tools: &[String],
-) -> HashMap<String, ToolInfo> {
-    let allowed: HashSet<&str> = selected_tools.iter().map(String::as_str).collect();
-
-    mcp_tools
-        .iter()
-        .filter(|(name, _)| allowed.contains(name.as_str()))
         .map(|(name, tool)| (name.clone(), tool.clone()))
         .collect()
 }
@@ -1159,6 +1219,57 @@ fn normalize_codex_apps_tool_title(
     }
 
     value.to_string()
+}
+
+fn normalize_codex_apps_tool_name(
+    server_name: &str,
+    tool_name: &str,
+    connector_id: Option<&str>,
+    connector_name: Option<&str>,
+) -> String {
+    if server_name != CODEX_APPS_MCP_SERVER_NAME {
+        return tool_name.to_string();
+    }
+
+    let tool_name = sanitize_name(tool_name);
+
+    if let Some(connector_name) = connector_name
+        .map(str::trim)
+        .map(sanitize_name)
+        .filter(|name| !name.is_empty())
+        && let Some(stripped) = tool_name.strip_prefix(&connector_name)
+        && !stripped.is_empty()
+    {
+        return stripped.to_string();
+    }
+
+    if let Some(connector_id) = connector_id
+        .map(str::trim)
+        .map(sanitize_name)
+        .filter(|name| !name.is_empty())
+        && let Some(stripped) = tool_name.strip_prefix(&connector_id)
+        && !stripped.is_empty()
+    {
+        return stripped.to_string();
+    }
+
+    tool_name
+}
+
+fn normalize_codex_apps_namespace(server_name: &str, connector_name: Option<&str>) -> String {
+    if server_name != CODEX_APPS_MCP_SERVER_NAME {
+        server_name.to_string()
+    } else if let Some(connector_name) = connector_name {
+        format!(
+            "mcp{}{}{}{}",
+            MCP_TOOL_NAME_DELIMITER,
+            server_name,
+            MCP_TOOL_NAME_DELIMITER,
+            sanitize_name(connector_name)
+        )
+    } else {
+        server_name.to_string()
+    }
 }
 
 fn resolve_bearer_token(
@@ -1293,7 +1404,6 @@ async fn start_server_task(
         .as_ref()
         .and_then(|exp| exp.get(MCP_SANDBOX_STATE_CAPABILITY))
         .is_some();
-
     let managed = ManagedClient {
         client: Arc::clone(&client),
         tools,
@@ -1330,7 +1440,12 @@ async fn make_rmcp_client(
         } => {
             let command_os: OsString = command.into();
             let args_os: Vec<OsString> = args.into_iter().map(Into::into).collect();
-            RmcpClient::new_stdio_client(command_os, args_os, env, &env_vars, cwd)
+            let env_os = env.map(|env| {
+                env.into_iter()
+                    .map(|(key, value)| (key.into(), value.into()))
+                    .collect::<HashMap<_, _>>()
+            });
+            RmcpClient::new_stdio_client(command_os, args_os, env_os, &env_vars, cwd)
                 .await
                 .map_err(|err| StartupOutcomeError::from(anyhow!(err)))
         }
@@ -1475,12 +1590,23 @@ async fn list_tools_for_client_uncached(
     client: &Arc<RmcpClient>,
     timeout: Option<Duration>,
 ) -> Result<Vec<ToolInfo>> {
-    let resp = client.list_tools_with_connector_ids(None, timeout).await?;
+    let resp = client
+        .list_tools_with_connector_ids(/*params*/ None, timeout)
+        .await?;
     let tools = resp
         .tools
         .into_iter()
         .map(|tool| {
+            let tool_name = normalize_codex_apps_tool_name(
+                server_name,
+                &tool.tool.name,
+                tool.connector_id.as_deref(),
+                tool.connector_name.as_deref(),
+            );
+            let tool_namespace =
+                normalize_codex_apps_namespace(server_name, tool.connector_name.as_deref());
             let connector_name = tool.connector_name;
+            let connector_description = tool.connector_description;
             let mut tool_def = tool.tool;
             if let Some(title) = tool_def.title.as_deref() {
                 let normalized_title =
@@ -1491,10 +1617,13 @@ async fn list_tools_for_client_uncached(
             }
             ToolInfo {
                 server_name: server_name.to_owned(),
-                tool_name: tool_def.name.to_string(),
+                tool_name,
+                tool_namespace,
                 tool: tool_def,
                 connector_id: tool.connector_id,
                 connector_name,
+                plugin_display_names: Vec::new(),
+                connector_description,
             }
         })
         .collect();
@@ -1582,6 +1711,7 @@ fn startup_outcome_error_message(error: StartupOutcomeError) -> String {
 mod mcp_init_error_display_tests {}
 
 #[cfg(test)]
+<<<<<<< HEAD
 mod tests {
     use super::*;
     use codex_protocol::protocol::McpAuthStatus;
@@ -2217,3 +2347,7 @@ mod tests {
         assert_eq!(transport_origin(&transport), Some("stdio".to_string()));
     }
 }
+=======
+#[path = "mcp_connection_manager_tests.rs"]
+mod tests;
+>>>>>>> upstream_main

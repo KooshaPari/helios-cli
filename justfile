@@ -33,7 +33,7 @@ fmt-check:
 fix *args:
     cargo clippy --fix --tests --allow-dirty "$@"
 
-clippy:
+clippy *args:
     cargo clippy --tests "$@"
 
 install:
@@ -85,6 +85,7 @@ write-config-schema:
 write-app-server-schema *args:
     cargo run -p codex-app-server-protocol --bin write_schema_fixtures -- "$@"
 
+<<<<<<< HEAD
 # Feature-layer smoke checks for compile-time and optional adapters.
 # Keep this intentionally small and fast so it runs both in PRs and local CI loops.
 feature-matrix:
@@ -93,6 +94,20 @@ feature-matrix:
     cargo check -p codex-cloud-tasks-client --no-default-features
     cargo check -p codex-cloud-tasks-client --no-default-features --features mock
     cargo check -p codex-otel --features disable-default-metrics-exporter
+=======
+[no-cd]
+write-hooks-schema:
+    cargo run --manifest-path ./codex-rs/Cargo.toml -p codex-hooks --bin write_hooks_schema_fixtures
+
+# Run the argument-comment Dylint checks across codex-rs.
+[no-cd]
+argument-comment-lint *args:
+    ./tools/argument-comment-lint/run-prebuilt-linter.sh "$@"
+
+[no-cd]
+argument-comment-lint-from-source *args:
+    ./tools/argument-comment-lint/run.sh "$@"
+>>>>>>> upstream_main
 
 # Tail logs from the state SQLite database
 log *args:

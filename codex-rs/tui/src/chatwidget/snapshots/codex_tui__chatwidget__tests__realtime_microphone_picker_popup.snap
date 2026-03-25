@@ -7,7 +7,11 @@ expression: popup
 
   1. System default                                Use your operating system
                                                    default device.
+<<<<<<< HEAD
 › 2. Unavailable: Studio Mic (current) (disabled)  Configured device is not
+=======
+›    Unavailable: Studio Mic (current) (disabled)  Configured device is not
+>>>>>>> upstream_main
                                                    currently available.
                                                    (disabled: Reconnect the
                                                    device or choose another

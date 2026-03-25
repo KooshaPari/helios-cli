@@ -23,6 +23,7 @@ use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::SandboxPolicy;
 use codex_utils_absolute_path::AbsolutePathBuf;
 use pretty_assertions::assert_eq;
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::path::Path;
 use tempfile::tempdir;
@@ -381,6 +382,54 @@ flag = false
 
 #[cfg(target_os = "macos")]
 #[tokio::test]
+async fn managed_preferences_expand_home_directory_in_workspace_write_roots() -> anyhow::Result<()>
+{
+    use base64::Engine;
+
+    let Some(home) = dirs::home_dir() else {
+        return Ok(());
+    };
+    let tmp = tempdir()?;
+
+    let config = ConfigBuilder::default()
+        .codex_home(tmp.path().to_path_buf())
+        .fallback_cwd(Some(tmp.path().to_path_buf()))
+        .loader_overrides(LoaderOverrides {
+            managed_config_path: Some(tmp.path().join("managed_config.toml")),
+            managed_preferences_base64: Some(
+                base64::prelude::BASE64_STANDARD.encode(
+                    r#"
+sandbox_mode = "workspace-write"
+[sandbox_workspace_write]
+writable_roots = ["~/code"]
+"#
+                    .as_bytes(),
+                ),
+            ),
+            macos_managed_config_requirements_base64: None,
+        })
+        .build()
+        .await?;
+
+    let expected_root = AbsolutePathBuf::from_absolute_path(home.join("code"))?;
+    match config.permissions.sandbox_policy.get() {
+        SandboxPolicy::WorkspaceWrite { writable_roots, .. } => {
+            assert_eq!(
+                writable_roots
+                    .iter()
+                    .filter(|root| **root == expected_root)
+                    .count(),
+                1,
+            );
+        }
+        other => panic!("expected workspace-write policy, got {other:?}"),
+    }
+
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+#[tokio::test]
 async fn managed_preferences_requirements_are_applied() -> anyhow::Result<()> {
     use base64::Engine;
 
@@ -494,6 +543,9 @@ async fn load_requirements_toml_produces_expected_constraints() -> anyhow::Resul
 allowed_approval_policies = ["never", "on-request"]
 allowed_web_search_modes = ["cached"]
 enforce_residency = "us"
+
+[features]
+personality = true
 "#,
     )
     .await?;
@@ -514,6 +566,15 @@ enforce_residency = "us"
             .as_deref()
             .cloned(),
         Some(vec![crate::config_loader::WebSearchModeRequirement::Cached])
+    );
+    assert_eq!(
+        config_requirements_toml
+            .feature_requirements
+            .as_ref()
+            .map(|requirements| requirements.value.clone()),
+        Some(crate::config_loader::FeatureRequirementsToml {
+            entries: BTreeMap::from([("personality".to_string(), true)]),
+        })
     );
     let config_requirements: ConfigRequirements = config_requirements_toml.try_into()?;
     assert_eq!(
@@ -552,6 +613,15 @@ enforce_residency = "us"
         config_requirements.enforce_residency.value(),
         Some(crate::config_loader::ResidencyRequirement::Us)
     );
+    assert_eq!(
+        config_requirements
+            .feature_requirements
+            .as_ref()
+            .map(|requirements| requirements.value.clone()),
+        Some(crate::config_loader::FeatureRequirementsToml {
+            entries: BTreeMap::from([("personality".to_string(), true)]),
+        })
+    );
     Ok(())
 }
 
@@ -581,10 +651,16 @@ allowed_approval_policies = ["on-request"]
                 allowed_approval_policies: Some(vec![AskForApproval::Never]),
                 allowed_sandbox_modes: None,
                 allowed_web_search_modes: None,
+                feature_requirements: None,
                 mcp_servers: None,
+                apps: None,
                 rules: None,
                 enforce_residency: None,
                 network: None,
+<<<<<<< HEAD
+=======
+                guardian_developer_instructions: None,
+>>>>>>> upstream_main
             }))
         }),
     )
@@ -629,10 +705,13 @@ allowed_approval_policies = ["on-request"]
             allowed_approval_policies: Some(vec![AskForApproval::Never]),
             allowed_sandbox_modes: None,
             allowed_web_search_modes: None,
+            feature_requirements: None,
             mcp_servers: None,
+            apps: None,
             rules: None,
             enforce_residency: None,
             network: None,
+            guardian_developer_instructions: None,
         },
     );
     load_requirements_toml(&mut config_requirements_toml, &requirements_file).await?;
@@ -666,10 +745,13 @@ async fn load_config_layers_includes_cloud_requirements() -> anyhow::Result<()> 
         allowed_approval_policies: Some(vec![AskForApproval::Never]),
         allowed_sandbox_modes: None,
         allowed_web_search_modes: None,
+        feature_requirements: None,
         mcp_servers: None,
+        apps: None,
         rules: None,
         enforce_residency: None,
         network: None,
+        guardian_developer_instructions: None,
     };
     let expected = requirements.clone();
     let cloud_requirements = CloudRequirementsLoader::new(async move { Ok(Some(requirements)) });
@@ -716,7 +798,15 @@ async fn load_config_layers_fails_when_cloud_requirements_loader_fails() -> anyh
         &[] as &[(String, TomlValue)],
         LoaderOverrides::default(),
         CloudRequirementsLoader::new(async {
+<<<<<<< HEAD
             Err(CloudRequirementsLoadError::new("cloud requirements failed"))
+=======
+            Err(CloudRequirementsLoadError::new(
+                codex_config::CloudRequirementsLoadErrorCode::RequestFailed,
+                None,
+                "cloud requirements failed",
+            ))
+>>>>>>> upstream_main
         }),
     )
     .await
@@ -1109,6 +1199,91 @@ async fn project_layers_disabled_when_untrusted_or_unknown() -> std::io::Result<
     assert_eq!(
         layers_unknown.effective_config().get("foo"),
         Some(&TomlValue::String("user".to_string()))
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn cli_override_can_update_project_local_mcp_server_when_project_is_trusted()
+-> std::io::Result<()> {
+    let tmp = tempdir()?;
+    let project_root = tmp.path().join("project");
+    let nested = project_root.join("child");
+    let dot_codex = project_root.join(".codex");
+    let codex_home = tmp.path().join("home");
+    tokio::fs::create_dir_all(&nested).await?;
+    tokio::fs::create_dir_all(&dot_codex).await?;
+    tokio::fs::create_dir_all(&codex_home).await?;
+    tokio::fs::write(project_root.join(".git"), "gitdir: here").await?;
+    tokio::fs::write(
+        dot_codex.join(CONFIG_TOML_FILE),
+        r#"
+[mcp_servers.sentry]
+url = "https://mcp.sentry.dev/mcp"
+enabled = false
+"#,
+    )
+    .await?;
+    make_config_for_test(&codex_home, &project_root, TrustLevel::Trusted, None).await?;
+
+    let config = ConfigBuilder::default()
+        .codex_home(codex_home)
+        .cli_overrides(vec![(
+            "mcp_servers.sentry.enabled".to_string(),
+            TomlValue::Boolean(true),
+        )])
+        .fallback_cwd(Some(nested))
+        .build()
+        .await?;
+
+    let server = config
+        .mcp_servers
+        .get()
+        .get("sentry")
+        .expect("trusted project MCP server should load");
+    assert!(server.enabled);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn cli_override_for_disabled_project_local_mcp_server_returns_invalid_transport()
+-> std::io::Result<()> {
+    let tmp = tempdir()?;
+    let project_root = tmp.path().join("project");
+    let nested = project_root.join("child");
+    let dot_codex = project_root.join(".codex");
+    let codex_home = tmp.path().join("home");
+    tokio::fs::create_dir_all(&nested).await?;
+    tokio::fs::create_dir_all(&dot_codex).await?;
+    tokio::fs::create_dir_all(&codex_home).await?;
+    tokio::fs::write(project_root.join(".git"), "gitdir: here").await?;
+    tokio::fs::write(
+        dot_codex.join(CONFIG_TOML_FILE),
+        r#"
+[mcp_servers.sentry]
+url = "https://mcp.sentry.dev/mcp"
+enabled = false
+"#,
+    )
+    .await?;
+
+    let err = ConfigBuilder::default()
+        .codex_home(codex_home)
+        .cli_overrides(vec![(
+            "mcp_servers.sentry.enabled".to_string(),
+            TomlValue::Boolean(true),
+        )])
+        .fallback_cwd(Some(nested))
+        .build()
+        .await
+        .expect_err("untrusted project layer should not provide MCP transport");
+
+    assert!(
+        err.to_string().contains("invalid transport")
+            && err.to_string().contains("mcp_servers.sentry"),
+        "unexpected error: {err}"
     );
 
     Ok(())

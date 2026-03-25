@@ -1,21 +1,24 @@
-use crate::config::Config;
-use crate::config::Permissions;
 use crate::config_loader::ConfigLayerStack;
 use crate::config_loader::ConfigLayerStackOrdering;
 use crate::config_loader::default_project_root_markers;
 use crate::config_loader::merge_toml_values;
 use crate::config_loader::project_root_markers_from_config;
+use crate::plugins::plugin_namespace_for_skill_path;
 use crate::skills::model::SkillDependencies;
 use crate::skills::model::SkillError;
 use crate::skills::model::SkillInterface;
 use crate::skills::model::SkillLoadOutcome;
+use crate::skills::model::SkillManagedNetworkOverride;
 use crate::skills::model::SkillMetadata;
 use crate::skills::model::SkillPolicy;
 use crate::skills::model::SkillToolDependency;
-use crate::skills::permissions::compile_permission_profile;
 use crate::skills::system::system_cache_root_dir;
 use codex_app_server_protocol::ConfigLayerSource;
+use codex_protocol::models::FileSystemPermissions;
+use codex_protocol::models::MacOsSeatbeltProfileExtensions;
+use codex_protocol::models::NetworkPermissions;
 use codex_protocol::models::PermissionProfile;
+use codex_protocol::protocol::Product;
 use codex_protocol::protocol::SkillScope;
 use codex_utils_absolute_path::AbsolutePathBufGuard;
 use dirs::home_dir;
@@ -32,10 +35,15 @@ use std::path::PathBuf;
 use toml::Value as TomlValue;
 use tracing::error;
 
+#[cfg(test)]
+use crate::config::Config;
+
 #[derive(Debug, Deserialize)]
 struct SkillFrontmatter {
-    name: String,
-    description: String,
+    #[serde(default)]
+    name: Option<String>,
+    #[serde(default)]
+    description: Option<String>,
     #[serde(default)]
     metadata: SkillFrontmatterMetadata,
 }
@@ -55,7 +63,36 @@ struct SkillMetadataFile {
     #[serde(default)]
     policy: Option<Policy>,
     #[serde(default)]
-    permissions: Option<PermissionProfile>,
+    permissions: Option<SkillPermissionProfile>,
+}
+
+#[derive(Default)]
+struct LoadedSkillMetadata {
+    interface: Option<SkillInterface>,
+    dependencies: Option<SkillDependencies>,
+    policy: Option<SkillPolicy>,
+    permission_profile: Option<PermissionProfile>,
+    managed_network_override: Option<SkillManagedNetworkOverride>,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Eq)]
+struct SkillPermissionProfile {
+    #[serde(default)]
+    network: Option<SkillNetworkPermissions>,
+    #[serde(default)]
+    file_system: Option<FileSystemPermissions>,
+    #[serde(default)]
+    macos: Option<MacOsSeatbeltProfileExtensions>,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Eq)]
+struct SkillNetworkPermissions {
+    #[serde(default)]
+    enabled: Option<bool>,
+    #[serde(default)]
+    allowed_domains: Option<Vec<String>>,
+    #[serde(default)]
+    denied_domains: Option<Vec<String>>,
 }
 
 #[derive(Default)]
@@ -87,6 +124,8 @@ struct Dependencies {
 struct Policy {
     #[serde(default)]
     allow_implicit_invocation: Option<bool>,
+    #[serde(default)]
+    products: Vec<Product>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -146,20 +185,6 @@ impl fmt::Display for SkillParseError {
 
 impl Error for SkillParseError {}
 
-pub fn load_skills(config: &Config) -> SkillLoadOutcome {
-    load_skills_with_home_dir(config, home_dir().as_deref())
-}
-
-fn load_skills_with_home_dir(config: &Config, home_dir: Option<&Path>) -> SkillLoadOutcome {
-    let mut roots = skill_roots_from_layer_stack_inner(&config.config_layer_stack, home_dir);
-    roots.extend(repo_agents_skill_roots(
-        &config.config_layer_stack,
-        &config.cwd,
-    ));
-    dedupe_skill_roots_by_path(&mut roots);
-    load_skills_from_roots(roots)
-}
-
 pub(crate) struct SkillRoot {
     pub(crate) path: PathBuf,
     pub(crate) scope: SkillScope,
@@ -199,15 +224,45 @@ where
     outcome
 }
 
+pub(crate) fn skill_roots(
+    config_layer_stack: &ConfigLayerStack,
+    cwd: &Path,
+    plugin_skill_roots: Vec<PathBuf>,
+) -> Vec<SkillRoot> {
+    skill_roots_with_home_dir(
+        config_layer_stack,
+        cwd,
+        home_dir().as_deref(),
+        plugin_skill_roots,
+    )
+}
+
+fn skill_roots_with_home_dir(
+    config_layer_stack: &ConfigLayerStack,
+    cwd: &Path,
+    home_dir: Option<&Path>,
+    plugin_skill_roots: Vec<PathBuf>,
+) -> Vec<SkillRoot> {
+    let mut roots = skill_roots_from_layer_stack_inner(config_layer_stack, home_dir);
+    roots.extend(plugin_skill_roots.into_iter().map(|path| SkillRoot {
+        path,
+        scope: SkillScope::User,
+    }));
+    roots.extend(repo_agents_skill_roots(config_layer_stack, cwd));
+    dedupe_skill_roots_by_path(&mut roots);
+    roots
+}
+
 fn skill_roots_from_layer_stack_inner(
     config_layer_stack: &ConfigLayerStack,
     home_dir: Option<&Path>,
 ) -> Vec<SkillRoot> {
     let mut roots = Vec::new();
 
-    for layer in
-        config_layer_stack.get_layers(ConfigLayerStackOrdering::HighestPrecedenceFirst, true)
-    {
+    for layer in config_layer_stack.get_layers(
+        ConfigLayerStackOrdering::HighestPrecedenceFirst,
+        /*include_disabled*/ true,
+    ) {
         let Some(config_folder) = layer.config_folder() else {
             continue;
         };
@@ -260,34 +315,6 @@ fn skill_roots_from_layer_stack_inner(
     roots
 }
 
-#[cfg(test)]
-fn skill_roots(config: &Config) -> Vec<SkillRoot> {
-    skill_roots_from_layer_stack_with_agents(&config.config_layer_stack, &config.cwd)
-}
-
-#[cfg(test)]
-pub(crate) fn skill_roots_from_layer_stack(
-    config_layer_stack: &ConfigLayerStack,
-    home_dir: Option<&Path>,
-) -> Vec<SkillRoot> {
-    skill_roots_from_layer_stack_inner(config_layer_stack, home_dir)
-}
-
-pub(crate) fn skill_roots_from_layer_stack_with_agents(
-    config_layer_stack: &ConfigLayerStack,
-    cwd: &Path,
-) -> Vec<SkillRoot> {
-    let mut roots = skill_roots_from_layer_stack_inner(config_layer_stack, home_dir().as_deref());
-    roots.extend(repo_agents_skill_roots(config_layer_stack, cwd));
-    dedupe_skill_roots_by_path(&mut roots);
-    roots
-}
-
-fn dedupe_skill_roots_by_path(roots: &mut Vec<SkillRoot>) {
-    let mut seen: HashSet<PathBuf> = HashSet::new();
-    roots.retain(|root| seen.insert(root.path.clone()));
-}
-
 fn repo_agents_skill_roots(config_layer_stack: &ConfigLayerStack, cwd: &Path) -> Vec<SkillRoot> {
     let project_root_markers = project_root_markers_from_stack(config_layer_stack);
     let project_root = find_project_root(cwd, &project_root_markers);
@@ -307,9 +334,10 @@ fn repo_agents_skill_roots(config_layer_stack: &ConfigLayerStack, cwd: &Path) ->
 
 fn project_root_markers_from_stack(config_layer_stack: &ConfigLayerStack) -> Vec<String> {
     let mut merged = TomlValue::Table(toml::map::Map::new());
-    for layer in
-        config_layer_stack.get_layers(ConfigLayerStackOrdering::LowestPrecedenceFirst, false)
-    {
+    for layer in config_layer_stack.get_layers(
+        ConfigLayerStackOrdering::LowestPrecedenceFirst,
+        /*include_disabled*/ false,
+    ) {
         if matches!(layer.name, ConfigLayerSource::Project { .. }) {
             continue;
         }
@@ -359,6 +387,11 @@ fn dirs_between_project_root_and_cwd(cwd: &Path, project_root: &Path) -> Vec<Pat
         .collect::<Vec<_>>();
     dirs.reverse();
     dirs
+}
+
+fn dedupe_skill_roots_by_path(roots: &mut Vec<SkillRoot>) {
+    let mut seen: HashSet<PathBuf> = HashSet::new();
+    roots.retain(|root| seen.insert(root.path.clone()));
 }
 
 fn discover_skills_under_root(root: &Path, scope: SkillScope, outcome: &mut SkillLoadOutcome) {
@@ -508,8 +541,18 @@ fn parse_skill_file(path: &Path, scope: SkillScope) -> Result<SkillMetadata, Ski
     let parsed: SkillFrontmatter =
         serde_yaml::from_str(&frontmatter).map_err(SkillParseError::InvalidYaml)?;
 
-    let name = sanitize_single_line(&parsed.name);
-    let description = sanitize_single_line(&parsed.description);
+    let base_name = parsed
+        .name
+        .as_deref()
+        .map(sanitize_single_line)
+        .filter(|value| !value.is_empty())
+        .unwrap_or_else(|| default_skill_name(path));
+    let name = namespaced_skill_name(path, &base_name);
+    let description = parsed
+        .description
+        .as_deref()
+        .map(sanitize_single_line)
+        .unwrap_or_default();
     let short_description = parsed
         .metadata
         .short_description
@@ -521,7 +564,11 @@ fn parse_skill_file(path: &Path, scope: SkillScope) -> Result<SkillMetadata, Ski
         dependencies,
         policy,
         permission_profile,
+<<<<<<< HEAD
         permissions,
+=======
+        managed_network_override,
+>>>>>>> upstream_main
     } = load_skill_metadata(path);
 
     validate_len(&name, MAX_NAME_LEN, "name")?;
@@ -544,12 +591,34 @@ fn parse_skill_file(path: &Path, scope: SkillScope) -> Result<SkillMetadata, Ski
         dependencies,
         policy,
         permission_profile,
+<<<<<<< HEAD
         permissions,
+=======
+        managed_network_override,
+>>>>>>> upstream_main
         path_to_skills_md: resolved_path,
         scope,
     })
 }
 
+<<<<<<< HEAD
+=======
+fn default_skill_name(path: &Path) -> String {
+    path.parent()
+        .and_then(Path::file_name)
+        .and_then(|name| name.to_str())
+        .map(sanitize_single_line)
+        .filter(|value| !value.is_empty())
+        .unwrap_or_else(|| "skill".to_string())
+}
+
+fn namespaced_skill_name(path: &Path, base_name: &str) -> String {
+    plugin_namespace_for_skill_path(path)
+        .map(|namespace| format!("{namespace}:{base_name}"))
+        .unwrap_or_else(|| base_name.to_string())
+}
+
+>>>>>>> upstream_main
 fn load_skill_metadata(skill_path: &Path) -> LoadedSkillMetadata {
     // Fail open: optional metadata should not block loading SKILL.md.
     let Some(skill_dir) = skill_path.parent() else {
@@ -595,6 +664,7 @@ fn load_skill_metadata(skill_path: &Path) -> LoadedSkillMetadata {
         policy,
         permissions,
     } = parsed;
+<<<<<<< HEAD
     let permission_profile = permissions.clone().filter(|profile| !profile.is_empty());
 
     LoadedSkillMetadata {
@@ -604,6 +674,52 @@ fn load_skill_metadata(skill_path: &Path) -> LoadedSkillMetadata {
         permission_profile,
         permissions: compile_permission_profile(skill_dir, permissions),
     }
+=======
+    let (permission_profile, managed_network_override) = normalize_permissions(permissions);
+    LoadedSkillMetadata {
+        interface: resolve_interface(interface, skill_dir),
+        dependencies: resolve_dependencies(dependencies),
+        policy: resolve_policy(policy),
+        permission_profile,
+        managed_network_override,
+    }
+}
+
+fn normalize_permissions(
+    permissions: Option<SkillPermissionProfile>,
+) -> (
+    Option<PermissionProfile>,
+    Option<SkillManagedNetworkOverride>,
+) {
+    let Some(permissions) = permissions else {
+        return (None, None);
+    };
+    let managed_network_override = permissions
+        .network
+        .as_ref()
+        .map(|network| SkillManagedNetworkOverride {
+            allowed_domains: network.allowed_domains.clone(),
+            denied_domains: network.denied_domains.clone(),
+        })
+        .filter(SkillManagedNetworkOverride::has_domain_overrides);
+    let permission_profile = PermissionProfile {
+        network: permissions.network.and_then(|network| {
+            let network = NetworkPermissions {
+                enabled: network.enabled,
+            };
+            (!network.is_empty()).then_some(network)
+        }),
+        file_system: permissions
+            .file_system
+            .filter(|file_system| !file_system.is_empty()),
+        macos: permissions.macos,
+    };
+
+    (
+        (!permission_profile.is_empty()).then_some(permission_profile),
+        managed_network_override,
+    )
+>>>>>>> upstream_main
 }
 
 fn resolve_interface(interface: Option<Interface>, skill_dir: &Path) -> Option<SkillInterface> {
@@ -654,6 +770,7 @@ fn resolve_dependencies(dependencies: Option<Dependencies>) -> Option<SkillDepen
 fn resolve_policy(policy: Option<Policy>) -> Option<SkillPolicy> {
     policy.map(|policy| SkillPolicy {
         allow_implicit_invocation: policy.allow_implicit_invocation,
+        products: policy.products,
     })
 }
 
@@ -828,8 +945,16 @@ fn extract_frontmatter(contents: &str) -> Option<String> {
 
     Some(frontmatter_lines.join("\n"))
 }
+#[cfg(test)]
+pub(crate) fn skill_roots_from_layer_stack(
+    config_layer_stack: &ConfigLayerStack,
+    home_dir: Option<&Path>,
+) -> Vec<SkillRoot> {
+    skill_roots_with_home_dir(config_layer_stack, Path::new("."), home_dir, Vec::new())
+}
 
 #[cfg(test)]
+<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::config::ConfigBuilder;
@@ -2671,3 +2796,7 @@ permissions:
         assert_eq!(scopes, expected);
     }
 }
+=======
+#[path = "loader_tests.rs"]
+mod tests;
+>>>>>>> upstream_main

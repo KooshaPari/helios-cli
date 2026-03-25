@@ -6,6 +6,7 @@ use std::fmt;
 use std::future::Future;
 use thiserror::Error;
 
+<<<<<<< HEAD
 #[derive(Clone, Debug, Eq, Error, PartialEq)]
 #[error("{message}")]
 pub struct CloudRequirementsLoadError {
@@ -18,6 +19,45 @@ impl CloudRequirementsLoadError {
             message: message.into(),
         }
     }
+=======
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum CloudRequirementsLoadErrorCode {
+    Auth,
+    Timeout,
+    Parse,
+    RequestFailed,
+    Internal,
+}
+
+#[derive(Clone, Debug, Eq, Error, PartialEq)]
+#[error("{message}")]
+pub struct CloudRequirementsLoadError {
+    code: CloudRequirementsLoadErrorCode,
+    message: String,
+    status_code: Option<u16>,
+}
+
+impl CloudRequirementsLoadError {
+    pub fn new(
+        code: CloudRequirementsLoadErrorCode,
+        status_code: Option<u16>,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            code,
+            message: message.into(),
+            status_code,
+        }
+    }
+
+    pub fn code(&self) -> CloudRequirementsLoadErrorCode {
+        self.code
+    }
+
+    pub fn status_code(&self) -> Option<u16> {
+        self.status_code
+    }
+>>>>>>> upstream_main
 }
 
 #[derive(Clone)]

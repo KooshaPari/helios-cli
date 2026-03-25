@@ -4,6 +4,8 @@ use crate::ModelProviderInfo;
 use crate::Prompt;
 use crate::client::ModelClientSession;
 use crate::client_common::ResponseEvent;
+#[cfg(test)]
+use crate::codex::PreviousTurnSettings;
 use crate::codex::Session;
 use crate::codex::TurnContext;
 use crate::codex::get_last_assistant_message_from_turn;
@@ -13,9 +15,6 @@ use crate::protocol::CompactedItem;
 use crate::protocol::EventMsg;
 use crate::protocol::TurnStartedEvent;
 use crate::protocol::WarningEvent;
-use crate::truncate::TruncationPolicy;
-use crate::truncate::approx_token_count;
-use crate::truncate::truncate_text;
 use crate::util::backoff;
 use codex_protocol::items::ContextCompactionItem;
 use codex_protocol::items::TurnItem;
@@ -23,6 +22,9 @@ use codex_protocol::models::ContentItem;
 use codex_protocol::models::ResponseInputItem;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::user_input::UserInput;
+use codex_utils_output_truncation::TruncationPolicy;
+use codex_utils_output_truncation::approx_token_count;
+use codex_utils_output_truncation::truncate_text;
 use futures::prelude::*;
 use tracing::error;
 
@@ -117,7 +119,8 @@ async fn run_compact_task_inner(
     let max_retries = turn_context.provider.stream_max_retries();
     let mut retries = 0;
     let mut client_session = sess.services.model_client.new_session();
-    // Reuse one client session so turn-scoped state (sticky routing, websocket append tracking)
+    // Reuse one client session so turn-scoped state (sticky routing, websocket incremental
+    // request tracking)
     // survives retries within this compact turn.
 
     loop {
@@ -170,7 +173,7 @@ async fn run_compact_task_inner(
                     continue;
                 }
                 sess.set_total_tokens_full(turn_context.as_ref()).await;
-                let event = EventMsg::Error(e.to_error_event(None));
+                let event = EventMsg::Error(e.to_error_event(/*message_prefix*/ None));
                 sess.send_event(&turn_context, event).await;
                 return Err(e);
             }
@@ -187,7 +190,7 @@ async fn run_compact_task_inner(
                     tokio::time::sleep(delay).await;
                     continue;
                 } else {
-                    let event = EventMsg::Error(e.to_error_event(None));
+                    let event = EventMsg::Error(e.to_error_event(/*message_prefix*/ None));
                     sess.send_event(&turn_context, event).await;
                     return Err(e);
                 }
@@ -409,9 +412,10 @@ async fn drain_to_completed(
         .stream(
             prompt,
             &turn_context.model_info,
-            &turn_context.otel_manager,
+            &turn_context.session_telemetry,
             turn_context.reasoning_effort,
             turn_context.reasoning_summary,
+            turn_context.config.service_tier,
             turn_metadata_header,
         )
         .await?;
@@ -446,6 +450,7 @@ async fn drain_to_completed(
 }
 
 #[cfg(test)]
+<<<<<<< HEAD
 mod tests {
 
     use super::*;
@@ -1010,3 +1015,7 @@ keep me updated
         assert_eq!(refreshed, expected);
     }
 }
+=======
+#[path = "compact_tests.rs"]
+mod tests;
+>>>>>>> upstream_main
