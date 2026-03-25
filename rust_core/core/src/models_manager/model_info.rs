@@ -3,6 +3,8 @@ use codex_protocol::openai_models::ModelInfo;
 use codex_protocol::openai_models::ModelInstructionsVariables;
 use codex_protocol::openai_models::ModelMessages;
 use codex_protocol::openai_models::ModelVisibility;
+use codex_protocol::openai_models::ReasoningEffort;
+use codex_protocol::openai_models::ReasoningEffortPreset;
 use codex_protocol::openai_models::TruncationMode;
 use codex_protocol::openai_models::TruncationPolicyConfig;
 use codex_protocol::openai_models::default_input_modalities;
@@ -57,6 +59,10 @@ pub(crate) fn with_config_overrides(mut model: ModelInfo, config: &Config) -> Mo
 
 /// Build a minimal fallback model descriptor for missing/unknown slugs.
 pub(crate) fn model_info_from_slug(slug: &str) -> ModelInfo {
+    if let Some(model_info) = known_model_info_from_slug(slug) {
+        return model_info;
+    }
+
     warn!("Unknown model {slug} is used. This will use fallback model metadata.");
     ModelInfo {
         slug: slug.to_string(),
@@ -84,6 +90,57 @@ pub(crate) fn model_info_from_slug(slug: &str) -> ModelInfo {
         input_modalities: default_input_modalities(),
         prefer_websockets: false,
         used_fallback_model_metadata: true, // this is the fallback model metadata
+    }
+}
+
+fn known_model_info_from_slug(slug: &str) -> Option<ModelInfo> {
+    match slug {
+        "minimax-m2.5" => Some(ModelInfo {
+            slug: slug.to_string(),
+            display_name: "minimax-m2.5".to_string(),
+            description: Some("MiniMax-M2.5".to_string()),
+            default_reasoning_level: Some(ReasoningEffort::Medium),
+            supported_reasoning_levels: vec![
+                ReasoningEffortPreset {
+                    effort: ReasoningEffort::Low,
+                    description: "Fast responses with lighter reasoning".to_string(),
+                },
+                ReasoningEffortPreset {
+                    effort: ReasoningEffort::Medium,
+                    description: "Balances speed and reasoning depth for everyday tasks"
+                        .to_string(),
+                },
+                ReasoningEffortPreset {
+                    effort: ReasoningEffort::High,
+                    description: "Greater reasoning depth for complex problems".to_string(),
+                },
+                ReasoningEffortPreset {
+                    effort: ReasoningEffort::XHigh,
+                    description: "Extra high reasoning depth for complex problems".to_string(),
+                },
+            ],
+            shell_type: ConfigShellToolType::ShellCommand,
+            visibility: ModelVisibility::None,
+            supported_in_api: true,
+            priority: 99,
+            upgrade: None,
+            base_instructions: BASE_INSTRUCTIONS.to_string(),
+            model_messages: local_personality_messages_for_slug(slug),
+            supports_reasoning_summaries: false,
+            support_verbosity: false,
+            default_verbosity: None,
+            apply_patch_tool_type: None,
+            truncation_policy: TruncationPolicyConfig::bytes(10_000),
+            supports_parallel_tool_calls: false,
+            context_window: Some(272_000),
+            auto_compact_token_limit: None,
+            effective_context_window_percent: 95,
+            experimental_supported_tools: Vec::new(),
+            input_modalities: default_input_modalities(),
+            prefer_websockets: false,
+            used_fallback_model_metadata: false,
+        }),
+        _ => None,
     }
 }
 
@@ -143,5 +200,13 @@ mod tests {
         let updated = with_config_overrides(model.clone(), &config);
 
         assert_eq!(updated, model);
+    }
+
+    #[test]
+    fn known_minimax_slug_uses_known_metadata() {
+        let model = model_info_from_slug("minimax-m2.5");
+        assert_eq!(model.slug, "minimax-m2.5");
+        assert!(!model.used_fallback_model_metadata);
+        assert!(!model.supported_reasoning_levels.is_empty());
     }
 }

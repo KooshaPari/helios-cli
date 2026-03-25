@@ -217,8 +217,9 @@ pub(crate) async fn handle_start(
                 _ => None,
             };
             if let Some(text) = maybe_routed_text {
-                let sess_for_routed_text = Arc::clone(&sess_clone);
-                sess_for_routed_text.route_realtime_text_input(text).await;
+                if let Err(err) = sess_clone.conversation.text_in(text).await {
+                    warn!("failed to route realtime text input: {err}");
+                }
             }
             sess_clone
                 .send_event_raw(ev(EventMsg::RealtimeConversationRealtime(
