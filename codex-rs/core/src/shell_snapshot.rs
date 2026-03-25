@@ -14,7 +14,7 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::anyhow;
 use anyhow::bail;
-use codex_otel::OtelManager;
+use codex_otel::SessionTelemetry;
 use codex_protocol::ThreadId;
 use tokio::fs;
 use tokio::process::Command;
@@ -40,7 +40,7 @@ impl ShellSnapshot {
         session_id: ThreadId,
         session_cwd: PathBuf,
         shell: &mut Shell,
-        otel_manager: OtelManager,
+        session_telemetry: SessionTelemetry,
     ) -> watch::Sender<Option<Arc<ShellSnapshot>>> {
         let (shell_snapshot_tx, shell_snapshot_rx) = watch::channel(None);
         shell.shell_snapshot = shell_snapshot_rx;
@@ -51,7 +51,7 @@ impl ShellSnapshot {
             session_cwd,
             shell.clone(),
             shell_snapshot_tx.clone(),
-            otel_manager,
+            session_telemetry,
         );
 
         shell_snapshot_tx
@@ -63,7 +63,7 @@ impl ShellSnapshot {
         session_cwd: PathBuf,
         shell: Shell,
         shell_snapshot_tx: watch::Sender<Option<Arc<ShellSnapshot>>>,
-        otel_manager: OtelManager,
+        session_telemetry: SessionTelemetry,
     ) {
         Self::spawn_snapshot_task(
             codex_home,
@@ -71,7 +71,7 @@ impl ShellSnapshot {
             session_cwd,
             shell,
             shell_snapshot_tx,
-            otel_manager,
+            session_telemetry,
         );
     }
 
@@ -81,12 +81,12 @@ impl ShellSnapshot {
         session_cwd: PathBuf,
         snapshot_shell: Shell,
         shell_snapshot_tx: watch::Sender<Option<Arc<ShellSnapshot>>>,
-        otel_manager: OtelManager,
+        session_telemetry: SessionTelemetry,
     ) {
         let snapshot_span = info_span!("shell_snapshot", thread_id = %session_id);
         tokio::spawn(
             async move {
-                let timer = otel_manager.start_timer("codex.shell_snapshot.duration_ms", &[]);
+                let timer = session_telemetry.start_timer("codex.shell_snapshot.duration_ms", &[]);
                 let snapshot = ShellSnapshot::try_new(
                     &codex_home,
                     session_id,
@@ -102,7 +102,7 @@ impl ShellSnapshot {
                 if let Some(failure_reason) = snapshot.as_ref().err() {
                     counter_tags.push(("failure_reason", *failure_reason));
                 }
-                otel_manager.counter("codex.shell_snapshot", 1, &counter_tags);
+                session_telemetry.counter("codex.shell_snapshot", /*inc*/ 1, &counter_tags);
                 let _ = shell_snapshot_tx.send(snapshot.ok());
             }
             .instrument(snapshot_span),
@@ -120,13 +120,13 @@ impl ShellSnapshot {
             ShellType::PowerShell => "ps1",
             _ => "sh",
         };
-        let path = codex_home
-            .join(SNAPSHOT_DIR)
-            .join(format!("{session_id}.{extension}"));
         let nonce = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .map(|duration| duration.as_nanos())
             .unwrap_or(0);
+        let path = codex_home
+            .join(SNAPSHOT_DIR)
+            .join(format!("{session_id}.{nonce}.{extension}"));
         let temp_path = codex_home
             .join(SNAPSHOT_DIR)
             .join(format!("{session_id}.tmp-{nonce}"));
@@ -199,7 +199,7 @@ async fn write_shell_snapshot(
     if shell_type == ShellType::PowerShell || shell_type == ShellType::Cmd {
         bail!("Shell snapshot not supported yet for {shell_type:?}");
     }
-    let shell = get_shell(shell_type.clone(), None)
+    let shell = get_shell(shell_type.clone(), /*path*/ None)
         .with_context(|| format!("No available shell for {shell_type:?}"))?;
 
     let raw_snapshot = capture_snapshot(&shell, cwd).await?;
@@ -243,13 +243,26 @@ fn strip_snapshot_preamble(snapshot: &str) -> Result<String> {
 async fn validate_snapshot(shell: &Shell, snapshot_path: &Path, cwd: &Path) -> Result<()> {
     let snapshot_path_display = snapshot_path.display();
     let script = format!("set -e; . \"{snapshot_path_display}\"");
-    run_script_with_timeout(shell, &script, SNAPSHOT_TIMEOUT, false, cwd)
-        .await
-        .map(|_| ())
+    run_script_with_timeout(
+        shell,
+        &script,
+        SNAPSHOT_TIMEOUT,
+        /*use_login_shell*/ false,
+        cwd,
+    )
+    .await
+    .map(|_| ())
 }
 
 async fn run_shell_script(shell: &Shell, script: &str, cwd: &Path) -> Result<String> {
-    run_script_with_timeout(shell, script, SNAPSHOT_TIMEOUT, true, cwd).await
+    run_script_with_timeout(
+        shell,
+        script,
+        SNAPSHOT_TIMEOUT,
+        /*use_login_shell*/ true,
+        cwd,
+    )
+    .await
 }
 
 async fn run_script_with_timeout(
@@ -371,6 +384,7 @@ alias_count=$(alias -p | wc -l | tr -d ' ')
 echo "# aliases $alias_count"
 alias -p
 echo ''
+<<<<<<< HEAD
 export_lines=$(export -p | awk '
 /^(export|declare -x|typeset -x) / {
   line=$0
@@ -395,6 +409,19 @@ export_lines=$(export -p | awk '
     print line
   }
 }')
+=======
+export_lines=$(
+  while IFS= read -r name; do
+    if [[ "$name" =~ ^(EXCLUDED_EXPORTS)$ ]]; then
+      continue
+    fi
+    if [[ ! "$name" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+      continue
+    fi
+    declare -xp "$name" 2>/dev/null || true
+  done < <(compgen -e)
+)
+>>>>>>> upstream/main
 export_count=$(printf '%s\n' "$export_lines" | sed '/^$/d' | wc -l | tr -d ' ')
 echo "# exports $export_count"
 if [ -n "$export_lines" ]; then
@@ -532,12 +559,9 @@ pub async fn cleanup_stale_snapshots(codex_home: &Path, active_session_id: Threa
 
         let file_name = entry.file_name();
         let file_name = file_name.to_string_lossy();
-        let (session_id, _) = match file_name.rsplit_once('.') {
-            Some((stem, ext)) => (stem, ext),
-            None => {
-                remove_snapshot_file(&path).await;
-                continue;
-            }
+        let Some(session_id) = snapshot_session_id_from_file_name(&file_name) else {
+            remove_snapshot_file(&path).await;
+            continue;
         };
         if session_id == active_session_id {
             continue;
@@ -578,6 +602,7 @@ async fn remove_snapshot_file(path: &Path) {
     }
 }
 
+<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -978,5 +1003,20 @@ mod tests {
             return Err(std::io::Error::last_os_error().into());
         }
         Ok(())
+=======
+fn snapshot_session_id_from_file_name(file_name: &str) -> Option<&str> {
+    let (stem, extension) = file_name.rsplit_once('.')?;
+    match extension {
+        "sh" | "ps1" => Some(
+            stem.split_once('.')
+                .map_or(stem, |(session_id, _generation)| session_id),
+        ),
+        _ if extension.starts_with("tmp-") => Some(stem),
+        _ => None,
+>>>>>>> upstream/main
     }
 }
+
+#[cfg(test)]
+#[path = "shell_snapshot_tests.rs"]
+mod tests;
