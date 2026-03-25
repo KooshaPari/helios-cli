@@ -1,10 +1,9 @@
-use std::collections::HashSet;
-
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::FunctionCallOutputContentItem;
 use codex_protocol::models::FunctionCallOutputPayload;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::openai_models::InputModality;
+use std::collections::HashSet;
 
 use crate::util::error_or_panic;
 use tracing::info;
@@ -35,6 +34,34 @@ pub(crate) fn ensure_call_outputs_present(items: &mut Vec<ResponseItem>) {
                         ResponseItem::FunctionCallOutput {
                             call_id: call_id.clone(),
                             output: FunctionCallOutputPayload::from_text("aborted".to_string()),
+<<<<<<< HEAD
+=======
+                        },
+                    ));
+                }
+            }
+            ResponseItem::ToolSearchCall {
+                call_id: Some(call_id),
+                ..
+            } => {
+                let has_output = items.iter().any(|i| match i {
+                    ResponseItem::ToolSearchOutput {
+                        call_id: Some(existing),
+                        ..
+                    } => existing == call_id,
+                    _ => false,
+                });
+
+                if !has_output {
+                    info!("Tool search output is missing for call id: {call_id}");
+                    missing_outputs_to_insert.push((
+                        idx,
+                        ResponseItem::ToolSearchOutput {
+                            call_id: Some(call_id.clone()),
+                            status: "completed".to_string(),
+                            execution: "client".to_string(),
+                            tools: Vec::new(),
+>>>>>>> upstream_main
                         },
                     ));
                 }
@@ -55,6 +82,10 @@ pub(crate) fn ensure_call_outputs_present(items: &mut Vec<ResponseItem>) {
                         idx,
                         ResponseItem::CustomToolCallOutput {
                             call_id: call_id.clone(),
+<<<<<<< HEAD
+=======
+                            name: None,
+>>>>>>> upstream_main
                             output: FunctionCallOutputPayload::from_text("aborted".to_string()),
                         },
                     ));
@@ -103,6 +134,17 @@ pub(crate) fn remove_orphan_outputs(items: &mut Vec<ResponseItem>) {
         })
         .collect();
 
+    let tool_search_call_ids: HashSet<String> = items
+        .iter()
+        .filter_map(|i| match i {
+            ResponseItem::ToolSearchCall {
+                call_id: Some(call_id),
+                ..
+            } => Some(call_id.clone()),
+            _ => None,
+        })
+        .collect();
+
     let local_shell_call_ids: HashSet<String> = items
         .iter()
         .filter_map(|i| match i {
@@ -142,6 +184,18 @@ pub(crate) fn remove_orphan_outputs(items: &mut Vec<ResponseItem>) {
             }
             has_match
         }
+        ResponseItem::ToolSearchOutput { execution, .. } if execution == "server" => true,
+        ResponseItem::ToolSearchOutput {
+            call_id: Some(call_id),
+            ..
+        } => {
+            let has_match = tool_search_call_ids.contains(call_id);
+            if !has_match {
+                error_or_panic(format!("Orphan tool search output for call id: {call_id}"));
+            }
+            has_match
+        }
+        ResponseItem::ToolSearchOutput { call_id: None, .. } => true,
         _ => true,
     });
 }
@@ -168,6 +222,37 @@ pub(crate) fn remove_corresponding_for(items: &mut Vec<ResponseItem>, item: &Res
             }) {
                 items.remove(pos);
             }
+        }
+        ResponseItem::ToolSearchCall {
+            call_id: Some(call_id),
+            ..
+        } => {
+            remove_first_matching(items, |i| {
+                matches!(
+                    i,
+                    ResponseItem::ToolSearchOutput {
+                        call_id: Some(existing),
+                        ..
+                    } if existing == call_id
+                )
+            });
+        }
+        ResponseItem::ToolSearchOutput {
+            call_id: Some(call_id),
+            ..
+        } => {
+            remove_first_matching(
+                items,
+                |i| {
+                    matches!(
+                        i,
+                        ResponseItem::ToolSearchCall {
+                            call_id: Some(existing),
+                            ..
+                        } if existing == call_id
+                    )
+                },
+            );
         }
         ResponseItem::CustomToolCall { call_id, .. } => {
             remove_first_matching(items, |i| {
@@ -256,6 +341,9 @@ pub(crate) fn strip_images_when_unsupported(
                     }
                     *content_items = normalized_content_items;
                 }
+            }
+            ResponseItem::ImageGenerationCall { result, .. } => {
+                result.clear();
             }
             _ => {}
         }

@@ -13,7 +13,8 @@ use tracing::warn;
 
 use super::auth::McpOAuthLoginSupport;
 use super::auth::oauth_login_support;
-use super::effective_mcp_servers;
+use super::auth::resolve_oauth_scopes;
+use super::auth::should_retry_without_scopes;
 use crate::codex::Session;
 use crate::codex::TurnContext;
 use crate::config::Config;
@@ -23,9 +24,9 @@ use crate::config::types::McpServerConfig;
 use crate::config::types::McpServerTransportConfig;
 use crate::default_client::is_first_party_originator;
 use crate::default_client::originator;
-use crate::features::Feature;
 use crate::skills::SkillMetadata;
 use crate::skills::model::SkillToolDependency;
+use codex_features::Feature;
 
 const SKILL_MCP_DEPENDENCY_PROMPT_ID: &str = "skill_mcp_dependency_install";
 const MCP_DEPENDENCY_OPTION_INSTALL: &str = "Install";
@@ -149,7 +150,10 @@ pub(crate) async fn maybe_prompt_and_install_mcp_dependencies(
         return;
     }
 
-    let installed = config.mcp_servers.get().clone();
+    let installed = sess
+        .services
+        .mcp_manager
+        .configured_servers(config.as_ref());
     let missing = collect_missing_mcp_dependencies(mentioned_skills, &installed);
     if missing.is_empty() {
         return;
@@ -178,7 +182,7 @@ pub(crate) async fn maybe_install_mcp_dependencies(
     }
 
     let codex_home = config.codex_home.clone();
-    let installed = config.mcp_servers.get().clone();
+    let installed = sess.services.mcp_manager.configured_servers(config);
     let missing = collect_missing_mcp_dependencies(mentioned_skills, &installed);
     if missing.is_empty() {
         return;
@@ -234,27 +238,68 @@ pub(crate) async fn maybe_install_mcp_dependencies(
         )
         .await;
 
-        if let Err(err) = perform_oauth_login(
+        let resolved_scopes = resolve_oauth_scopes(
+            /*explicit_scopes*/ None,
+            server_config.scopes.clone(),
+            oauth_config.discovered_scopes.clone(),
+        );
+        let first_attempt = perform_oauth_login(
             &name,
             &oauth_config.url,
             config.mcp_oauth_credentials_store_mode,
+<<<<<<< HEAD
             oauth_config.http_headers,
             oauth_config.env_http_headers,
             &[],
+=======
+            oauth_config.http_headers.clone(),
+            oauth_config.env_http_headers.clone(),
+            &resolved_scopes.scopes,
+>>>>>>> upstream_main
             server_config.oauth_resource.as_deref(),
             config.mcp_oauth_callback_port,
             config.mcp_oauth_callback_url.as_deref(),
         )
-        .await
-        {
-            warn!("failed to login to MCP dependency {name}: {err}");
+        .await;
+
+        if let Err(err) = first_attempt {
+            if should_retry_without_scopes(&resolved_scopes, &err) {
+                sess.notify_background_event(
+                    turn_context,
+                    format!(
+                        "Retrying MCP {name} authentication without scopes after provider rejection."
+                    ),
+                )
+                .await;
+
+                if let Err(err) = perform_oauth_login(
+                    &name,
+                    &oauth_config.url,
+                    config.mcp_oauth_credentials_store_mode,
+                    oauth_config.http_headers,
+                    oauth_config.env_http_headers,
+                    &[],
+                    server_config.oauth_resource.as_deref(),
+                    config.mcp_oauth_callback_port,
+                    config.mcp_oauth_callback_url.as_deref(),
+                )
+                .await
+                {
+                    warn!("failed to login to MCP dependency {name}: {err}");
+                }
+            } else {
+                warn!("failed to login to MCP dependency {name}: {err}");
+            }
         }
     }
 
     // Refresh from the effective merged MCP map (global + repo + managed) and
     // overlay the updated global servers so we don't drop repo-scoped servers.
     let auth = sess.services.auth_manager.auth().await;
-    let mut refresh_servers = effective_mcp_servers(config, auth.as_ref());
+    let mut refresh_servers = sess
+        .services
+        .mcp_manager
+        .effective_servers(config, auth.as_ref());
     for (name, server_config) in &servers {
         refresh_servers
             .entry(name.clone())
@@ -421,6 +466,7 @@ fn mcp_dependency_to_server_config(
 }
 
 #[cfg(test)]
+<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::skills::model::SkillDependencies;
@@ -530,3 +576,7 @@ mod tests {
         );
     }
 }
+=======
+#[path = "skill_dependencies_tests.rs"]
+mod tests;
+>>>>>>> upstream_main

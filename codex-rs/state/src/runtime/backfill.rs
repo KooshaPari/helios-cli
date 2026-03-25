@@ -160,7 +160,11 @@ mod tests {
             .await
             .expect("write numeric");
 
+<<<<<<< HEAD
         let _runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string(), None)
+=======
+        let _runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string())
+>>>>>>> upstream_main
             .await
             .expect("initialize runtime");
 
@@ -207,7 +211,11 @@ mod tests {
     #[tokio::test]
     async fn backfill_state_persists_progress_and_completion() {
         let codex_home = unique_temp_dir();
+<<<<<<< HEAD
         let runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string(), None)
+=======
+        let runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string())
+>>>>>>> upstream_main
             .await
             .expect("initialize runtime");
 
@@ -260,7 +268,11 @@ mod tests {
     #[tokio::test]
     async fn backfill_claim_is_singleton_until_stale_and_blocked_when_complete() {
         let codex_home = unique_temp_dir();
+<<<<<<< HEAD
         let runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string(), None)
+=======
+        let runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string())
+>>>>>>> upstream_main
             .await
             .expect("initialize runtime");
 

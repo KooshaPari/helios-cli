@@ -92,10 +92,16 @@ use crate::terminal_palette::default_bg;
 use crate::terminal_palette::indexed_color;
 use crate::terminal_palette::rgb_color;
 use crate::terminal_palette::stdout_color_level;
+<<<<<<< HEAD
 use codex_core::git_info::get_git_repo_root;
 use codex_core::terminal::TerminalName;
 use codex_core::terminal::terminal_info;
+=======
+use codex_git_utils::get_git_repo_root;
+>>>>>>> upstream_main
 use codex_protocol::protocol::FileChange;
+use codex_terminal_detection::TerminalName;
+use codex_terminal_detection::terminal_info;
 
 /// Classifies a diff line for gutter sign rendering and style selection.
 ///
@@ -306,13 +312,13 @@ impl DiffSummary {
 impl Renderable for FileChange {
     fn render(&self, area: Rect, buf: &mut Buffer) {
         let mut lines = vec![];
-        render_change(self, &mut lines, area.width as usize, None);
+        render_change(self, &mut lines, area.width as usize, /*lang*/ None);
         Paragraph::new(lines).render(area, buf);
     }
 
     fn desired_height(&self, width: u16) -> u16 {
         let mut lines = vec![];
-        render_change(self, &mut lines, width as usize, None);
+        render_change(self, &mut lines, width as usize, /*lang*/ None);
         lines.len() as u16
     }
 }
@@ -332,7 +338,9 @@ impl From<DiffSummary> for Box<dyn Renderable> {
             rows.push(Box::new(RtLine::from("")));
             rows.push(Box::new(InsetRenderable::new(
                 Box::new(row.change) as Box<dyn Renderable>,
-                Insets::tlbr(0, 2, 0, 0),
+                Insets::tlbr(
+                    /*top*/ 0, /*left*/ 2, /*bottom*/ 0, /*right*/ 0,
+                ),
             )));
         }
 
@@ -502,7 +510,11 @@ fn render_change(
                         raw,
                         width,
                         line_number_width,
+<<<<<<< HEAD
                         None,
+=======
+                        /*syntax_spans*/ None,
+>>>>>>> upstream_main
                         style_context.theme,
                         style_context.color_level,
                         style_context.diff_backgrounds,
@@ -534,7 +546,11 @@ fn render_change(
                         raw,
                         width,
                         line_number_width,
+<<<<<<< HEAD
                         None,
+=======
+                        /*syntax_spans*/ None,
+>>>>>>> upstream_main
                         style_context.theme,
                         style_context.color_level,
                         style_context.diff_backgrounds,
@@ -649,7 +665,11 @@ fn render_change(
                                             s,
                                             width,
                                             line_number_width,
+<<<<<<< HEAD
                                             None,
+=======
+                                            /*syntax_spans*/ None,
+>>>>>>> upstream_main
                                             style_context.theme,
                                             style_context.color_level,
                                             style_context.diff_backgrounds,
@@ -682,7 +702,11 @@ fn render_change(
                                             s,
                                             width,
                                             line_number_width,
+<<<<<<< HEAD
                                             None,
+=======
+                                            /*syntax_spans*/ None,
+>>>>>>> upstream_main
                                             style_context.theme,
                                             style_context.color_level,
                                             style_context.diff_backgrounds,
@@ -715,7 +739,11 @@ fn render_change(
                                             s,
                                             width,
                                             line_number_width,
+<<<<<<< HEAD
                                             None,
+=======
+                                            /*syntax_spans*/ None,
+>>>>>>> upstream_main
                                             style_context.theme,
                                             style_context.color_level,
                                             style_context.diff_backgrounds,
@@ -796,7 +824,11 @@ pub(crate) fn push_wrapped_diff_line_with_style_context(
         text,
         width,
         line_number_width,
+<<<<<<< HEAD
         None,
+=======
+        /*syntax_spans*/ None,
+>>>>>>> upstream_main
         style_context.theme,
         style_context.color_level,
         style_context.diff_backgrounds,

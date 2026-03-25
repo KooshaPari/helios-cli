@@ -97,4 +97,9 @@ Godel
 Nash
 Banach
 Ramanujan
+<<<<<<< HEAD
 Erdos
+=======
+Erdos
+Jason
+>>>>>>> upstream_main

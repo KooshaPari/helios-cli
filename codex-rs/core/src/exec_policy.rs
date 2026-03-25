@@ -21,24 +21,29 @@ use codex_execpolicy::RuleMatch;
 use codex_execpolicy::blocking_append_allow_prefix_rule;
 use codex_execpolicy::blocking_append_network_rule;
 use codex_protocol::approvals::ExecPolicyAmendment;
+use codex_protocol::permissions::FileSystemSandboxKind;
+use codex_protocol::permissions::FileSystemSandboxPolicy;
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::SandboxPolicy;
 use thiserror::Error;
 use tokio::fs;
 use tokio::task::spawn_blocking;
+use tracing::instrument;
 
 use crate::bash::parse_shell_lc_plain_commands;
 use crate::bash::parse_shell_lc_single_command_prefix;
+use crate::config::Config;
 use crate::sandboxing::SandboxPermissions;
 use crate::tools::sandboxing::ExecApprovalRequirement;
+use codex_utils_absolute_path::AbsolutePathBuf;
 use shlex::try_join as shlex_try_join;
 
 const PROMPT_CONFLICT_REASON: &str =
     "approval required by policy, but AskForApproval is set to Never";
 const REJECT_SANDBOX_APPROVAL_REASON: &str =
-    "approval required by policy, but AskForApproval::Reject.sandbox_approval is set";
+    "approval required by policy, but AskForApproval::Granular.sandbox_approval is false";
 const REJECT_RULES_APPROVAL_REASON: &str =
-    "approval required by policy rule, but AskForApproval::Reject.rules is set";
+    "approval required by policy rule, but AskForApproval::Granular.rules is false";
 const RULES_DIR_NAME: &str = "rules";
 const RULE_EXTENSION: &str = "rules";
 const DEFAULT_POLICY_FILE: &str = "default.rules";
@@ -91,6 +96,24 @@ static BANNED_PREFIX_SUGGESTIONS: &[&[&str]] = &[
     &["osascript"],
 ];
 
+pub(crate) fn child_uses_parent_exec_policy(parent_config: &Config, child_config: &Config) -> bool {
+    fn exec_policy_config_folders(config: &Config) -> Vec<AbsolutePathBuf> {
+        config
+            .config_layer_stack
+            .get_layers(
+                ConfigLayerStackOrdering::LowestPrecedenceFirst,
+                /*include_disabled*/ false,
+            )
+            .into_iter()
+            .filter_map(codex_config::ConfigLayerEntry::config_folder)
+            .collect()
+    }
+
+    exec_policy_config_folders(parent_config) == exec_policy_config_folders(child_config)
+        && parent_config.config_layer_stack.requirements().exec_policy
+            == child_config.config_layer_stack.requirements().exec_policy
+}
+
 fn is_policy_match(rule_match: &RuleMatch) -> bool {
     match rule_match {
         RuleMatch::PrefixRuleMatch { .. } => true,
@@ -102,9 +125,9 @@ fn is_policy_match(rule_match: &RuleMatch) -> bool {
 /// current prompt to the user.
 ///
 /// `prompt_is_rule` distinguishes policy-rule prompts from sandbox/escalation
-/// prompts so `Reject.rules` and `Reject.sandbox_approval` are honored
+/// prompts so granular `rules` and `sandbox_approval` settings are honored
 /// independently. When both are present, policy-rule prompts take precedence.
-fn prompt_is_rejected_by_policy(
+pub(crate) fn prompt_is_rejected_by_policy(
     approval_policy: AskForApproval,
     prompt_is_rule: bool,
 ) -> Option<&'static str> {
@@ -113,14 +136,14 @@ fn prompt_is_rejected_by_policy(
         AskForApproval::OnFailure => None,
         AskForApproval::OnRequest => None,
         AskForApproval::UnlessTrusted => None,
-        AskForApproval::Reject(reject_config) => {
+        AskForApproval::Granular(granular_config) => {
             if prompt_is_rule {
-                if reject_config.rejects_rules_approval() {
+                if !granular_config.allows_rules_approval() {
                     Some(REJECT_RULES_APPROVAL_REASON)
                 } else {
                     None
                 }
-            } else if reject_config.rejects_sandbox_approval() {
+            } else if !granular_config.allows_sandbox_approval() {
                 Some(REJECT_SANDBOX_APPROVAL_REASON)
             } else {
                 None
@@ -167,12 +190,14 @@ pub enum ExecPolicyUpdateError {
 
 pub(crate) struct ExecPolicyManager {
     policy: ArcSwap<Policy>,
+    update_lock: tokio::sync::Mutex<()>,
 }
 
 pub(crate) struct ExecApprovalRequest<'a> {
     pub(crate) command: &'a [String],
     pub(crate) approval_policy: AskForApproval,
     pub(crate) sandbox_policy: &'a SandboxPolicy,
+    pub(crate) file_system_sandbox_policy: &'a FileSystemSandboxPolicy,
     pub(crate) sandbox_permissions: SandboxPermissions,
     pub(crate) prefix_rule: Option<Vec<String>>,
 }
@@ -181,9 +206,11 @@ impl ExecPolicyManager {
     pub(crate) fn new(policy: Arc<Policy>) -> Self {
         Self {
             policy: ArcSwap::from(policy),
+            update_lock: tokio::sync::Mutex::new(()),
         }
     }
 
+    #[instrument(level = "info", skip_all)]
     pub(crate) async fn load(config_stack: &ConfigLayerStack) -> Result<Self, ExecPolicyError> {
         let (policy, warning) = load_exec_policy_with_warning(config_stack).await?;
         if let Some(err) = warning.as_ref() {
@@ -204,6 +231,7 @@ impl ExecPolicyManager {
             command,
             approval_policy,
             sandbox_policy,
+            file_system_sandbox_policy,
             sandbox_permissions,
             prefix_rule,
         } = req;
@@ -217,6 +245,7 @@ impl ExecPolicyManager {
             render_decision_for_unmatched_command(
                 approval_policy,
                 sandbox_policy,
+                file_system_sandbox_policy,
                 cmd,
                 sandbox_permissions,
                 used_complex_parsing,
@@ -285,11 +314,11 @@ impl ExecPolicyManager {
         codex_home: &Path,
         amendment: &ExecPolicyAmendment,
     ) -> Result<(), ExecPolicyUpdateError> {
+        let _update_guard = self.update_lock.lock().await;
         let policy_path = default_policy_path(codex_home);
-        let prefix = amendment.command.clone();
         spawn_blocking({
             let policy_path = policy_path.clone();
-            let prefix = prefix.clone();
+            let prefix = amendment.command.clone();
             move || blocking_append_allow_prefix_rule(&policy_path, &prefix)
         })
         .await
@@ -299,8 +328,25 @@ impl ExecPolicyManager {
             source,
         })?;
 
-        let mut updated_policy = self.current().as_ref().clone();
-        updated_policy.add_prefix_rule(&prefix, Decision::Allow)?;
+        let current_policy = self.current();
+        let match_options = MatchOptions {
+            resolve_host_executables: true,
+        };
+        let existing_evaluation = current_policy.check_multiple_with_options(
+            [&amendment.command],
+            &|_| Decision::Forbidden,
+            &match_options,
+        );
+        let already_allowed = existing_evaluation.decision == Decision::Allow
+            && existing_evaluation.matched_rules.iter().any(|rule_match| {
+                is_policy_match(rule_match) && rule_match.decision() == Decision::Allow
+            });
+        if already_allowed {
+            return Ok(());
+        }
+
+        let mut updated_policy = current_policy.as_ref().clone();
+        updated_policy.add_prefix_rule(&amendment.command, Decision::Allow)?;
         self.policy.store(Arc::new(updated_policy));
         Ok(())
     }
@@ -313,6 +359,7 @@ impl ExecPolicyManager {
         decision: Decision,
         justification: Option<String>,
     ) -> Result<(), ExecPolicyUpdateError> {
+        let _update_guard = self.update_lock.lock().await;
         let policy_path = default_policy_path(codex_home);
         let host = host.to_string();
         spawn_blocking({
@@ -442,7 +489,10 @@ pub async fn load_exec_policy(config_stack: &ConfigLayerStack) -> Result<Policy,
     // from each layer, so that higher-precedence layers can override
     // rules defined in lower-precedence ones.
     let mut policy_paths = Vec::new();
-    for layer in config_stack.get_layers(ConfigLayerStackOrdering::LowestPrecedenceFirst, false) {
+    for layer in config_stack.get_layers(
+        ConfigLayerStackOrdering::LowestPrecedenceFirst,
+        /*include_disabled*/ false,
+    ) {
         if let Some(config_folder) = layer.config_folder() {
             #[expect(clippy::expect_used)]
             let policy_dir = config_folder.join(RULES_DIR_NAME).expect("safe join");
@@ -488,6 +538,7 @@ pub async fn load_exec_policy(config_stack: &ConfigLayerStack) -> Result<Policy,
 pub fn render_decision_for_unmatched_command(
     approval_policy: AskForApproval,
     sandbox_policy: &SandboxPolicy,
+    file_system_sandbox_policy: &FileSystemSandboxPolicy,
     command: &[String],
     sandbox_permissions: SandboxPermissions,
     used_complex_parsing: bool,
@@ -498,20 +549,33 @@ pub fn render_decision_for_unmatched_command(
 
     // On Windows, ReadOnly sandbox is not a real sandbox, so special-case it
     // here.
-    let runtime_sandbox_provides_safety =
+    let environment_lacks_sandbox_protections =
         cfg!(windows) && matches!(sandbox_policy, SandboxPolicy::ReadOnly { .. });
 
     // If the command is flagged as dangerous or we have no sandbox protection,
-    // we should never allow it to run without user approval.
+    // we should never allow it to run without approval.
     //
     // We prefer to prompt the user rather than outright forbid the command,
     // but if the user has explicitly disabled prompts, we must
     // forbid the command.
-    if command_might_be_dangerous(command) || runtime_sandbox_provides_safety {
-        return if matches!(approval_policy, AskForApproval::Never) {
-            Decision::Forbidden
-        } else {
-            Decision::Prompt
+    if command_might_be_dangerous(command) || environment_lacks_sandbox_protections {
+        return match approval_policy {
+            AskForApproval::Never => {
+                let sandbox_is_explicitly_disabled = matches!(
+                    sandbox_policy,
+                    SandboxPolicy::DangerFullAccess | SandboxPolicy::ExternalSandbox { .. }
+                );
+                if sandbox_is_explicitly_disabled {
+                    // If the sandbox is explicitly disabled, we should allow the command to run
+                    Decision::Allow
+                } else {
+                    Decision::Forbidden
+                }
+            }
+            AskForApproval::OnFailure
+            | AskForApproval::OnRequest
+            | AskForApproval::UnlessTrusted
+            | AskForApproval::Granular(_) => Decision::Prompt,
         };
     }
 
@@ -527,18 +591,18 @@ pub fn render_decision_for_unmatched_command(
             Decision::Prompt
         }
         AskForApproval::OnRequest => {
-            match sandbox_policy {
-                SandboxPolicy::DangerFullAccess | SandboxPolicy::ExternalSandbox { .. } => {
+            match file_system_sandbox_policy.kind {
+                FileSystemSandboxKind::Unrestricted | FileSystemSandboxKind::ExternalSandbox => {
                     // The user has indicated we should "just run" commands
                     // in their unrestricted environment, so we do so since the
                     // command has not been flagged as dangerous.
                     Decision::Allow
                 }
-                SandboxPolicy::ReadOnly { .. } | SandboxPolicy::WorkspaceWrite { .. } => {
-                    // In restricted sandboxes (ReadOnly/WorkspaceWrite), do not prompt for
-                    // non‑escalated, non‑dangerous commands — let the sandbox enforce
-                    // restrictions (e.g., block network/write) without a user prompt.
-                    if sandbox_permissions.requires_additional_permissions() {
+                FileSystemSandboxKind::Restricted => {
+                    // In restricted sandboxes, do not prompt for non-escalated,
+                    // non-dangerous commands; let the sandbox enforce
+                    // restrictions without a user prompt.
+                    if sandbox_permissions.requests_sandbox_override() {
                         Decision::Prompt
                     } else {
                         Decision::Allow
@@ -546,14 +610,14 @@ pub fn render_decision_for_unmatched_command(
                 }
             }
         }
-        AskForApproval::Reject(_) => match sandbox_policy {
-            SandboxPolicy::DangerFullAccess | SandboxPolicy::ExternalSandbox { .. } => {
+        AskForApproval::Granular(_) => match file_system_sandbox_policy.kind {
+            FileSystemSandboxKind::Unrestricted | FileSystemSandboxKind::ExternalSandbox => {
                 // Mirror on-request behavior for unmatched commands; prompt-vs-reject is handled
                 // by `prompt_is_rejected_by_policy`.
                 Decision::Allow
             }
-            SandboxPolicy::ReadOnly { .. } | SandboxPolicy::WorkspaceWrite { .. } => {
-                if sandbox_permissions.requires_additional_permissions() {
+            FileSystemSandboxKind::Restricted => {
+                if sandbox_permissions.requests_sandbox_override() {
                     Decision::Prompt
                 } else {
                     Decision::Allow
@@ -815,6 +879,7 @@ async fn collect_policy_files(dir: impl AsRef<Path>) -> Result<Vec<PathBuf>, Exe
 }
 
 #[cfg(test)]
+<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::config_loader::ConfigLayerEntry;
@@ -2344,3 +2409,7 @@ prefix_rule(pattern=["git"], decision="prompt")
         );
     }
 }
+=======
+#[path = "exec_policy_tests.rs"]
+mod tests;
+>>>>>>> upstream_main

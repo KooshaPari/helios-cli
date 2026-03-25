@@ -94,9 +94,9 @@ pub(crate) async fn maybe_emit_implicit_skill_invocation(
         return;
     }
 
-    turn_context.otel_manager.counter(
+    turn_context.session_telemetry.counter(
         "codex.skill.injected",
-        1,
+        /*inc*/ 1,
         &[
             ("status", "ok"),
             ("skill", skill_name.as_str()),
@@ -231,6 +231,7 @@ fn normalize_path(path: &Path) -> PathBuf {
 }
 
 #[cfg(test)]
+<<<<<<< HEAD
 mod tests {
     use super::SkillLoadOutcome;
     use super::SkillMetadata;
@@ -355,3 +356,7 @@ mod tests {
         );
     }
 }
+=======
+#[path = "invocation_utils_tests.rs"]
+mod tests;
+>>>>>>> upstream_main

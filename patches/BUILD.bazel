@@ -1,6 +1,13 @@
 exports_files([
     "aws-lc-sys_memcmp_check.patch",
+<<<<<<< HEAD
     "coreaudio-sys_bindgen_target.patch",
     "toolchains_llvm_bootstrapped_resource_dir.patch",
+=======
+    "rusty_v8_prebuilt_out_dir.patch",
+    "v8_bazel_rules.patch",
+    "v8_module_deps.patch",
+    "v8_source_portability.patch",
+>>>>>>> upstream_main
     "windows-link.patch",
 ])

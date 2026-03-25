@@ -16,12 +16,17 @@ fn codex_command(codex_home: &Path) -> Result<assert_cmd::Command> {
 #[tokio::test]
 async fn debug_clear_memories_resets_state_and_removes_memory_dir() -> Result<()> {
     let codex_home = TempDir::new()?;
+<<<<<<< HEAD
     let runtime = StateRuntime::init(
         codex_home.path().to_path_buf(),
         "test-provider".to_string(),
         None,
     )
     .await?;
+=======
+    let runtime =
+        StateRuntime::init(codex_home.path().to_path_buf(), "test-provider".to_string()).await?;
+>>>>>>> upstream_main
     drop(runtime);
 
     let thread_id = "00000000-0000-0000-0000-000000000123";

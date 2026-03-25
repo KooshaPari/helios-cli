@@ -6,9 +6,13 @@ Scenario: True mid-turn continuation compaction after tool output: compact reque
 
 ## Local Compaction Request
 00:message/developer:<PERMISSIONS_INSTRUCTIONS>
+<<<<<<< HEAD
 01:message/user[2]:
     [01] <AGENTS_MD>
     [02] <ENVIRONMENT_CONTEXT:cwd=<CWD>>
+=======
+01:message/user:<ENVIRONMENT_CONTEXT:cwd=<CWD>>
+>>>>>>> upstream_main
 02:message/user:function call limit push
 03:function_call/test_tool
 04:function_call_output:unsupported call: test_tool
@@ -16,8 +20,12 @@ Scenario: True mid-turn continuation compaction after tool output: compact reque
 
 ## Local Post-Compaction History Layout
 00:message/developer:<PERMISSIONS_INSTRUCTIONS>
+<<<<<<< HEAD
 01:message/user[2]:
     [01] <AGENTS_MD>
     [02] <ENVIRONMENT_CONTEXT:cwd=<CWD>>
+=======
+01:message/user:<ENVIRONMENT_CONTEXT:cwd=<CWD>>
+>>>>>>> upstream_main
 02:message/user:function call limit push
 03:message/user:<COMPACTION_SUMMARY>\nAUTO_SUMMARY
