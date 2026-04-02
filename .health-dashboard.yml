@@ -1,0 +1,72 @@
+# Project Health Dashboard Configuration
+# Generated: 2026-04-02
+# For: helios-cli
+
+project:
+  name: helios-cli
+  language: rust
+  repository: https://github.com/KooshaPari/helios-cli
+  
+health_dimensions:
+  documentation:
+    required_files:
+      - CLAUDE.md
+      - README.md
+      - CONTRIBUTING.md  # MISSING - needs creation
+      - LICENSE
+      - CHANGELOG.md
+    present_files:
+      - CLAUDE.md
+      - README.md
+      - LICENSE
+      - CHANGELOG.md
+    score: 80
+    weight: 15
+  
+  test_coverage:
+    target: 80
+    tool: cargo-tarpaulin
+    codecov_enabled: false  # MISSING - needs codecov.yml
+    weight: 20
+  
+  security:
+    tools:
+      - cargo-audit
+      - cargo-deny
+      - codeql
+    deny_toml_enabled: true
+    weight: 25
+  
+  dependencies:
+    check_outdated: true
+    tool: cargo-outdated
+    weight: 15
+  
+  compliance:
+    required_configs:
+      - deny.toml
+      - codecov.yml  # MISSING
+    present_configs:
+      - deny.toml
+    score: 50
+    weight: 15
+  
+  code_quality:
+    linters:
+      - clippy
+      - rustfmt
+    weight: 10
+
+reporting:
+  dashboard_endpoint: http://localhost:3000/api/health/projects
+  scan_interval: 3600
+  
+audit_results:
+  overall_score: 74
+  health_band: good
+  missing_files:
+    - CONTRIBUTING.md
+    - codecov.yml
+  recommendations:
+    - Create CONTRIBUTING.md with project guidelines
+    - Add codecov.yml for coverage tracking
