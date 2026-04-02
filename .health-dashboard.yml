@@ -1,72 +1,64 @@
-# Project Health Dashboard Configuration
-# Generated: 2026-04-02
-# For: helios-cli
-
+# Health Dashboard Configuration for helios-cli
+# Traceability: HD-001
+---
 project:
   name: helios-cli
   language: rust
-  repository: https://github.com/KooshaPari/helios-cli
-  
-health_dimensions:
+  description: Helios CLI - Command-line interface for Phenotype
+  tier: tier1
+
+dimensions:
   documentation:
-    required_files:
-      - CLAUDE.md
-      - README.md
-      - CONTRIBUTING.md  # MISSING - needs creation
-      - LICENSE
-      - CHANGELOG.md
-    present_files:
-      - CLAUDE.md
-      - README.md
-      - LICENSE
-      - CHANGELOG.md
-    score: 80
     weight: 15
+    files:
+      - CLAUDE.md
+      - README.md
+      - CONTRIBUTING.md
+      - LICENSE
+      - CHANGELOG.md
+    required: true
   
   test_coverage:
-    target: 80
-    tool: cargo-tarpaulin
-    codecov_enabled: false  # MISSING - needs codecov.yml
     weight: 20
+    thresholds:
+      min_line_coverage: 80
+      min_branch_coverage: 70
+    codecov: false  # Not configured yet
   
   security:
-    tools:
+    weight: 25
+    scanners:
       - cargo-audit
       - cargo-deny
-      - codeql
-    deny_toml_enabled: true
-    weight: 25
+      - trivy
+    alert_severity: high
   
   dependencies:
-    check_outdated: true
-    tool: cargo-outdated
     weight: 15
+    freshness_threshold_days: 90
+    outdated_tolerance: 5
   
   compliance:
-    required_configs:
-      - deny.toml
-      - codecov.yml  # MISSING
-    present_configs:
-      - deny.toml
-    score: 50
     weight: 15
+    required_files:
+      - deny.toml
+      - clippy.toml
+      - .pre-commit-config.yaml
+    github_workflows_required: true
   
   code_quality:
+    weight: 10
     linters:
       - clippy
       - rustfmt
-    weight: 10
+    max_complexity: 15
 
-reporting:
-  dashboard_endpoint: http://localhost:3000/api/health/projects
-  scan_interval: 3600
-  
-audit_results:
-  overall_score: 74
-  health_band: good
-  missing_files:
-    - CONTRIBUTING.md
-    - codecov.yml
-  recommendations:
-    - Create CONTRIBUTING.md with project guidelines
-    - Add codecov.yml for coverage tracking
+alerts:
+  critical_threshold: 0
+  poor_threshold: 60
+  frequency_hours: 24
+
+integration:
+  github_repo: KooshaPari/helios-cli
+  codecov_repo: KooshaPari/helios-cli
+  snyk_org: phenotype
