@@ -3,11 +3,7 @@
 use std::fs;
 
 use assert_matches::assert_matches;
-<<<<<<< HEAD
-use codex_core::features::Feature;
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::plan_tool::StepStatus;
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::EventMsg;
@@ -94,10 +90,7 @@ async fn shell_tool_executes_command_and_streams_output() -> anyhow::Result<()> 
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -168,10 +161,7 @@ async fn update_plan_tool_emits_plan_update_event() -> anyhow::Result<()> {
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -252,10 +242,7 @@ async fn update_plan_tool_rejects_malformed_payload() -> anyhow::Result<()> {
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -351,10 +338,7 @@ async fn apply_patch_tool_executes_and_emits_patch_events() -> anyhow::Result<()
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -458,10 +442,7 @@ async fn apply_patch_reports_parse_diagnostics() -> anyhow::Result<()> {
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

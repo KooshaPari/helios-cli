@@ -358,12 +358,7 @@ impl TextArea {
                 code: KeyCode::Char('h'),
                 modifiers: KeyModifiers::CONTROL,
                 ..
-<<<<<<< HEAD
-            } => self.delete_backward(1),
-            // Some terminals encode Option+Delete as Ctrl+Delete.
-=======
             } => self.delete_backward(/*n*/ 1),
->>>>>>> upstream_main
             KeyEvent {
                 code: KeyCode::Delete,
                 modifiers,

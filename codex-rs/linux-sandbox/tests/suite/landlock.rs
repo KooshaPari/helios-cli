@@ -80,23 +80,6 @@ async fn run_cmd_result_with_writable_roots(
     use_legacy_landlock: bool,
     network_access: bool,
 ) -> Result<codex_core::exec::ExecToolCallOutput> {
-<<<<<<< HEAD
-    let cwd = std::env::current_dir().expect("cwd should exist");
-    let sandbox_cwd = cwd.clone();
-    let params = ExecParams {
-        command: cmd.iter().copied().map(str::to_owned).collect(),
-        cwd,
-        expiration: timeout_ms.into(),
-        env: create_env_from_core_vars(),
-        network: None,
-        sandbox_permissions: SandboxPermissions::UseDefault,
-        windows_sandbox_level: WindowsSandboxLevel::Disabled,
-        justification: None,
-        arg0: None,
-    };
-
-=======
->>>>>>> upstream_main
     let sandbox_policy = SandboxPolicy::WorkspaceWrite {
         writable_roots: writable_roots
             .iter()

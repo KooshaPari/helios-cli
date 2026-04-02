@@ -742,30 +742,19 @@ mod tests {
                 "limit": 10000
             },
             "supports_parallel_tool_calls": false,
-<<<<<<< HEAD
-=======
             "supports_image_detail_original": false,
->>>>>>> upstream_main
             "context_window": null,
             "auto_compact_token_limit": null,
             "effective_context_window_percent": 95,
             "experimental_supported_tools": [],
-<<<<<<< HEAD
-            "input_modalities": ["text", "image"],
-            "prefer_websockets": false
-=======
             "input_modalities": ["text", "image"]
->>>>>>> upstream_main
         }))
         .expect("deserialize model info");
 
         assert_eq!(model.availability_nux, None);
-<<<<<<< HEAD
-=======
         assert!(!model.supports_image_detail_original);
         assert_eq!(model.web_search_tool_type, WebSearchToolType::Text);
         assert!(!model.supports_search_tool);
->>>>>>> upstream_main
     }
 
     #[test]

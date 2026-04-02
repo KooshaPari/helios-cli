@@ -5,11 +5,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use codex_core::config::types::Personality;
-<<<<<<< HEAD
-use codex_core::features::Feature;
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
@@ -130,10 +126,7 @@ async fn snapshot_model_visible_layout_turn_overrides() -> Result<()> {
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -157,10 +150,7 @@ async fn snapshot_model_visible_layout_turn_overrides() -> Result<()> {
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: Some(Personality::Friendly),
         })
@@ -239,10 +229,7 @@ async fn snapshot_model_visible_layout_cwd_change_does_not_refresh_agents() -> R
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -266,10 +253,7 @@ async fn snapshot_model_visible_layout_cwd_change_does_not_refresh_agents() -> R
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -379,10 +363,7 @@ async fn snapshot_model_visible_layout_resume_with_personality_change() -> Resul
             model: resumed.session_configured.model.clone(),
             effort: resumed.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: Some(Personality::Friendly),
         })

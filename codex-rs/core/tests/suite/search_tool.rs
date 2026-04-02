@@ -86,42 +86,11 @@ fn tool_search_output_tools(request: &ResponsesRequest, call_id: &str) -> Vec<Va
         .unwrap_or_default()
 }
 
-<<<<<<< HEAD
-fn rmcp_server_config(command: String) -> McpServerConfig {
-    McpServerConfig {
-        transport: McpServerTransportConfig::Stdio {
-            command,
-            args: Vec::new(),
-            env: None,
-            env_vars: Vec::new(),
-            cwd: None,
-        },
-        enabled: true,
-        required: false,
-        disabled_reason: None,
-        startup_timeout_sec: Some(Duration::from_secs(10)),
-        tool_timeout_sec: None,
-        enabled_tools: None,
-        disabled_tools: None,
-        scopes: None,
-        oauth_resource: None,
-    }
-}
-
-fn configure_apps_with_optional_rmcp(
-    config: &mut Config,
-    apps_base_url: &str,
-    rmcp_server_bin: Option<String>,
-) {
-    config.features.enable(Feature::Apps);
-    config.features.disable(Feature::AppsMcpGateway);
-=======
 fn configure_apps(config: &mut Config, apps_base_url: &str) {
     config
         .features
         .enable(Feature::Apps)
         .expect("test config should allow feature update");
->>>>>>> upstream_main
     config.chatgpt_base_url = apps_base_url.to_string();
     config.model = Some("gpt-5-codex".to_string());
 

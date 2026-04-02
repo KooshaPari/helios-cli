@@ -52,11 +52,7 @@ pub(super) async fn run(session: &Arc<Session>, config: Arc<Config>) {
         return;
     };
     let root = memory_root(&config.codex_home);
-<<<<<<< HEAD
-    let max_raw_memories = config.memories.max_raw_memories_for_global;
-=======
     let max_raw_memories = config.memories.max_raw_memories_for_consolidation;
->>>>>>> upstream_main
     let max_unused_days = config.memories.max_unused_days;
 
     // 1. Claim the job.

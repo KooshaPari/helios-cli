@@ -611,12 +611,8 @@ async fn cli_main(
                 &mut interactive.config_overrides,
                 root_config_overrides.clone(),
             );
-<<<<<<< HEAD
-            let exit_info = run_interactive_tui(interactive, codex_linux_sandbox_exe).await?;
-=======
             let exit_info =
                 run_interactive_tui(interactive, root_remote.clone(), arg0_paths.clone()).await?;
->>>>>>> upstream_main
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Exec(mut exec_cli)) => {
@@ -638,12 +634,8 @@ async fn cli_main(
             codex_exec::run_main(exec_cli, codex_linux_sandbox_exe).await?;
         }
         Some(Subcommand::McpServer) => {
-<<<<<<< HEAD
-            codex_mcp_server::run_main(codex_linux_sandbox_exe, root_config_overrides).await?;
-=======
             reject_remote_mode_for_subcommand(root_remote.as_deref(), "mcp-server")?;
             codex_mcp_server::run_main(arg0_paths.clone(), root_config_overrides).await?;
->>>>>>> upstream_main
         }
         Some(Subcommand::Mcp(mut mcp_cli)) => {
             reject_remote_mode_for_subcommand(root_remote.as_deref(), "mcp")?;
@@ -714,16 +706,12 @@ async fn cli_main(
                 all,
                 config_overrides,
             );
-<<<<<<< HEAD
-            let exit_info = run_interactive_tui(interactive, codex_linux_sandbox_exe).await?;
-=======
             let exit_info = run_interactive_tui(
                 interactive,
                 remote.remote.or(root_remote.clone()),
                 arg0_paths.clone(),
             )
             .await?;
->>>>>>> upstream_main
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Fork(ForkCommand {
@@ -741,16 +729,12 @@ async fn cli_main(
                 all,
                 config_overrides,
             );
-<<<<<<< HEAD
-            let exit_info = run_interactive_tui(interactive, codex_linux_sandbox_exe).await?;
-=======
             let exit_info = run_interactive_tui(
                 interactive,
                 remote.remote.or(root_remote.clone()),
                 arg0_paths.clone(),
             )
             .await?;
->>>>>>> upstream_main
             handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Login(mut login_cli)) => {
@@ -1008,18 +992,9 @@ async fn run_debug_clear_memories_command(
     let state_path = state_db_path(config.sqlite_home.as_path());
     let mut cleared_state_db = false;
     if tokio::fs::try_exists(&state_path).await? {
-<<<<<<< HEAD
-        let state_db = StateRuntime::init(
-            config.sqlite_home.clone(),
-            config.model_provider_id.clone(),
-            None,
-        )
-        .await?;
-=======
         let state_db =
             StateRuntime::init(config.sqlite_home.clone(), config.model_provider_id.clone())
                 .await?;
->>>>>>> upstream_main
         state_db.reset_memory_data_for_fresh_start().await?;
         cleared_state_db = true;
     }
@@ -1073,12 +1048,8 @@ fn reject_remote_mode_for_subcommand(remote: Option<&str>, subcommand: &str) -> 
 
 async fn run_interactive_tui(
     mut interactive: TuiCli,
-<<<<<<< HEAD
-    codex_linux_sandbox_exe: Arg0DispatchPaths,
-=======
     remote: Option<String>,
     arg0_paths: Arg0DispatchPaths,
->>>>>>> upstream_main
 ) -> std::io::Result<AppExitInfo> {
     if let Some(prompt) = interactive.prompt.take() {
         // Normalize CRLF/CR to LF so CLI-provided text can't leak `\r` into TUI state.
@@ -1103,9 +1074,6 @@ async fn run_interactive_tui(
         }
     }
 
-<<<<<<< HEAD
-    codex_tui::run_main(interactive, codex_linux_sandbox_exe).await
-=======
     let use_app_server_tui = codex_tui::should_use_app_server_tui(&interactive).await?;
     let normalized_remote = remote
         .as_deref()
@@ -1193,7 +1161,6 @@ fn into_legacy_app_exit_info(exit_info: codex_tui_app_server::AppExitInfo) -> Ap
         update_action: exit_info.update_action.map(into_legacy_update_action),
         exit_reason: into_legacy_exit_reason(exit_info.exit_reason),
     }
->>>>>>> upstream_main
 }
 
 fn confirm(prompt: &str) -> std::io::Result<bool> {

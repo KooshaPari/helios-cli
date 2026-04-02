@@ -332,13 +332,8 @@ async fn run_add(config_overrides: &CliConfigOverrides, add_args: AddArgs) -> Re
                 config.mcp_oauth_credentials_store_mode,
                 oauth_config.http_headers,
                 oauth_config.env_http_headers,
-<<<<<<< HEAD
-                &Vec::new(),
-                None,
-=======
                 &resolved_scopes,
                 /*oauth_resource*/ None,
->>>>>>> upstream_main
                 config.mcp_oauth_callback_port,
                 config.mcp_oauth_callback_url.as_deref(),
             )
@@ -428,11 +423,7 @@ async fn run_login(config_overrides: &CliConfigOverrides, login_args: LoginArgs)
         config.mcp_oauth_credentials_store_mode,
         http_headers,
         env_http_headers,
-<<<<<<< HEAD
-        &scopes,
-=======
         &resolved_scopes,
->>>>>>> upstream_main
         server.oauth_resource.as_deref(),
         config.mcp_oauth_callback_port,
         config.mcp_oauth_callback_url.as_deref(),

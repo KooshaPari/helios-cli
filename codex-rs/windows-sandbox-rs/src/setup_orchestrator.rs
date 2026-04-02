@@ -51,15 +51,12 @@ const USERPROFILE_READ_ROOT_EXCLUSIONS: &[&str] = &[
     ".pki",
     ".terraform.d",
 ];
-<<<<<<< HEAD
-=======
 const WINDOWS_PLATFORM_DEFAULT_READ_ROOTS: &[&str] = &[
     r"C:\Windows",
     r"C:\Program Files",
     r"C:\Program Files (x86)",
     r"C:\ProgramData",
 ];
->>>>>>> upstream_main
 
 pub fn sandbox_dir(codex_home: &Path) -> PathBuf {
     codex_home.join(".sandbox")
@@ -290,13 +287,8 @@ fn profile_read_roots(user_profile: &Path) -> Vec<PathBuf> {
         .collect()
 }
 
-<<<<<<< HEAD
-pub(crate) fn gather_read_roots(command_cwd: &Path, policy: &SandboxPolicy) -> Vec<PathBuf> {
-    let mut roots: Vec<PathBuf> = Vec::new();
-=======
 fn gather_helper_read_roots(codex_home: &Path) -> Vec<PathBuf> {
     let mut roots = Vec::new();
->>>>>>> upstream_main
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
             roots.push(dir.to_path_buf());
@@ -679,9 +671,6 @@ fn filter_sensitive_write_roots(mut roots: Vec<PathBuf>, codex_home: &Path) -> V
 
 #[cfg(test)]
 mod tests {
-<<<<<<< HEAD
-    use super::profile_read_roots;
-=======
     use super::gather_legacy_full_read_roots;
     use super::gather_read_roots;
     use super::profile_read_roots;
@@ -690,15 +679,12 @@ mod tests {
     use crate::policy::SandboxPolicy;
     use codex_protocol::protocol::ReadOnlyAccess;
     use codex_utils_absolute_path::AbsolutePathBuf;
->>>>>>> upstream_main
     use pretty_assertions::assert_eq;
     use std::collections::HashSet;
     use std::fs;
     use std::path::PathBuf;
     use tempfile::TempDir;
 
-<<<<<<< HEAD
-=======
     fn canonical_windows_platform_default_roots() -> Vec<PathBuf> {
         WINDOWS_PLATFORM_DEFAULT_READ_ROOTS
             .iter()
@@ -706,7 +692,6 @@ mod tests {
             .collect()
     }
 
->>>>>>> upstream_main
     #[test]
     fn profile_read_roots_excludes_configured_top_level_entries() {
         let tmp = TempDir::new().expect("tempdir");
@@ -737,8 +722,6 @@ mod tests {
 
         assert_eq!(vec![missing_profile], roots);
     }
-<<<<<<< HEAD
-=======
 
     #[test]
     fn gather_read_roots_includes_helper_bin_dir() {
@@ -849,5 +832,4 @@ mod tests {
             .into_iter()
             .all(|path| roots.contains(&path)));
     }
->>>>>>> upstream_main
 }

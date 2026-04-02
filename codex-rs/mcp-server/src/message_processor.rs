@@ -7,10 +7,7 @@ use codex_core::config::Config;
 use codex_core::default_client::USER_AGENT_SUFFIX;
 use codex_core::default_client::get_codex_user_agent;
 use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
-<<<<<<< HEAD
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::ThreadId;
 use codex_protocol::protocol::SessionSource;
 use codex_protocol::protocol::Submission;
@@ -66,18 +63,10 @@ impl MessageProcessor {
             config.as_ref(),
             auth_manager,
             SessionSource::Mcp,
-<<<<<<< HEAD
-            config.model_catalog.clone(),
-            CollaborationModesConfig {
-                default_mode_request_user_input: config
-                    .features
-                    .enabled(codex_core::features::Feature::DefaultModeRequestUserInput),
-=======
             CollaborationModesConfig {
                 default_mode_request_user_input: config
                     .features
                     .enabled(Feature::DefaultModeRequestUserInput),
->>>>>>> upstream_main
             },
         ));
         Self {

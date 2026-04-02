@@ -1,10 +1,7 @@
 use anyhow::Context;
 use anyhow::Result;
 use app_test_support::McpProcess;
-<<<<<<< HEAD
-=======
 use app_test_support::create_final_assistant_message_sse_response;
->>>>>>> upstream_main
 use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
 use app_test_support::create_shell_command_sse_response;
@@ -38,8 +35,6 @@ use tokio::time::timeout;
 
 const DEFAULT_READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10);
 
-<<<<<<< HEAD
-=======
 async fn wait_for_responses_request_count_to_stabilize(
     server: &wiremock::MockServer,
     expected_count: usize,
@@ -85,7 +80,6 @@ async fn wait_for_responses_request_count_to_stabilize(
     Ok(())
 }
 
->>>>>>> upstream_main
 #[tokio::test]
 async fn thread_unsubscribe_unloads_thread_and_emits_thread_closed_notification() -> Result<()> {
     let server = create_mock_responses_server_repeating_assistant("Done").await;
@@ -158,26 +152,16 @@ async fn thread_unsubscribe_during_turn_interrupts_turn_and_emits_thread_closed(
     let working_directory = tmp.path().join("workdir");
     std::fs::create_dir(&working_directory)?;
 
-<<<<<<< HEAD
-    let server =
-        create_mock_responses_server_sequence_unchecked(vec![create_shell_command_sse_response(
-=======
     let server = create_mock_responses_server_sequence_unchecked(vec![
         create_shell_command_sse_response(
->>>>>>> upstream_main
             shell_command.clone(),
             Some(&working_directory),
             Some(10_000),
             "call_sleep",
-<<<<<<< HEAD
-        )?])
-        .await;
-=======
         )?,
         create_final_assistant_message_sse_response("Done")?,
     ])
     .await;
->>>>>>> upstream_main
     create_config_toml(&codex_home, &server.uri())?;
 
     let mut mcp = McpProcess::new(&codex_home).await?;
@@ -233,8 +217,6 @@ async fn thread_unsubscribe_during_turn_interrupts_turn_and_emits_thread_closed(
     };
     assert_eq!(payload.thread_id, thread_id);
 
-<<<<<<< HEAD
-=======
     wait_for_responses_request_count_to_stabilize(
         &server,
         1,
@@ -242,7 +224,6 @@ async fn thread_unsubscribe_during_turn_interrupts_turn_and_emits_thread_closed(
     )
     .await?;
 
->>>>>>> upstream_main
     Ok(())
 }
 

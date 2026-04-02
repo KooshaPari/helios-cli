@@ -351,10 +351,7 @@ pub async fn reconcile_rollout(
             items,
             "reconcile_rollout",
             new_thread_memory_mode,
-<<<<<<< HEAD:codex-rs/core/src/state_db.rs
-=======
             /*updated_at_override*/ None,
->>>>>>> upstream_main:codex-rs/rollout/src/state_db.rs
         )
         .await;
         return;
@@ -479,11 +476,7 @@ pub async fn read_repair_rollout_path(
         /*builder*/ None,
         &[],
         archived_only,
-<<<<<<< HEAD:codex-rs/core/src/state_db.rs
-        None,
-=======
         /*new_thread_memory_mode*/ None,
->>>>>>> upstream_main:codex-rs/rollout/src/state_db.rs
     )
     .await;
 }
@@ -498,10 +491,7 @@ pub async fn apply_rollout_items(
     items: &[RolloutItem],
     stage: &str,
     new_thread_memory_mode: Option<&str>,
-<<<<<<< HEAD:codex-rs/core/src/state_db.rs
-=======
     updated_at_override: Option<DateTime<Utc>>,
->>>>>>> upstream_main:codex-rs/rollout/src/state_db.rs
 ) {
     let Some(ctx) = context else {
         return;
@@ -523,11 +513,7 @@ pub async fn apply_rollout_items(
     builder.rollout_path = rollout_path.to_path_buf();
     builder.cwd = normalize_cwd_for_state_db(&builder.cwd);
     if let Err(err) = ctx
-<<<<<<< HEAD:codex-rs/core/src/state_db.rs
-        .apply_rollout_items(&builder, items, None, new_thread_memory_mode)
-=======
         .apply_rollout_items(&builder, items, new_thread_memory_mode, updated_at_override)
->>>>>>> upstream_main:codex-rs/rollout/src/state_db.rs
         .await
     {
         warn!(

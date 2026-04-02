@@ -2,10 +2,7 @@ use crate::agent::AgentStatus;
 use crate::codex::Codex;
 use crate::codex::SteerInputError;
 use crate::config::ConstraintResult;
-<<<<<<< HEAD
-=======
 use crate::error::CodexErr;
->>>>>>> upstream_main
 use crate::error::Result as CodexResult;
 use crate::file_watcher::WatchRegistration;
 use crate::protocol::Event;

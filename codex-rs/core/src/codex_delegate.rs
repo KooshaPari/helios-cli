@@ -77,17 +77,6 @@ pub(crate) async fn run_codex_thread_interactive(
         config,
         auth_manager,
         models_manager,
-<<<<<<< HEAD
-        Arc::clone(&parent_session.services.skills_manager),
-        Arc::clone(&parent_session.services.file_watcher),
-        initial_history.unwrap_or(InitialHistory::New),
-        SessionSource::SubAgent(SubAgentSource::Review),
-        parent_session.services.agent_control.clone(),
-        Vec::new(),
-        false,
-        None,
-    )
-=======
         skills_manager: Arc::clone(&parent_session.services.skills_manager),
         plugins_manager: Arc::clone(&parent_session.services.plugins_manager),
         mcp_manager: Arc::clone(&parent_session.services.mcp_manager),
@@ -103,7 +92,6 @@ pub(crate) async fn run_codex_thread_interactive(
         inherited_exec_policy: Some(Arc::clone(&parent_session.services.exec_policy)),
         parent_trace: None,
     })
->>>>>>> upstream_main
     .await?;
     let codex = Arc::new(codex);
 
@@ -445,31 +433,6 @@ async fn handle_exec_approval(
         network_approval_context,
         proposed_execpolicy_amendment,
         additional_permissions,
-<<<<<<< HEAD
-        available_decisions,
-        ..
-    } = event;
-    // Race approval with cancellation and timeout to avoid hangs.
-    let approval_fut = parent_session.request_command_approval(
-        parent_ctx,
-        call_id,
-        approval_id,
-        command,
-        cwd,
-        reason,
-        network_approval_context,
-        proposed_execpolicy_amendment,
-        additional_permissions,
-        available_decisions,
-    );
-    let decision = await_approval_with_cancel(
-        approval_fut,
-        parent_session,
-        &approval_id_for_op,
-        cancel_token,
-    )
-    .await;
-=======
         skill_metadata,
         available_decisions,
         ..
@@ -524,7 +487,6 @@ async fn handle_exec_approval(
         )
         .await
     };
->>>>>>> upstream_main
 
     let _ = codex
         .submit(Op::ExecApproval {

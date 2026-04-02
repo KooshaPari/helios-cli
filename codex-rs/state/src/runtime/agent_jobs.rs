@@ -435,12 +435,6 @@ WHERE job_id = ? AND item_id = ? AND status = ?
             r#"
 UPDATE agent_job_items
 SET
-<<<<<<< HEAD
-    result_json = ?,
-    reported_at = ?,
-    updated_at = ?,
-    last_error = NULL
-=======
     status = ?,
     result_json = ?,
     reported_at = ?,
@@ -448,7 +442,6 @@ SET
     updated_at = ?,
     last_error = NULL,
     assigned_thread_id = NULL
->>>>>>> upstream_main
 WHERE
     job_id = ?
     AND item_id = ?
@@ -456,17 +449,11 @@ WHERE
     AND assigned_thread_id = ?
             "#,
         )
-<<<<<<< HEAD
-        .bind(serialized)
-        .bind(now)
-        .bind(now)
-=======
         .bind(AgentJobItemStatus::Completed.as_str())
         .bind(serialized)
         .bind(now)
         .bind(now)
         .bind(now)
->>>>>>> upstream_main
         .bind(job_id)
         .bind(item_id)
         .bind(AgentJobItemStatus::Running.as_str())
@@ -578,8 +565,6 @@ WHERE job_id = ?
         })
     }
 }
-<<<<<<< HEAD
-=======
 
 #[cfg(test)]
 mod tests {
@@ -697,4 +682,3 @@ mod tests {
         Ok(())
     }
 }
->>>>>>> upstream_main

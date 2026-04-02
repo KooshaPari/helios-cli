@@ -209,14 +209,9 @@ fn create_bwrap_flags(
 /// Build the bubblewrap filesystem mounts for a given filesystem policy.
 ///
 /// The mount order is important:
-<<<<<<< HEAD
-/// 1. Full-read policies use `--ro-bind / /`; restricted-read policies start
-///    from `--tmpfs /` and layer scoped `--ro-bind` mounts.
-=======
 /// 1. Full-read policies, and restricted policies that explicitly read `/`,
 ///    use `--ro-bind / /`; other restricted-read policies start from
 ///    `--tmpfs /` and layer scoped `--ro-bind` mounts.
->>>>>>> upstream_main
 /// 2. `--dev /dev` mounts a minimal writable `/dev` with standard device nodes
 ///    (including `/dev/urandom`) even under a read-only root.
 /// 3. Unreadable ancestors of writable roots are masked before their child
@@ -225,36 +220,6 @@ fn create_bwrap_flags(
 ///    writable subpaths under `/dev` (for example, `/dev/shm`).
 /// 5. `--ro-bind <subpath> <subpath>` re-applies read-only protections under
 ///    those writable roots so protected subpaths win.
-<<<<<<< HEAD
-fn create_filesystem_args(sandbox_policy: &SandboxPolicy, cwd: &Path) -> Result<Vec<String>> {
-    let writable_roots = sandbox_policy.get_writable_roots_with_cwd(cwd);
-    ensure_mount_targets_exist(&writable_roots)?;
-
-    let mut args = if sandbox_policy.has_full_disk_read_access() {
-        // Read-only root, then mount a minimal device tree.
-        // In bubblewrap (`bubblewrap.c`, `SETUP_MOUNT_DEV`), `--dev /dev`
-        // creates the standard minimal nodes: null, zero, full, random,
-        // urandom, and tty. `/dev` must be mounted before writable roots so
-        // explicit `/dev/*` writable binds remain visible.
-        vec![
-            "--ro-bind".to_string(),
-            "/".to_string(),
-            "/".to_string(),
-            "--dev".to_string(),
-            "/dev".to_string(),
-        ]
-    } else {
-        // Start from an empty filesystem and add only the approved readable
-        // roots plus a minimal `/dev`.
-        let mut args = vec![
-            "--tmpfs".to_string(),
-            "/".to_string(),
-            "--dev".to_string(),
-            "/dev".to_string(),
-        ];
-
-        let mut readable_roots: BTreeSet<PathBuf> = sandbox_policy
-=======
 /// 6. Nested unreadable carveouts under a writable root are masked after that
 ///    root is bound, and unrelated unreadable roots are masked afterward.
 fn create_filesystem_args(
@@ -295,16 +260,11 @@ fn create_filesystem_args(
         ];
 
         let mut readable_roots: BTreeSet<PathBuf> = file_system_sandbox_policy
->>>>>>> upstream_main
             .get_readable_roots_with_cwd(cwd)
             .into_iter()
             .map(PathBuf::from)
             .collect();
-<<<<<<< HEAD
-        if sandbox_policy.include_platform_defaults() {
-=======
         if file_system_sandbox_policy.include_platform_defaults() {
->>>>>>> upstream_main
             readable_roots.extend(
                 LINUX_PLATFORM_DEFAULT_READ_ROOTS
                     .iter()
@@ -312,33 +272,6 @@ fn create_filesystem_args(
                     .filter(|path| path.exists()),
             );
         }
-<<<<<<< HEAD
-
-        // A restricted policy can still explicitly request `/`, which is
-        // semantically equivalent to broad read access.
-        if readable_roots.iter().any(|root| root == Path::new("/")) {
-            args = vec![
-                "--ro-bind".to_string(),
-                "/".to_string(),
-                "/".to_string(),
-                "--dev".to_string(),
-                "/dev".to_string(),
-            ];
-        } else {
-            for root in readable_roots {
-                if !root.exists() {
-                    continue;
-                }
-                args.push("--ro-bind".to_string());
-                args.push(path_to_string(&root));
-                args.push(path_to_string(&root));
-            }
-        }
-
-        args
-    };
-=======
->>>>>>> upstream_main
 
         // A restricted policy can still explicitly request `/`, which is
         // the broad read baseline. Explicit unreadable carveouts are
@@ -681,14 +614,11 @@ fn find_first_non_existent_component(target_path: &Path) -> Option<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
-<<<<<<< HEAD
-=======
     use codex_protocol::protocol::FileSystemAccessMode;
     use codex_protocol::protocol::FileSystemPath;
     use codex_protocol::protocol::FileSystemSandboxEntry;
     use codex_protocol::protocol::FileSystemSandboxPolicy;
     use codex_protocol::protocol::FileSystemSpecialPath;
->>>>>>> upstream_main
     use codex_protocol::protocol::ReadOnlyAccess;
     use codex_protocol::protocol::SandboxPolicy;
     use codex_utils_absolute_path::AbsolutePathBuf;
@@ -885,16 +815,6 @@ mod tests {
                         .expect("absolute readable root"),
                 ],
             },
-<<<<<<< HEAD
-        };
-
-        let args = create_filesystem_args(&policy, temp_dir.path()).expect("filesystem args");
-
-        assert_eq!(args[0..4], ["--tmpfs", "/", "--dev", "/dev"]);
-
-        let readable_root_str = path_to_string(&readable_root);
-        assert!(args.windows(3).any(|window| {
-=======
             network_access: false,
         };
 
@@ -905,7 +825,6 @@ mod tests {
 
         let readable_root_str = path_to_string(&readable_root);
         assert!(args.args.windows(3).any(|window| {
->>>>>>> upstream_main
             window
                 == [
                     "--ro-bind",
@@ -923,24 +842,12 @@ mod tests {
                 include_platform_defaults: true,
                 readable_roots: Vec::new(),
             },
-<<<<<<< HEAD
-=======
             network_access: false,
->>>>>>> upstream_main
         };
 
         // `ReadOnlyAccess::Restricted` always includes `cwd` as a readable
         // root. Using `"/"` here would intentionally collapse to broad read
         // access, so use a non-root cwd to exercise the restricted path.
-<<<<<<< HEAD
-        let args = create_filesystem_args(&policy, temp_dir.path()).expect("filesystem args");
-
-        assert!(args.starts_with(&["--tmpfs".to_string(), "/".to_string()]));
-
-        if Path::new("/usr").exists() {
-            assert!(
-                args.windows(3)
-=======
         let args = create_filesystem_args(&FileSystemSandboxPolicy::from(&policy), temp_dir.path())
             .expect("filesystem args");
 
@@ -953,13 +860,10 @@ mod tests {
             assert!(
                 args.args
                     .windows(3)
->>>>>>> upstream_main
                     .any(|window| window == ["--ro-bind", "/usr", "/usr"])
             );
         }
     }
-<<<<<<< HEAD
-=======
 
     #[test]
     fn split_policy_reapplies_unreadable_carveouts_after_writable_binds() {
@@ -1354,5 +1258,4 @@ mod tests {
                 && window[4] == blocked_file_str
         }));
     }
->>>>>>> upstream_main
 }

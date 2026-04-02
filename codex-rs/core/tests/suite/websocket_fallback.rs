@@ -1,8 +1,4 @@
 use anyhow::Result;
-<<<<<<< HEAD
-use codex_core::features::Feature;
-=======
->>>>>>> upstream_main
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
@@ -165,10 +161,7 @@ async fn websocket_fallback_hides_first_websocket_retry_stream_error() -> Result
             model: session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

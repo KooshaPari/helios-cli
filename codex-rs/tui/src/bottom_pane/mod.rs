@@ -17,13 +17,8 @@ use std::path::PathBuf;
 
 use crate::app_event::ConnectorsSnapshot;
 use crate::app_event_sender::AppEventSender;
-<<<<<<< HEAD
-use crate::bottom_pane::pending_thread_approvals::PendingThreadApprovals;
-use crate::bottom_pane::queued_user_messages::QueuedUserMessages;
-=======
 use crate::bottom_pane::pending_input_preview::PendingInputPreview;
 use crate::bottom_pane::pending_thread_approvals::PendingThreadApprovals;
->>>>>>> upstream_main
 use crate::bottom_pane::unified_exec_footer::UnifiedExecFooter;
 use crate::key_hint;
 use crate::key_hint::KeyBinding;
@@ -109,10 +104,7 @@ pub(crate) use status_line_setup::StatusLineSetupView;
 pub(crate) use title_setup::TerminalTitleItem;
 pub(crate) use title_setup::TerminalTitleSetupView;
 mod paste_burst;
-<<<<<<< HEAD
-=======
 mod pending_input_preview;
->>>>>>> upstream_main
 mod pending_thread_approvals;
 pub mod popup_consts;
 mod scroll_state;
@@ -191,13 +183,8 @@ pub(crate) struct BottomPane {
     /// When a status row exists, this summary is mirrored inline in that row;
     /// when no status row exists, it renders as its own footer row.
     unified_exec_footer: UnifiedExecFooter,
-<<<<<<< HEAD
-    /// Queued user messages to show above the composer while a turn is running.
-    queued_user_messages: QueuedUserMessages,
-=======
     /// Preview of pending steers and queued drafts shown above the composer.
     pending_input_preview: PendingInputPreview,
->>>>>>> upstream_main
     /// Inactive threads with pending approval requests.
     pending_thread_approvals: PendingThreadApprovals,
     context_window_percent: Option<i64>,
@@ -247,11 +234,7 @@ impl BottomPane {
             is_task_running: false,
             status: None,
             unified_exec_footer: UnifiedExecFooter::new(),
-<<<<<<< HEAD
-            queued_user_messages: QueuedUserMessages::new(),
-=======
             pending_input_preview: PendingInputPreview::new(),
->>>>>>> upstream_main
             pending_thread_approvals: PendingThreadApprovals::new(),
             esc_backtrack_hint: false,
             animations_enabled,
@@ -1189,22 +1172,6 @@ impl BottomPane {
                 );
             }
             let has_pending_thread_approvals = !self.pending_thread_approvals.is_empty();
-<<<<<<< HEAD
-            let has_queued_messages = !self.queued_user_messages.messages.is_empty();
-            let has_status_or_footer =
-                self.status.is_some() || !self.unified_exec_footer.is_empty();
-            let has_inline_previews = has_pending_thread_approvals || has_queued_messages;
-            if has_inline_previews && has_status_or_footer {
-                flex.push(0, RenderableItem::Owned("".into()));
-            }
-            flex.push(1, RenderableItem::Borrowed(&self.pending_thread_approvals));
-            if has_pending_thread_approvals && has_queued_messages {
-                flex.push(0, RenderableItem::Owned("".into()));
-            }
-            flex.push(1, RenderableItem::Borrowed(&self.queued_user_messages));
-            if !has_inline_previews && has_status_or_footer {
-                flex.push(0, RenderableItem::Owned("".into()));
-=======
             let has_pending_input = !self.pending_input_preview.queued_messages.is_empty()
                 || !self.pending_input_preview.pending_steers.is_empty()
                 || !self.pending_input_preview.rejected_steers.is_empty();
@@ -1227,7 +1194,6 @@ impl BottomPane {
             );
             if !has_inline_previews && has_status_or_footer {
                 flex.push(/*flex*/ 0, RenderableItem::Owned("".into()));
->>>>>>> upstream_main
             }
             let mut flex2 = FlexRenderable::new();
             flex2.push(/*flex*/ 1, RenderableItem::Owned(flex.into()));
@@ -1761,11 +1727,7 @@ mod tests {
                 dependencies: None,
                 policy: None,
                 permission_profile: None,
-<<<<<<< HEAD
-                permissions: None,
-=======
                 managed_network_override: None,
->>>>>>> upstream_main
                 path_to_skills_md: PathBuf::from("test-skill"),
                 scope: SkillScope::User,
             }]),

@@ -113,18 +113,11 @@ async fn responses_stream_includes_subagent_header_on_review() {
         .stream(
             &prompt,
             &model_info,
-<<<<<<< HEAD
-            &otel_manager,
-            effort,
-            summary.unwrap_or(model_info.default_reasoning_summary),
-            None,
-=======
             &session_telemetry,
             effort,
             summary.unwrap_or(model_info.default_reasoning_summary),
             None,
             None,
->>>>>>> upstream_main
         )
         .await
         .expect("stream failed");
@@ -233,18 +226,11 @@ async fn responses_stream_includes_subagent_header_on_other() {
         .stream(
             &prompt,
             &model_info,
-<<<<<<< HEAD
-            &otel_manager,
-            effort,
-            summary.unwrap_or(model_info.default_reasoning_summary),
-            None,
-=======
             &session_telemetry,
             effort,
             summary.unwrap_or(model_info.default_reasoning_summary),
             None,
             None,
->>>>>>> upstream_main
         )
         .await
         .expect("stream failed");
@@ -352,18 +338,11 @@ async fn responses_respects_model_info_overrides_from_config() {
         .stream(
             &prompt,
             &model_info,
-<<<<<<< HEAD
-            &otel_manager,
-            effort,
-            summary.unwrap_or(model_info.default_reasoning_summary),
-            None,
-=======
             &session_telemetry,
             effort,
             summary.unwrap_or(model_info.default_reasoning_summary),
             None,
             None,
->>>>>>> upstream_main
         )
         .await
         .expect("stream failed");

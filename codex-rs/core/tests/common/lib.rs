@@ -23,14 +23,10 @@ pub mod responses;
 pub mod streaming_sse;
 pub mod test_codex;
 pub mod test_codex_exec;
-<<<<<<< HEAD
-pub mod zsh_fork;
-=======
 pub mod tracing;
 pub mod zsh_fork;
 
 static TEST_ARG0_PATH_ENTRY: OnceLock<Option<Arg0PathEntryGuard>> = OnceLock::new();
->>>>>>> upstream_main
 
 #[ctor]
 fn enable_deterministic_unified_exec_process_ids_for_tests() {

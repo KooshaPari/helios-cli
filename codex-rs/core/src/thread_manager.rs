@@ -12,11 +12,7 @@ use crate::config::Config;
 use crate::error::CodexErr;
 use crate::error::Result as CodexResult;
 use crate::file_watcher::FileWatcher;
-<<<<<<< HEAD
-use crate::file_watcher::FileWatcherEvent;
-=======
 use crate::mcp::McpManager;
->>>>>>> upstream_main
 use crate::models_manager::collaboration_mode_presets::CollaborationModesConfig;
 use crate::models_manager::manager::ModelsManager;
 use crate::plugins::PluginsManager;
@@ -218,10 +214,6 @@ impl ThreadManager {
         config: &Config,
         auth_manager: Arc<AuthManager>,
         session_source: SessionSource,
-<<<<<<< HEAD
-        model_catalog: Option<ModelsResponse>,
-=======
->>>>>>> upstream_main
         collaboration_modes_config: CollaborationModesConfig,
     ) -> Self {
         let codex_home = config.codex_home.clone();
@@ -251,14 +243,9 @@ impl ThreadManager {
                 models_manager: Arc::new(ModelsManager::new_with_provider(
                     codex_home,
                     auth_manager.clone(),
-<<<<<<< HEAD
-                    model_catalog,
-                    collaboration_modes_config,
-=======
                     config.model_catalog.clone(),
                     collaboration_modes_config,
                     openai_models_provider,
->>>>>>> upstream_main
                 )),
                 skills_manager,
                 plugins_manager,
@@ -425,14 +412,6 @@ impl ThreadManager {
         dynamic_tools: Vec<codex_protocol::dynamic_tools::DynamicToolSpec>,
         persist_extended_history: bool,
     ) -> CodexResult<NewThread> {
-<<<<<<< HEAD
-        self.start_thread_with_tools_and_service_name(
-            config,
-            dynamic_tools,
-            persist_extended_history,
-            None,
-        )
-=======
         Box::pin(self.start_thread_with_tools_and_service_name(
             config,
             dynamic_tools,
@@ -440,7 +419,6 @@ impl ThreadManager {
             /*metrics_service_name*/ None,
             /*parent_trace*/ None,
         ))
->>>>>>> upstream_main
         .await
     }
 
@@ -450,20 +428,6 @@ impl ThreadManager {
         dynamic_tools: Vec<codex_protocol::dynamic_tools::DynamicToolSpec>,
         persist_extended_history: bool,
         metrics_service_name: Option<String>,
-<<<<<<< HEAD
-    ) -> CodexResult<NewThread> {
-        self.state
-            .spawn_thread(
-                config,
-                InitialHistory::New,
-                Arc::clone(&self.state.auth_manager),
-                self.agent_control(),
-                dynamic_tools,
-                persist_extended_history,
-                metrics_service_name,
-            )
-            .await
-=======
         parent_trace: Option<W3cTraceContext>,
     ) -> CodexResult<NewThread> {
         Box::pin(self.state.spawn_thread(
@@ -478,7 +442,6 @@ impl ThreadManager {
             /*user_shell_override*/ None,
         ))
         .await
->>>>>>> upstream_main
     }
 
     pub async fn resume_thread_from_rollout(
@@ -507,19 +470,6 @@ impl ThreadManager {
         persist_extended_history: bool,
         parent_trace: Option<W3cTraceContext>,
     ) -> CodexResult<NewThread> {
-<<<<<<< HEAD
-        self.state
-            .spawn_thread(
-                config,
-                initial_history,
-                auth_manager,
-                self.agent_control(),
-                Vec::new(),
-                persist_extended_history,
-                None,
-            )
-            .await
-=======
         Box::pin(self.state.spawn_thread(
             config,
             initial_history,
@@ -573,7 +523,6 @@ impl ThreadManager {
             /*user_shell_override*/ Some(user_shell_override),
         ))
         .await
->>>>>>> upstream_main
     }
 
     /// Removes the thread from the manager's internal map, though the thread is stored
@@ -651,20 +600,6 @@ impl ThreadManager {
     {
         let snapshot = snapshot.into();
         let history = RolloutRecorder::get_rollout_history(&path).await?;
-<<<<<<< HEAD
-        let history = truncate_before_nth_user_message(history, nth_user_message);
-        self.state
-            .spawn_thread(
-                config,
-                history,
-                Arc::clone(&self.state.auth_manager),
-                self.agent_control(),
-                Vec::new(),
-                persist_extended_history,
-                None,
-            )
-            .await
-=======
         let snapshot_state = snapshot_turn_state(&history);
         let history = match snapshot {
             ForkSnapshot::TruncateBeforeNthUserMessage(nth_user_message) => {
@@ -695,7 +630,6 @@ impl ThreadManager {
             /*user_shell_override*/ None,
         ))
         .await
->>>>>>> upstream_main
     }
 
     pub(crate) fn agent_control(&self) -> AgentControl {
@@ -759,15 +693,6 @@ impl ThreadManagerState {
         config: Config,
         agent_control: AgentControl,
     ) -> CodexResult<NewThread> {
-<<<<<<< HEAD
-        self.spawn_new_thread_with_source(
-            config,
-            agent_control,
-            self.session_source.clone(),
-            false,
-            None,
-        )
-=======
         Box::pin(self.spawn_new_thread_with_source(
             config,
             agent_control,
@@ -777,7 +702,6 @@ impl ThreadManagerState {
             /*inherited_shell_snapshot*/ None,
             /*inherited_exec_policy*/ None,
         ))
->>>>>>> upstream_main
         .await
     }
 
@@ -789,11 +713,8 @@ impl ThreadManagerState {
         session_source: SessionSource,
         persist_extended_history: bool,
         metrics_service_name: Option<String>,
-<<<<<<< HEAD
-=======
         inherited_shell_snapshot: Option<Arc<ShellSnapshot>>,
         inherited_exec_policy: Option<Arc<crate::exec_policy::ExecPolicyManager>>,
->>>>>>> upstream_main
     ) -> CodexResult<NewThread> {
         Box::pin(self.spawn_thread_with_source(
             config,
@@ -804,15 +725,11 @@ impl ThreadManagerState {
             Vec::new(),
             persist_extended_history,
             metrics_service_name,
-<<<<<<< HEAD
-        )
-=======
             inherited_shell_snapshot,
             inherited_exec_policy,
             /*parent_trace*/ None,
             /*user_shell_override*/ None,
         ))
->>>>>>> upstream_main
         .await
     }
 
@@ -833,14 +750,6 @@ impl ThreadManagerState {
             agent_control,
             session_source,
             Vec::new(),
-<<<<<<< HEAD
-            false,
-            None,
-        )
-        .await
-    }
-
-=======
             /*persist_extended_history*/ false,
             /*metrics_service_name*/ None,
             inherited_shell_snapshot,
@@ -852,7 +761,6 @@ impl ThreadManagerState {
     }
 
     #[allow(clippy::too_many_arguments)]
->>>>>>> upstream_main
     pub(crate) async fn fork_thread_with_source(
         &self,
         config: Config,
@@ -860,15 +768,10 @@ impl ThreadManagerState {
         agent_control: AgentControl,
         session_source: SessionSource,
         persist_extended_history: bool,
-<<<<<<< HEAD
-    ) -> CodexResult<NewThread> {
-        self.spawn_thread_with_source(
-=======
         inherited_shell_snapshot: Option<Arc<ShellSnapshot>>,
         inherited_exec_policy: Option<Arc<crate::exec_policy::ExecPolicyManager>>,
     ) -> CodexResult<NewThread> {
         Box::pin(self.spawn_thread_with_source(
->>>>>>> upstream_main
             config,
             initial_history,
             Arc::clone(&self.auth_manager),
@@ -876,17 +779,12 @@ impl ThreadManagerState {
             session_source,
             Vec::new(),
             persist_extended_history,
-<<<<<<< HEAD
-            None,
-        )
-=======
             /*metrics_service_name*/ None,
             inherited_shell_snapshot,
             inherited_exec_policy,
             /*parent_trace*/ None,
             /*user_shell_override*/ None,
         ))
->>>>>>> upstream_main
         .await
     }
 
@@ -901,11 +799,8 @@ impl ThreadManagerState {
         dynamic_tools: Vec<codex_protocol::dynamic_tools::DynamicToolSpec>,
         persist_extended_history: bool,
         metrics_service_name: Option<String>,
-<<<<<<< HEAD
-=======
         parent_trace: Option<W3cTraceContext>,
         user_shell_override: Option<crate::shell::Shell>,
->>>>>>> upstream_main
     ) -> CodexResult<NewThread> {
         Box::pin(self.spawn_thread_with_source(
             config,
@@ -916,15 +811,11 @@ impl ThreadManagerState {
             dynamic_tools,
             persist_extended_history,
             metrics_service_name,
-<<<<<<< HEAD
-        )
-=======
             /*inherited_shell_snapshot*/ None,
             /*inherited_exec_policy*/ None,
             parent_trace,
             user_shell_override,
         ))
->>>>>>> upstream_main
         .await
     }
 
@@ -939,13 +830,10 @@ impl ThreadManagerState {
         dynamic_tools: Vec<codex_protocol::dynamic_tools::DynamicToolSpec>,
         persist_extended_history: bool,
         metrics_service_name: Option<String>,
-<<<<<<< HEAD
-=======
         inherited_shell_snapshot: Option<Arc<ShellSnapshot>>,
         inherited_exec_policy: Option<Arc<crate::exec_policy::ExecPolicyManager>>,
         parent_trace: Option<W3cTraceContext>,
         user_shell_override: Option<crate::shell::Shell>,
->>>>>>> upstream_main
     ) -> CodexResult<NewThread> {
         let watch_registration = self
             .skills_watcher
@@ -966,15 +854,11 @@ impl ThreadManagerState {
             dynamic_tools,
             persist_extended_history,
             metrics_service_name,
-<<<<<<< HEAD
-        )
-=======
             inherited_shell_snapshot,
             inherited_exec_policy,
             user_shell_override,
             parent_trace,
         })
->>>>>>> upstream_main
         .await?;
         self.finalize_thread_spawn(codex, thread_id, watch_registration)
             .await
@@ -1095,63 +979,6 @@ fn snapshot_turn_state(history: &InitialHistory) -> SnapshotTurnState {
         };
     };
 
-<<<<<<< HEAD
-        let initial: Vec<RolloutItem> = items
-            .iter()
-            .cloned()
-            .map(RolloutItem::ResponseItem)
-            .collect();
-        let truncated = truncate_before_nth_user_message(InitialHistory::Forked(initial), 1);
-        let got_items = truncated.get_rollout_items();
-        let expected_items = vec![
-            RolloutItem::ResponseItem(items[0].clone()),
-            RolloutItem::ResponseItem(items[1].clone()),
-            RolloutItem::ResponseItem(items[2].clone()),
-        ];
-        assert_eq!(
-            serde_json::to_value(&got_items).unwrap(),
-            serde_json::to_value(&expected_items).unwrap()
-        );
-
-        let initial2: Vec<RolloutItem> = items
-            .iter()
-            .cloned()
-            .map(RolloutItem::ResponseItem)
-            .collect();
-        let truncated2 = truncate_before_nth_user_message(InitialHistory::Forked(initial2), 2);
-        assert_matches!(truncated2, InitialHistory::New);
-    }
-
-    #[tokio::test]
-    async fn ignores_session_prefix_messages_when_truncating() {
-        let (session, turn_context) = make_session_and_context().await;
-        let mut items = session.build_initial_context(&turn_context, None).await;
-        items.push(user_msg("feature request"));
-        items.push(assistant_msg("ack"));
-        items.push(user_msg("second question"));
-        items.push(assistant_msg("answer"));
-
-        let rollout_items: Vec<RolloutItem> = items
-            .iter()
-            .cloned()
-            .map(RolloutItem::ResponseItem)
-            .collect();
-
-        let truncated = truncate_before_nth_user_message(InitialHistory::Forked(rollout_items), 1);
-        let got_items = truncated.get_rollout_items();
-
-        let expected: Vec<RolloutItem> = vec![
-            RolloutItem::ResponseItem(items[0].clone()),
-            RolloutItem::ResponseItem(items[1].clone()),
-            RolloutItem::ResponseItem(items[2].clone()),
-            RolloutItem::ResponseItem(items[3].clone()),
-        ];
-
-        assert_eq!(
-            serde_json::to_value(&got_items).unwrap(),
-            serde_json::to_value(&expected).unwrap()
-        );
-=======
     // Synthetic fork/resume histories can contain user/assistant response items
     // without explicit turn lifecycle events. If the persisted snapshot has no
     // terminating boundary after its last user message, treat it as mid-turn.
@@ -1164,7 +991,6 @@ fn snapshot_turn_state(history: &InitialHistory) -> SnapshotTurnState {
         }),
         active_turn_id: None,
         active_turn_start_index: None,
->>>>>>> upstream_main
     }
 }
 

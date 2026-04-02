@@ -71,11 +71,8 @@ fn apply_turn_context(metadata: &mut ThreadMetadata, turn_ctx: &TurnContextItem)
     if metadata.cwd.as_os_str().is_empty() {
         metadata.cwd = turn_ctx.cwd.clone();
     }
-<<<<<<< HEAD
-=======
     metadata.model = Some(turn_ctx.model.clone());
     metadata.reasoning_effort = turn_ctx.effort;
->>>>>>> upstream_main
     metadata.sandbox_policy = enum_to_string(&turn_ctx.sandbox_policy);
     metadata.approval_mode = enum_to_string(&turn_ctx.approval_policy);
 }
@@ -147,10 +144,7 @@ mod tests {
     use codex_protocol::config_types::ReasoningSummary;
     use codex_protocol::models::ContentItem;
     use codex_protocol::models::ResponseItem;
-<<<<<<< HEAD
-=======
     use codex_protocol::openai_models::ReasoningEffort;
->>>>>>> upstream_main
     use codex_protocol::protocol::AskForApproval;
     use codex_protocol::protocol::EventMsg;
     use codex_protocol::protocol::RolloutItem;
@@ -258,19 +252,13 @@ mod tests {
                     originator: "codex_cli_rs".to_string(),
                     cli_version: "0.0.0".to_string(),
                     source: SessionSource::Cli,
-<<<<<<< HEAD
-=======
                     agent_path: None,
->>>>>>> upstream_main
                     agent_nickname: None,
                     agent_role: None,
                     model_provider: Some("openai".to_string()),
                     base_instructions: None,
                     dynamic_tools: None,
-<<<<<<< HEAD
-=======
                     memory_mode: None,
->>>>>>> upstream_main
                 },
                 git: None,
             }),
@@ -280,10 +268,7 @@ mod tests {
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
                 turn_id: Some("turn-1".to_string()),
-<<<<<<< HEAD
-=======
                 trace_id: None,
->>>>>>> upstream_main
                 cwd: PathBuf::from("/parent/workspace"),
                 current_date: None,
                 timezone: None,
@@ -293,10 +278,7 @@ mod tests {
                 model: "gpt-5".to_string(),
                 personality: None,
                 collaboration_mode: None,
-<<<<<<< HEAD
-=======
                 realtime_active: None,
->>>>>>> upstream_main
                 effort: None,
                 summary: ReasoningSummary::Auto,
                 user_instructions: None,
@@ -324,10 +306,7 @@ mod tests {
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
                 turn_id: Some("turn-1".to_string()),
-<<<<<<< HEAD
-=======
                 trace_id: None,
->>>>>>> upstream_main
                 cwd: PathBuf::from("/fallback/workspace"),
                 current_date: None,
                 timezone: None,
@@ -337,12 +316,8 @@ mod tests {
                 model: "gpt-5".to_string(),
                 personality: None,
                 collaboration_mode: None,
-<<<<<<< HEAD
-                effort: None,
-=======
                 realtime_active: None,
                 effort: Some(ReasoningEffort::High),
->>>>>>> upstream_main
                 summary: ReasoningSummary::Auto,
                 user_instructions: None,
                 developer_instructions: None,
@@ -355,8 +330,6 @@ mod tests {
         assert_eq!(metadata.cwd, PathBuf::from("/fallback/workspace"));
     }
 
-<<<<<<< HEAD
-=======
     #[test]
     fn turn_context_sets_model_and_reasoning_effort() {
         let mut metadata = metadata_for_test();
@@ -423,7 +396,6 @@ mod tests {
         assert_eq!(metadata.reasoning_effort, None);
     }
 
->>>>>>> upstream_main
     fn metadata_for_test() -> ThreadMetadata {
         let id = ThreadId::from_string(&Uuid::from_u128(42).to_string()).expect("thread id");
         let created_at = DateTime::<Utc>::from_timestamp(1_735_689_600, 0).expect("timestamp");

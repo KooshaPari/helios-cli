@@ -23,13 +23,9 @@ use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
 use codex_protocol::protocol::WarningEvent;
 use codex_protocol::user_input::UserInput;
-<<<<<<< HEAD
-use codex_test_macros::large_stack_test;
-=======
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::ContextSnapshotRenderMode;
->>>>>>> upstream_main
 use core_test_support::responses::ResponseMock;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::ev_assistant_message;
@@ -381,17 +377,6 @@ async fn compact_resume_after_second_compaction_preserves_history() -> Result<()
         compact_filtered.as_slice(),
         &resume_filtered[..compact_filtered.len()]
     );
-<<<<<<< HEAD
-    let previous_compact_user_texts =
-        json_message_input_texts(&requests[requests.len() - 2], "user")
-            .into_iter()
-            .filter(|text| !text.trim_start().starts_with("<ghost_snapshot>"))
-            .collect::<Vec<_>>();
-    let final_user_texts = json_message_input_texts(&requests[requests.len() - 1], "user")
-        .into_iter()
-        .filter(|text| !text.trim_start().starts_with("<ghost_snapshot>"))
-        .collect::<Vec<_>>();
-=======
     let first_request_user_texts = json_message_input_texts(&requests[0], "user");
     let first_turn_user_index = first_request_user_texts
         .len()
@@ -418,17 +403,10 @@ async fn compact_resume_after_second_compaction_preserves_history() -> Result<()
     expected_fork_local_user_texts.extend_from_slice(seeded_user_prefix);
     expected_fork_local_user_texts.push("AFTER_COMPACT_2".to_string());
     let final_user_texts = json_message_input_texts(&requests[requests.len() - 1], "user");
->>>>>>> upstream_main
     let (final_last, final_prefix) = final_user_texts
         .split_last()
         .unwrap_or_else(|| panic!("after-second-resume request missing user messages"));
     assert_eq!(final_last, AFTER_SECOND_RESUME);
-<<<<<<< HEAD
-    assert!(
-        final_prefix.starts_with(&previous_compact_user_texts),
-        "after-second-resume user texts should preserve the prior compact request user history",
-    );
-=======
     let matched_prefix_len = if let Some(start) = final_prefix
         .windows(expected_after_second_compact_user_texts.len())
         .position(|window| window == expected_after_second_compact_user_texts)
@@ -684,7 +662,6 @@ async fn snapshot_rollback_followup_turn_trims_context_updates() -> Result<()> {
     );
 
     Ok(())
->>>>>>> upstream_main
 }
 
 fn normalize_line_endings(value: &mut Value) {
@@ -801,27 +778,7 @@ async fn mount_second_compact_sequence(server: &MockServer) -> ResponseMock {
     let sse7 = sse(vec![ev_completed("r7")]);
     let sse8 = sse(vec![ev_completed("r8")]);
 
-<<<<<<< HEAD
-    // Match the second compaction request by the summarization prompt plus the
-    // forked-history marker, while excluding the later resume turn.
-    let match_second_compact = |req: &wiremock::Request| {
-        let body = std::str::from_utf8(&req.body).unwrap_or("");
-        body_contains_text(body, SUMMARIZATION_PROMPT)
-            && body.contains("\"text\":\"AFTER_FORK\"")
-            && !body.contains(&format!("\"text\":\"{AFTER_SECOND_RESUME}\""))
-    };
-    let second_compact = mount_sse_once_match(server, match_second_compact, sse6).await;
-
-    let match_after_second_resume = |req: &wiremock::Request| {
-        let body = std::str::from_utf8(&req.body).unwrap_or("");
-        body.contains(&format!("\"text\":\"{AFTER_SECOND_RESUME}\""))
-    };
-    let after_second_resume = mount_sse_once_match(server, match_after_second_resume, sse7).await;
-
-    vec![second_compact, after_second_resume]
-=======
     mount_sse_sequence(server, vec![sse1, sse2, sse3, sse4, sse5, sse6, sse7, sse8]).await
->>>>>>> upstream_main
 }
 
 async fn start_test_conversation(

@@ -23,18 +23,7 @@ pub(crate) struct BuiltinCommandFlags {
 }
 
 /// Return the built-ins that should be visible/usable for the current input.
-<<<<<<< HEAD
-pub(crate) fn builtins_for_input(
-    collaboration_modes_enabled: bool,
-    connectors_enabled: bool,
-    personality_command_enabled: bool,
-    realtime_conversation_enabled: bool,
-    audio_device_selection_enabled: bool,
-    allow_elevate_sandbox: bool,
-) -> Vec<(&'static str, SlashCommand)> {
-=======
 pub(crate) fn builtins_for_input(flags: BuiltinCommandFlags) -> Vec<(&'static str, SlashCommand)> {
->>>>>>> upstream_main
     built_in_slash_commands()
         .into_iter()
         .filter(|(_, cmd)| flags.allow_elevate_sandbox || *cmd != SlashCommand::ElevateSandbox)
@@ -42,67 +31,16 @@ pub(crate) fn builtins_for_input(flags: BuiltinCommandFlags) -> Vec<(&'static st
             flags.collaboration_modes_enabled
                 || !matches!(*cmd, SlashCommand::Collab | SlashCommand::Plan)
         })
-<<<<<<< HEAD
-        .filter(|(_, cmd)| connectors_enabled || *cmd != SlashCommand::Apps)
-        .filter(|(_, cmd)| personality_command_enabled || *cmd != SlashCommand::Personality)
-        .filter(|(_, cmd)| realtime_conversation_enabled || *cmd != SlashCommand::Realtime)
-        .filter(|(_, cmd)| audio_device_selection_enabled || *cmd != SlashCommand::Settings)
-=======
         .filter(|(_, cmd)| flags.connectors_enabled || *cmd != SlashCommand::Apps)
         .filter(|(_, cmd)| flags.plugins_command_enabled || *cmd != SlashCommand::Plugins)
         .filter(|(_, cmd)| flags.fast_command_enabled || *cmd != SlashCommand::Fast)
         .filter(|(_, cmd)| flags.personality_command_enabled || *cmd != SlashCommand::Personality)
         .filter(|(_, cmd)| flags.realtime_conversation_enabled || *cmd != SlashCommand::Realtime)
         .filter(|(_, cmd)| flags.audio_device_selection_enabled || *cmd != SlashCommand::Settings)
->>>>>>> upstream_main
         .collect()
 }
 
 /// Find a single built-in command by exact name, after applying the gating rules.
-<<<<<<< HEAD
-pub(crate) fn find_builtin_command(
-    name: &str,
-    collaboration_modes_enabled: bool,
-    connectors_enabled: bool,
-    personality_command_enabled: bool,
-    realtime_conversation_enabled: bool,
-    audio_device_selection_enabled: bool,
-    allow_elevate_sandbox: bool,
-) -> Option<SlashCommand> {
-    builtins_for_input(
-        collaboration_modes_enabled,
-        connectors_enabled,
-        personality_command_enabled,
-        realtime_conversation_enabled,
-        audio_device_selection_enabled,
-        allow_elevate_sandbox,
-    )
-    .into_iter()
-    .find(|(command_name, _)| *command_name == name)
-    .map(|(_, cmd)| cmd)
-}
-
-/// Whether any visible built-in fuzzily matches the provided prefix.
-pub(crate) fn has_builtin_prefix(
-    name: &str,
-    collaboration_modes_enabled: bool,
-    connectors_enabled: bool,
-    personality_command_enabled: bool,
-    realtime_conversation_enabled: bool,
-    audio_device_selection_enabled: bool,
-    allow_elevate_sandbox: bool,
-) -> bool {
-    builtins_for_input(
-        collaboration_modes_enabled,
-        connectors_enabled,
-        personality_command_enabled,
-        realtime_conversation_enabled,
-        audio_device_selection_enabled,
-        allow_elevate_sandbox,
-    )
-    .into_iter()
-    .any(|(command_name, _)| fuzzy_match(command_name, name).is_some())
-=======
 pub(crate) fn find_builtin_command(name: &str, flags: BuiltinCommandFlags) -> Option<SlashCommand> {
     let cmd = SlashCommand::from_str(name).ok()?;
     builtins_for_input(flags)
@@ -116,7 +54,6 @@ pub(crate) fn has_builtin_prefix(name: &str, flags: BuiltinCommandFlags) -> bool
     builtins_for_input(flags)
         .into_iter()
         .any(|(command_name, _)| fuzzy_match(command_name, name).is_some())
->>>>>>> upstream_main
 }
 
 #[cfg(test)]
@@ -139,22 +76,14 @@ mod tests {
 
     #[test]
     fn debug_command_still_resolves_for_dispatch() {
-<<<<<<< HEAD
-        let cmd = find_builtin_command("debug-config", true, true, true, false, false, false);
-=======
         let cmd = find_builtin_command("debug-config", all_enabled_flags());
->>>>>>> upstream_main
         assert_eq!(cmd, Some(SlashCommand::DebugConfig));
     }
 
     #[test]
     fn clear_command_resolves_for_dispatch() {
         assert_eq!(
-<<<<<<< HEAD
-            find_builtin_command("clear", true, true, true, false, false, false),
-=======
             find_builtin_command("clear", all_enabled_flags()),
->>>>>>> upstream_main
             Some(SlashCommand::Clear)
         );
     }
@@ -162,29 +91,8 @@ mod tests {
     #[test]
     fn stop_command_resolves_for_dispatch() {
         assert_eq!(
-<<<<<<< HEAD
-            find_builtin_command("realtime", true, true, true, false, true, false),
-            None
-        );
-    }
-
-    #[test]
-    fn settings_command_is_hidden_when_realtime_is_disabled() {
-        assert_eq!(
-            find_builtin_command("settings", true, true, true, false, false, false),
-            None
-        );
-    }
-
-    #[test]
-    fn settings_command_is_hidden_when_audio_device_selection_is_disabled() {
-        assert_eq!(
-            find_builtin_command("settings", true, true, true, true, false, false),
-            None
-=======
             find_builtin_command("stop", all_enabled_flags()),
             Some(SlashCommand::Stop)
->>>>>>> upstream_main
         );
     }
 

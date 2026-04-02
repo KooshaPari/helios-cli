@@ -192,11 +192,7 @@ fn protocol_skill_to_core(skill: &ProtocolSkillMetadata) -> SkillMetadata {
             }),
         policy: None,
         permission_profile: None,
-<<<<<<< HEAD
-        permissions: None,
-=======
         managed_network_override: None,
->>>>>>> upstream_main
         path_to_skills_md: skill.path.clone(),
         scope: skill.scope,
     }

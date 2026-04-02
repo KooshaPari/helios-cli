@@ -22,11 +22,7 @@ use crate::tools::sandboxing::ApprovalStore;
 use crate::unified_exec::UnifiedExecProcessManager;
 use codex_exec_server::Environment;
 use codex_hooks::Hooks;
-<<<<<<< HEAD
-use codex_otel::OtelManager;
-=======
 use codex_otel::SessionTelemetry;
->>>>>>> upstream_main
 use codex_utils_absolute_path::AbsolutePathBuf;
 use std::path::PathBuf;
 use tokio::sync::Mutex;

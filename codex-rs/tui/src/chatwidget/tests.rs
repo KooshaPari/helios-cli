@@ -7,11 +7,7 @@
 use super::*;
 use crate::app_event::AppEvent;
 use crate::app_event::ExitMode;
-<<<<<<< HEAD
-#[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
 #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
 use crate::app_event::RealtimeAudioDeviceKind;
 use crate::app_event_sender::AppEventSender;
 use crate::bottom_pane::FeedbackAudience;
@@ -49,11 +45,6 @@ use codex_core::config_loader::ConfigLayerStack;
 use codex_core::config_loader::ConfigRequirements;
 use codex_core::config_loader::ConfigRequirementsToml;
 use codex_core::config_loader::RequirementSource;
-<<<<<<< HEAD
-use codex_core::features::FEATURES;
-use codex_core::features::Feature;
-=======
->>>>>>> upstream_main
 use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
 use codex_core::models_manager::manager::ModelsManager;
 use codex_core::plugins::OPENAI_CURATED_MARKETPLACE_NAME;
@@ -1057,11 +1048,7 @@ async fn submission_prefers_selected_duplicate_skill_path() {
             dependencies: None,
             policy: None,
             permission_profile: None,
-<<<<<<< HEAD
-            permissions: None,
-=======
             managed_network_override: None,
->>>>>>> upstream_main
             path_to_skills_md: repo_skill_path,
             scope: SkillScope::Repo,
         },
@@ -1073,11 +1060,7 @@ async fn submission_prefers_selected_duplicate_skill_path() {
             dependencies: None,
             policy: None,
             permission_profile: None,
-<<<<<<< HEAD
-            permissions: None,
-=======
             managed_network_override: None,
->>>>>>> upstream_main
             path_to_skills_md: user_skill_path.clone(),
             scope: SkillScope::User,
         },
@@ -3475,10 +3458,7 @@ async fn exec_approval_emits_proposed_command_and_decision_history() {
         proposed_execpolicy_amendment: None,
         proposed_network_policy_amendments: None,
         additional_permissions: None,
-<<<<<<< HEAD
-=======
         skill_metadata: None,
->>>>>>> upstream_main
         available_decisions: None,
         parsed_cmd: vec![],
     };
@@ -3529,10 +3509,7 @@ async fn exec_approval_uses_approval_id_when_present() {
             proposed_execpolicy_amendment: None,
             proposed_network_policy_amendments: None,
             additional_permissions: None,
-<<<<<<< HEAD
-=======
             skill_metadata: None,
->>>>>>> upstream_main
             available_decisions: None,
             parsed_cmd: vec![],
         }),
@@ -3574,10 +3551,7 @@ async fn exec_approval_decision_truncates_multiline_and_long_commands() {
         proposed_execpolicy_amendment: None,
         proposed_network_policy_amendments: None,
         additional_permissions: None,
-<<<<<<< HEAD
-=======
         skill_metadata: None,
->>>>>>> upstream_main
         available_decisions: None,
         parsed_cmd: vec![],
     };
@@ -3633,10 +3607,7 @@ async fn exec_approval_decision_truncates_multiline_and_long_commands() {
         proposed_execpolicy_amendment: None,
         proposed_network_policy_amendments: None,
         additional_permissions: None,
-<<<<<<< HEAD
-=======
         skill_metadata: None,
->>>>>>> upstream_main
         available_decisions: None,
         parsed_cmd: vec![],
     };
@@ -4307,13 +4278,8 @@ async fn unified_exec_begin_restores_working_status_snapshot() {
 }
 
 #[tokio::test]
-<<<<<<< HEAD
-async fn enter_queues_while_plan_stream_is_active() {
-    let (mut chat, _rx, mut op_rx) = make_chatwidget_manual(None).await;
-=======
 async fn steer_enter_queues_while_plan_stream_is_active() {
     let (mut chat, mut rx, mut op_rx) = make_chatwidget_manual(None).await;
->>>>>>> upstream_main
     chat.thread_id = Some(ThreadId::new());
     chat.set_feature_enabled(Feature::CollaborationModes, true);
     let plan_mask =
@@ -4835,8 +4801,6 @@ async fn steer_enter_during_final_stream_preserves_follow_up_prompts_in_order() 
 }
 
 #[tokio::test]
-<<<<<<< HEAD
-=======
 async fn manual_interrupt_restores_pending_steers_to_composer() {
     let (mut chat, mut rx, mut op_rx) = make_chatwidget_manual(None).await;
     chat.thread_id = Some(ThreadId::new());
@@ -5121,7 +5085,6 @@ async fn replaced_turn_clears_pending_steers_but_keeps_queued_drafts() {
 }
 
 #[tokio::test]
->>>>>>> upstream_main
 async fn enter_submits_when_plan_stream_is_not_active() {
     let (mut chat, _rx, mut op_rx) = make_chatwidget_manual(None).await;
     chat.thread_id = Some(ThreadId::new());
@@ -8693,8 +8656,6 @@ async fn experimental_popup_shows_js_repl_node_requirement() {
 }
 
 #[tokio::test]
-<<<<<<< HEAD
-=======
 async fn experimental_popup_includes_guardian_approval() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
     let guardian_stage = FEATURES
@@ -8753,7 +8714,6 @@ async fn multi_agent_enable_prompt_updates_feature_and_emits_notice() {
 }
 
 #[tokio::test]
->>>>>>> upstream_main
 async fn model_selection_popup_snapshot() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(Some("gpt-5-codex")).await;
     chat.thread_id = Some(ThreadId::new());
@@ -8773,11 +8733,7 @@ async fn personality_selection_popup_snapshot() {
     assert_snapshot!("personality_selection_popup", popup);
 }
 
-<<<<<<< HEAD
-#[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
 #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
 #[tokio::test]
 async fn realtime_audio_selection_popup_snapshot() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(Some("gpt-5.2-codex")).await;
@@ -8787,11 +8743,7 @@ async fn realtime_audio_selection_popup_snapshot() {
     assert_snapshot!("realtime_audio_selection_popup", popup);
 }
 
-<<<<<<< HEAD
-#[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
 #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
 #[tokio::test]
 async fn realtime_audio_selection_popup_narrow_snapshot() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(Some("gpt-5.2-codex")).await;
@@ -8801,11 +8753,7 @@ async fn realtime_audio_selection_popup_narrow_snapshot() {
     assert_snapshot!("realtime_audio_selection_popup_narrow", popup);
 }
 
-<<<<<<< HEAD
-#[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
 #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
 #[tokio::test]
 async fn realtime_microphone_picker_popup_snapshot() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(Some("gpt-5.2-codex")).await;
@@ -8819,11 +8767,7 @@ async fn realtime_microphone_picker_popup_snapshot() {
     assert_snapshot!("realtime_microphone_picker_popup", popup);
 }
 
-<<<<<<< HEAD
-#[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
 #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
 #[tokio::test]
 async fn realtime_audio_picker_emits_persist_event() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(Some("gpt-5.2-codex")).await;
@@ -10025,10 +9969,7 @@ async fn approval_modal_exec_snapshot() -> anyhow::Result<()> {
         ])),
         proposed_network_policy_amendments: None,
         additional_permissions: None,
-<<<<<<< HEAD
-=======
         skill_metadata: None,
->>>>>>> upstream_main
         available_decisions: None,
         parsed_cmd: vec![],
     };
@@ -10090,10 +10031,7 @@ async fn approval_modal_exec_without_reason_snapshot() -> anyhow::Result<()> {
         ])),
         proposed_network_policy_amendments: None,
         additional_permissions: None,
-<<<<<<< HEAD
-=======
         skill_metadata: None,
->>>>>>> upstream_main
         available_decisions: None,
         parsed_cmd: vec![],
     };
@@ -10142,10 +10080,7 @@ async fn approval_modal_exec_multiline_prefix_hides_execpolicy_option_snapshot()
         proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command)),
         proposed_network_policy_amendments: None,
         additional_permissions: None,
-<<<<<<< HEAD
-=======
         skill_metadata: None,
->>>>>>> upstream_main
         available_decisions: None,
         parsed_cmd: vec![],
     };
@@ -10513,10 +10448,7 @@ async fn status_widget_and_approval_modal_snapshot() {
         ])),
         proposed_network_policy_amendments: None,
         additional_permissions: None,
-<<<<<<< HEAD
-=======
         skill_metadata: None,
->>>>>>> upstream_main
         available_decisions: None,
         parsed_cmd: vec![],
     };

@@ -1,11 +1,7 @@
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
 use anyhow::Result;
-<<<<<<< HEAD
-use codex_core::features::Feature;
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::protocol::EventMsg;
 use core_test_support::responses;
 use core_test_support::responses::ResponseMock;
@@ -35,8 +31,6 @@ fn custom_tool_output_text_and_success(
     (output.unwrap_or_default(), success)
 }
 
-<<<<<<< HEAD
-=======
 fn assert_js_repl_ok(req: &ResponsesRequest, call_id: &str, expected_output: &str) {
     let (output, success) = custom_tool_output_text_and_success(req, call_id);
     assert_ne!(
@@ -53,7 +47,6 @@ fn assert_js_repl_err(req: &ResponsesRequest, call_id: &str, expected_output: &s
     assert!(output.contains(expected_output), "output was: {output}");
 }
 
->>>>>>> upstream_main
 fn tool_names(body: &serde_json::Value) -> Vec<String> {
     body["tools"]
         .as_array()
@@ -125,90 +118,6 @@ async fn run_js_repl_sequence(
     responses::mount_sse_once(
         server,
         sse(vec![
-<<<<<<< HEAD
-            ev_assistant_message("msg-1", "done"),
-            ev_completed("resp-2"),
-        ]),
-    )
-    .await;
-
-    test.submit_turn(prompt).await?;
-    Ok(second_mock)
-}
-
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn js_repl_is_not_advertised_when_startup_node_is_incompatible() -> Result<()> {
-    skip_if_no_network!(Ok(()));
-    if std::env::var_os("CODEX_JS_REPL_NODE_PATH").is_some() {
-        return Ok(());
-    }
-
-    let server = responses::start_mock_server().await;
-    let temp = tempdir()?;
-    let old_node = write_too_old_node_script(temp.path())?;
-
-    let mut builder = test_codex().with_config(move |config| {
-        config.features.enable(Feature::JsRepl);
-        config.js_repl_node_path = Some(old_node);
-    });
-    let test = builder.build(&server).await?;
-    let warning = wait_for_event_match(&test.codex, |event| match event {
-        EventMsg::Warning(ev) if ev.message.contains("Disabled `js_repl` for this session") => {
-            Some(ev.message.clone())
-        }
-        _ => None,
-    })
-    .await;
-    assert!(
-        warning.contains("Node runtime"),
-        "warning should explain the Node compatibility issue: {warning}"
-    );
-
-    let request_mock = responses::mount_sse_once(
-        &server,
-        sse(vec![
-            ev_assistant_message("msg-1", "done"),
-            ev_completed("resp-1"),
-        ]),
-    )
-    .await;
-
-    test.submit_turn("hello").await?;
-
-    let body = request_mock.single_request().body_json();
-    let tools = tool_names(&body);
-    assert!(
-        !tools.iter().any(|tool| tool == "js_repl"),
-        "js_repl should be omitted when startup validation fails: {tools:?}"
-    );
-    assert!(
-        !tools.iter().any(|tool| tool == "js_repl_reset"),
-        "js_repl_reset should be omitted when startup validation fails: {tools:?}"
-    );
-    let instructions = body["instructions"].as_str().unwrap_or_default();
-    assert!(
-        !instructions.contains("## JavaScript REPL (Node)"),
-        "startup instructions should not mention js_repl when it is disabled: {instructions}"
-    );
-
-    Ok(())
-}
-
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn js_repl_persists_top_level_bindings_and_supports_tla() -> Result<()> {
-    skip_if_no_network!(Ok(()));
-
-    let server = responses::start_mock_server().await;
-    let mut builder = test_codex().with_config(|config| {
-        config.features.enable(Feature::JsRepl);
-    });
-    let test = builder.build(&server).await?;
-
-    responses::mount_sse_once(
-        &server,
-        sse(vec![
-=======
->>>>>>> upstream_main
             ev_response_created("resp-1"),
             ev_custom_tool_call(calls[0].0, "js_repl", calls[0].1),
             ev_completed("resp-1"),

@@ -64,25 +64,11 @@ impl From<CommandPopupFlags> for slash_commands::BuiltinCommandFlags {
 impl CommandPopup {
     pub(crate) fn new(mut prompts: Vec<CustomPrompt>, flags: CommandPopupFlags) -> Self {
         // Keep built-in availability in sync with the composer.
-<<<<<<< HEAD
-        let builtins: Vec<(&'static str, SlashCommand)> = slash_commands::builtins_for_input(
-            flags.collaboration_modes_enabled,
-            flags.connectors_enabled,
-            flags.personality_command_enabled,
-            flags.realtime_conversation_enabled,
-            flags.audio_device_selection_enabled,
-            flags.windows_degraded_sandbox_active,
-        )
-        .into_iter()
-        .filter(|(name, _)| !name.starts_with("debug"))
-        .collect();
-=======
         let builtins: Vec<(&'static str, SlashCommand)> =
             slash_commands::builtins_for_input(flags.into())
                 .into_iter()
                 .filter(|(name, _)| !name.starts_with("debug"))
                 .collect();
->>>>>>> upstream_main
         // Exclude prompts that collide with builtin command names and sort by name.
         let exclude: HashSet<String> = builtins.iter().map(|(n, _)| (*n).to_string()).collect();
         prompts.retain(|p| !exclude.contains(&p.name));
@@ -625,11 +611,8 @@ mod tests {
             CommandPopupFlags {
                 collaboration_modes_enabled: false,
                 connectors_enabled: false,
-<<<<<<< HEAD
-=======
                 plugins_command_enabled: false,
                 fast_command_enabled: false,
->>>>>>> upstream_main
                 personality_command_enabled: true,
                 realtime_conversation_enabled: true,
                 audio_device_selection_enabled: false,

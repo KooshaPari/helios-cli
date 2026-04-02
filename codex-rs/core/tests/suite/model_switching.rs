@@ -131,10 +131,7 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -171,10 +168,7 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
             model: next_model.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -234,10 +228,7 @@ async fn model_and_personality_change_only_appends_model_instructions() -> Resul
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -274,10 +265,7 @@ async fn model_and_personality_change_only_appends_model_instructions() -> Resul
             model: next_model.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -361,45 +349,6 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
     let server = MockServer::start().await;
     let image_model_slug = "test-image-model";
     let text_model_slug = "test-text-only-model";
-<<<<<<< HEAD
-    let image_model = ModelInfo {
-        slug: image_model_slug.to_string(),
-        display_name: "Test Image Model".to_string(),
-        description: Some("supports image input".to_string()),
-        default_reasoning_level: Some(ReasoningEffort::Medium),
-        supported_reasoning_levels: vec![ReasoningEffortPreset {
-            effort: ReasoningEffort::Medium,
-            description: ReasoningEffort::Medium.to_string(),
-        }],
-        shell_type: ConfigShellToolType::ShellCommand,
-        visibility: ModelVisibility::List,
-        supported_in_api: true,
-        input_modalities: default_input_modalities(),
-        prefer_websockets: false,
-        used_fallback_model_metadata: false,
-        priority: 1,
-        upgrade: None,
-        base_instructions: "base instructions".to_string(),
-        model_messages: None,
-        supports_reasoning_summaries: false,
-        default_reasoning_summary: ReasoningSummary::Auto,
-        support_verbosity: false,
-        default_verbosity: None,
-        availability_nux: None,
-        apply_patch_tool_type: None,
-        truncation_policy: TruncationPolicyConfig::bytes(10_000),
-        supports_parallel_tool_calls: false,
-        context_window: Some(272_000),
-        auto_compact_token_limit: None,
-        effective_context_window_percent: 95,
-        experimental_supported_tools: Vec::new(),
-    };
-    let mut text_model = image_model.clone();
-    text_model.slug = text_model_slug.to_string();
-    text_model.display_name = "Test Text Model".to_string();
-    text_model.description = Some("text only".to_string());
-    text_model.input_modalities = vec![InputModality::Text];
-=======
     let image_model = test_model_info(
         image_model_slug,
         "Test Image Model",
@@ -412,7 +361,6 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
         "text only",
         vec![InputModality::Text],
     );
->>>>>>> upstream_main
     mount_models_once(
         &server,
         ModelsResponse {
@@ -459,10 +407,7 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
             model: image_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -483,10 +428,7 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
             model: text_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1044,10 +986,7 @@ async fn model_switch_to_smaller_model_updates_token_context_window() -> Result<
             model: large_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1106,10 +1045,7 @@ async fn model_switch_to_smaller_model_updates_token_context_window() -> Result<
             model: smaller_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

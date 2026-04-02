@@ -411,8 +411,6 @@ mod tests {
     }
 
     #[test]
-<<<<<<< HEAD
-=======
     fn redacted_text_mode_keeps_capability_instruction_placeholders() {
         let items = vec![json!({
             "type": "message",
@@ -494,7 +492,6 @@ mod tests {
     }
 
     #[test]
->>>>>>> upstream_main
     fn redacted_text_mode_normalizes_environment_context_with_subagents() {
         let items = vec![json!({
             "type": "message",
@@ -517,8 +514,6 @@ mod tests {
     }
 
     #[test]
-<<<<<<< HEAD
-=======
     fn kind_with_text_prefix_mode_normalizes_crlf_line_endings() {
         let items = vec![json!({
             "type": "message",
@@ -542,7 +537,6 @@ mod tests {
     }
 
     #[test]
->>>>>>> upstream_main
     fn image_only_message_is_rendered_as_non_text_span() {
         let items = vec![json!({
             "type": "message",
@@ -584,8 +578,6 @@ mod tests {
         assert_eq!(
             rendered,
             "00:message/user[3]:\n    [01] <image>\n    [02] <input_image:image_url>\n    [03] </image>"
-<<<<<<< HEAD
-=======
         );
     }
 
@@ -605,7 +597,6 @@ mod tests {
         assert_eq!(
             rendered,
             "00:message/developer:## Skills\\n- openai-docs: helper (file: <SYSTEM_SKILLS_ROOT>/openai-docs/SKILL.md)"
->>>>>>> upstream_main
         );
     }
 }

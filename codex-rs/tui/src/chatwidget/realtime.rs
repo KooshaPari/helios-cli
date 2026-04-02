@@ -85,10 +85,7 @@ impl RealtimeConversationUiState {
         )
     }
 
-<<<<<<< HEAD
-=======
     #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
     pub(super) fn is_active(&self) -> bool {
         matches!(self.phase, RealtimeConversationPhase::Active)
     }
@@ -398,16 +395,11 @@ impl ChatWidget {
         #[cfg(not(target_os = "linux"))]
         {
             if self.realtime_conversation.audio_player.is_none() {
-<<<<<<< HEAD
-                self.realtime_conversation.audio_player =
-                    crate::voice::RealtimeAudioPlayer::start(&self.config).ok();
-=======
                 self.realtime_conversation.audio_player = crate::voice::RealtimeAudioPlayer::start(
                     &self.config,
                     Arc::clone(&self.realtime_conversation.playback_queued_samples),
                 )
                 .ok();
->>>>>>> upstream_main
             }
             if let Some(player) = &self.realtime_conversation.audio_player
                 && let Err(err) = player.enqueue_frame(frame)
@@ -434,14 +426,11 @@ impl ChatWidget {
         let capture = match crate::voice::VoiceCapture::start_realtime(
             &self.config,
             self.app_event_tx.clone(),
-<<<<<<< HEAD
-=======
             self.realtime_conversation
                 .audio_behavior
                 .input_behavior(Arc::clone(
                     &self.realtime_conversation.playback_queued_samples,
                 )),
->>>>>>> upstream_main
         ) {
             Ok(capture) => capture,
             Err(err) => {
@@ -462,16 +451,11 @@ impl ChatWidget {
         self.realtime_conversation.capture_stop_flag = Some(stop_flag.clone());
         self.realtime_conversation.capture = Some(capture);
         if self.realtime_conversation.audio_player.is_none() {
-<<<<<<< HEAD
-            self.realtime_conversation.audio_player =
-                crate::voice::RealtimeAudioPlayer::start(&self.config).ok();
-=======
             self.realtime_conversation.audio_player = crate::voice::RealtimeAudioPlayer::start(
                 &self.config,
                 Arc::clone(&self.realtime_conversation.playback_queued_samples),
             )
             .ok();
->>>>>>> upstream_main
         }
 
         std::thread::spawn(move || {
@@ -570,13 +554,7 @@ impl ChatWidget {
     }
 
     #[cfg(target_os = "linux")]
-<<<<<<< HEAD
-    fn stop_realtime_local_audio(&mut self) {
-        self.realtime_conversation.meter_placeholder_id = None;
-    }
-=======
     fn stop_realtime_local_audio(&mut self) {}
->>>>>>> upstream_main
 
     #[cfg(not(target_os = "linux"))]
     fn stop_realtime_microphone(&mut self) {

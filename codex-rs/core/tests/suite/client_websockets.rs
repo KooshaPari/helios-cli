@@ -467,11 +467,7 @@ async fn responses_websocket_request_prewarm_is_reused_even_with_header_changes(
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-<<<<<<< HEAD
-async fn responses_websocket_prewarm_uses_v2_when_model_prefers_websockets_and_feature_disabled() {
-=======
 async fn responses_websocket_prewarm_uses_v2_when_provider_supports_websockets() {
->>>>>>> upstream_main
     skip_if_no_network!();
 
     let server = start_websocket_server(vec![vec![vec![
@@ -499,26 +495,6 @@ async fn responses_websocket_prewarm_uses_v2_when_provider_supports_websockets()
     // V2 prewarm issues a request on the websocket connection.
     assert_eq!(server.handshakes().len(), 1);
     assert_eq!(server.single_connection().len(), 1);
-<<<<<<< HEAD
-
-    let handshake = server.single_handshake();
-    let openai_beta_header = handshake
-        .header(OPENAI_BETA_HEADER)
-        .expect("missing OpenAI-Beta header");
-    assert!(
-        openai_beta_header
-            .split(',')
-            .map(str::trim)
-            .any(|value| value == WS_V2_BETA_HEADER_VALUE)
-    );
-    assert!(
-        !openai_beta_header
-            .split(',')
-            .map(str::trim)
-            .any(|value| value == OPENAI_BETA_RESPONSES_WEBSOCKETS)
-    );
-=======
->>>>>>> upstream_main
 
     let handshake = server.single_handshake();
     let openai_beta_header = handshake
@@ -1164,11 +1140,7 @@ async fn responses_websocket_connection_limit_error_reconnects_and_completes() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-<<<<<<< HEAD
-async fn responses_websocket_appends_on_prefix() {
-=======
 async fn responses_websocket_uses_incremental_create_on_prefix() {
->>>>>>> upstream_main
     skip_if_no_network!();
 
     let server = start_websocket_server(vec![vec![

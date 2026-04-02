@@ -1,11 +1,8 @@
 #![allow(clippy::expect_used)]
 
 use anyhow::Result;
-<<<<<<< HEAD
-=======
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
->>>>>>> upstream_main
 use codex_test_macros::large_stack_test;
 use core_test_support::responses::ev_apply_patch_call;
 use core_test_support::responses::ev_apply_patch_custom_tool_call;
@@ -16,11 +13,7 @@ use std::fs;
 use std::sync::atomic::AtomicI32;
 use std::sync::atomic::Ordering;
 
-<<<<<<< HEAD
-use codex_core::features::Feature;
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
@@ -322,10 +315,7 @@ async fn apply_patch_cli_move_without_content_change_has_no_turn_diff(
             model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -935,10 +925,7 @@ async fn apply_patch_shell_command_heredoc_with_cd_emits_turn_diff() -> Result<(
             model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1020,10 +1007,7 @@ async fn apply_patch_shell_command_failure_propagates_error_and_skips_diff() -> 
             model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1175,10 +1159,7 @@ async fn apply_patch_emits_turn_diff_event_with_unified_diff(
             model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1243,10 +1224,7 @@ async fn apply_patch_turn_diff_for_rename_with_content_change(
             model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1319,10 +1297,7 @@ async fn apply_patch_aggregates_diff_across_multiple_tool_calls() -> Result<()> 
             model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1395,10 +1370,7 @@ async fn apply_patch_aggregates_diff_preserves_success_after_failure() -> Result
             model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

@@ -24,14 +24,10 @@ use std::path::Path;
 use std::path::PathBuf;
 use toml::Value as TomlValue;
 
-<<<<<<< HEAD
-pub use codex_config::CloudRequirementsLoadError;
-=======
 pub use codex_config::AppRequirementToml;
 pub use codex_config::AppsRequirementsToml;
 pub use codex_config::CloudRequirementsLoadError;
 pub use codex_config::CloudRequirementsLoadErrorCode;
->>>>>>> upstream_main
 pub use codex_config::CloudRequirementsLoader;
 pub use codex_config::ConfigError;
 pub use codex_config::ConfigLayerEntry;

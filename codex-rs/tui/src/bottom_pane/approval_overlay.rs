@@ -16,11 +16,7 @@ use crate::key_hint::KeyBinding;
 use crate::render::highlight::highlight_bash_to_lines;
 use crate::render::renderable::ColumnRenderable;
 use crate::render::renderable::Renderable;
-<<<<<<< HEAD
-use codex_core::features::Features;
-=======
 use codex_features::Features;
->>>>>>> upstream_main
 use codex_protocol::ThreadId;
 use codex_protocol::mcp::RequestId;
 use codex_protocol::models::MacOsAutomationPermission;
@@ -88,10 +84,7 @@ impl ApprovalRequest {
     fn thread_id(&self) -> ThreadId {
         match self {
             ApprovalRequest::Exec { thread_id, .. }
-<<<<<<< HEAD
-=======
             | ApprovalRequest::Permissions { thread_id, .. }
->>>>>>> upstream_main
             | ApprovalRequest::ApplyPatch { thread_id, .. }
             | ApprovalRequest::McpElicitation { thread_id, .. } => *thread_id,
         }
@@ -100,10 +93,7 @@ impl ApprovalRequest {
     fn thread_label(&self) -> Option<&str> {
         match self {
             ApprovalRequest::Exec { thread_label, .. }
-<<<<<<< HEAD
-=======
             | ApprovalRequest::Permissions { thread_label, .. }
->>>>>>> upstream_main
             | ApprovalRequest::ApplyPatch { thread_label, .. }
             | ApprovalRequest::McpElicitation { thread_label, .. } => thread_label.as_deref(),
         }
@@ -178,13 +168,10 @@ impl ApprovalOverlay {
                     },
                 ),
             ),
-<<<<<<< HEAD
-=======
             ApprovalRequest::Permissions { .. } => (
                 permissions_options(),
                 "Would you like to grant these permissions?".to_string(),
             ),
->>>>>>> upstream_main
             ApprovalRequest::ApplyPatch { .. } => (
                 patch_options(),
                 "Would you like to make the following edits?".to_string(),
@@ -235,8 +222,6 @@ impl ApprovalOverlay {
                 (ApprovalRequest::Exec { id, command, .. }, ApprovalDecision::Review(decision)) => {
                     self.handle_exec_decision(id, command, decision.clone());
                 }
-<<<<<<< HEAD
-=======
                 (
                     ApprovalRequest::Permissions {
                         call_id,
@@ -245,7 +230,6 @@ impl ApprovalOverlay {
                     },
                     ApprovalDecision::Review(decision),
                 ) => self.handle_permissions_decision(call_id, permissions, decision.clone()),
->>>>>>> upstream_main
                 (ApprovalRequest::ApplyPatch { id, .. }, ApprovalDecision::Review(decision)) => {
                     self.handle_patch_decision(id, decision.clone());
                 }
@@ -272,15 +256,11 @@ impl ApprovalOverlay {
             return;
         };
         if request.thread_label().is_none() {
-<<<<<<< HEAD
-            let cell = history_cell::new_approval_decision_cell(command.to_vec(), decision.clone());
-=======
             let cell = history_cell::new_approval_decision_cell(
                 command.to_vec(),
                 decision.clone(),
                 history_cell::ApprovalDecisionActor::User,
             );
->>>>>>> upstream_main
             self.app_event_tx.send(AppEvent::InsertHistoryCell(cell));
         }
         let thread_id = request.thread_id();
@@ -292,8 +272,6 @@ impl ApprovalOverlay {
                 decision,
             },
         });
-<<<<<<< HEAD
-=======
     }
 
     fn handle_permissions_decision(
@@ -339,7 +317,6 @@ impl ApprovalOverlay {
                 },
             },
         });
->>>>>>> upstream_main
     }
 
     fn handle_patch_decision(&self, id: &str, decision: ReviewDecision) {
@@ -378,11 +355,8 @@ impl ApprovalOverlay {
                 server_name: server_name.to_string(),
                 request_id: request_id.clone(),
                 decision,
-<<<<<<< HEAD
-=======
                 content: None,
                 meta: None,
->>>>>>> upstream_main
             },
         });
     }
@@ -466,8 +440,6 @@ impl BottomPaneView for ApprovalOverlay {
                 ApprovalRequest::Exec { id, command, .. } => {
                     self.handle_exec_decision(id, command, ReviewDecision::Abort);
                 }
-<<<<<<< HEAD
-=======
                 ApprovalRequest::Permissions {
                     call_id,
                     permissions,
@@ -475,7 +447,6 @@ impl BottomPaneView for ApprovalOverlay {
                 } => {
                     self.handle_permissions_decision(call_id, permissions, ReviewDecision::Abort);
                 }
->>>>>>> upstream_main
                 ApprovalRequest::ApplyPatch { id, .. } => {
                     self.handle_patch_decision(id, ReviewDecision::Abort);
                 }
@@ -583,8 +554,6 @@ fn build_header(request: &ApprovalRequest) -> Box<dyn Renderable> {
             }
             Box::new(Paragraph::new(header).wrap(Wrap { trim: false }))
         }
-<<<<<<< HEAD
-=======
         ApprovalRequest::Permissions {
             thread_label,
             reason,
@@ -611,7 +580,6 @@ fn build_header(request: &ApprovalRequest) -> Box<dyn Renderable> {
             }
             Box::new(Paragraph::new(header).wrap(Wrap { trim: false }))
         }
->>>>>>> upstream_main
         ApprovalRequest::ApplyPatch {
             thread_label,
             reason,
@@ -938,13 +906,10 @@ mod tests {
     use super::*;
     use crate::app_event::AppEvent;
     use codex_protocol::models::FileSystemPermissions;
-<<<<<<< HEAD
-=======
     use codex_protocol::models::MacOsAutomationPermission;
     use codex_protocol::models::MacOsPreferencesPermission;
     use codex_protocol::models::MacOsSeatbeltProfileExtensions;
     use codex_protocol::models::NetworkPermissions;
->>>>>>> upstream_main
     use codex_protocol::protocol::ExecPolicyAmendment;
     use codex_protocol::protocol::NetworkApprovalProtocol;
     use codex_protocol::protocol::NetworkPolicyAmendment;
@@ -1425,8 +1390,6 @@ mod tests {
         assert_snapshot!(
             "approval_overlay_additional_permissions_prompt",
             normalize_snapshot_paths(render_overlay_lines(&view, 120))
-<<<<<<< HEAD
-=======
         );
     }
 
@@ -1474,7 +1437,6 @@ mod tests {
         assert_snapshot!(
             "approval_overlay_additional_permissions_macos_prompt",
             render_overlay_lines(&view, 120)
->>>>>>> upstream_main
         );
     }
 

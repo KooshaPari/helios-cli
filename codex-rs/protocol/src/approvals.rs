@@ -19,11 +19,8 @@ use ts_rs::TS;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Permissions {
     pub sandbox_policy: SandboxPolicy,
-<<<<<<< HEAD
-=======
     pub file_system_sandbox_policy: FileSystemSandboxPolicy,
     pub network_sandbox_policy: NetworkSandboxPolicy,
->>>>>>> upstream_main
     pub macos_seatbelt_profile_extensions: Option<MacOsSeatbeltProfileExtensions>,
 }
 
@@ -184,13 +181,10 @@ pub struct ExecApprovalRequestEvent {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
     pub additional_permissions: Option<PermissionProfile>,
-<<<<<<< HEAD
-=======
     /// Optional skill metadata when the approval was triggered by a skill script.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
     pub skill_metadata: Option<ExecApprovalRequestSkillMetadata>,
->>>>>>> upstream_main
     /// Ordered list of decisions the client may present for this prompt.
     ///
     /// When absent, clients should derive the legacy default set from the

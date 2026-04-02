@@ -20,40 +20,8 @@ use super::SessionTaskContext;
 pub(crate) struct RegularTask;
 
 impl RegularTask {
-<<<<<<< HEAD
-    #[allow(dead_code)]
-    pub(crate) async fn with_startup_prewarm(
-        model_client: ModelClient,
-        prompt: Prompt,
-        turn_context: Arc<TurnContext>,
-        turn_metadata_header: Option<String>,
-    ) -> CodexResult<Self> {
-        let mut client_session = model_client.new_session();
-        client_session
-            .prewarm_websocket(
-                &prompt,
-                &turn_context.model_info,
-                &turn_context.otel_manager,
-                turn_context.reasoning_effort,
-                turn_context.reasoning_summary,
-                turn_metadata_header.as_deref(),
-            )
-            .await?;
-
-        Ok(Self {
-            prewarmed_session: Mutex::new(Some(client_session)),
-        })
-    }
-
-    async fn take_prewarmed_session(&self) -> Option<ModelClientSession> {
-        self.prewarmed_session
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .take()
-=======
     pub(crate) fn new() -> Self {
         Self
->>>>>>> upstream_main
     }
 }
 

@@ -366,8 +366,6 @@ impl McpProcess {
         self.send_request("thread/name/set", params).await
     }
 
-<<<<<<< HEAD
-=======
     /// Send a `thread/metadata/update` JSON-RPC request.
     pub async fn send_thread_metadata_update_request(
         &mut self,
@@ -377,7 +375,6 @@ impl McpProcess {
         self.send_request("thread/metadata/update", params).await
     }
 
->>>>>>> upstream_main
     /// Send a `thread/unsubscribe` JSON-RPC request.
     pub async fn send_thread_unsubscribe_request(
         &mut self,

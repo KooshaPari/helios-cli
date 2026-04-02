@@ -64,17 +64,11 @@ use codex_core::config::ConfigBuilder;
 use codex_core::config::ConfigOverrides;
 use codex_core::config::edit::ConfigEdit;
 use codex_core::config::edit::ConfigEditsBuilder;
-<<<<<<< HEAD
-use codex_core::config::types::ModelAvailabilityNuxConfig;
-use codex_core::config_loader::ConfigLayerStackOrdering;
-use codex_core::features::Feature;
-=======
 use codex_core::config::types::ApprovalsReviewer;
 use codex_core::config::types::ModelAvailabilityNuxConfig;
 use codex_core::config_loader::CloudRequirementsLoader;
 use codex_core::config_loader::ConfigLayerStackOrdering;
 use codex_core::config_loader::LoaderOverrides;
->>>>>>> upstream_main
 use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
 use codex_core::models_manager::manager::RefreshStrategy;
 use codex_core::models_manager::model_presets::HIDE_GPT_5_1_CODEX_MAX_MIGRATION_PROMPT_CONFIG;
@@ -962,11 +956,7 @@ pub(crate) struct App {
 
     thread_event_channels: HashMap<ThreadId, ThreadEventChannel>,
     thread_event_listener_tasks: HashMap<ThreadId, JoinHandle<()>>,
-<<<<<<< HEAD
-    agent_picker_threads: HashMap<ThreadId, AgentPickerThreadEntry>,
-=======
     agent_navigation: AgentNavigationState,
->>>>>>> upstream_main
     active_thread_id: Option<ThreadId>,
     active_thread_rx: Option<mpsc::Receiver<Event>>,
     primary_thread_id: Option<ThreadId>,
@@ -1713,11 +1703,7 @@ impl App {
             let short_id: String = thread_id.chars().take(8).collect();
             format!("Agent ({short_id})")
         };
-<<<<<<< HEAD
-        if let Some(entry) = self.agent_picker_threads.get(&thread_id) {
-=======
         if let Some(entry) = self.agent_navigation.get(&thread_id) {
->>>>>>> upstream_main
             let label = format_agent_picker_item_name(
                 entry.agent_nickname.as_deref(),
                 entry.agent_role.as_deref(),
@@ -1735,8 +1721,6 @@ impl App {
         }
     }
 
-<<<<<<< HEAD
-=======
     /// Returns the thread whose transcript is currently on screen.
     ///
     /// `active_thread_id` is the source of truth during steady state, but the widget can briefly
@@ -1760,7 +1744,6 @@ impl App {
         self.chat_widget.set_active_agent_label(label);
     }
 
->>>>>>> upstream_main
     async fn thread_cwd(&self, thread_id: ThreadId) -> Option<PathBuf> {
         let channel = self.thread_event_channels.get(&thread_id)?;
         let store = channel.store.lock().await;
@@ -1770,43 +1753,6 @@ impl App {
         }
     }
 
-<<<<<<< HEAD
-    async fn approval_request_for_thread_event(
-        &self,
-        thread_id: ThreadId,
-        event: &Event,
-    ) -> Option<ApprovalRequest> {
-        let thread_label = Some(self.thread_label(thread_id));
-        match &event.msg {
-            EventMsg::ExecApprovalRequest(ev) => Some(ApprovalRequest::Exec {
-                thread_id,
-                thread_label,
-                id: ev.effective_approval_id(),
-                command: ev.command.clone(),
-                reason: ev.reason.clone(),
-                available_decisions: ev.effective_available_decisions(),
-                network_approval_context: ev.network_approval_context.clone(),
-                additional_permissions: ev.additional_permissions.clone(),
-            }),
-            EventMsg::ApplyPatchApprovalRequest(ev) => Some(ApprovalRequest::ApplyPatch {
-                thread_id,
-                thread_label,
-                id: ev.call_id.clone(),
-                reason: ev.reason.clone(),
-                cwd: self
-                    .thread_cwd(thread_id)
-                    .await
-                    .unwrap_or_else(|| self.config.cwd.clone()),
-                changes: ev.changes.clone(),
-            }),
-            EventMsg::ElicitationRequest(ev) => Some(ApprovalRequest::McpElicitation {
-                thread_id,
-                thread_label,
-                server_name: ev.server_name.clone(),
-                request_id: ev.id.clone(),
-                message: ev.message.clone(),
-            }),
-=======
     async fn interactive_request_for_thread_event(
         &self,
         thread_id: ThreadId,
@@ -1865,7 +1811,6 @@ impl App {
                     permissions: ev.permissions.clone(),
                 },
             )),
->>>>>>> upstream_main
             _ => None,
         }
     }
@@ -1933,13 +1878,8 @@ impl App {
     async fn enqueue_thread_event(&mut self, thread_id: ThreadId, event: Event) -> Result<()> {
         let refresh_pending_thread_approvals =
             ThreadEventStore::event_can_change_pending_thread_approvals(&event);
-<<<<<<< HEAD
-        let inactive_approval_request = if self.active_thread_id != Some(thread_id) {
-            self.approval_request_for_thread_event(thread_id, &event)
-=======
         let inactive_interactive_request = if self.active_thread_id != Some(thread_id) {
             self.interactive_request_for_thread_event(thread_id, &event)
->>>>>>> upstream_main
                 .await
         } else {
             None
@@ -1972,10 +1912,6 @@ impl App {
                     tracing::warn!("thread {thread_id} event channel closed");
                 }
             }
-<<<<<<< HEAD
-        } else if let Some(request) = inactive_approval_request {
-            self.chat_widget.push_approval_request(request);
-=======
         } else if let Some(request) = inactive_interactive_request {
             match request {
                 ThreadInteractiveRequest::Approval(request) => {
@@ -1986,7 +1922,6 @@ impl App {
                         .push_mcp_server_elicitation_request(request);
                 }
             }
->>>>>>> upstream_main
         }
         if refresh_pending_thread_approvals {
             self.refresh_pending_thread_approvals().await;
@@ -2221,8 +2156,6 @@ impl App {
         self.primary_thread_id = None;
         self.pending_primary_events.clear();
         self.chat_widget.set_pending_thread_approvals(Vec::new());
-<<<<<<< HEAD
-=======
         self.sync_active_agent_label();
     }
 
@@ -2234,7 +2167,6 @@ impl App {
         self.chat_widget = chat_widget;
         self.sync_active_agent_label();
         self.refresh_status_surfaces();
->>>>>>> upstream_main
     }
 
     async fn start_fresh_session_with_summary_hint(&mut self, tui: &mut tui::Tui) {
@@ -2426,18 +2358,10 @@ impl App {
             &config,
             auth_manager.clone(),
             SessionSource::Cli,
-<<<<<<< HEAD
-            config.model_catalog.clone(),
-            CollaborationModesConfig {
-                default_mode_request_user_input: config
-                    .features
-                    .enabled(codex_core::features::Feature::DefaultModeRequestUserInput),
-=======
             CollaborationModesConfig {
                 default_mode_request_user_input: config
                     .features
                     .enabled(Feature::DefaultModeRequestUserInput),
->>>>>>> upstream_main
             },
         ));
         let mut model = thread_manager
@@ -2540,10 +2464,7 @@ impl App {
                         config.clone(),
                         target_session.path.clone(),
                         auth_manager.clone(),
-<<<<<<< HEAD
-=======
                         /*parent_trace*/ None,
->>>>>>> upstream_main
                     )
                     .await
                     .wrap_err_with(|| {
@@ -2576,15 +2497,6 @@ impl App {
                 ChatWidget::new_from_existing(init, resumed.thread, resumed.session_configured)
             }
             SessionSelection::Fork(target_session) => {
-<<<<<<< HEAD
-                otel_manager.counter("codex.thread.fork", 1, &[("source", "cli_subcommand")]);
-                let forked = thread_manager
-                    .fork_thread(
-                        usize::MAX,
-                        config.clone(),
-                        target_session.path.clone(),
-                        false,
-=======
                 session_telemetry.counter(
                     "codex.thread.fork",
                     /*inc*/ 1,
@@ -2597,7 +2509,6 @@ impl App {
                         target_session.path.clone(),
                         /*persist_extended_history*/ false,
                         /*parent_trace*/ None,
->>>>>>> upstream_main
                     )
                     .await
                     .wrap_err_with(|| {
@@ -2672,11 +2583,7 @@ impl App {
             windows_sandbox: WindowsSandboxState::default(),
             thread_event_channels: HashMap::new(),
             thread_event_listener_tasks: HashMap::new(),
-<<<<<<< HEAD
-            agent_picker_threads: HashMap::new(),
-=======
             agent_navigation: AgentNavigationState::default(),
->>>>>>> upstream_main
             active_thread_id: None,
             active_thread_rx: None,
             primary_thread_id: None,
@@ -2900,9 +2807,6 @@ impl App {
                 self.start_fresh_session_with_summary_hint(tui).await;
             }
             AppEvent::OpenResumePicker => {
-<<<<<<< HEAD
-                match crate::resume_picker::run_resume_picker(tui, &self.config, false).await? {
-=======
                 match crate::resume_picker::run_resume_picker(
                     tui,
                     &self.config,
@@ -2910,7 +2814,6 @@ impl App {
                 )
                 .await?
                 {
->>>>>>> upstream_main
                     SessionSelection::Resume(target_session) => {
                         let current_cwd = self.config.cwd.clone();
                         let resume_cwd = match crate::resolve_cwd_for_resume_or_fork(
@@ -3780,8 +3683,6 @@ impl App {
                     }
                 }
             }
-<<<<<<< HEAD
-=======
             AppEvent::PersistServiceTierSelection { service_tier } => {
                 self.refresh_status_surfaces();
                 let profile = self.active_profile.as_deref();
@@ -3815,7 +3716,6 @@ impl App {
                     }
                 }
             }
->>>>>>> upstream_main
             AppEvent::PersistRealtimeAudioDeviceSelection { kind, name } => {
                 let builder = match kind {
                     RealtimeAudioDeviceKind::Microphone => {
@@ -3847,11 +3747,7 @@ impl App {
                             let selection = name.unwrap_or_else(|| "System default".to_string());
                             self.chat_widget.add_info_message(
                                 format!("Realtime {} set to {selection}", kind.noun()),
-<<<<<<< HEAD
-                                None,
-=======
                                 /*hint*/ None,
->>>>>>> upstream_main
                             );
                         }
                     }
@@ -4859,11 +4755,6 @@ mod tests {
     use codex_core::config::ConfigBuilder;
     use codex_core::config::ConfigOverrides;
     use codex_core::config::types::ModelAvailabilityNuxConfig;
-<<<<<<< HEAD
-    use codex_otel::OtelManager;
-    use codex_protocol::ThreadId;
-    use codex_protocol::openai_models::ModelAvailabilityNux;
-=======
     use codex_otel::SessionTelemetry;
     use codex_protocol::ThreadId;
     use codex_protocol::config_types::CollaborationMode;
@@ -4872,7 +4763,6 @@ mod tests {
     use codex_protocol::config_types::Settings;
     use codex_protocol::openai_models::ModelAvailabilityNux;
     use codex_protocol::protocol::AgentMessageDeltaEvent;
->>>>>>> upstream_main
     use codex_protocol::protocol::AskForApproval;
     use codex_protocol::protocol::Event;
     use codex_protocol::protocol::EventMsg;
@@ -5073,10 +4963,7 @@ mod tests {
                     proposed_execpolicy_amendment: None,
                     proposed_network_policy_amendments: None,
                     additional_permissions: None,
-<<<<<<< HEAD
-=======
                     skill_metadata: None,
->>>>>>> upstream_main
                     available_decisions: None,
                     parsed_cmd: Vec::new(),
                 },
@@ -5090,13 +4977,9 @@ mod tests {
                 thread_name: None,
                 model: "gpt-test".to_string(),
                 model_provider_id: "test-provider".to_string(),
-<<<<<<< HEAD
-                approval_policy: AskForApproval::Never,
-=======
                 service_tier: None,
                 approval_policy: AskForApproval::Never,
                 approvals_reviewer: ApprovalsReviewer::User,
->>>>>>> upstream_main
                 sandbox_policy: SandboxPolicy::new_read_only_policy(),
                 cwd: PathBuf::from("/tmp/project"),
                 reasoning_effort: None,
@@ -6123,8 +6006,6 @@ mod tests {
     }
 
     #[tokio::test]
-<<<<<<< HEAD
-=======
     async fn open_agent_picker_prompts_to_enable_multi_agent_when_disabled() -> Result<()> {
         let (mut app, mut app_event_rx, _op_rx) = make_test_app_with_channels().await;
         let _ = app.config.features.disable(Feature::Collab);
@@ -6700,7 +6581,6 @@ guardian_approval = true
     }
 
     #[tokio::test]
->>>>>>> upstream_main
     async fn refresh_pending_thread_approvals_only_lists_inactive_threads() {
         let mut app = make_test_app().await;
         let main_thread_id =
@@ -6730,10 +6610,7 @@ guardian_approval = true
                         proposed_execpolicy_amendment: None,
                         proposed_network_policy_amendments: None,
                         additional_permissions: None,
-<<<<<<< HEAD
-=======
                         skill_metadata: None,
->>>>>>> upstream_main
                         available_decisions: None,
                         parsed_cmd: Vec::new(),
                     },
@@ -6742,21 +6619,11 @@ guardian_approval = true
         }
         app.thread_event_channels
             .insert(agent_thread_id, agent_channel);
-<<<<<<< HEAD
-        app.agent_picker_threads.insert(
-            agent_thread_id,
-            AgentPickerThreadEntry {
-                agent_nickname: Some("Robie".to_string()),
-                agent_role: Some("explorer".to_string()),
-                is_closed: false,
-            },
-=======
         app.agent_navigation.upsert(
             agent_thread_id,
             Some("Robie".to_string()),
             Some("explorer".to_string()),
             false,
->>>>>>> upstream_main
         );
 
         app.refresh_pending_thread_approvals().await;
@@ -6794,13 +6661,9 @@ guardian_approval = true
                         thread_name: None,
                         model: "gpt-5".to_string(),
                         model_provider_id: "test-provider".to_string(),
-<<<<<<< HEAD
-                        approval_policy: AskForApproval::OnRequest,
-=======
                         service_tier: None,
                         approval_policy: AskForApproval::OnRequest,
                         approvals_reviewer: ApprovalsReviewer::User,
->>>>>>> upstream_main
                         sandbox_policy: SandboxPolicy::new_workspace_write_policy(),
                         cwd: PathBuf::from("/tmp/agent"),
                         reasoning_effort: None,
@@ -6813,21 +6676,11 @@ guardian_approval = true
                 },
             ),
         );
-<<<<<<< HEAD
-        app.agent_picker_threads.insert(
-            agent_thread_id,
-            AgentPickerThreadEntry {
-                agent_nickname: Some("Robie".to_string()),
-                agent_role: Some("explorer".to_string()),
-                is_closed: false,
-            },
-=======
         app.agent_navigation.upsert(
             agent_thread_id,
             Some("Robie".to_string()),
             Some("explorer".to_string()),
             false,
->>>>>>> upstream_main
         );
 
         app.enqueue_thread_event(
@@ -6846,10 +6699,7 @@ guardian_approval = true
                         proposed_execpolicy_amendment: None,
                         proposed_network_policy_amendments: None,
                         additional_permissions: None,
-<<<<<<< HEAD
-=======
                         skill_metadata: None,
->>>>>>> upstream_main
                         available_decisions: None,
                         parsed_cmd: Vec::new(),
                     },
@@ -7051,10 +6901,7 @@ guardian_approval = true
                 is_first,
                 None,
                 None,
-<<<<<<< HEAD
-=======
                 false,
->>>>>>> upstream_main
             )) as Arc<dyn HistoryCell>
         };
 
@@ -7184,11 +7031,7 @@ guardian_approval = true
             windows_sandbox: WindowsSandboxState::default(),
             thread_event_channels: HashMap::new(),
             thread_event_listener_tasks: HashMap::new(),
-<<<<<<< HEAD
-            agent_picker_threads: HashMap::new(),
-=======
             agent_navigation: AgentNavigationState::default(),
->>>>>>> upstream_main
             active_thread_id: None,
             active_thread_rx: None,
             primary_thread_id: None,
@@ -7252,11 +7095,7 @@ guardian_approval = true
                 windows_sandbox: WindowsSandboxState::default(),
                 thread_event_channels: HashMap::new(),
                 thread_event_listener_tasks: HashMap::new(),
-<<<<<<< HEAD
-                agent_picker_threads: HashMap::new(),
-=======
                 agent_navigation: AgentNavigationState::default(),
->>>>>>> upstream_main
                 active_thread_id: None,
                 active_thread_rx: None,
                 primary_thread_id: None,
@@ -7837,10 +7676,7 @@ guardian_approval = true
                 is_first,
                 None,
                 None,
-<<<<<<< HEAD
-=======
                 false,
->>>>>>> upstream_main
             )) as Arc<dyn HistoryCell>
         };
 

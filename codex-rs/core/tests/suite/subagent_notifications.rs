@@ -345,14 +345,10 @@ async fn spawned_child_receives_forked_parent_context() -> Result<()> {
     .await;
 
     let mut builder = test_codex().with_config(|config| {
-<<<<<<< HEAD
-        config.features.enable(Feature::Collab);
-=======
         config
             .features
             .enable(Feature::Collab)
             .expect("test config should allow feature update");
->>>>>>> upstream_main
     });
     let test = builder.build(&server).await?;
 
@@ -409,8 +405,6 @@ async fn spawned_child_receives_forked_parent_context() -> Result<()> {
 
     Ok(())
 }
-<<<<<<< HEAD
-=======
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn spawn_agent_requested_model_and_reasoning_override_inherited_settings_without_role()
@@ -534,4 +528,3 @@ async fn spawn_agent_tool_description_mentions_role_locked_settings() -> Result<
 
     Ok(())
 }
->>>>>>> upstream_main

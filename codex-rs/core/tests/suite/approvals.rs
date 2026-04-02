@@ -563,10 +563,7 @@ async fn submit_turn(
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -2046,8 +2043,6 @@ async fn approving_execpolicy_amendment_persists_policy_and_skips_future_prompts
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-<<<<<<< HEAD
-=======
 async fn spawned_subagent_execpolicy_amendment_propagates_to_parent_session() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
@@ -2230,7 +2225,6 @@ async fn spawned_subagent_execpolicy_amendment_propagates_to_parent_session() ->
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
->>>>>>> upstream_main
 #[cfg(unix)]
 async fn matched_prefix_rule_runs_unsandboxed_under_zsh_fork() -> Result<()> {
     skip_if_no_network!(Ok(()));

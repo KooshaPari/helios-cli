@@ -72,10 +72,7 @@ eventsource-stream = { workspace = true }
 futures = { workspace = true }
 http = { workspace = true }
 iana-time-zone = { workspace = true }
-<<<<<<< HEAD
-=======
 image = { workspace = true, features = ["jpeg", "png", "webp"] }
->>>>>>> upstream_main
 indexmap = { workspace = true }
 libc = { workspace = true }
 notify = { workspace = true }

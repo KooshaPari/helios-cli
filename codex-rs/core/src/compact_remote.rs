@@ -231,11 +231,7 @@ fn should_keep_compacted_history_item(item: &ResponseItem) -> bool {
         ResponseItem::Message { role, .. } if role == "user" => {
             matches!(
                 crate::event_mapping::parse_turn_item(item),
-<<<<<<< HEAD
-                Some(TurnItem::UserMessage(_))
-=======
                 Some(TurnItem::UserMessage(_) | TurnItem::HookPrompt(_))
->>>>>>> upstream_main
             )
         }
         ResponseItem::Message { role, .. } if role == "assistant" => true,

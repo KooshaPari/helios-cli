@@ -17,12 +17,8 @@ use crate::ThreadMetadata;
 use crate::ThreadMetadataBuilder;
 use crate::ThreadsPage;
 use crate::apply_rollout_item;
-<<<<<<< HEAD
-use crate::migrations::MIGRATOR;
-=======
 use crate::migrations::LOGS_MIGRATOR;
 use crate::migrations::STATE_MIGRATOR;
->>>>>>> upstream_main
 use crate::model::AgentJobRow;
 use crate::model::ThreadRow;
 use crate::model::anchor_from_item;
@@ -133,11 +129,7 @@ impl StateRuntime {
     }
 }
 
-<<<<<<< HEAD
-async fn open_sqlite(path: &Path) -> anyhow::Result<SqlitePool> {
-=======
 async fn open_sqlite(path: &Path, migrator: &'static Migrator) -> anyhow::Result<SqlitePool> {
->>>>>>> upstream_main
     let options = SqliteConnectOptions::new()
         .filename(path)
         .create_if_missing(true)

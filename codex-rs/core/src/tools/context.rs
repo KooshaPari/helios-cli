@@ -168,20 +168,6 @@ impl FunctionToolOutput {
         }
     }
 
-<<<<<<< HEAD
-    pub fn into_response(self, call_id: &str, payload: &ToolPayload) -> ResponseInputItem {
-        match self {
-            ToolOutput::Function { body, success } => {
-                // `custom_tool_call` is the Responses API item type for freeform
-                // tools (`ToolSpec::Freeform`, e.g. freeform `apply_patch` or
-                // `js_repl`).
-                if matches!(payload, ToolPayload::Custom { .. }) {
-                    return ResponseInputItem::CustomToolCallOutput {
-                        call_id: call_id.to_string(),
-                        output: FunctionCallOutputPayload { body, success },
-                    };
-                }
-=======
     pub fn from_content(
         content: Vec<FunctionCallOutputContentItem>,
         success: Option<bool>,
@@ -191,7 +177,6 @@ impl FunctionToolOutput {
             success,
         }
     }
->>>>>>> upstream_main
 
     pub fn into_text(self) -> String {
         function_call_output_content_items_to_text(&self.body).unwrap_or_default()
@@ -519,146 +504,5 @@ fn telemetry_preview(content: &str) -> String {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
-mod tests {
-    use super::*;
-    use codex_protocol::models::FunctionCallOutputContentItem;
-    use pretty_assertions::assert_eq;
-
-    #[test]
-    fn custom_tool_calls_should_roundtrip_as_custom_outputs() {
-        let payload = ToolPayload::Custom {
-            input: "patch".to_string(),
-        };
-        let response = ToolOutput::Function {
-            body: FunctionCallOutputBody::Text("patched".to_string()),
-            success: Some(true),
-        }
-        .into_response("call-42", &payload);
-
-        match response {
-            ResponseInputItem::CustomToolCallOutput { call_id, output } => {
-                assert_eq!(call_id, "call-42");
-                assert_eq!(output.text_content(), Some("patched"));
-                assert!(output.content_items().is_none());
-                assert_eq!(output.success, Some(true));
-            }
-            other => panic!("expected CustomToolCallOutput, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn function_payloads_remain_function_outputs() {
-        let payload = ToolPayload::Function {
-            arguments: "{}".to_string(),
-        };
-        let response = ToolOutput::Function {
-            body: FunctionCallOutputBody::Text("ok".to_string()),
-            success: Some(true),
-        }
-        .into_response("fn-1", &payload);
-
-        match response {
-            ResponseInputItem::FunctionCallOutput { call_id, output } => {
-                assert_eq!(call_id, "fn-1");
-                assert_eq!(output.text_content(), Some("ok"));
-                assert!(output.content_items().is_none());
-                assert_eq!(output.success, Some(true));
-            }
-            other => panic!("expected FunctionCallOutput, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn custom_tool_calls_can_derive_text_from_content_items() {
-        let payload = ToolPayload::Custom {
-            input: "patch".to_string(),
-        };
-        let response = ToolOutput::Function {
-            body: FunctionCallOutputBody::ContentItems(vec![
-                FunctionCallOutputContentItem::InputText {
-                    text: "line 1".to_string(),
-                },
-                FunctionCallOutputContentItem::InputImage {
-                    image_url: "data:image/png;base64,AAA".to_string(),
-                },
-                FunctionCallOutputContentItem::InputText {
-                    text: "line 2".to_string(),
-                },
-            ]),
-            success: Some(true),
-        }
-        .into_response("call-99", &payload);
-
-        match response {
-            ResponseInputItem::CustomToolCallOutput { call_id, output } => {
-                let expected = vec![
-                    FunctionCallOutputContentItem::InputText {
-                        text: "line 1".to_string(),
-                    },
-                    FunctionCallOutputContentItem::InputImage {
-                        image_url: "data:image/png;base64,AAA".to_string(),
-                    },
-                    FunctionCallOutputContentItem::InputText {
-                        text: "line 2".to_string(),
-                    },
-                ];
-                assert_eq!(call_id, "call-99");
-                assert_eq!(output.content_items(), Some(expected.as_slice()));
-                assert_eq!(output.body.to_text().as_deref(), Some("line 1\nline 2"));
-                assert_eq!(output.success, Some(true));
-            }
-            other => panic!("expected CustomToolCallOutput, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn log_preview_uses_content_items_when_plain_text_is_missing() {
-        let output = ToolOutput::Function {
-            body: FunctionCallOutputBody::ContentItems(vec![
-                FunctionCallOutputContentItem::InputText {
-                    text: "preview".to_string(),
-                },
-            ]),
-            success: Some(true),
-        };
-
-        assert_eq!(output.log_preview(), "preview");
-    }
-
-    #[test]
-    fn telemetry_preview_returns_original_within_limits() {
-        let content = "short output";
-        assert_eq!(telemetry_preview(content), content);
-    }
-
-    #[test]
-    fn telemetry_preview_truncates_by_bytes() {
-        let content = "x".repeat(TELEMETRY_PREVIEW_MAX_BYTES + 8);
-        let preview = telemetry_preview(&content);
-
-        assert!(preview.contains(TELEMETRY_PREVIEW_TRUNCATION_NOTICE));
-        assert!(
-            preview.len()
-                <= TELEMETRY_PREVIEW_MAX_BYTES + TELEMETRY_PREVIEW_TRUNCATION_NOTICE.len() + 1
-        );
-    }
-
-    #[test]
-    fn telemetry_preview_truncates_by_lines() {
-        let content = (0..(TELEMETRY_PREVIEW_MAX_LINES + 5))
-            .map(|idx| format!("line {idx}"))
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let preview = telemetry_preview(&content);
-        let lines: Vec<&str> = preview.lines().collect();
-
-        assert!(lines.len() <= TELEMETRY_PREVIEW_MAX_LINES + 1);
-        assert_eq!(lines.last(), Some(&TELEMETRY_PREVIEW_TRUNCATION_NOTICE));
-    }
-}
-=======
 #[path = "context_tests.rs"]
 mod tests;
->>>>>>> upstream_main

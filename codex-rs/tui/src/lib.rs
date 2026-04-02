@@ -34,10 +34,6 @@ use codex_core::format_exec_policy_error_with_source;
 use codex_core::path_utils;
 use codex_core::read_session_meta_line;
 use codex_core::state_db::get_state_db;
-<<<<<<< HEAD
-use codex_core::terminal::Multiplexer;
-=======
->>>>>>> upstream_main
 use codex_core::windows_sandbox::WindowsSandboxLevelExt;
 use codex_protocol::ThreadId;
 use codex_protocol::config_types::AltScreenMode;
@@ -73,8 +69,6 @@ mod app_server_tui_dispatch;
 mod ascii_animation;
 #[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
 mod audio_device;
-<<<<<<< HEAD
-=======
 #[cfg(all(not(target_os = "linux"), not(feature = "voice-input")))]
 mod audio_device {
     use crate::app_event::RealtimeAudioDeviceKind;
@@ -88,7 +82,6 @@ mod audio_device {
         ))
     }
 }
->>>>>>> upstream_main
 mod bottom_pane;
 mod chatwidget;
 mod cli;
@@ -183,15 +176,11 @@ mod voice {
             Err("voice input is unavailable in this build".to_string())
         }
 
-<<<<<<< HEAD
-        pub fn start_realtime(_config: &Config, _tx: AppEventSender) -> Result<Self, String> {
-=======
         pub fn start_realtime(
             _config: &Config,
             _tx: AppEventSender,
             _input_behavior: RealtimeInputBehavior,
         ) -> Result<Self, String> {
->>>>>>> upstream_main
             Err("voice input is unavailable in this build".to_string())
         }
 
@@ -231,14 +220,10 @@ mod voice {
     }
 
     impl RealtimeAudioPlayer {
-<<<<<<< HEAD
-        pub(crate) fn start(_config: &Config) -> Result<Self, String> {
-=======
         pub(crate) fn start(
             _config: &Config,
             _queued_samples: Arc<AtomicUsize>,
         ) -> Result<Self, String> {
->>>>>>> upstream_main
             Err("voice output is unavailable in this build".to_string())
         }
 
@@ -766,26 +751,18 @@ async fn run_ratatui_app(
                 INTERACTIVE_SESSION_SOURCES.as_slice(),
                 Some(provider_filter.as_slice()),
                 &config.model_provider_id,
-<<<<<<< HEAD
-                None,
-=======
                 /*search_term*/ None,
->>>>>>> upstream_main
             )
             .await
             {
                 Ok(page) => match page.items.first() {
                     Some(item) => {
-<<<<<<< HEAD
-                        match resolve_session_thread_id(item.path.as_path(), None).await {
-=======
                         match resolve_session_thread_id(
                             item.path.as_path(),
                             /*id_str_if_uuid*/ None,
                         )
                         .await
                         {
->>>>>>> upstream_main
                             Some(thread_id) => resume_picker::SessionSelection::Fork(
                                 resume_picker::SessionTarget {
                                     path: item.path.clone(),
@@ -797,11 +774,7 @@ async fn run_ratatui_app(
                                 error!(
                                     "Error reading session metadata from latest rollout: {rollout_path}"
                                 );
-<<<<<<< HEAD
-                                restore();
-=======
                                 terminal_restore_guard.restore_silently();
->>>>>>> upstream_main
                                 session_log::log_session_end();
                                 let _ = tui.terminal.clear();
                                 return Ok(AppExitInfo {
@@ -882,32 +855,6 @@ async fn run_ratatui_app(
         )
         .await
         {
-<<<<<<< HEAD
-            Ok(Some(path)) => match resolve_session_thread_id(path.as_path(), None).await {
-                Some(thread_id) => {
-                    resume_picker::SessionSelection::Resume(resume_picker::SessionTarget {
-                        path,
-                        thread_id,
-                    })
-                }
-                None => {
-                    let rollout_path = path.display();
-                    error!("Error reading session metadata from latest rollout: {rollout_path}");
-                    restore();
-                    session_log::log_session_end();
-                    let _ = tui.terminal.clear();
-                    return Ok(AppExitInfo {
-                        token_usage: codex_protocol::protocol::TokenUsage::default(),
-                        thread_id: None,
-                        thread_name: None,
-                        update_action: None,
-                        exit_reason: ExitReason::Fatal(format!(
-                            "Found latest saved session at {rollout_path}, but failed to read its metadata. Run `codex resume` to choose from existing sessions."
-                        )),
-                    });
-                }
-            },
-=======
             Ok(Some(path)) => {
                 match resolve_session_thread_id(path.as_path(), /*id_str_if_uuid*/ None).await {
                     Some(thread_id) => {
@@ -936,7 +883,6 @@ async fn run_ratatui_app(
                     }
                 }
             }
->>>>>>> upstream_main
             _ => resume_picker::SessionSelection::StartFresh,
         }
     } else if cli.resume_picker {
@@ -1083,11 +1029,7 @@ pub(crate) async fn read_session_cwd(
     thread_id: ThreadId,
     path: &Path,
 ) -> Option<PathBuf> {
-<<<<<<< HEAD
-    if let Some(state_db_ctx) = get_state_db(config, None).await
-=======
     if let Some(state_db_ctx) = get_state_db(config).await
->>>>>>> upstream_main
         && let Ok(Some(metadata)) = state_db_ctx.get_thread(thread_id).await
     {
         return Some(metadata.cwd);
@@ -1344,12 +1286,7 @@ mod tests {
     use codex_core::config::ConfigBuilder;
     use codex_core::config::ConfigOverrides;
     use codex_core::config::ProjectConfig;
-<<<<<<< HEAD
-    use codex_core::features::Feature;
-    use codex_protocol::ThreadId;
-=======
     use codex_features::Feature;
->>>>>>> upstream_main
     use codex_protocol::protocol::AskForApproval;
     use codex_protocol::protocol::RolloutItem;
     use codex_protocol::protocol::RolloutLine;
@@ -1661,14 +1598,10 @@ trust_level = "untrusted"
     async fn read_session_cwd_prefers_sqlite_when_thread_id_present() -> std::io::Result<()> {
         let temp_dir = TempDir::new()?;
         let mut config = build_config(&temp_dir).await?;
-<<<<<<< HEAD
-        config.features.enable(Feature::Sqlite);
-=======
         config
             .features
             .enable(Feature::Sqlite)
             .expect("test config should allow sqlite");
->>>>>>> upstream_main
 
         let thread_id = ThreadId::new();
         let rollout_cwd = temp_dir.path().join("rollout-cwd");
@@ -1692,10 +1625,6 @@ trust_level = "untrusted"
         let runtime = codex_state::StateRuntime::init(
             config.codex_home.clone(),
             config.model_provider_id.clone(),
-<<<<<<< HEAD
-            None,
-=======
->>>>>>> upstream_main
         )
         .await
         .map_err(std::io::Error::other)?;

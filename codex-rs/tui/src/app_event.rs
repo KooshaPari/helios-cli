@@ -284,14 +284,11 @@ pub(crate) enum AppEvent {
         personality: Personality,
     },
 
-<<<<<<< HEAD
-=======
     /// Persist the selected service tier to the appropriate config.
     PersistServiceTierSelection {
         service_tier: Option<ServiceTier>,
     },
 
->>>>>>> upstream_main
     /// Open the device picker for a realtime microphone or speaker.
     OpenRealtimeAudioDeviceSelection {
         kind: RealtimeAudioDeviceKind,

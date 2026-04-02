@@ -44,11 +44,7 @@ impl ExecPolicyCheckCommand {
         let policy = load_policies(&self.rules)?;
         let matched_rules = policy.matches_for_command_with_options(
             &self.command,
-<<<<<<< HEAD
-            None,
-=======
             /*heuristics_fallback*/ None,
->>>>>>> upstream_main
             &MatchOptions {
                 resolve_host_executables: self.resolve_host_executables,
             },

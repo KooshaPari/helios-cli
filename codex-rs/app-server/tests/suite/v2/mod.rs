@@ -24,10 +24,7 @@ mod plugin_read;
 mod plugin_uninstall;
 mod rate_limits;
 mod realtime_conversation;
-<<<<<<< HEAD
-=======
 mod request_permissions;
->>>>>>> upstream_main
 mod request_user_input;
 mod review;
 mod safety_check_downgrade;

@@ -463,30 +463,12 @@ async fn prepare_realtime_start(
         .experimental_realtime_ws_backend_prompt
         .clone()
         .unwrap_or(params.prompt);
-<<<<<<< HEAD
-
-    let requested_session_id = params
-        .session_id
-        .or_else(|| Some(sess.conversation_id.to_string()));
-    info!("starting realtime conversation");
-    let events_rx = match sess
-        .conversation
-        .start(api_provider, None, prompt, requested_session_id.clone())
-        .await
-    {
-        Ok(events_rx) => events_rx,
-        Err(err) => {
-            error!("failed to start realtime conversation: {err}");
-            send_conversation_error(sess, sub_id, err.to_string(), CodexErrorInfo::Other).await;
-            return Ok(());
-=======
     let startup_context = match config.experimental_realtime_ws_startup_context.clone() {
         Some(startup_context) => startup_context,
         None => {
             build_realtime_startup_context(sess.as_ref(), REALTIME_STARTUP_CONTEXT_TOKEN_BUDGET)
                 .await
                 .unwrap_or_default()
->>>>>>> upstream_main
         }
     };
     let prompt = if startup_context.is_empty() {
@@ -564,9 +546,6 @@ async fn handle_start_inner(
         };
         let mut end = RealtimeConversationEnd::TransportClosed;
         while let Ok(event) = events_rx.recv().await {
-<<<<<<< HEAD
-            debug!(conversation_id = %sess_clone.conversation_id, "received realtime conversation event");
-=======
             if !fanout_realtime_active.load(Ordering::Relaxed) {
                 break;
             }
@@ -580,7 +559,6 @@ async fn handle_start_inner(
             if matches!(event, RealtimeEvent::Error(_)) {
                 end = RealtimeConversationEnd::Error;
             }
->>>>>>> upstream_main
             let maybe_routed_text = match &event {
                 RealtimeEvent::HandoffRequested(handoff) => {
                     realtime_text_from_handoff_request(handoff)
@@ -603,15 +581,10 @@ async fn handle_start_inner(
                 )))
                 .await;
         }
-<<<<<<< HEAD
-        if let Some(()) = sess_clone.conversation.running_state().await {
-            info!("realtime conversation transport closed");
-=======
         if fanout_realtime_active.swap(false, Ordering::Relaxed) {
             if matches!(end, RealtimeConversationEnd::TransportClosed) {
                 info!("realtime conversation transport closed");
             }
->>>>>>> upstream_main
             sess_clone
                 .conversation
                 .finish_if_active(&fanout_realtime_active)
@@ -633,16 +606,12 @@ pub(crate) async fn handle_audio(
 ) {
     if let Err(err) = sess.conversation.audio_in(params.frame).await {
         error!("failed to append realtime audio: {err}");
-<<<<<<< HEAD
-        send_conversation_error(sess, sub_id, err.to_string(), CodexErrorInfo::BadRequest).await;
-=======
         if sess.conversation.running_state().await.is_some() {
             warn!("realtime audio input failed while the session was already ending");
         } else {
             send_conversation_error(sess, sub_id, err.to_string(), CodexErrorInfo::BadRequest)
                 .await;
         }
->>>>>>> upstream_main
     }
 }
 
@@ -713,12 +682,6 @@ pub(crate) async fn handle_text(
     params: ConversationTextParams,
 ) {
     debug!(text = %params.text, "[realtime-text] appending realtime conversation text input");
-<<<<<<< HEAD
-
-    if let Err(err) = sess.conversation.text_in(params.text).await {
-        error!("failed to append realtime text: {err}");
-        send_conversation_error(sess, sub_id, err.to_string(), CodexErrorInfo::BadRequest).await;
-=======
     if let Err(err) = sess.conversation.text_in(params.text).await {
         error!("failed to append realtime text: {err}");
         if sess.conversation.running_state().await.is_some() {
@@ -727,7 +690,6 @@ pub(crate) async fn handle_text(
             send_conversation_error(sess, sub_id, err.to_string(), CodexErrorInfo::BadRequest)
                 .await;
         }
->>>>>>> upstream_main
     }
 }
 

@@ -10,10 +10,7 @@ use crate::render::line_utils::line_to_static;
 use crate::wrapping::RtOptions;
 use crate::wrapping::adaptive_wrap_line;
 use codex_utils_string::normalize_markdown_hash_location_suffix;
-<<<<<<< HEAD
-=======
 use dirs::home_dir;
->>>>>>> upstream_main
 use pulldown_cmark::CodeBlockKind;
 use pulldown_cmark::CowStr;
 use pulldown_cmark::Event;
@@ -27,14 +24,10 @@ use ratatui::text::Line;
 use ratatui::text::Span;
 use ratatui::text::Text;
 use regex_lite::Regex;
-<<<<<<< HEAD
-use std::sync::LazyLock;
-=======
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::LazyLock;
 use url::Url;
->>>>>>> upstream_main
 
 struct MarkdownStyles {
     h1: Style,
@@ -125,17 +118,11 @@ pub(crate) fn render_markdown_text_with_width_and_cwd(
 struct LinkState {
     destination: String,
     show_destination: bool,
-<<<<<<< HEAD
-    hidden_location_suffix: Option<String>,
-    label_start_span_idx: usize,
-    label_styled: bool,
-=======
     /// Pre-rendered display text for local file links.
     ///
     /// When this is present, the markdown label is intentionally suppressed so the rendered
     /// transcript always reflects the real target path.
     local_target_display: Option<String>,
->>>>>>> upstream_main
 }
 
 fn should_render_link_destination(dest_url: &str) -> bool {
@@ -157,23 +144,6 @@ static HASH_LOCATION_SUFFIX_RE: LazyLock<Regex> =
         Err(error) => panic!("invalid hash location regex: {error}"),
     });
 
-<<<<<<< HEAD
-fn is_local_path_like_link(dest_url: &str) -> bool {
-    dest_url.starts_with("file://")
-        || dest_url.starts_with('/')
-        || dest_url.starts_with("~/")
-        || dest_url.starts_with("./")
-        || dest_url.starts_with("../")
-        || dest_url.starts_with("\\\\")
-        || matches!(
-            dest_url.as_bytes(),
-            [drive, b':', separator, ..]
-                if drive.is_ascii_alphabetic() && matches!(separator, b'/' | b'\\')
-        )
-}
-
-=======
->>>>>>> upstream_main
 struct Writer<'a, I>
 where
     I: Iterator<Item = Event<'a>>,
@@ -612,38 +582,6 @@ where
 
     fn push_link(&mut self, dest_url: String) {
         let show_destination = should_render_link_destination(&dest_url);
-<<<<<<< HEAD
-        let label_styled = !show_destination;
-        let label_start_span_idx = self
-            .current_line_content
-            .as_ref()
-            .map(|line| line.spans.len())
-            .unwrap_or(0);
-        if label_styled {
-            self.push_inline_style(self.styles.code);
-        }
-        self.link = Some(LinkState {
-            show_destination,
-            hidden_location_suffix: if is_local_path_like_link(&dest_url) {
-                dest_url
-                    .rsplit_once('#')
-                    .and_then(|(_, fragment)| {
-                        HASH_LOCATION_SUFFIX_RE
-                            .is_match(fragment)
-                            .then(|| format!("#{fragment}"))
-                    })
-                    .and_then(|suffix| normalize_markdown_hash_location_suffix(&suffix))
-                    .or_else(|| {
-                        COLON_LOCATION_SUFFIX_RE
-                            .find(&dest_url)
-                            .map(|m| m.as_str().to_string())
-                    })
-            } else {
-                None
-            },
-            label_start_span_idx,
-            label_styled,
-=======
         self.link = Some(LinkState {
             show_destination,
             local_target_display: if is_local_path_like_link(&dest_url) {
@@ -651,7 +589,6 @@ where
             } else {
                 None
             },
->>>>>>> upstream_main
             destination: dest_url,
         });
     }
@@ -659,41 +596,6 @@ where
     fn pop_link(&mut self) {
         if let Some(link) = self.link.take() {
             if link.show_destination {
-<<<<<<< HEAD
-                if link.label_styled {
-                    self.pop_inline_style();
-                }
-                self.push_span(" (".into());
-                self.push_span(Span::styled(link.destination, self.styles.link));
-                self.push_span(")".into());
-            } else if let Some(location_suffix) = link.hidden_location_suffix.as_deref() {
-                let label_text = self
-                    .current_line_content
-                    .as_ref()
-                    .and_then(|line| {
-                        line.spans.get(link.label_start_span_idx..).map(|spans| {
-                            spans
-                                .iter()
-                                .map(|span| span.content.as_ref())
-                                .collect::<String>()
-                        })
-                    })
-                    .unwrap_or_default();
-                if label_text
-                    .rsplit_once('#')
-                    .is_some_and(|(_, fragment)| HASH_LOCATION_SUFFIX_RE.is_match(fragment))
-                    || COLON_LOCATION_SUFFIX_RE.find(&label_text).is_some()
-                {
-                    // The label already carries a location suffix; don't duplicate it.
-                } else {
-                    self.push_span(Span::styled(location_suffix.to_string(), self.styles.code));
-                }
-                if link.label_styled {
-                    self.pop_inline_style();
-                }
-            } else if link.label_styled {
-                self.pop_inline_style();
-=======
                 self.push_span(" (".into());
                 self.push_span(Span::styled(link.destination, self.styles.link));
                 self.push_span(")".into());
@@ -711,7 +613,6 @@ where
                     .patch(self.styles.code);
                 self.push_span(Span::styled(local_target_display, style));
                 self.line_ends_with_local_link_target = true;
->>>>>>> upstream_main
             }
         }
     }

@@ -72,11 +72,7 @@ use codex_protocol::protocol::RateLimitSnapshot as CoreRateLimitSnapshot;
 use codex_protocol::protocol::RateLimitWindow as CoreRateLimitWindow;
 use codex_protocol::protocol::ReadOnlyAccess as CoreReadOnlyAccess;
 use codex_protocol::protocol::RealtimeAudioFrame as CoreRealtimeAudioFrame;
-<<<<<<< HEAD
-use codex_protocol::protocol::RejectConfig as CoreRejectConfig;
-=======
 use codex_protocol::protocol::RealtimeConversationVersion;
->>>>>>> upstream_main
 use codex_protocol::protocol::ReviewDecision as CoreReviewDecision;
 use codex_protocol::protocol::SessionSource as CoreSessionSource;
 use codex_protocol::protocol::SkillDependencies as CoreSkillDependencies;
@@ -2843,8 +2839,6 @@ pub enum ThreadUnsubscribeStatus {
     Unsubscribed,
 }
 
-<<<<<<< HEAD
-=======
 /// Parameters for `thread/increment_elicitation`.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
@@ -2885,7 +2879,6 @@ pub struct ThreadDecrementElicitationResponse {
     pub paused: bool,
 }
 
->>>>>>> upstream_main
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
@@ -3784,10 +3777,7 @@ pub struct ThreadRealtimeAudioChunk {
     pub sample_rate: u32,
     pub num_channels: u16,
     pub samples_per_channel: Option<u32>,
-<<<<<<< HEAD
-=======
     pub item_id: Option<String>,
->>>>>>> upstream_main
 }
 
 impl From<CoreRealtimeAudioFrame> for ThreadRealtimeAudioChunk {
@@ -3797,20 +3787,14 @@ impl From<CoreRealtimeAudioFrame> for ThreadRealtimeAudioChunk {
             sample_rate,
             num_channels,
             samples_per_channel,
-<<<<<<< HEAD
-=======
             item_id,
->>>>>>> upstream_main
         } = value;
         Self {
             data,
             sample_rate,
             num_channels,
             samples_per_channel,
-<<<<<<< HEAD
-=======
             item_id,
->>>>>>> upstream_main
         }
     }
 }
@@ -3822,20 +3806,14 @@ impl From<ThreadRealtimeAudioChunk> for CoreRealtimeAudioFrame {
             sample_rate,
             num_channels,
             samples_per_channel,
-<<<<<<< HEAD
-=======
             item_id,
->>>>>>> upstream_main
         } = value;
         Self {
             data,
             sample_rate,
             num_channels,
             samples_per_channel,
-<<<<<<< HEAD
-=======
             item_id,
->>>>>>> upstream_main
         }
     }
 }
@@ -3908,10 +3886,7 @@ pub struct ThreadRealtimeStopResponse {}
 pub struct ThreadRealtimeStartedNotification {
     pub thread_id: String,
     pub session_id: Option<String>,
-<<<<<<< HEAD
-=======
     pub version: RealtimeConversationVersion,
->>>>>>> upstream_main
 }
 
 /// EXPERIMENTAL - raw non-audio thread realtime item emitted by the backend.
@@ -3923,8 +3898,6 @@ pub struct ThreadRealtimeItemAddedNotification {
     pub item: JsonValue,
 }
 
-<<<<<<< HEAD
-=======
 /// EXPERIMENTAL - flat transcript delta emitted whenever realtime
 /// transcript text changes.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
@@ -3936,7 +3909,6 @@ pub struct ThreadRealtimeTranscriptUpdatedNotification {
     pub text: String,
 }
 
->>>>>>> upstream_main
 /// EXPERIMENTAL - streamed output audio emitted by thread realtime.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
@@ -4840,8 +4812,6 @@ pub struct ThreadClosedNotification {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
-<<<<<<< HEAD
-=======
 /// Notification emitted when watched local skill files change.
 ///
 /// Treat this as an invalidation signal and re-run `skills/list` with the
@@ -4851,7 +4821,6 @@ pub struct SkillsChangedNotification {}
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
->>>>>>> upstream_main
 pub struct ThreadNameUpdatedNotification {
     pub thread_id: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -5337,8 +5306,6 @@ pub struct FileChangeRequestApprovalResponse {
     pub decision: FileChangeApprovalDecision,
 }
 
-<<<<<<< HEAD
-=======
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(rename_all = "camelCase")]
@@ -5805,7 +5772,6 @@ impl From<rmcp::model::CreateElicitationResult> for McpServerElicitationRequestR
     }
 }
 
->>>>>>> upstream_main
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]

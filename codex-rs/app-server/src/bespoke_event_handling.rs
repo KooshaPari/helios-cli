@@ -77,10 +77,7 @@ use codex_app_server_protocol::ReasoningTextDeltaNotification;
 use codex_app_server_protocol::RequestId;
 use codex_app_server_protocol::ServerNotification;
 use codex_app_server_protocol::ServerRequestPayload;
-<<<<<<< HEAD
-=======
 use codex_app_server_protocol::SkillsChangedNotification;
->>>>>>> upstream_main
 use codex_app_server_protocol::TerminalInteractionNotification;
 use codex_app_server_protocol::ThreadItem;
 use codex_app_server_protocol::ThreadNameUpdatedNotification;
@@ -89,10 +86,7 @@ use codex_app_server_protocol::ThreadRealtimeErrorNotification;
 use codex_app_server_protocol::ThreadRealtimeItemAddedNotification;
 use codex_app_server_protocol::ThreadRealtimeOutputAudioDeltaNotification;
 use codex_app_server_protocol::ThreadRealtimeStartedNotification;
-<<<<<<< HEAD
-=======
 use codex_app_server_protocol::ThreadRealtimeTranscriptUpdatedNotification;
->>>>>>> upstream_main
 use codex_app_server_protocol::ThreadRollbackResponse;
 use codex_app_server_protocol::ThreadTokenUsage;
 use codex_app_server_protocol::ThreadTokenUsageUpdatedNotification;
@@ -141,10 +135,7 @@ use codex_protocol::request_permissions::RequestPermissionProfile as CoreRequest
 use codex_protocol::request_permissions::RequestPermissionsResponse as CoreRequestPermissionsResponse;
 use codex_protocol::request_user_input::RequestUserInputAnswer as CoreRequestUserInputAnswer;
 use codex_protocol::request_user_input::RequestUserInputResponse as CoreRequestUserInputResponse;
-<<<<<<< HEAD
-=======
 use codex_sandboxing::policy_transforms::intersect_permission_profiles;
->>>>>>> upstream_main
 use codex_shell_command::parse_command::shlex_join;
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -201,8 +192,6 @@ async fn resolve_server_request_on_thread_listener(
     }
 }
 
-<<<<<<< HEAD
-=======
 fn guardian_auto_approval_review_notification(
     conversation_id: &ThreadId,
     event_turn_id: &str,
@@ -263,7 +252,6 @@ fn guardian_auto_approval_review_notification(
     }
 }
 
->>>>>>> upstream_main
 #[allow(clippy::too_many_arguments)]
 pub(crate) async fn apply_bespoke_event_handling(
     event: Event,
@@ -282,11 +270,7 @@ pub(crate) async fn apply_bespoke_event_handling(
         msg,
     } = event;
     match msg {
-<<<<<<< HEAD
-        EventMsg::TurnStarted(_) => {
-=======
         EventMsg::TurnStarted(payload) => {
->>>>>>> upstream_main
             // While not technically necessary as it was already done on TurnComplete, be extra cautios and abort any pending server requests.
             outgoing.abort_pending_server_requests().await;
             thread_watch_manager
@@ -387,10 +371,7 @@ pub(crate) async fn apply_bespoke_event_handling(
                 let notification = ThreadRealtimeStartedNotification {
                     thread_id: conversation_id.to_string(),
                     session_id: event.session_id,
-<<<<<<< HEAD
-=======
                     version: event.version,
->>>>>>> upstream_main
                 };
                 outgoing
                     .send_server_notification(ServerNotification::ThreadRealtimeStarted(
@@ -402,10 +383,6 @@ pub(crate) async fn apply_bespoke_event_handling(
         EventMsg::RealtimeConversationRealtime(event) => {
             if let ApiVersion::V2 = api_version {
                 match event.payload {
-<<<<<<< HEAD
-                    RealtimeEvent::SessionCreated { .. } => {}
-                    RealtimeEvent::SessionUpdated { .. } => {}
-=======
                     RealtimeEvent::SessionUpdated { .. } => {}
                     RealtimeEvent::InputAudioSpeechStarted(event) => {
                         let notification = ThreadRealtimeItemAddedNotification {
@@ -445,7 +422,6 @@ pub(crate) async fn apply_bespoke_event_handling(
                             )
                             .await;
                     }
->>>>>>> upstream_main
                     RealtimeEvent::AudioOut(audio) => {
                         let notification = ThreadRealtimeOutputAudioDeltaNotification {
                             thread_id: conversation_id.to_string(),
@@ -457,8 +433,6 @@ pub(crate) async fn apply_bespoke_event_handling(
                             )
                             .await;
                     }
-<<<<<<< HEAD
-=======
                     RealtimeEvent::ResponseCancelled(event) => {
                         let notification = ThreadRealtimeItemAddedNotification {
                             thread_id: conversation_id.to_string(),
@@ -473,7 +447,6 @@ pub(crate) async fn apply_bespoke_event_handling(
                             ))
                             .await;
                     }
->>>>>>> upstream_main
                     RealtimeEvent::ConversationItemAdded(item) => {
                         let notification = ThreadRealtimeItemAddedNotification {
                             thread_id: conversation_id.to_string(),
@@ -485,8 +458,6 @@ pub(crate) async fn apply_bespoke_event_handling(
                             ))
                             .await;
                     }
-<<<<<<< HEAD
-=======
                     RealtimeEvent::ConversationItemDone { .. } => {}
                     RealtimeEvent::HandoffRequested(handoff) => {
                         let notification = ThreadRealtimeItemAddedNotification {
@@ -505,7 +476,6 @@ pub(crate) async fn apply_bespoke_event_handling(
                             ))
                             .await;
                     }
->>>>>>> upstream_main
                     RealtimeEvent::Error(message) => {
                         let notification = ThreadRealtimeErrorNotification {
                             thread_id: conversation_id.to_string(),
@@ -817,8 +787,6 @@ pub(crate) async fn apply_bespoke_event_handling(
                 }
             }
         }
-<<<<<<< HEAD
-=======
         EventMsg::ElicitationRequest(request) => {
             if matches!(api_version, ApiVersion::V2) {
                 let permission_guard = thread_watch_manager
@@ -927,7 +895,6 @@ pub(crate) async fn apply_bespoke_event_handling(
                 }
             }
         }
->>>>>>> upstream_main
         EventMsg::DynamicToolCallRequest(request) => {
             if matches!(api_version, ApiVersion::V2) {
                 let call_id = request.call_id;

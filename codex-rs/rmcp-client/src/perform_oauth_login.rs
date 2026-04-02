@@ -147,11 +147,7 @@ async fn perform_oauth_login_with_browser_output(
         headers,
         scopes,
         oauth_resource,
-<<<<<<< HEAD
-        true,
-=======
         /*launch_browser*/ true,
->>>>>>> upstream_main
         callback_port,
         callback_url,
         /*timeout_secs*/ None,
@@ -185,11 +181,7 @@ pub async fn perform_oauth_login_return_url(
         headers,
         scopes,
         oauth_resource,
-<<<<<<< HEAD
-        false,
-=======
         /*launch_browser*/ false,
->>>>>>> upstream_main
         callback_port,
         callback_url,
         timeout_secs,
@@ -584,10 +576,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     use super::CallbackOutcome;
-<<<<<<< HEAD
-=======
     use super::OAuthProviderError;
->>>>>>> upstream_main
     use super::append_query_param;
     use super::callback_path_from_redirect_uri;
     use super::parse_oauth_callback;

@@ -350,22 +350,6 @@ impl NetworkApprovalService {
             host: request.host.clone(),
             protocol,
         };
-<<<<<<< HEAD
-
-        let available_decisions = None;
-        let approval_decision = session
-            .request_command_approval(
-                turn_context.as_ref(),
-                approval_id,
-                None,
-                prompt_command,
-                turn_context.cwd.clone(),
-                Some(prompt_reason),
-                Some(network_approval_context.clone()),
-                None,
-                None,
-                available_decisions,
-=======
         let owner_call = self.resolve_single_active_call().await;
         let approval_decision = if routes_approval_to_guardian(&turn_context) {
             // TODO(ccunningham): Attach guardian network reviews to the reviewed tool item
@@ -384,7 +368,6 @@ impl NetworkApprovalService {
                     port: key.port,
                 },
                 Some(policy_denial_message.clone()),
->>>>>>> upstream_main
             )
             .await
         } else {

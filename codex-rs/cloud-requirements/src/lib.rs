@@ -18,13 +18,9 @@ use codex_backend_client::Client as BackendClient;
 use codex_core::AuthManager;
 use codex_core::auth::AuthCredentialsStoreMode;
 use codex_core::auth::CodexAuth;
-<<<<<<< HEAD
-use codex_core::config_loader::CloudRequirementsLoadError;
-=======
 use codex_core::auth::RefreshTokenError;
 use codex_core::config_loader::CloudRequirementsLoadError;
 use codex_core::config_loader::CloudRequirementsLoadErrorCode;
->>>>>>> upstream_main
 use codex_core::config_loader::CloudRequirementsLoader;
 use codex_core::config_loader::ConfigRequirementsToml;
 use codex_core::util::backoff;
@@ -51,14 +47,11 @@ const CLOUD_REQUIREMENTS_MAX_ATTEMPTS: usize = 5;
 const CLOUD_REQUIREMENTS_CACHE_FILENAME: &str = "cloud-requirements-cache.json";
 const CLOUD_REQUIREMENTS_CACHE_REFRESH_INTERVAL: Duration = Duration::from_secs(5 * 60);
 const CLOUD_REQUIREMENTS_CACHE_TTL: Duration = Duration::from_secs(30 * 60);
-<<<<<<< HEAD
-=======
 const CLOUD_REQUIREMENTS_FETCH_ATTEMPT_METRIC: &str = "codex.cloud_requirements.fetch_attempt";
 const CLOUD_REQUIREMENTS_FETCH_FINAL_METRIC: &str = "codex.cloud_requirements.fetch_final";
 const CLOUD_REQUIREMENTS_LOAD_METRIC: &str = "codex.cloud_requirements.load";
 const CLOUD_REQUIREMENTS_LOAD_FAILED_MESSAGE: &str = "failed to load your workspace-managed config";
 const CLOUD_REQUIREMENTS_AUTH_RECOVERY_FAILED_MESSAGE: &str = "Your authentication session could not be refreshed automatically. Please log out and sign in again.";
->>>>>>> upstream_main
 const CLOUD_REQUIREMENTS_CACHE_WRITE_HMAC_KEY: &[u8] =
     b"codex-cloud-requirements-cache-v3-064f8542-75b4-494c-a294-97d3ce597271";
 const CLOUD_REQUIREMENTS_CACHE_READ_HMAC_KEYS: &[&[u8]] =
@@ -288,22 +281,6 @@ impl CloudRequirementsService {
                     self.timeout.as_secs()
                 );
                 tracing::error!("{message}");
-<<<<<<< HEAD
-                if let Some(metrics) = codex_otel::metrics::global() {
-                    let _ = metrics.counter(
-                        "codex.cloud_requirements.load_failure",
-                        1,
-                        &[("trigger", "startup")],
-                    );
-                }
-            })
-            .map_err(|_| {
-                CloudRequirementsLoadError::new(format!(
-                    "timed out waiting for cloud requirements after {}s",
-                    self.timeout.as_secs()
-                ))
-            })??;
-=======
                 emit_load_metric("startup", "error");
             })
             .map_err(|_| {
@@ -324,7 +301,6 @@ impl CloudRequirementsService {
                 return Err(err);
             }
         };
->>>>>>> upstream_main
 
         match result.as_ref() {
             Some(requirements) => {
@@ -377,20 +353,7 @@ impl CloudRequirementsService {
             }
         }
 
-<<<<<<< HEAD
-        self.fetch_with_retries(&auth, chatgpt_user_id, account_id)
-            .await
-            .ok_or_else(|| {
-                let message = "failed to load your workspace-managed config";
-                tracing::error!(
-                    path = %self.cache_path.display(),
-                    "{message}"
-                );
-                CloudRequirementsLoadError::new(message)
-            })
-=======
         self.fetch_with_retries(auth, "startup").await
->>>>>>> upstream_main
     }
 
     async fn fetch_with_retries(
@@ -518,9 +481,6 @@ impl CloudRequirementsService {
                     Ok(requirements) => requirements,
                     Err(err) => {
                         tracing::error!(error = %err, "Failed to parse cloud requirements");
-<<<<<<< HEAD
-                        return None;
-=======
                         emit_fetch_final_metric(
                             trigger,
                             "error",
@@ -533,7 +493,6 @@ impl CloudRequirementsService {
                             /*status_code*/ None,
                             CLOUD_REQUIREMENTS_LOAD_FAILED_MESSAGE,
                         ));
->>>>>>> upstream_main
                     }
                 },
                 None => None,
@@ -807,15 +766,11 @@ pub fn cloud_requirements_loader(
     CloudRequirementsLoader::new(async move {
         task.await.map_err(|err| {
             tracing::error!(error = %err, "Cloud requirements task failed");
-<<<<<<< HEAD
-            CloudRequirementsLoadError::new(format!("cloud requirements load failed: {err}"))
-=======
             CloudRequirementsLoadError::new(
                 CloudRequirementsLoadErrorCode::Internal,
                 /*status_code*/ None,
                 format!("cloud requirements load failed: {err}"),
             )
->>>>>>> upstream_main
         })?
     })
 }
@@ -2019,10 +1974,7 @@ enabled = false
             err.to_string(),
             "failed to load your workspace-managed config"
         );
-<<<<<<< HEAD
-=======
         assert_eq!(err.code(), CloudRequirementsLoadErrorCode::RequestFailed);
->>>>>>> upstream_main
         assert_eq!(
             fetcher.request_count.load(Ordering::SeqCst),
             CLOUD_REQUIREMENTS_MAX_ATTEMPTS
@@ -2051,14 +2003,10 @@ enabled = false
                 allowed_approval_policies: Some(vec![AskForApproval::Never]),
                 allowed_sandbox_modes: None,
                 allowed_web_search_modes: None,
-<<<<<<< HEAD
-                mcp_servers: None,
-=======
                 guardian_developer_instructions: None,
                 feature_requirements: None,
                 mcp_servers: None,
                 apps: None,
->>>>>>> upstream_main
                 rules: None,
                 enforce_residency: None,
                 network: None,
@@ -2081,14 +2029,10 @@ enabled = false
                 allowed_approval_policies: Some(vec![AskForApproval::OnRequest]),
                 allowed_sandbox_modes: None,
                 allowed_web_search_modes: None,
-<<<<<<< HEAD
-                mcp_servers: None,
-=======
                 guardian_developer_instructions: None,
                 feature_requirements: None,
                 mcp_servers: None,
                 apps: None,
->>>>>>> upstream_main
                 rules: None,
                 enforce_residency: None,
                 network: None,

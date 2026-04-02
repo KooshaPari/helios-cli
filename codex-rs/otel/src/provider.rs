@@ -3,14 +3,9 @@ use crate::config::OtelHttpProtocol;
 use crate::config::OtelSettings;
 use crate::metrics::MetricsClient;
 use crate::metrics::MetricsConfig;
-<<<<<<< HEAD:codex-rs/otel/src/otel_provider.rs
-use gethostname::gethostname;
-use opentelemetry::Context;
-=======
 use crate::targets::is_log_export_target;
 use crate::targets::is_trace_safe_target;
 use gethostname::gethostname;
->>>>>>> upstream_main:codex-rs/otel/src/provider.rs
 use opentelemetry::KeyValue;
 use opentelemetry::global;
 use opentelemetry::trace::TracerProvider as _;
@@ -41,12 +36,6 @@ use tracing_subscriber::registry::LookupSpan;
 
 const ENV_ATTRIBUTE: &str = "env";
 const HOST_NAME_ATTRIBUTE: &str = "host.name";
-<<<<<<< HEAD:codex-rs/otel/src/otel_provider.rs
-const TRACEPARENT_ENV_VAR: &str = "TRACEPARENT";
-const TRACESTATE_ENV_VAR: &str = "TRACESTATE";
-static TRACEPARENT_CONTEXT: OnceLock<Option<Context>> = OnceLock::new();
-=======
->>>>>>> upstream_main:codex-rs/otel/src/provider.rs
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum ResourceKind {
@@ -192,23 +181,16 @@ fn make_resource(settings: &OtelSettings, kind: ResourceKind) -> Resource {
         .with_attributes(resource_attributes(
             settings,
             detected_host_name().as_deref(),
-<<<<<<< HEAD:codex-rs/otel/src/otel_provider.rs
-=======
             kind,
->>>>>>> upstream_main:codex-rs/otel/src/provider.rs
         ))
         .build()
 }
 
-<<<<<<< HEAD:codex-rs/otel/src/otel_provider.rs
-fn resource_attributes(settings: &OtelSettings, host_name: Option<&str>) -> Vec<KeyValue> {
-=======
 fn resource_attributes(
     settings: &OtelSettings,
     host_name: Option<&str>,
     kind: ResourceKind,
 ) -> Vec<KeyValue> {
->>>>>>> upstream_main:codex-rs/otel/src/provider.rs
     let mut attributes = vec![
         KeyValue::new(
             semconv::attribute::SERVICE_VERSION,
@@ -216,13 +198,9 @@ fn resource_attributes(
         ),
         KeyValue::new(ENV_ATTRIBUTE, settings.environment.clone()),
     ];
-<<<<<<< HEAD:codex-rs/otel/src/otel_provider.rs
-    if let Some(host_name) = host_name.and_then(normalize_host_name) {
-=======
     if kind == ResourceKind::Logs
         && let Some(host_name) = host_name.and_then(normalize_host_name)
     {
->>>>>>> upstream_main:codex-rs/otel/src/provider.rs
         attributes.push(KeyValue::new(HOST_NAME_ATTRIBUTE, host_name));
     }
     attributes
@@ -407,12 +385,6 @@ fn build_tracer_provider(
 #[cfg(test)]
 mod tests {
     use super::*;
-<<<<<<< HEAD:codex-rs/otel/src/otel_provider.rs
-    use opentelemetry::trace::SpanId;
-    use opentelemetry::trace::TraceContextExt;
-    use opentelemetry::trace::TraceId;
-=======
->>>>>>> upstream_main:codex-rs/otel/src/provider.rs
     use pretty_assertions::assert_eq;
     use std::path::PathBuf;
 

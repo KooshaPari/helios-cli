@@ -178,10 +178,7 @@ async fn remote_models_long_model_slug_is_sent_with_high_reasoning() -> Result<(
             model: requested_model.to_string(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -244,10 +241,7 @@ async fn namespaced_model_slug_uses_catalog_metadata_without_fallback_warning() 
                     .model_reasoning_summary
                     .unwrap_or(ReasoningSummary::Auto),
             ),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -407,10 +401,7 @@ async fn remote_models_remote_model_uses_unified_exec() -> Result<()> {
             model: REMOTE_MODEL_SLUG.to_string(),
             effort: None,
             summary: Some(ReasoningSummary::Auto),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -629,10 +620,7 @@ async fn remote_models_apply_remote_base_instructions() -> Result<()> {
             model: model.to_string(),
             effort: None,
             summary: Some(ReasoningSummary::Auto),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

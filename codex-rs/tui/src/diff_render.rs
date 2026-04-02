@@ -92,13 +92,7 @@ use crate::terminal_palette::default_bg;
 use crate::terminal_palette::indexed_color;
 use crate::terminal_palette::rgb_color;
 use crate::terminal_palette::stdout_color_level;
-<<<<<<< HEAD
-use codex_core::git_info::get_git_repo_root;
-use codex_core::terminal::TerminalName;
-use codex_core::terminal::terminal_info;
-=======
 use codex_git_utils::get_git_repo_root;
->>>>>>> upstream_main
 use codex_protocol::protocol::FileChange;
 use codex_terminal_detection::TerminalName;
 use codex_terminal_detection::terminal_info;
@@ -510,11 +504,7 @@ fn render_change(
                         raw,
                         width,
                         line_number_width,
-<<<<<<< HEAD
-                        None,
-=======
                         /*syntax_spans*/ None,
->>>>>>> upstream_main
                         style_context.theme,
                         style_context.color_level,
                         style_context.diff_backgrounds,
@@ -546,11 +536,7 @@ fn render_change(
                         raw,
                         width,
                         line_number_width,
-<<<<<<< HEAD
-                        None,
-=======
                         /*syntax_spans*/ None,
->>>>>>> upstream_main
                         style_context.theme,
                         style_context.color_level,
                         style_context.diff_backgrounds,
@@ -665,11 +651,7 @@ fn render_change(
                                             s,
                                             width,
                                             line_number_width,
-<<<<<<< HEAD
-                                            None,
-=======
                                             /*syntax_spans*/ None,
->>>>>>> upstream_main
                                             style_context.theme,
                                             style_context.color_level,
                                             style_context.diff_backgrounds,
@@ -702,11 +684,7 @@ fn render_change(
                                             s,
                                             width,
                                             line_number_width,
-<<<<<<< HEAD
-                                            None,
-=======
                                             /*syntax_spans*/ None,
->>>>>>> upstream_main
                                             style_context.theme,
                                             style_context.color_level,
                                             style_context.diff_backgrounds,
@@ -739,11 +717,7 @@ fn render_change(
                                             s,
                                             width,
                                             line_number_width,
-<<<<<<< HEAD
-                                            None,
-=======
                                             /*syntax_spans*/ None,
->>>>>>> upstream_main
                                             style_context.theme,
                                             style_context.color_level,
                                             style_context.diff_backgrounds,
@@ -824,11 +798,7 @@ pub(crate) fn push_wrapped_diff_line_with_style_context(
         text,
         width,
         line_number_width,
-<<<<<<< HEAD
-        None,
-=======
         /*syntax_spans*/ None,
->>>>>>> upstream_main
         style_context.theme,
         style_context.color_level,
         style_context.diff_backgrounds,

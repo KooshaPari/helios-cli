@@ -657,10 +657,7 @@ allowed_approval_policies = ["on-request"]
                 rules: None,
                 enforce_residency: None,
                 network: None,
-<<<<<<< HEAD
-=======
                 guardian_developer_instructions: None,
->>>>>>> upstream_main
             }))
         }),
     )
@@ -798,15 +795,11 @@ async fn load_config_layers_fails_when_cloud_requirements_loader_fails() -> anyh
         &[] as &[(String, TomlValue)],
         LoaderOverrides::default(),
         CloudRequirementsLoader::new(async {
-<<<<<<< HEAD
-            Err(CloudRequirementsLoadError::new("cloud requirements failed"))
-=======
             Err(CloudRequirementsLoadError::new(
                 codex_config::CloudRequirementsLoadErrorCode::RequestFailed,
                 None,
                 "cloud requirements failed",
             ))
->>>>>>> upstream_main
         }),
     )
     .await

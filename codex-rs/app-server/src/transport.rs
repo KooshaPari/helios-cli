@@ -719,12 +719,9 @@ pub(crate) async fn route_outgoing_envelope(
 mod tests {
     use super::*;
     use crate::error_code::OVERLOADED_ERROR_CODE;
-<<<<<<< HEAD
-=======
     use codex_app_server_protocol::CommandExecutionRequestApprovalSkillMetadata;
     use codex_app_server_protocol::ConfigWarningNotification;
     use codex_app_server_protocol::ServerNotification;
->>>>>>> upstream_main
     use codex_utils_absolute_path::AbsolutePathBuf;
     use pretty_assertions::assert_eq;
     use serde_json::json;
@@ -1232,11 +1229,7 @@ mod tests {
             .recv()
             .await
             .expect("request should be delivered to the connection");
-<<<<<<< HEAD
-        let json = serde_json::to_value(message).expect("request should serialize");
-=======
         let json = serde_json::to_value(message.message).expect("request should serialize");
->>>>>>> upstream_main
         let allowed_path = absolute_path("/tmp/allowed").to_string_lossy().into_owned();
         assert_eq!(
             json["params"]["additionalPermissions"],

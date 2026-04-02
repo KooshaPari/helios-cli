@@ -53,13 +53,10 @@ use codex_app_server_protocol::RequestId;
 use codex_app_server_protocol::SandboxPolicy;
 use codex_app_server_protocol::ServerNotification;
 use codex_app_server_protocol::ServerRequest;
-<<<<<<< HEAD
-=======
 use codex_app_server_protocol::ThreadDecrementElicitationParams;
 use codex_app_server_protocol::ThreadDecrementElicitationResponse;
 use codex_app_server_protocol::ThreadIncrementElicitationParams;
 use codex_app_server_protocol::ThreadIncrementElicitationResponse;
->>>>>>> upstream_main
 use codex_app_server_protocol::ThreadItem;
 use codex_app_server_protocol::ThreadListParams;
 use codex_app_server_protocol::ThreadListResponse;
@@ -860,19 +857,6 @@ async fn thread_resume_follow(
     .await
 }
 
-<<<<<<< HEAD
-fn watch(endpoint: &Endpoint, config_overrides: &[String]) -> Result<()> {
-    let mut client = CodexClient::connect(endpoint, config_overrides)?;
-
-    let initialize = client.initialize()?;
-    println!("< initialize response: {initialize:?}");
-    println!("< streaming inbound messages until process is terminated");
-
-    client.stream_notifications_forever()
-}
-
-fn trigger_cmd_approval(
-=======
 async fn watch(endpoint: &Endpoint, config_overrides: &[String]) -> Result<()> {
     with_client("watch", endpoint, config_overrides, |client| {
         let initialize = client.initialize()?;
@@ -885,7 +869,6 @@ async fn watch(endpoint: &Endpoint, config_overrides: &[String]) -> Result<()> {
 }
 
 async fn trigger_cmd_approval(
->>>>>>> upstream_main
     endpoint: &Endpoint,
     config_overrides: &[String],
     user_message: Option<String>,
@@ -1251,64 +1234,6 @@ fn live_elicitation_timeout_pause(
         "Use the `exec_command` tool exactly once. Set its `cmd` field to the exact shell command below. Do not rewrite it, do not split it, do not call any other tool, do not set `yield_time_ms`, and wait for the command to finish before replying.\n\n{command}\n\nAfter the command finishes, reply with exactly `DONE`."
     );
 
-<<<<<<< HEAD
-    let completion = client.wait_for_login_completion(&login_response.login_id)?;
-    println!("< loginChatGptComplete notification: {completion:?}");
-
-    if completion.success {
-        println!("Login succeeded.");
-        Ok(())
-    } else {
-        bail!(
-            "login failed: {}",
-            completion
-                .error
-                .as_deref()
-                .unwrap_or("unknown error from loginChatGptComplete")
-        );
-    }
-}
-
-fn get_account_rate_limits(endpoint: &Endpoint, config_overrides: &[String]) -> Result<()> {
-    let mut client = CodexClient::connect(endpoint, config_overrides)?;
-
-    let initialize = client.initialize()?;
-    println!("< initialize response: {initialize:?}");
-
-    let response = client.get_account_rate_limits()?;
-    println!("< account/rateLimits/read response: {response:?}");
-
-    Ok(())
-}
-
-fn model_list(endpoint: &Endpoint, config_overrides: &[String]) -> Result<()> {
-    let mut client = CodexClient::connect(endpoint, config_overrides)?;
-
-    let initialize = client.initialize()?;
-    println!("< initialize response: {initialize:?}");
-
-    let response = client.model_list(ModelListParams::default())?;
-    println!("< model/list response: {response:?}");
-
-    Ok(())
-}
-
-fn thread_list(endpoint: &Endpoint, config_overrides: &[String], limit: u32) -> Result<()> {
-    let mut client = CodexClient::connect(endpoint, config_overrides)?;
-
-    let initialize = client.initialize()?;
-    println!("< initialize response: {initialize:?}");
-
-    let response = client.thread_list(ThreadListParams {
-        cursor: None,
-        limit: Some(limit),
-        sort_key: None,
-        model_providers: None,
-        source_kinds: None,
-        archived: None,
-        cwd: None,
-        search_term: None,
-=======
     let started_at = Instant::now();
     let turn_response = client.turn_start(TurnStartParams {
         thread_id: thread_id.clone(),
@@ -1321,7 +1246,6 @@ fn thread_list(endpoint: &Endpoint, config_overrides: &[String], limit: u32) -> 
         effort: Some(ReasoningEffort::High),
         cwd: Some(workspace),
         ..Default::default()
->>>>>>> upstream_main
     })?;
     println!("< turn/start response: {turn_response:?}");
 

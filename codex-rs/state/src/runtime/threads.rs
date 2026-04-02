@@ -1,8 +1,5 @@
 use super::*;
-<<<<<<< HEAD
-=======
 use codex_protocol::protocol::SessionSource;
->>>>>>> upstream_main
 
 impl StateRuntime {
     pub async fn get_thread(&self, id: ThreadId) -> anyhow::Result<Option<crate::ThreadMetadata>> {
@@ -16,14 +13,10 @@ SELECT
     source,
     agent_nickname,
     agent_role,
-<<<<<<< HEAD
-    model_provider,
-=======
     agent_path,
     model_provider,
     model,
     reasoning_effort,
->>>>>>> upstream_main
     cwd,
     cli_version,
     title,
@@ -46,8 +39,6 @@ WHERE id = ?
             .transpose()
     }
 
-<<<<<<< HEAD
-=======
     pub async fn get_thread_memory_mode(&self, id: ThreadId) -> anyhow::Result<Option<String>> {
         let row = sqlx::query("SELECT memory_mode FROM threads WHERE id = ?")
             .bind(id.to_string())
@@ -56,7 +47,6 @@ WHERE id = ?
         Ok(row.and_then(|row| row.try_get("memory_mode").ok()))
     }
 
->>>>>>> upstream_main
     /// Get dynamic tools for a thread, if present.
     pub async fn get_dynamic_tools(
         &self,
@@ -64,11 +54,7 @@ WHERE id = ?
     ) -> anyhow::Result<Option<Vec<DynamicToolSpec>>> {
         let rows = sqlx::query(
             r#"
-<<<<<<< HEAD
-SELECT name, description, input_schema
-=======
 SELECT name, description, input_schema, defer_loading
->>>>>>> upstream_main
 FROM thread_dynamic_tools
 WHERE thread_id = ?
 ORDER BY position ASC
@@ -88,17 +74,12 @@ ORDER BY position ASC
                 name: row.try_get("name")?,
                 description: row.try_get("description")?,
                 input_schema,
-<<<<<<< HEAD
-=======
                 defer_loading: row.try_get("defer_loading")?,
->>>>>>> upstream_main
             });
         }
         Ok(Some(tools))
     }
 
-<<<<<<< HEAD
-=======
     /// Persist or replace the directional parent-child edge for a spawned thread.
     pub async fn upsert_thread_spawn_edge(
         &self,
@@ -321,7 +302,6 @@ ON CONFLICT(child_thread_id) DO NOTHING
             .await
     }
 
->>>>>>> upstream_main
     /// Find a rollout path by thread id using the underlying database.
     pub async fn find_rollout_path_by_id(
         &self,
@@ -370,14 +350,10 @@ SELECT
     source,
     agent_nickname,
     agent_role,
-<<<<<<< HEAD
-    model_provider,
-=======
     agent_path,
     model_provider,
     model,
     reasoning_effort,
->>>>>>> upstream_main
     cwd,
     cli_version,
     title,
@@ -442,11 +418,7 @@ FROM threads
             model_providers,
             anchor,
             sort_key,
-<<<<<<< HEAD
-            None,
-=======
             /*search_term*/ None,
->>>>>>> upstream_main
         );
         push_thread_order_and_limit(&mut builder, sort_key, limit);
 
@@ -461,12 +433,6 @@ FROM threads
 
     /// Insert or replace thread metadata directly.
     pub async fn upsert_thread(&self, metadata: &crate::ThreadMetadata) -> anyhow::Result<()> {
-<<<<<<< HEAD
-        self.upsert_thread_with_creation_memory_mode(metadata, None)
-            .await
-    }
-
-=======
         self.upsert_thread_with_creation_memory_mode(metadata, /*creation_memory_mode*/ None)
             .await
     }
@@ -597,7 +563,6 @@ WHERE id = ?
         Ok(result.rows_affected() > 0)
     }
 
->>>>>>> upstream_main
     async fn upsert_thread_with_creation_memory_mode(
         &self,
         metadata: &crate::ThreadMetadata,
@@ -613,14 +578,10 @@ INSERT INTO threads (
     source,
     agent_nickname,
     agent_role,
-<<<<<<< HEAD
-    model_provider,
-=======
     agent_path,
     model_provider,
     model,
     reasoning_effort,
->>>>>>> upstream_main
     cwd,
     cli_version,
     title,
@@ -634,11 +595,7 @@ INSERT INTO threads (
     git_branch,
     git_origin_url,
     memory_mode
-<<<<<<< HEAD
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-=======
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
->>>>>>> upstream_main
 ON CONFLICT(id) DO UPDATE SET
     rollout_path = excluded.rollout_path,
     created_at = excluded.created_at,
@@ -646,14 +603,10 @@ ON CONFLICT(id) DO UPDATE SET
     source = excluded.source,
     agent_nickname = excluded.agent_nickname,
     agent_role = excluded.agent_role,
-<<<<<<< HEAD
-    model_provider = excluded.model_provider,
-=======
     agent_path = excluded.agent_path,
     model_provider = excluded.model_provider,
     model = excluded.model,
     reasoning_effort = excluded.reasoning_effort,
->>>>>>> upstream_main
     cwd = excluded.cwd,
     cli_version = excluded.cli_version,
     title = excluded.title,
@@ -675,9 +628,6 @@ ON CONFLICT(id) DO UPDATE SET
         .bind(metadata.source.as_str())
         .bind(metadata.agent_nickname.as_deref())
         .bind(metadata.agent_role.as_deref())
-<<<<<<< HEAD
-        .bind(metadata.model_provider.as_str())
-=======
         .bind(metadata.agent_path.as_deref())
         .bind(metadata.model_provider.as_str())
         .bind(metadata.model.as_deref())
@@ -687,7 +637,6 @@ ON CONFLICT(id) DO UPDATE SET
                 .as_ref()
                 .map(crate::extract::enum_to_string),
         )
->>>>>>> upstream_main
         .bind(metadata.cwd.display().to_string())
         .bind(metadata.cli_version.as_str())
         .bind(metadata.title.as_str())
@@ -703,11 +652,8 @@ ON CONFLICT(id) DO UPDATE SET
         .bind(creation_memory_mode.unwrap_or("enabled"))
         .execute(self.pool.as_ref())
         .await?;
-<<<<<<< HEAD
-=======
         self.insert_thread_spawn_edge_from_source_if_absent(metadata.id, metadata.source.as_str())
             .await?;
->>>>>>> upstream_main
         Ok(())
     }
 
@@ -738,14 +684,9 @@ INSERT INTO thread_dynamic_tools (
     position,
     name,
     description,
-<<<<<<< HEAD
-    input_schema
-) VALUES (?, ?, ?, ?, ?)
-=======
     input_schema,
     defer_loading
 ) VALUES (?, ?, ?, ?, ?, ?)
->>>>>>> upstream_main
 ON CONFLICT(thread_id, position) DO NOTHING
                 "#,
             )
@@ -754,10 +695,7 @@ ON CONFLICT(thread_id, position) DO NOTHING
             .bind(tool.name.as_str())
             .bind(tool.description.as_str())
             .bind(input_schema)
-<<<<<<< HEAD
-=======
             .bind(tool.defer_loading)
->>>>>>> upstream_main
             .execute(&mut *tx)
             .await?;
         }
@@ -770,13 +708,8 @@ ON CONFLICT(thread_id, position) DO NOTHING
         &self,
         builder: &ThreadMetadataBuilder,
         items: &[RolloutItem],
-<<<<<<< HEAD
-        otel: Option<&OtelManager>,
-        new_thread_memory_mode: Option<&str>,
-=======
         new_thread_memory_mode: Option<&str>,
         updated_at_override: Option<DateTime<Utc>>,
->>>>>>> upstream_main
     ) -> anyhow::Result<()> {
         if items.is_empty() {
             return Ok(());
@@ -789,9 +722,6 @@ ON CONFLICT(thread_id, position) DO NOTHING
         for item in items {
             apply_rollout_item(&mut metadata, item, &self.default_provider);
         }
-<<<<<<< HEAD
-        if let Some(updated_at) = file_modified_time_utc(builder.rollout_path.as_path()).await {
-=======
         if let Some(existing_metadata) = existing_metadata.as_ref() {
             metadata.prefer_existing_git_info(existing_metadata);
         }
@@ -800,7 +730,6 @@ ON CONFLICT(thread_id, position) DO NOTHING
             None => file_modified_time_utc(builder.rollout_path.as_path()).await,
         };
         if let Some(updated_at) = updated_at {
->>>>>>> upstream_main
             metadata.updated_at = updated_at;
         }
         // Keep the thread upsert before dynamic tools to satisfy the foreign key constraint:
@@ -811,19 +740,12 @@ ON CONFLICT(thread_id, position) DO NOTHING
         } else {
             self.upsert_thread(&metadata).await
         };
-<<<<<<< HEAD
-        if let Err(err) = upsert_result {
-            if let Some(otel) = otel {
-                otel.counter(DB_ERROR_METRIC, 1, &[("stage", "apply_rollout_items")]);
-            }
-=======
         upsert_result?;
         if let Some(memory_mode) = extract_memory_mode(items)
             && let Err(err) = self
                 .set_thread_memory_mode(builder.id, memory_mode.as_str())
                 .await
         {
->>>>>>> upstream_main
             return Err(err);
         }
         let dynamic_tools = extract_dynamic_tools(items);
@@ -832,12 +754,6 @@ ON CONFLICT(thread_id, position) DO NOTHING
                 .persist_dynamic_tools(builder.id, dynamic_tools.as_deref())
                 .await
         {
-<<<<<<< HEAD
-            if let Some(otel) = otel {
-                otel.counter(DB_ERROR_METRIC, 1, &[("stage", "persist_dynamic_tools")]);
-            }
-=======
->>>>>>> upstream_main
             return Err(err);
         }
         Ok(())
@@ -900,8 +816,6 @@ ON CONFLICT(thread_id, position) DO NOTHING
     }
 }
 
-<<<<<<< HEAD
-=======
 fn one_thread_id_from_rows(
     rows: Vec<sqlx::sqlite::SqliteRow>,
     agent_path: &str,
@@ -922,7 +836,6 @@ fn one_thread_id_from_rows(
     }
 }
 
->>>>>>> upstream_main
 pub(super) fn extract_dynamic_tools(items: &[RolloutItem]) -> Option<Option<Vec<DynamicToolSpec>>> {
     items.iter().find_map(|item| match item {
         RolloutItem::SessionMeta(meta_line) => Some(meta_line.meta.dynamic_tools.clone()),
@@ -933,8 +846,6 @@ pub(super) fn extract_dynamic_tools(items: &[RolloutItem]) -> Option<Option<Vec<
     })
 }
 
-<<<<<<< HEAD
-=======
 pub(super) fn extract_memory_mode(items: &[RolloutItem]) -> Option<String> {
     items.iter().rev().find_map(|item| match item {
         RolloutItem::SessionMeta(meta_line) => meta_line.meta.memory_mode.clone(),
@@ -957,7 +868,6 @@ fn thread_spawn_parent_thread_id_from_source_str(source: &str) -> Option<ThreadI
     }
 }
 
->>>>>>> upstream_main
 pub(super) fn push_thread_filters<'a>(
     builder: &mut QueryBuilder<'a, Sqlite>,
     archived_only: bool,
@@ -1036,11 +946,6 @@ pub(super) fn push_thread_order_and_limit(
 #[cfg(test)]
 mod tests {
     use super::*;
-<<<<<<< HEAD
-    use crate::runtime::test_support::test_thread_metadata;
-    use crate::runtime::test_support::unique_temp_dir;
-    use pretty_assertions::assert_eq;
-=======
     use crate::DirectionalThreadSpawnEdgeStatus;
     use crate::runtime::test_support::test_thread_metadata;
     use crate::runtime::test_support::unique_temp_dir;
@@ -1051,16 +956,11 @@ mod tests {
     use codex_protocol::protocol::SessionSource;
     use pretty_assertions::assert_eq;
     use std::path::PathBuf;
->>>>>>> upstream_main
 
     #[tokio::test]
     async fn upsert_thread_keeps_creation_memory_mode_for_existing_rows() {
         let codex_home = unique_temp_dir();
-<<<<<<< HEAD
-        let runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string(), None)
-=======
         let runtime = StateRuntime::init(codex_home.clone(), "test-provider".to_string())
->>>>>>> upstream_main
             .await
             .expect("state db should initialize");
         let thread_id =
@@ -1094,8 +994,6 @@ mod tests {
                 .expect("memory mode should remain readable");
         assert_eq!(memory_mode, "disabled");
     }
-<<<<<<< HEAD
-=======
 
     #[tokio::test]
     async fn apply_rollout_items_restores_memory_mode_from_session_meta() {
@@ -1533,5 +1431,4 @@ mod tests {
             .expect("open descendants from child should load");
         assert_eq!(open_descendants_from_child, vec![grandchild_thread_id]);
     }
->>>>>>> upstream_main
 }

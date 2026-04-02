@@ -1,10 +1,6 @@
 use anyhow::Context;
-<<<<<<< HEAD
-use codex_core::features::Feature;
-=======
 use codex_features::Feature;
 use codex_protocol::permissions::NetworkSandboxPolicy;
->>>>>>> upstream_main
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::ExecCommandEndEvent;
@@ -185,10 +181,7 @@ async fn user_shell_command_does_not_replace_active_turn() -> anyhow::Result<()>
             model: fixture.session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

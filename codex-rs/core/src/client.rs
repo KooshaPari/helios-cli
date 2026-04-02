@@ -507,17 +507,8 @@ impl ModelClient {
 
     /// Returns whether the Responses-over-WebSocket transport is active for this session.
     ///
-<<<<<<< HEAD
-    /// This combines provider capability and feature gating; both must be true for websocket paths
-    /// to be eligible.
-    ///
-    /// If websockets are only enabled via model preference (no explicit feature flag), prefer the
-    /// current v2 behavior.
-    pub fn active_ws_version(&self, model_info: &ModelInfo) -> Option<ResponsesWebsocketVersion> {
-=======
     /// WebSocket use is controlled by provider capability and session-scoped fallback state.
     pub fn responses_websocket_enabled(&self) -> bool {
->>>>>>> upstream_main
         if !self.state.provider.supports_websockets
             || self.state.disable_websockets.load(Ordering::Relaxed)
             || (*CODEX_RS_SSE_FIXTURE).is_some()
@@ -525,15 +516,7 @@ impl ModelClient {
             return false;
         }
 
-<<<<<<< HEAD
-        match self.state.responses_websocket_version {
-            Some(version) => Some(version),
-            None if model_info.prefer_websockets => Some(ResponsesWebsocketVersion::V2),
-            None => None,
-        }
-=======
         true
->>>>>>> upstream_main
     }
 
     /// Returns auth + provider configuration resolved from the current session auth state.

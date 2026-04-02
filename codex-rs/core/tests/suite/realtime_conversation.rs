@@ -1780,22 +1780,6 @@ async fn delegated_turn_user_role_echo_does_not_redelegate_and_still_forwards_au
     let mirrored_request = realtime_server.wait_for_request(0, 1).await;
     let mirrored_request_body = mirrored_request.body_json();
     eprintln!(
-<<<<<<< HEAD
-        "[realtime test +{}ms] saw mirrored request type={:?} role={:?} text={:?} data={:?}",
-        start.elapsed().as_millis(),
-        mirrored_request_body["type"].as_str(),
-        mirrored_request_body["item"]["role"].as_str(),
-        mirrored_request_body["item"]["content"][0]["text"].as_str(),
-        mirrored_request_body["item"]["content"][0]["data"].as_str(),
-    );
-    assert_eq!(
-        mirrored_request_body["type"].as_str(),
-        Some("conversation.item.create")
-    );
-    assert_eq!(
-        mirrored_request_body["item"]["content"][0]["text"].as_str(),
-        Some("assistant says hi")
-=======
         "[realtime test +{}ms] saw mirrored request type={:?} handoff_id={:?} text={:?}",
         start.elapsed().as_millis(),
         mirrored_request_body["type"].as_str(),
@@ -1813,7 +1797,6 @@ async fn delegated_turn_user_role_echo_does_not_redelegate_and_still_forwards_au
     assert_eq!(
         mirrored_request_body["output_text"].as_str(),
         Some("\"Agent Final Message\":\n\nassistant says hi")
->>>>>>> upstream_main
     );
 
     let audio_out = wait_for_event_match(&test.codex, |msg| match msg {

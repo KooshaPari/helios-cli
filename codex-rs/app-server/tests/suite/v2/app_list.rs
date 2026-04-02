@@ -565,19 +565,6 @@ async fn list_apps_waits_for_accessible_data_before_emitting_directory_updates()
         })
         .await?;
 
-<<<<<<< HEAD
-    let maybe_update = timeout(
-        Duration::from_millis(150),
-        read_app_list_updated_notification(&mut mcp),
-    )
-    .await;
-    assert!(
-        maybe_update.is_err(),
-        "unexpected directory-only app/list update before accessible apps loaded"
-    );
-
-=======
->>>>>>> upstream_main
     let expected = vec![
         AppInfo {
             id: "beta".to_string(),
@@ -611,10 +598,6 @@ async fn list_apps_waits_for_accessible_data_before_emitting_directory_updates()
         },
     ];
 
-<<<<<<< HEAD
-    let update = read_app_list_updated_notification(&mut mcp).await?;
-    assert_eq!(update.data, expected);
-=======
     loop {
         let update = read_app_list_updated_notification(&mut mcp).await?;
         if update.data == expected {
@@ -626,7 +609,6 @@ async fn list_apps_waits_for_accessible_data_before_emitting_directory_updates()
             "unexpected directory-only app/list update before accessible apps loaded"
         );
     }
->>>>>>> upstream_main
 
     let response: JSONRPCResponse = timeout(
         DEFAULT_TIMEOUT,
@@ -656,10 +638,7 @@ async fn list_apps_does_not_emit_empty_interim_updates() -> Result<()> {
         install_url: None,
         is_accessible: false,
         is_enabled: true,
-<<<<<<< HEAD
-=======
         plugin_display_names: Vec::new(),
->>>>>>> upstream_main
     }];
     let (server_url, server_handle) = start_apps_server_with_delays(
         connectors.clone(),
@@ -715,10 +694,7 @@ async fn list_apps_does_not_emit_empty_interim_updates() -> Result<()> {
         install_url: Some("https://chatgpt.com/apps/alpha/alpha".to_string()),
         is_accessible: false,
         is_enabled: true,
-<<<<<<< HEAD
-=======
         plugin_display_names: Vec::new(),
->>>>>>> upstream_main
     }];
 
     let update = read_app_list_updated_notification(&mut mcp).await?;
@@ -1161,10 +1137,7 @@ async fn list_apps_force_refetch_patches_updates_from_cached_snapshots() -> Resu
                 install_url: Some("https://chatgpt.com/apps/beta-app/beta".to_string()),
                 is_accessible: true,
                 is_enabled: true,
-<<<<<<< HEAD
-=======
                 plugin_display_names: Vec::new(),
->>>>>>> upstream_main
             },
             AppInfo {
                 id: "alpha".to_string(),
@@ -1179,10 +1152,7 @@ async fn list_apps_force_refetch_patches_updates_from_cached_snapshots() -> Resu
                 install_url: Some("https://chatgpt.com/apps/alpha/alpha".to_string()),
                 is_accessible: false,
                 is_enabled: true,
-<<<<<<< HEAD
-=======
                 plugin_display_names: Vec::new(),
->>>>>>> upstream_main
             },
         ]
     );

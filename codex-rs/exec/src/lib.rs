@@ -64,18 +64,11 @@ use codex_core::config_loader::ConfigLoadError;
 use codex_core::config_loader::LoaderOverrides;
 use codex_core::config_loader::format_config_error_with_source;
 use codex_core::format_exec_policy_error_with_source;
-<<<<<<< HEAD
-use codex_core::git_info::get_git_repo_root;
-use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
-use codex_core::models_manager::manager::RefreshStrategy;
-use codex_protocol::approvals::ElicitationAction;
-=======
 use codex_core::path_utils;
 use codex_feedback::CodexFeedback;
 use codex_git_utils::get_git_repo_root;
 use codex_otel::set_parent_from_context;
 use codex_otel::traceparent_context_from_env;
->>>>>>> upstream_main
 use codex_protocol::config_types::SandboxMode;
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::ReviewRequest;
@@ -387,11 +380,7 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
         codex_core::otel_init::build_provider(
             &config,
             env!("CARGO_PKG_VERSION"),
-<<<<<<< HEAD
-            None,
-=======
             /*service_name_override*/ None,
->>>>>>> upstream_main
             DEFAULT_ANALYTICS_ENABLED,
         )
     })) {
@@ -524,35 +513,12 @@ async fn run_exec_session(args: ExecRunArgs) -> anyhow::Result<()> {
         std::process::exit(1);
     }
 
-<<<<<<< HEAD
-    let auth_manager = AuthManager::shared(
-        config.codex_home.clone(),
-        true,
-        config.cli_auth_credentials_store_mode,
-    );
-    let thread_manager = Arc::new(ThreadManager::new(
-        config.codex_home.clone(),
-        auth_manager.clone(),
-        SessionSource::Exec,
-        config.model_catalog.clone(),
-        CollaborationModesConfig {
-            default_mode_request_user_input: config
-                .features
-                .enabled(codex_core::features::Feature::DefaultModeRequestUserInput),
-        },
-    ));
-    let default_model = thread_manager
-        .get_models_manager()
-        .get_default_model(&config.model, RefreshStrategy::OnlineIfUncached)
-        .await;
-=======
     let mut request_ids = RequestIdSequencer::new();
     let mut client = InProcessAppServerClient::start(in_process_start_args)
         .await
         .map_err(|err| {
             anyhow::anyhow!("failed to initialize in-process app-server client: {err}")
         })?;
->>>>>>> upstream_main
 
     // Handle resume subcommand through existing `thread/list` + `thread/resume`
     // APIs so exec no longer reaches into rollout storage directly.
@@ -693,22 +659,6 @@ async fn run_exec_session(args: ExecRunArgs) -> anyhow::Result<()> {
             items,
             output_schema,
         } => {
-<<<<<<< HEAD
-            let task_id = thread
-                .submit(Op::UserTurn {
-                    items,
-                    cwd: default_cwd,
-                    approval_policy: default_approval_policy,
-                    sandbox_policy: default_sandbox_policy.clone(),
-                    model: default_model,
-                    effort: default_effort,
-                    summary: None,
-                    final_output_json_schema: output_schema,
-                    collaboration_mode: None,
-                    personality: None,
-                })
-                .await?;
-=======
             let response: TurnStartResponse = send_request_with_response(
                 &client,
                 ClientRequest::TurnStart {
@@ -734,7 +684,6 @@ async fn run_exec_session(args: ExecRunArgs) -> anyhow::Result<()> {
             .await
             .map_err(anyhow::Error::msg)?;
             let task_id = response.turn.id;
->>>>>>> upstream_main
             info!("Sent prompt with event ID: {task_id}");
             task_id
         }
@@ -1087,24 +1036,6 @@ fn should_process_notification(
     }
 }
 
-<<<<<<< HEAD
-fn should_suppress_agent_job_event(msg: &EventMsg) -> bool {
-    !matches!(
-        msg,
-        EventMsg::ExecApprovalRequest(_)
-            | EventMsg::ApplyPatchApprovalRequest(_)
-            | EventMsg::RequestUserInput(_)
-            | EventMsg::DynamicToolCallRequest(_)
-            | EventMsg::DynamicToolCallResponse(_)
-            | EventMsg::ElicitationRequest(_)
-            | EventMsg::Error(_)
-            | EventMsg::Warning(_)
-            | EventMsg::DeprecationNotice(_)
-            | EventMsg::StreamError(_)
-            | EventMsg::ShutdownComplete
-    )
-}
-=======
 async fn maybe_backfill_turn_completed_items(
     client: &InProcessAppServerClient,
     request_ids: &mut RequestIdSequencer,
@@ -1120,7 +1051,6 @@ async fn maybe_backfill_turn_completed_items(
     if !payload.turn.items.is_empty() {
         return;
     }
->>>>>>> upstream_main
 
     let response = send_request_with_response::<ThreadReadResponse>(
         client,

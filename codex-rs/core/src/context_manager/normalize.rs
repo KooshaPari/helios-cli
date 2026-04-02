@@ -34,8 +34,6 @@ pub(crate) fn ensure_call_outputs_present(items: &mut Vec<ResponseItem>) {
                         ResponseItem::FunctionCallOutput {
                             call_id: call_id.clone(),
                             output: FunctionCallOutputPayload::from_text("aborted".to_string()),
-<<<<<<< HEAD
-=======
                         },
                     ));
                 }
@@ -61,7 +59,6 @@ pub(crate) fn ensure_call_outputs_present(items: &mut Vec<ResponseItem>) {
                             status: "completed".to_string(),
                             execution: "client".to_string(),
                             tools: Vec::new(),
->>>>>>> upstream_main
                         },
                     ));
                 }
@@ -82,10 +79,7 @@ pub(crate) fn ensure_call_outputs_present(items: &mut Vec<ResponseItem>) {
                         idx,
                         ResponseItem::CustomToolCallOutput {
                             call_id: call_id.clone(),
-<<<<<<< HEAD
-=======
                             name: None,
->>>>>>> upstream_main
                             output: FunctionCallOutputPayload::from_text("aborted".to_string()),
                         },
                     ));

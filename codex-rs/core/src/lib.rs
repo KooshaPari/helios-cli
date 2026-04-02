@@ -39,12 +39,7 @@ pub mod exec;
 pub mod exec_env;
 mod exec_policy;
 pub mod external_agent_config;
-<<<<<<< HEAD
-pub mod features;
-mod file_watcher;
-=======
 pub mod file_watcher;
->>>>>>> upstream_main
 mod flags;
 #[cfg(test)]
 mod git_info_tests;
@@ -73,10 +68,7 @@ mod model_provider_info;
 pub mod utils;
 pub use utils::path_utils;
 pub mod personality_migration;
-<<<<<<< HEAD
-=======
 pub mod plugins;
->>>>>>> upstream_main
 mod sandbox_tags;
 pub mod sandboxing;
 mod session_prefix;

@@ -113,11 +113,7 @@ fn manager_allows_disabling_metadata_tags() -> Result<()> {
 #[test]
 fn manager_attaches_optional_service_name_tag() -> Result<()> {
     let (metrics, exporter) = build_metrics_with_defaults(&[])?;
-<<<<<<< HEAD
-    let manager = OtelManager::new(
-=======
     let manager = SessionTelemetry::new(
->>>>>>> upstream_main
         ThreadId::new(),
         "gpt-5.1",
         "gpt-5.1",

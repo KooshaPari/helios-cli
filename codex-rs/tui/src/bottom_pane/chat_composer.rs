@@ -2341,22 +2341,9 @@ impl ChatComposer {
         {
             let treat_as_plain_text = input_starts_with_space || name.contains('/');
             if !treat_as_plain_text {
-<<<<<<< HEAD
-                let is_builtin = slash_commands::find_builtin_command(
-                    name,
-                    self.collaboration_modes_enabled,
-                    self.connectors_enabled,
-                    self.personality_command_enabled,
-                    self.realtime_conversation_enabled,
-                    self.audio_device_selection_enabled,
-                    self.windows_degraded_sandbox_active,
-                )
-                .is_some();
-=======
                 let is_builtin =
                     slash_commands::find_builtin_command(name, self.builtin_command_flags())
                         .is_some();
->>>>>>> upstream_main
                 let prompt_prefix = format!("{PROMPTS_CMD_PREFIX}:");
                 let is_known_prompt = name
                     .strip_prefix(&prompt_prefix)
@@ -2566,20 +2553,8 @@ impl ChatComposer {
         let first_line = self.textarea.text().lines().next().unwrap_or("");
         if let Some((name, rest, _rest_offset)) = parse_slash_name(first_line)
             && rest.is_empty()
-<<<<<<< HEAD
-            && let Some(cmd) = slash_commands::find_builtin_command(
-                name,
-                self.collaboration_modes_enabled,
-                self.connectors_enabled,
-                self.personality_command_enabled,
-                self.realtime_conversation_enabled,
-                self.audio_device_selection_enabled,
-                self.windows_degraded_sandbox_active,
-            )
-=======
             && let Some(cmd) =
                 slash_commands::find_builtin_command(name, self.builtin_command_flags())
->>>>>>> upstream_main
         {
             if self.reject_slash_command_if_unavailable(cmd) {
                 return Some(InputResult::None);
@@ -2607,19 +2582,7 @@ impl ChatComposer {
             return None;
         }
 
-<<<<<<< HEAD
-        let cmd = slash_commands::find_builtin_command(
-            name,
-            self.collaboration_modes_enabled,
-            self.connectors_enabled,
-            self.personality_command_enabled,
-            self.realtime_conversation_enabled,
-            self.audio_device_selection_enabled,
-            self.windows_degraded_sandbox_active,
-        )?;
-=======
         let cmd = slash_commands::find_builtin_command(name, self.builtin_command_flags())?;
->>>>>>> upstream_main
 
         if !cmd.supports_inline_args() {
             return None;
@@ -2856,11 +2819,7 @@ impl ChatComposer {
                 code: KeyCode::Enter,
                 modifiers: KeyModifiers::NONE,
                 ..
-<<<<<<< HEAD
-            } => self.handle_submission(false),
-=======
             } => self.handle_submission(/*should_queue*/ false),
->>>>>>> upstream_main
             input => self.handle_input_basic(input),
         }
     }
@@ -3436,21 +3395,8 @@ impl ChatComposer {
     }
 
     fn is_known_slash_name(&self, name: &str) -> bool {
-<<<<<<< HEAD
-        let is_builtin = slash_commands::find_builtin_command(
-            name,
-            self.collaboration_modes_enabled,
-            self.connectors_enabled,
-            self.personality_command_enabled,
-            self.realtime_conversation_enabled,
-            self.audio_device_selection_enabled,
-            self.windows_degraded_sandbox_active,
-        )
-        .is_some();
-=======
         let is_builtin =
             slash_commands::find_builtin_command(name, self.builtin_command_flags()).is_some();
->>>>>>> upstream_main
         if is_builtin {
             return true;
         }
@@ -3504,19 +3450,7 @@ impl ChatComposer {
             return rest_after_name.is_empty();
         }
 
-<<<<<<< HEAD
-        if slash_commands::has_builtin_prefix(
-            name,
-            self.collaboration_modes_enabled,
-            self.connectors_enabled,
-            self.personality_command_enabled,
-            self.realtime_conversation_enabled,
-            self.audio_device_selection_enabled,
-            self.windows_degraded_sandbox_active,
-        ) {
-=======
         if slash_commands::has_builtin_prefix(name, self.builtin_command_flags()) {
->>>>>>> upstream_main
             return true;
         }
 
@@ -7424,10 +7358,7 @@ mod tests {
             vec![FileMatch {
                 score: 1,
                 path: PathBuf::from("src/main.rs"),
-<<<<<<< HEAD
-=======
                 match_type: codex_file_search::MatchType::File,
->>>>>>> upstream_main
                 root: PathBuf::from("/tmp"),
                 indices: None,
             }],

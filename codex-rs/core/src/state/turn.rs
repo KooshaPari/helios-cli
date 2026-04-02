@@ -13,11 +13,8 @@ use codex_protocol::dynamic_tools::DynamicToolResponse;
 use codex_protocol::models::ResponseInputItem;
 use codex_protocol::request_permissions::RequestPermissionsResponse;
 use codex_protocol::request_user_input::RequestUserInputResponse;
-<<<<<<< HEAD
-=======
 use codex_rmcp_client::ElicitationResponse;
 use rmcp::model::RequestId;
->>>>>>> upstream_main
 use tokio::sync::oneshot;
 
 use crate::codex::TurnContext;
@@ -81,10 +78,7 @@ pub(crate) struct TurnState {
     pending_approvals: HashMap<String, oneshot::Sender<ReviewDecision>>,
     pending_request_permissions: HashMap<String, oneshot::Sender<RequestPermissionsResponse>>,
     pending_user_input: HashMap<String, oneshot::Sender<RequestUserInputResponse>>,
-<<<<<<< HEAD
-=======
     pending_elicitations: HashMap<(String, RequestId), oneshot::Sender<ElicitationResponse>>,
->>>>>>> upstream_main
     pending_dynamic_tools: HashMap<String, oneshot::Sender<DynamicToolResponse>>,
     pending_input: Vec<ResponseInputItem>,
     granted_permissions: Option<PermissionProfile>,
@@ -112,10 +106,7 @@ impl TurnState {
         self.pending_approvals.clear();
         self.pending_request_permissions.clear();
         self.pending_user_input.clear();
-<<<<<<< HEAD
-=======
         self.pending_elicitations.clear();
->>>>>>> upstream_main
         self.pending_dynamic_tools.clear();
         self.pending_input.clear();
     }

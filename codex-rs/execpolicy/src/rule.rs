@@ -255,11 +255,7 @@ pub(crate) fn validate_match_examples(
 
     for example in matches {
         if !policy
-<<<<<<< HEAD
-            .matches_for_command_with_options(example, None, &options)
-=======
             .matches_for_command_with_options(example, /*heuristics_fallback*/ None, &options)
->>>>>>> upstream_main
             .is_empty()
         {
             continue;
@@ -294,11 +290,7 @@ pub(crate) fn validate_not_match_examples(
 
     for example in not_matches {
         if let Some(rule) = policy
-<<<<<<< HEAD
-            .matches_for_command_with_options(example, None, &options)
-=======
             .matches_for_command_with_options(example, /*heuristics_fallback*/ None, &options)
->>>>>>> upstream_main
             .first()
         {
             return Err(Error::ExampleDidMatch {

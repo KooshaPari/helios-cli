@@ -43,17 +43,11 @@ fn build_permissions_update_item(
     Some(DeveloperInstructions::from_policy(
         next.sandbox_policy.get(),
         next.approval_policy.value(),
-<<<<<<< HEAD
-        exec_policy,
-        &next.cwd,
-        next.features.enabled(Feature::RequestPermissions),
-=======
         next.config.approvals_reviewer,
         exec_policy,
         &next.cwd,
         next.features.enabled(Feature::ExecPermissionApprovals),
         next.features.enabled(Feature::RequestPermissionsTool),
->>>>>>> upstream_main
     ))
 }
 
@@ -149,13 +143,8 @@ pub(crate) fn build_model_instructions_update_item(
     previous_turn_settings: Option<&PreviousTurnSettings>,
     next: &TurnContext,
 ) -> Option<DeveloperInstructions> {
-<<<<<<< HEAD
-    let previous_model = previous_user_turn_model?;
-    if previous_model == next.model_info.slug {
-=======
     let previous_turn_settings = previous_turn_settings?;
     if previous_turn_settings.model == next.model_info.slug {
->>>>>>> upstream_main
         return None;
     }
 
@@ -204,27 +193,18 @@ pub(crate) fn build_settings_update_items(
     exec_policy: &Policy,
     personality_feature_enabled: bool,
 ) -> Vec<ResponseItem> {
-<<<<<<< HEAD
-=======
     // TODO(ccunningham): build_settings_update_items still does not cover every
     // model-visible item emitted by build_initial_context. Persist the remaining
     // inputs or add explicit replay events so fork/resume can diff everything
     // deterministically.
->>>>>>> upstream_main
     let contextual_user_message = build_environment_update_item(previous, next, shell);
     let developer_update_sections = [
         // Keep model-switch instructions first so model-specific guidance is read before
         // any other context diffs on this turn.
-<<<<<<< HEAD
-        build_model_instructions_update_item(previous_user_turn_model, next),
-        build_permissions_update_item(previous, next, exec_policy),
-        build_collaboration_mode_update_item(previous, next),
-=======
         build_model_instructions_update_item(previous_turn_settings, next),
         build_permissions_update_item(previous, next, exec_policy),
         build_collaboration_mode_update_item(previous, next),
         build_realtime_update_item(previous, previous_turn_settings, next),
->>>>>>> upstream_main
         build_personality_update_item(previous, next, personality_feature_enabled),
     ]
     .into_iter()

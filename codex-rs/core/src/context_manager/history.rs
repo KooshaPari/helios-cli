@@ -1,19 +1,10 @@
 use crate::codex::TurnContext;
 use crate::context_manager::normalize;
-<<<<<<< HEAD
-use crate::event_mapping::is_contextual_user_message_content;
-use crate::truncate::TruncationPolicy;
-use crate::truncate::approx_token_count;
-use crate::truncate::approx_tokens_from_byte_count_i64;
-use crate::truncate::truncate_function_output_items_with_policy;
-use crate::truncate::truncate_text;
-=======
 use crate::event_mapping::has_non_contextual_dev_message_content;
 use crate::event_mapping::is_contextual_dev_message_content;
 use crate::event_mapping::is_contextual_user_message_content;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
->>>>>>> upstream_main
 use codex_protocol::models::BaseInstructions;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::FunctionCallOutputBody;
@@ -379,18 +370,6 @@ impl ContextManager {
                         output,
                         policy_with_serialization_budget,
                     ),
-<<<<<<< HEAD
-                }
-            }
-            ResponseItem::CustomToolCallOutput { call_id, output } => {
-                ResponseItem::CustomToolCallOutput {
-                    call_id: call_id.clone(),
-                    output: truncate_function_output_payload(
-                        output,
-                        policy_with_serialization_budget,
-                    ),
-=======
->>>>>>> upstream_main
                 }
             }
             ResponseItem::CustomToolCallOutput {
@@ -733,16 +712,12 @@ pub(crate) fn is_user_turn_boundary(item: &ResponseItem) -> bool {
         return false;
     };
 
-<<<<<<< HEAD
-    role == "user" && !is_contextual_user_message_content(content)
-=======
     (role == "user" && !is_contextual_user_message_content(content))
         || (role == "assistant" && is_inter_agent_instruction_content(content))
 }
 
 fn is_inter_agent_instruction_content(content: &[ContentItem]) -> bool {
     InterAgentCommunication::is_message_content(content)
->>>>>>> upstream_main
 }
 
 fn user_message_positions(items: &[ResponseItem]) -> Vec<usize> {

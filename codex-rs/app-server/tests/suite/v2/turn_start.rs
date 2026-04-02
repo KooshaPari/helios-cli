@@ -1661,8 +1661,6 @@ async fn turn_start_file_change_approval_v2() -> Result<()> {
     )
     .await??;
 
-<<<<<<< HEAD
-=======
     Ok(())
 }
 
@@ -2040,7 +2038,6 @@ config_file = "./custom-role.toml"
     .await??;
     assert_eq!(turn_completed.thread_id, thread.id);
 
->>>>>>> upstream_main
     Ok(())
 }
 

@@ -88,14 +88,10 @@ async fn request_user_input_round_trip_for_mode(mode: ModeKind) -> anyhow::Resul
     } = builder
         .with_config(move |config| {
             if mode == ModeKind::Default {
-<<<<<<< HEAD
-                config.features.enable(Feature::DefaultModeRequestUserInput);
-=======
                 config
                     .features
                     .enable(Feature::DefaultModeRequestUserInput)
                     .expect("test config should allow feature update");
->>>>>>> upstream_main
             }
         })
         .build(&server)
@@ -147,10 +143,7 @@ async fn request_user_input_round_trip_for_mode(mode: ModeKind) -> anyhow::Resul
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(CollaborationMode {
                 mode,
                 settings: Settings {
@@ -268,10 +261,7 @@ where
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(collaboration_mode),
             personality: None,
         })

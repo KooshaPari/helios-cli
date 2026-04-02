@@ -25,11 +25,7 @@ pub(crate) struct ExecveSessionApproval {
     pub skill: Option<SkillMetadata>,
 }
 
-<<<<<<< HEAD
-/// Shared helper to construct a CommandSpec from a tokenized command line.
-=======
 /// Shared helper to construct sandbox transform inputs from a tokenized command line.
->>>>>>> upstream_main
 /// Validates that at least a program is present.
 pub(crate) fn build_sandbox_command(
     command: &[String],

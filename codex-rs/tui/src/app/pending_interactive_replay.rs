@@ -52,10 +52,7 @@ impl PendingInteractiveReplayState {
             EventMsg::ExecApprovalRequest(_)
                 | EventMsg::ApplyPatchApprovalRequest(_)
                 | EventMsg::ElicitationRequest(_)
-<<<<<<< HEAD
-=======
                 | EventMsg::RequestPermissions(_)
->>>>>>> upstream_main
                 | EventMsg::ExecCommandBegin(_)
                 | EventMsg::PatchApplyBegin(_)
                 | EventMsg::TurnComplete(_)
@@ -301,10 +298,7 @@ impl PendingInteractiveReplayState {
         !self.exec_approval_call_ids.is_empty()
             || !self.patch_approval_call_ids.is_empty()
             || !self.elicitation_requests.is_empty()
-<<<<<<< HEAD
-=======
             || !self.request_permissions_call_ids.is_empty()
->>>>>>> upstream_main
     }
 
     fn clear_request_user_input_turn(&mut self, turn_id: &str) {
@@ -459,10 +453,7 @@ mod tests {
                     proposed_execpolicy_amendment: None,
                     proposed_network_policy_amendments: None,
                     additional_permissions: None,
-<<<<<<< HEAD
-=======
                     skill_metadata: None,
->>>>>>> upstream_main
                     available_decisions: None,
                     parsed_cmd: Vec::new(),
                 },
@@ -606,10 +597,7 @@ mod tests {
                     proposed_execpolicy_amendment: None,
                     proposed_network_policy_amendments: None,
                     additional_permissions: None,
-<<<<<<< HEAD
-=======
                     skill_metadata: None,
->>>>>>> upstream_main
                     available_decisions: None,
                     parsed_cmd: Vec::new(),
                 },
@@ -699,10 +687,7 @@ mod tests {
                     proposed_execpolicy_amendment: None,
                     proposed_network_policy_amendments: None,
                     additional_permissions: None,
-<<<<<<< HEAD
-=======
                     skill_metadata: None,
->>>>>>> upstream_main
                     available_decisions: None,
                     parsed_cmd: Vec::new(),
                 },

@@ -3,17 +3,11 @@ use super::*;
 use crate::protocol::CompactedItem;
 use crate::protocol::InitialHistory;
 use crate::protocol::ResumedHistory;
-<<<<<<< HEAD
-use codex_protocol::ThreadId;
-use codex_protocol::models::ContentItem;
-use codex_protocol::models::ResponseItem;
-=======
 use codex_protocol::AgentPath;
 use codex_protocol::ThreadId;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::protocol::InterAgentCommunication;
->>>>>>> upstream_main
 use pretty_assertions::assert_eq;
 use std::path::PathBuf;
 
@@ -41,10 +35,6 @@ fn assistant_message(text: &str) -> ResponseItem {
     }
 }
 
-<<<<<<< HEAD
-#[tokio::test]
-async fn record_initial_history_resumed_bare_turn_context_does_not_hydrate_previous_model() {
-=======
 fn inter_agent_assistant_message(text: &str) -> ResponseItem {
     let communication = InterAgentCommunication::new(
         AgentPath::root(),
@@ -67,15 +57,11 @@ fn inter_agent_assistant_message(text: &str) -> ResponseItem {
 #[tokio::test]
 async fn record_initial_history_resumed_bare_turn_context_does_not_hydrate_previous_turn_settings()
 {
->>>>>>> upstream_main
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
         turn_id: Some(turn_context.sub_id.clone()),
-<<<<<<< HEAD
-=======
         trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
         cwd: turn_context.cwd.clone(),
         current_date: turn_context.current_date.clone(),
         timezone: turn_context.timezone.clone(),
@@ -85,20 +71,13 @@ async fn record_initial_history_resumed_bare_turn_context_does_not_hydrate_previ
         model: previous_model.to_string(),
         personality: turn_context.personality,
         collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
         realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
         effort: turn_context.reasoning_effort,
         summary: turn_context.reasoning_summary,
         user_instructions: None,
         developer_instructions: None,
         final_output_json_schema: None,
-<<<<<<< HEAD
-        truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
         truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
     };
     let rollout_items = vec![RolloutItem::TurnContext(previous_context_item)];
 
@@ -110,29 +89,18 @@ async fn record_initial_history_resumed_bare_turn_context_does_not_hydrate_previ
         }))
         .await;
 
-<<<<<<< HEAD
-    assert_eq!(session.previous_model().await, None);
-=======
     assert_eq!(session.previous_turn_settings().await, None);
->>>>>>> upstream_main
     assert!(session.reference_context_item().await.is_none());
 }
 
 #[tokio::test]
-<<<<<<< HEAD
-async fn record_initial_history_resumed_hydrates_previous_model_from_lifecycle_turn_with_missing_turn_context_id()
-=======
 async fn record_initial_history_resumed_hydrates_previous_turn_settings_from_lifecycle_turn_with_missing_turn_context_id()
->>>>>>> upstream_main
  {
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let mut previous_context_item = TurnContextItem {
         turn_id: Some(turn_context.sub_id.clone()),
-<<<<<<< HEAD
-=======
         trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
         cwd: turn_context.cwd.clone(),
         current_date: turn_context.current_date.clone(),
         timezone: turn_context.timezone.clone(),
@@ -142,20 +110,13 @@ async fn record_initial_history_resumed_hydrates_previous_turn_settings_from_lif
         model: previous_model.to_string(),
         personality: turn_context.personality,
         collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
         realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
         effort: turn_context.reasoning_effort,
         summary: turn_context.reasoning_summary,
         user_instructions: None,
         developer_instructions: None,
         final_output_json_schema: None,
-<<<<<<< HEAD
-        truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
         truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
     };
     let turn_id = previous_context_item
         .turn_id
@@ -197,16 +158,11 @@ async fn record_initial_history_resumed_hydrates_previous_turn_settings_from_lif
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(previous_model.to_string())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: previous_model.to_string(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
 }
 
@@ -293,16 +249,11 @@ async fn reconstruct_history_rollback_keeps_history_and_metadata_in_sync_for_com
         vec![turn_one_user, turn_one_assistant]
     );
     assert_eq!(
-<<<<<<< HEAD
-        reconstructed.previous_model,
-        Some(turn_context.model_info.slug.clone())
-=======
         reconstructed.previous_turn_settings,
         Some(PreviousTurnSettings {
             model: turn_context.model_info.slug.clone(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert_eq!(
         serde_json::to_value(reconstructed.reference_context_item)
@@ -380,16 +331,11 @@ async fn reconstruct_history_rollback_keeps_history_and_metadata_in_sync_for_inc
         vec![turn_one_user, turn_one_assistant]
     );
     assert_eq!(
-<<<<<<< HEAD
-        reconstructed.previous_model,
-        Some(turn_context.model_info.slug.clone())
-=======
         reconstructed.previous_turn_settings,
         Some(PreviousTurnSettings {
             model: turn_context.model_info.slug.clone(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert_eq!(
         serde_json::to_value(reconstructed.reference_context_item)
@@ -491,10 +437,6 @@ async fn reconstruct_history_rollback_skips_non_user_turns_for_history_and_metad
         vec![turn_one_user, turn_one_assistant]
     );
     assert_eq!(
-<<<<<<< HEAD
-        reconstructed.previous_model,
-        Some(turn_context.model_info.slug.clone())
-=======
         reconstructed.previous_turn_settings,
         Some(PreviousTurnSettings {
             model: turn_context.model_info.slug.clone(),
@@ -588,7 +530,6 @@ async fn reconstruct_history_rollback_counts_inter_agent_assistant_turns() {
             model: turn_context.model_info.slug.clone(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert_eq!(
         serde_json::to_value(reconstructed.reference_context_item)
@@ -641,11 +582,7 @@ async fn reconstruct_history_rollback_clears_history_and_metadata_when_exceeding
         .await;
 
     assert_eq!(reconstructed.history, Vec::new());
-<<<<<<< HEAD
-    assert_eq!(reconstructed.previous_model, None);
-=======
     assert_eq!(reconstructed.previous_turn_settings, None);
->>>>>>> upstream_main
     assert!(reconstructed.reference_context_item.is_none());
 }
 
@@ -708,11 +645,7 @@ async fn record_initial_history_resumed_rollback_skips_only_user_turns() {
         }))
         .await;
 
-<<<<<<< HEAD
-    assert_eq!(session.previous_model().await, None);
-=======
     assert_eq!(session.previous_turn_settings().await, None);
->>>>>>> upstream_main
     assert!(session.reference_context_item().await.is_none());
 }
 
@@ -782,16 +715,11 @@ async fn record_initial_history_resumed_rollback_drops_incomplete_user_turn_comp
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(turn_context.model_info.slug.clone())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: turn_context.model_info.slug.clone(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert_eq!(
         serde_json::to_value(session.reference_context_item().await)
@@ -838,11 +766,7 @@ async fn record_initial_history_resumed_does_not_seed_reference_context_item_aft
         }))
         .await;
 
-<<<<<<< HEAD
-    assert_eq!(session.previous_model().await, None);
-=======
     assert_eq!(session.previous_turn_settings().await, None);
->>>>>>> upstream_main
     assert!(session.reference_context_item().await.is_none());
 }
 
@@ -926,10 +850,7 @@ async fn record_initial_history_resumed_turn_context_after_compaction_reestablis
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
         turn_id: Some(turn_context.sub_id.clone()),
-<<<<<<< HEAD
-=======
         trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
         cwd: turn_context.cwd.clone(),
         current_date: turn_context.current_date.clone(),
         timezone: turn_context.timezone.clone(),
@@ -939,20 +860,13 @@ async fn record_initial_history_resumed_turn_context_after_compaction_reestablis
         model: previous_model.to_string(),
         personality: turn_context.personality,
         collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
         realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
         effort: turn_context.reasoning_effort,
         summary: turn_context.reasoning_summary,
         user_instructions: None,
         developer_instructions: None,
         final_output_json_schema: None,
-<<<<<<< HEAD
-        truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
         truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
     };
     let previous_turn_id = previous_context_item
         .turn_id
@@ -997,26 +911,18 @@ async fn record_initial_history_resumed_turn_context_after_compaction_reestablis
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(previous_model.to_string())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: previous_model.to_string(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert_eq!(
         serde_json::to_value(session.reference_context_item().await)
             .expect("serialize seeded reference context item"),
         serde_json::to_value(Some(TurnContextItem {
             turn_id: Some(turn_context.sub_id.clone()),
-<<<<<<< HEAD
-=======
             trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
             cwd: turn_context.cwd.clone(),
             current_date: turn_context.current_date.clone(),
             timezone: turn_context.timezone.clone(),
@@ -1026,20 +932,13 @@ async fn record_initial_history_resumed_turn_context_after_compaction_reestablis
             model: previous_model.to_string(),
             personality: turn_context.personality,
             collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
             realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
             effort: turn_context.reasoning_effort,
             summary: turn_context.reasoning_summary,
             user_instructions: None,
             developer_instructions: None,
             final_output_json_schema: None,
-<<<<<<< HEAD
-            truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
             truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
         }))
         .expect("serialize expected reference context item")
     );
@@ -1052,10 +951,7 @@ async fn record_initial_history_resumed_aborted_turn_without_id_clears_active_tu
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
         turn_id: Some(turn_context.sub_id.clone()),
-<<<<<<< HEAD
-=======
         trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
         cwd: turn_context.cwd.clone(),
         current_date: turn_context.current_date.clone(),
         timezone: turn_context.timezone.clone(),
@@ -1065,20 +961,13 @@ async fn record_initial_history_resumed_aborted_turn_without_id_clears_active_tu
         model: previous_model.to_string(),
         personality: turn_context.personality,
         collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
         realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
         effort: turn_context.reasoning_effort,
         summary: turn_context.reasoning_summary,
         user_instructions: None,
         developer_instructions: None,
         final_output_json_schema: None,
-<<<<<<< HEAD
-        truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
         truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
     };
     let previous_turn_id = previous_context_item
         .turn_id
@@ -1145,16 +1034,11 @@ async fn record_initial_history_resumed_aborted_turn_without_id_clears_active_tu
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(previous_model.to_string())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: previous_model.to_string(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert!(session.reference_context_item().await.is_none());
 }
@@ -1173,10 +1057,7 @@ async fn record_initial_history_resumed_unmatched_abort_preserves_active_turn_fo
     let unmatched_abort_turn_id = "other-turn".to_string();
     let current_context_item = TurnContextItem {
         turn_id: Some(current_turn_id.clone()),
-<<<<<<< HEAD
-=======
         trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
         cwd: turn_context.cwd.clone(),
         current_date: turn_context.current_date.clone(),
         timezone: turn_context.timezone.clone(),
@@ -1186,20 +1067,13 @@ async fn record_initial_history_resumed_unmatched_abort_preserves_active_turn_fo
         model: current_model.to_string(),
         personality: turn_context.personality,
         collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
         realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
         effort: turn_context.reasoning_effort,
         summary: turn_context.reasoning_summary,
         user_instructions: None,
         developer_instructions: None,
         final_output_json_schema: None,
-<<<<<<< HEAD
-        truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
         truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
     };
 
     let rollout_items = vec![
@@ -1264,16 +1138,11 @@ async fn record_initial_history_resumed_unmatched_abort_preserves_active_turn_fo
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(current_model.to_string())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: current_model.to_string(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert_eq!(
         serde_json::to_value(session.reference_context_item().await)
@@ -1290,10 +1159,7 @@ async fn record_initial_history_resumed_trailing_incomplete_turn_compaction_clea
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
         turn_id: Some(turn_context.sub_id.clone()),
-<<<<<<< HEAD
-=======
         trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
         cwd: turn_context.cwd.clone(),
         current_date: turn_context.current_date.clone(),
         timezone: turn_context.timezone.clone(),
@@ -1303,20 +1169,13 @@ async fn record_initial_history_resumed_trailing_incomplete_turn_compaction_clea
         model: previous_model.to_string(),
         personality: turn_context.personality,
         collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
         realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
         effort: turn_context.reasoning_effort,
         summary: turn_context.reasoning_summary,
         user_instructions: None,
         developer_instructions: None,
         final_output_json_schema: None,
-<<<<<<< HEAD
-        truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
         truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
     };
     let previous_turn_id = previous_context_item
         .turn_id
@@ -1377,16 +1236,11 @@ async fn record_initial_history_resumed_trailing_incomplete_turn_compaction_clea
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(previous_model.to_string())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: previous_model.to_string(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert!(session.reference_context_item().await.is_none());
 }
@@ -1428,16 +1282,11 @@ async fn record_initial_history_resumed_trailing_incomplete_turn_preserves_turn_
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(turn_context.model_info.slug.clone())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: turn_context.model_info.slug.clone(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert_eq!(
         serde_json::to_value(session.reference_context_item().await)
@@ -1454,10 +1303,7 @@ async fn record_initial_history_resumed_replaced_incomplete_compacted_turn_clear
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
         turn_id: Some(turn_context.sub_id.clone()),
-<<<<<<< HEAD
-=======
         trace_id: turn_context.trace_id.clone(),
->>>>>>> upstream_main
         cwd: turn_context.cwd.clone(),
         current_date: turn_context.current_date.clone(),
         timezone: turn_context.timezone.clone(),
@@ -1467,20 +1313,13 @@ async fn record_initial_history_resumed_replaced_incomplete_compacted_turn_clear
         model: previous_model.to_string(),
         personality: turn_context.personality,
         collaboration_mode: Some(turn_context.collaboration_mode.clone()),
-<<<<<<< HEAD
-=======
         realtime_active: Some(turn_context.realtime_active),
->>>>>>> upstream_main
         effort: turn_context.reasoning_effort,
         summary: turn_context.reasoning_summary,
         user_instructions: None,
         developer_instructions: None,
         final_output_json_schema: None,
-<<<<<<< HEAD
-        truncation_policy: Some(turn_context.truncation_policy.into()),
-=======
         truncation_policy: Some(turn_context.truncation_policy),
->>>>>>> upstream_main
     };
     let previous_turn_id = previous_context_item
         .turn_id
@@ -1551,16 +1390,11 @@ async fn record_initial_history_resumed_replaced_incomplete_compacted_turn_clear
         .await;
 
     assert_eq!(
-<<<<<<< HEAD
-        session.previous_model().await,
-        Some(previous_model.to_string())
-=======
         session.previous_turn_settings().await,
         Some(PreviousTurnSettings {
             model: previous_model.to_string(),
             realtime_active: Some(turn_context.realtime_active),
         })
->>>>>>> upstream_main
     );
     assert!(session.reference_context_item().await.is_none());
 }

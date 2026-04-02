@@ -56,10 +56,7 @@ async fn submit_user_turn(
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode,
             personality: None,
         })
@@ -140,10 +137,7 @@ async fn execpolicy_blocks_shell_invocation() -> Result<()> {
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

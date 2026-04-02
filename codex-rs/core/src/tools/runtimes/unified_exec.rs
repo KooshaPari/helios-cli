@@ -153,10 +153,7 @@ impl Approvable<UnifiedExecRequest> for UnifiedExecRuntime<'_> {
                             .proposed_execpolicy_amendment()
                             .cloned(),
                         req.additional_permissions.clone(),
-<<<<<<< HEAD
-=======
                         /*skill_metadata*/ None,
->>>>>>> upstream_main
                         available_decisions,
                     )
                     .await

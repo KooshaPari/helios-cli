@@ -195,8 +195,6 @@ model_reasoning_effort = "high"
 }
 
 #[tokio::test]
-<<<<<<< HEAD
-=======
 async fn thread_start_accepts_flex_service_tier() -> Result<()> {
     let server = create_mock_responses_server_repeating_assistant("Done").await;
 
@@ -225,7 +223,6 @@ async fn thread_start_accepts_flex_service_tier() -> Result<()> {
 }
 
 #[tokio::test]
->>>>>>> upstream_main
 async fn thread_start_accepts_metrics_service_name() -> Result<()> {
     let server = create_mock_responses_server_repeating_assistant("Done").await;
 

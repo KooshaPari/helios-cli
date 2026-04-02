@@ -157,11 +157,8 @@ pub enum Feature {
     Steer,
     /// Allow request_user_input in Default collaboration mode.
     DefaultModeRequestUserInput,
-<<<<<<< HEAD:codex-rs/core/src/features.rs
-=======
     /// Enable automatic review for approval prompts.
     GuardianApproval,
->>>>>>> upstream_main:codex-rs/features/src/lib.rs
     /// Enable collaboration modes (Plan, Default).
     /// Kept for config backward compatibility; behavior is always collaboration-modes-enabled.
     CollaborationModes,
@@ -555,8 +552,6 @@ pub const FEATURES: &[FeatureSpec] = &[
             menu_description: "Enable a persistent Node-backed JavaScript REPL for interactive website debugging and other inline JavaScript execution capabilities. Requires Node >= v22.22.0 installed.",
             announcement: "NEW: JavaScript REPL is now available in /experimental. Enable it, then start a new chat or restart Codex to use it.",
         },
-<<<<<<< HEAD:codex-rs/core/src/features.rs
-=======
         default_enabled: false,
     },
     FeatureSpec {
@@ -569,7 +564,6 @@ pub const FEATURES: &[FeatureSpec] = &[
         id: Feature::CodeModeOnly,
         key: "code_mode_only",
         stage: Stage::UnderDevelopment,
->>>>>>> upstream_main:codex-rs/features/src/lib.rs
         default_enabled: false,
     },
     FeatureSpec {
@@ -758,8 +752,6 @@ pub const FEATURES: &[FeatureSpec] = &[
         key: "steer",
         stage: Stage::Removed,
         default_enabled: true,
-<<<<<<< HEAD:codex-rs/core/src/features.rs
-=======
     },
     FeatureSpec {
         id: Feature::DefaultModeRequestUserInput,
@@ -776,7 +768,6 @@ pub const FEATURES: &[FeatureSpec] = &[
             announcement: "",
         },
         default_enabled: false,
->>>>>>> upstream_main:codex-rs/features/src/lib.rs
     },
     FeatureSpec {
         id: Feature::DefaultModeRequestUserInput,
@@ -911,82 +902,4 @@ pub fn unstable_features_warning_event(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD:codex-rs/core/src/features.rs
-mod tests {
-    use super::*;
-
-    use pretty_assertions::assert_eq;
-
-    #[test]
-    fn under_development_features_are_disabled_by_default() {
-        for spec in FEATURES {
-            if matches!(spec.stage, Stage::UnderDevelopment) {
-                assert_eq!(
-                    spec.default_enabled, false,
-                    "feature `{}` is under development and must be disabled by default",
-                    spec.key
-                );
-            }
-        }
-    }
-
-    #[test]
-    fn default_enabled_features_are_stable() {
-        for spec in FEATURES {
-            if spec.default_enabled {
-                assert!(
-                    matches!(spec.stage, Stage::Stable | Stage::Removed),
-                    "feature `{}` is enabled by default but is not stable/removed ({:?})",
-                    spec.key,
-                    spec.stage
-                );
-            }
-        }
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn use_linux_sandbox_bwrap_is_experimental_on_linux() {
-        assert!(matches!(
-            Feature::UseLinuxSandboxBwrap.stage(),
-            Stage::Experimental { .. }
-        ));
-        assert_eq!(Feature::UseLinuxSandboxBwrap.default_enabled(), false);
-    }
-
-    #[cfg(not(target_os = "linux"))]
-    #[test]
-    fn use_linux_sandbox_bwrap_is_under_development_off_linux() {
-        assert_eq!(
-            Feature::UseLinuxSandboxBwrap.stage(),
-            Stage::UnderDevelopment
-        );
-        assert_eq!(Feature::UseLinuxSandboxBwrap.default_enabled(), false);
-    }
-
-    #[test]
-    fn js_repl_is_experimental_and_user_toggleable() {
-        let spec = Feature::JsRepl.info();
-        let stage = spec.stage;
-        let expected_node_version = include_str!("../../node-version.txt").trim_end();
-
-        assert!(matches!(stage, Stage::Experimental { .. }));
-        assert_eq!(stage.experimental_menu_name(), Some("JavaScript REPL"));
-        assert_eq!(
-            stage.experimental_menu_description().map(str::to_owned),
-            Some(format!(
-                "Enable a persistent Node-backed JavaScript REPL for interactive website debugging and other inline JavaScript execution capabilities. Requires Node >= v{expected_node_version} installed."
-            ))
-        );
-        assert_eq!(Feature::JsRepl.default_enabled(), false);
-    }
-
-    #[test]
-    fn collab_is_legacy_alias_for_multi_agent() {
-        assert_eq!(feature_for_key("multi_agent"), Some(Feature::Collab));
-        assert_eq!(feature_for_key("collab"), Some(Feature::Collab));
-    }
-}
-=======
 mod tests;
->>>>>>> upstream_main:codex-rs/features/src/lib.rs

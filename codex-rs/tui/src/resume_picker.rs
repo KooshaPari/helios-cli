@@ -167,11 +167,7 @@ async fn run_session_picker(
                 INTERACTIVE_SESSION_SOURCES.as_slice(),
                 Some(provider_filter.as_slice()),
                 request.default_provider.as_str(),
-<<<<<<< HEAD
-                None,
-=======
                 /*search_term*/ None,
->>>>>>> upstream_main
             )
             .await;
             let _ = tx.send(BackgroundEvent::PageLoaded {
@@ -420,9 +416,6 @@ impl PickerState {
                     let path = row.path.clone();
                     let thread_id = match row.thread_id {
                         Some(thread_id) => Some(thread_id),
-<<<<<<< HEAD
-                        None => crate::resolve_session_thread_id(path.as_path(), None).await,
-=======
                         None => {
                             crate::resolve_session_thread_id(
                                 path.as_path(),
@@ -430,7 +423,6 @@ impl PickerState {
                             )
                             .await
                         }
->>>>>>> upstream_main
                     };
                     if let Some(thread_id) = thread_id {
                         return Ok(Some(self.action.selection(path, thread_id)));

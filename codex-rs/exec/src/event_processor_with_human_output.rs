@@ -15,17 +15,6 @@ use codex_protocol::protocol::SandboxPolicy;
 use codex_protocol::protocol::SessionConfiguredEvent;
 use owo_colors::OwoColorize;
 use owo_colors::Style;
-<<<<<<< HEAD
-use serde::Deserialize;
-use shlex::try_join;
-use std::collections::HashMap;
-use std::io::IsTerminal;
-use std::io::Write;
-use std::path::PathBuf;
-use std::time::Duration;
-use std::time::Instant;
-=======
->>>>>>> upstream_main
 
 use crate::event_processor::CodexStatus;
 use crate::event_processor::EventProcessor;
@@ -370,234 +359,8 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                 }
                 CodexStatus::Running
             }
-<<<<<<< HEAD
-            EventMsg::ViewImageToolCall(view) => {
-                ts_msg!(
-                    self,
-                    "{} {}",
-                    "viewed image".style(self.magenta),
-                    view.path.display()
-                );
-            }
-            EventMsg::TurnAborted(abort_reason) => {
-                match abort_reason.reason {
-                    TurnAbortReason::Interrupted => {
-                        ts_msg!(self, "task interrupted");
-                    }
-                    TurnAbortReason::Replaced => {
-                        ts_msg!(self, "task aborted: replaced by a new task");
-                    }
-                    TurnAbortReason::ReviewEnded => {
-                        ts_msg!(self, "task aborted: review ended");
-                    }
-                }
-                return CodexStatus::InitiateShutdown;
-            }
-            EventMsg::ContextCompacted(_) => {
-                ts_msg!(self, "context compacted");
-            }
-            EventMsg::CollabAgentSpawnBegin(CollabAgentSpawnBeginEvent {
-                call_id,
-                sender_thread_id: _,
-                prompt,
-            }) => {
-                ts_msg!(
-                    self,
-                    "{} {}",
-                    "collab".style(self.magenta),
-                    format_collab_invocation("spawn_agent", &call_id, Some(&prompt))
-                        .style(self.bold)
-                );
-            }
-            EventMsg::CollabAgentSpawnEnd(CollabAgentSpawnEndEvent {
-                call_id,
-                sender_thread_id: _,
-                new_thread_id,
-                prompt,
-                status,
-                ..
-            }) => {
-                let success = new_thread_id.is_some() && !is_collab_status_failure(&status);
-                let title_style = if success { self.green } else { self.red };
-                let title = format!(
-                    "{} {}:",
-                    format_collab_invocation("spawn_agent", &call_id, Some(&prompt)),
-                    format_collab_status(&status)
-                );
-                ts_msg!(self, "{}", title.style(title_style));
-                if let Some(new_thread_id) = new_thread_id {
-                    eprintln!("  agent: {}", new_thread_id.to_string().style(self.dimmed));
-                }
-            }
-            EventMsg::CollabAgentInteractionBegin(CollabAgentInteractionBeginEvent {
-                call_id,
-                sender_thread_id: _,
-                receiver_thread_id,
-                prompt,
-            }) => {
-                ts_msg!(
-                    self,
-                    "{} {}",
-                    "collab".style(self.magenta),
-                    format_collab_invocation("send_input", &call_id, Some(&prompt))
-                        .style(self.bold)
-                );
-                eprintln!(
-                    "  receiver: {}",
-                    receiver_thread_id.to_string().style(self.dimmed)
-                );
-            }
-            EventMsg::CollabAgentInteractionEnd(CollabAgentInteractionEndEvent {
-                call_id,
-                sender_thread_id: _,
-                receiver_thread_id,
-                prompt,
-                status,
-                ..
-            }) => {
-                let success = !is_collab_status_failure(&status);
-                let title_style = if success { self.green } else { self.red };
-                let title = format!(
-                    "{} {}:",
-                    format_collab_invocation("send_input", &call_id, Some(&prompt)),
-                    format_collab_status(&status)
-                );
-                ts_msg!(self, "{}", title.style(title_style));
-                eprintln!(
-                    "  receiver: {}",
-                    receiver_thread_id.to_string().style(self.dimmed)
-                );
-            }
-            EventMsg::CollabWaitingBegin(CollabWaitingBeginEvent {
-                sender_thread_id: _,
-                receiver_thread_ids,
-                call_id,
-                ..
-            }) => {
-                ts_msg!(
-                    self,
-                    "{} {}",
-                    "collab".style(self.magenta),
-                    format_collab_invocation("wait", &call_id, None).style(self.bold)
-                );
-                eprintln!(
-                    "  receivers: {}",
-                    format_receiver_list(&receiver_thread_ids).style(self.dimmed)
-                );
-            }
-            EventMsg::CollabWaitingEnd(CollabWaitingEndEvent {
-                sender_thread_id: _,
-                call_id,
-                statuses,
-                ..
-            }) => {
-                if statuses.is_empty() {
-                    ts_msg!(
-                        self,
-                        "{} {}:",
-                        format_collab_invocation("wait", &call_id, None),
-                        "timed out".style(self.yellow)
-                    );
-                    return CodexStatus::Running;
-                }
-                let success = !statuses.values().any(is_collab_status_failure);
-                let title_style = if success { self.green } else { self.red };
-                let title = format!(
-                    "{} {} agents complete:",
-                    format_collab_invocation("wait", &call_id, None),
-                    statuses.len()
-                );
-                ts_msg!(self, "{}", title.style(title_style));
-                let mut sorted = statuses
-                    .into_iter()
-                    .map(|(thread_id, status)| (thread_id.to_string(), status))
-                    .collect::<Vec<_>>();
-                sorted.sort_by(|(left, _), (right, _)| left.cmp(right));
-                for (thread_id, status) in sorted {
-                    eprintln!(
-                        "  {} {}",
-                        thread_id.style(self.dimmed),
-                        format_collab_status(&status).style(style_for_agent_status(&status, self))
-                    );
-                }
-            }
-            EventMsg::CollabCloseBegin(CollabCloseBeginEvent {
-                call_id,
-                sender_thread_id: _,
-                receiver_thread_id,
-            }) => {
-                ts_msg!(
-                    self,
-                    "{} {}",
-                    "collab".style(self.magenta),
-                    format_collab_invocation("close_agent", &call_id, None).style(self.bold)
-                );
-                eprintln!(
-                    "  receiver: {}",
-                    receiver_thread_id.to_string().style(self.dimmed)
-                );
-            }
-            EventMsg::CollabCloseEnd(CollabCloseEndEvent {
-                call_id,
-                sender_thread_id: _,
-                receiver_thread_id,
-                status,
-                ..
-            }) => {
-                let success = !is_collab_status_failure(&status);
-                let title_style = if success { self.green } else { self.red };
-                let title = format!(
-                    "{} {}:",
-                    format_collab_invocation("close_agent", &call_id, None),
-                    format_collab_status(&status)
-                );
-                ts_msg!(self, "{}", title.style(title_style));
-                eprintln!(
-                    "  receiver: {}",
-                    receiver_thread_id.to_string().style(self.dimmed)
-                );
-            }
-            EventMsg::ShutdownComplete => return CodexStatus::Shutdown,
-            EventMsg::ThreadNameUpdated(_)
-            | EventMsg::ExecApprovalRequest(_)
-            | EventMsg::ApplyPatchApprovalRequest(_)
-            | EventMsg::TerminalInteraction(_)
-            | EventMsg::ExecCommandOutputDelta(_)
-            | EventMsg::GetHistoryEntryResponse(_)
-            | EventMsg::McpListToolsResponse(_)
-            | EventMsg::ListCustomPromptsResponse(_)
-            | EventMsg::ListSkillsResponse(_)
-            | EventMsg::ListRemoteSkillsResponse(_)
-            | EventMsg::RemoteSkillDownloaded(_)
-            | EventMsg::RawResponseItem(_)
-            | EventMsg::UserMessage(_)
-            | EventMsg::EnteredReviewMode(_)
-            | EventMsg::ExitedReviewMode(_)
-            | EventMsg::AgentMessageDelta(_)
-            | EventMsg::AgentReasoningDelta(_)
-            | EventMsg::AgentReasoningRawContentDelta(_)
-            | EventMsg::ItemStarted(_)
-            | EventMsg::ItemCompleted(_)
-            | EventMsg::AgentMessageContentDelta(_)
-            | EventMsg::PlanDelta(_)
-            | EventMsg::ReasoningContentDelta(_)
-            | EventMsg::ReasoningRawContentDelta(_)
-            | EventMsg::SkillsUpdateAvailable
-            | EventMsg::UndoCompleted(_)
-            | EventMsg::UndoStarted(_)
-            | EventMsg::ThreadRolledBack(_)
-            | EventMsg::RequestUserInput(_)
-            | EventMsg::CollabResumeBegin(_)
-            | EventMsg::CollabResumeEnd(_)
-            | EventMsg::RealtimeConversationStarted(_)
-            | EventMsg::RealtimeConversationRealtime(_)
-            | EventMsg::RealtimeConversationClosed(_)
-            | EventMsg::DynamicToolCallRequest(_)
-            | EventMsg::DynamicToolCallResponse(_) => {}
-=======
             ServerNotification::TurnStarted(_) => CodexStatus::Running,
             _ => CodexStatus::Running,
->>>>>>> upstream_main
         }
     }
 
@@ -624,23 +387,6 @@ impl EventProcessor for EventProcessorWithHumanOutput {
             );
         }
 
-<<<<<<< HEAD
-        // In interactive terminals we already emitted the final assistant
-        // message on stderr during event processing. Preserve stdout emission
-        // only for non-interactive use so pipes and scripts still receive the
-        // final message.
-        #[allow(clippy::print_stdout)]
-        if should_print_final_message_to_stdout(
-            self.final_message.as_deref(),
-            std::io::stdout().is_terminal(),
-            std::io::stderr().is_terminal(),
-        ) && let Some(message) = &self.final_message
-        {
-            if message.ends_with('\n') {
-                print!("{message}");
-            } else {
-                println!("{message}");
-=======
         #[allow(clippy::print_stdout)]
         if should_print_final_message_to_stdout(
             self.emit_final_message_on_shutdown
@@ -719,85 +465,9 @@ fn summarize_sandbox_policy(sandbox_policy: &SandboxPolicy) -> String {
             let mut summary = "read-only".to_string();
             if *network_access {
                 summary.push_str(" (network access enabled)");
->>>>>>> upstream_main
             }
             summary
         }
-<<<<<<< HEAD
-    }
-}
-
-impl EventProcessorWithHumanOutput {
-    fn parse_agent_job_progress(message: &str) -> Option<AgentJobProgressMessage> {
-        let payload = message.strip_prefix("agent_job_progress:")?;
-        serde_json::from_str::<AgentJobProgressMessage>(payload).ok()
-    }
-
-    fn is_silent_event(msg: &EventMsg) -> bool {
-        matches!(
-            msg,
-            EventMsg::ThreadNameUpdated(_)
-                | EventMsg::TokenCount(_)
-                | EventMsg::TurnStarted(_)
-                | EventMsg::ExecApprovalRequest(_)
-                | EventMsg::ApplyPatchApprovalRequest(_)
-                | EventMsg::TerminalInteraction(_)
-                | EventMsg::ExecCommandOutputDelta(_)
-                | EventMsg::GetHistoryEntryResponse(_)
-                | EventMsg::McpListToolsResponse(_)
-                | EventMsg::ListCustomPromptsResponse(_)
-                | EventMsg::ListSkillsResponse(_)
-                | EventMsg::ListRemoteSkillsResponse(_)
-                | EventMsg::RemoteSkillDownloaded(_)
-                | EventMsg::RawResponseItem(_)
-                | EventMsg::UserMessage(_)
-                | EventMsg::EnteredReviewMode(_)
-                | EventMsg::ExitedReviewMode(_)
-                | EventMsg::AgentMessageDelta(_)
-                | EventMsg::AgentReasoningDelta(_)
-                | EventMsg::AgentReasoningRawContentDelta(_)
-                | EventMsg::ItemStarted(_)
-                | EventMsg::ItemCompleted(_)
-                | EventMsg::AgentMessageContentDelta(_)
-                | EventMsg::PlanDelta(_)
-                | EventMsg::ReasoningContentDelta(_)
-                | EventMsg::ReasoningRawContentDelta(_)
-                | EventMsg::SkillsUpdateAvailable
-                | EventMsg::UndoCompleted(_)
-                | EventMsg::UndoStarted(_)
-                | EventMsg::ThreadRolledBack(_)
-                | EventMsg::RequestUserInput(_)
-                | EventMsg::DynamicToolCallRequest(_)
-                | EventMsg::DynamicToolCallResponse(_)
-        )
-    }
-
-    fn should_interrupt_progress(msg: &EventMsg) -> bool {
-        matches!(
-            msg,
-            EventMsg::Error(_)
-                | EventMsg::Warning(_)
-                | EventMsg::DeprecationNotice(_)
-                | EventMsg::StreamError(_)
-                | EventMsg::TurnComplete(_)
-                | EventMsg::ShutdownComplete
-        )
-    }
-
-    fn finish_progress_line(&mut self) {
-        if self.progress_active {
-            self.progress_active = false;
-            self.progress_last_len = 0;
-            self.progress_done = false;
-            if self.use_ansi_cursor {
-                if self.progress_anchor {
-                    eprintln!("\u{1b}[1A\u{1b}[1G\u{1b}[2K");
-                } else {
-                    eprintln!("\u{1b}[1G\u{1b}[2K");
-                }
-            } else {
-                eprintln!();
-=======
         SandboxPolicy::ExternalSandbox { network_access } => {
             let mut summary = "external-sandbox".to_string();
             if matches!(
@@ -805,7 +475,6 @@ impl EventProcessorWithHumanOutput {
                 codex_protocol::protocol::NetworkAccess::Enabled
             ) {
                 summary.push_str(" (network access enabled)");
->>>>>>> upstream_main
             }
             summary
         }
@@ -821,100 +490,8 @@ impl EventProcessorWithHumanOutput {
             if !*exclude_slash_tmp {
                 writable_entries.push("/tmp".to_string());
             }
-<<<<<<< HEAD
-            return;
-        }
-        if done && self.progress_done {
-            return;
-        }
-        if !self.progress_active {
-            eprintln!();
-            self.progress_anchor = true;
-            self.progress_done = false;
-        }
-        let mut output = String::new();
-        if self.progress_anchor {
-            output.push_str("\u{1b}[1A\u{1b}[1G\u{1b}[2K");
-        } else {
-            output.push_str("\u{1b}[1G\u{1b}[2K");
-        }
-        output.push_str(&line);
-        if done {
-            output.push('\n');
-            eprint!("{output}");
-            self.progress_active = false;
-            self.progress_last_len = 0;
-            self.progress_anchor = false;
-            self.progress_done = true;
-            return;
-        }
-        eprint!("{output}");
-        let _ = std::io::stderr().flush();
-        self.progress_active = true;
-        self.progress_last_len = line.len();
-    }
-}
-
-fn should_print_final_message_to_stdout(
-    final_message: Option<&str>,
-    stdout_is_terminal: bool,
-    stderr_is_terminal: bool,
-) -> bool {
-    final_message.is_some() && !(stdout_is_terminal && stderr_is_terminal)
-}
-
-struct AgentJobProgressStats {
-    processed: usize,
-    total: usize,
-    percent: i64,
-    failed: usize,
-    running: usize,
-    pending: usize,
-}
-
-fn format_agent_job_progress_line(
-    columns: Option<usize>,
-    job_label: &str,
-    stats: AgentJobProgressStats,
-    eta: &str,
-) -> String {
-    let rest = format!(
-        "{processed}/{total} {percent}% f{failed} r{running} p{pending} eta {eta}",
-        processed = stats.processed,
-        total = stats.total,
-        percent = stats.percent,
-        failed = stats.failed,
-        running = stats.running,
-        pending = stats.pending
-    );
-    let prefix = format!("job {job_label}");
-    let base_len = prefix.len() + rest.len() + 4;
-    let mut bar_width = columns
-        .and_then(|columns| columns.checked_sub(base_len))
-        .filter(|available| *available > 0)
-        .unwrap_or(20usize);
-    let with_bar = |width: usize| {
-        let filled = ((stats.processed as f64 / stats.total as f64) * width as f64)
-            .round()
-            .clamp(0.0, width as f64) as usize;
-        let mut bar = "#".repeat(filled);
-        bar.push_str(&"-".repeat(width - filled));
-        format!("{prefix} [{bar}] {rest}")
-    };
-    let mut line = with_bar(bar_width);
-    if let Some(columns) = columns
-        && line.len() > columns
-    {
-        let min_line = format!("{prefix} {rest}");
-        if min_line.len() > columns {
-            let mut truncated = min_line;
-            if columns > 2 && truncated.len() > columns {
-                truncated.truncate(columns - 2);
-                truncated.push_str("..");
-=======
             if !*exclude_tmpdir_env_var {
                 writable_entries.push("$TMPDIR".to_string());
->>>>>>> upstream_main
             }
             writable_entries.extend(
                 writable_roots

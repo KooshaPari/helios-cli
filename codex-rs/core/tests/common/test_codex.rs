@@ -17,9 +17,6 @@ use codex_core::ModelProviderInfo;
 use codex_core::ThreadManager;
 use codex_core::built_in_model_providers;
 use codex_core::config::Config;
-<<<<<<< HEAD
-use codex_core::features::Feature;
-=======
 use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
 use codex_core::shell::Shell;
 use codex_core::shell::get_shell_by_model_provided_path;
@@ -28,7 +25,6 @@ use codex_exec_server::ExecutorFileSystem;
 use codex_features::Feature;
 use codex_protocol::config_types::ServiceTier;
 use codex_protocol::openai_models::ModelsResponse;
->>>>>>> upstream_main
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
@@ -732,10 +728,7 @@ impl TestCodex {
                 model: session_model,
                 effort: None,
                 summary: None,
-<<<<<<< HEAD
-=======
                 service_tier,
->>>>>>> upstream_main
                 collaboration_mode: None,
                 personality: None,
             })

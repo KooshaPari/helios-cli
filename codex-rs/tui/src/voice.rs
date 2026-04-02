@@ -36,8 +36,6 @@ use tracing::trace;
 const AUDIO_MODEL: &str = "gpt-4o-mini-transcribe";
 const MODEL_AUDIO_SAMPLE_RATE: u32 = 24_000;
 const MODEL_AUDIO_CHANNELS: u16 = 1;
-<<<<<<< HEAD
-=======
 // While playback is buffered, ignore low-level mic input that is likely just
 // speaker echo. A user who starts talking over playback should cross this peak
 // threshold and reopen the gate.
@@ -53,7 +51,6 @@ pub(crate) enum RealtimeInputBehavior {
         playback_queued_samples: Arc<AtomicUsize>,
     },
 }
->>>>>>> upstream_main
 
 struct TranscriptionAuthContext {
     mode: AuthMode,
@@ -102,17 +99,12 @@ impl VoiceCapture {
         })
     }
 
-<<<<<<< HEAD
-    pub fn start_realtime(config: &Config, tx: AppEventSender) -> Result<Self, String> {
-        let (device, config) = select_realtime_input_device_and_config(config)?;
-=======
     pub fn start_realtime(
         config: &Config,
         tx: AppEventSender,
         input_behavior: RealtimeInputBehavior,
     ) -> Result<Self, String> {
         let (device, config) = select_configured_input_device_and_config(config)?;
->>>>>>> upstream_main
 
         let sample_rate = config.sample_rate().0;
         let channels = config.channels();
@@ -306,11 +298,7 @@ fn select_default_input_device_and_config()
     let device = host
         .default_input_device()
         .ok_or_else(|| "no input audio device available".to_string())?;
-<<<<<<< HEAD
-    let config = crate::audio_device::preferred_input_config(&device)?;
-=======
     let config = preferred_input_config(&device)?;
->>>>>>> upstream_main
     Ok((device, config))
 }
 
@@ -572,11 +560,7 @@ pub(crate) struct RealtimeAudioPlayer {
 }
 
 impl RealtimeAudioPlayer {
-<<<<<<< HEAD
-    pub(crate) fn start(config: &Config) -> Result<Self, String> {
-=======
     pub(crate) fn start(config: &Config, queued_samples: Arc<AtomicUsize>) -> Result<Self, String> {
->>>>>>> upstream_main
         let (device, config) =
             crate::audio_device::select_configured_output_device_and_config(config)?;
         let output_sample_rate = config.sample_rate().0;
@@ -758,8 +742,6 @@ fn fill_output_u16(
     output.fill(32768);
 }
 
-<<<<<<< HEAD
-=======
 /// Block quiet mic chunks while assistant playback is still buffered, but once a
 /// real interruption is detected keep forwarding input briefly so the full
 /// utterance reaches the server.
@@ -800,7 +782,6 @@ fn should_send_realtime_input(
     false
 }
 
->>>>>>> upstream_main
 fn convert_pcm16(
     input: &[i16],
     input_sample_rate: u32,
@@ -1059,13 +1040,6 @@ async fn transcribe_bytes(
 
 #[cfg(test)]
 mod tests {
-<<<<<<< HEAD
-    use super::RecordedAudio;
-    use super::convert_pcm16;
-    use super::encode_wav_normalized;
-    use pretty_assertions::assert_eq;
-    use std::io::Cursor;
-=======
     use super::RealtimeInputBehavior;
     use super::RecordedAudio;
     use super::convert_pcm16;
@@ -1078,7 +1052,6 @@ mod tests {
     use std::sync::atomic::Ordering;
     use std::time::Duration;
     use std::time::Instant;
->>>>>>> upstream_main
 
     #[test]
     fn convert_pcm16_downmixes_and_resamples_for_model_input() {
@@ -1107,8 +1080,6 @@ mod tests {
         assert_eq!(spec.sample_rate, 24_000);
         assert_eq!(samples, vec![8_426, 29_490]);
     }
-<<<<<<< HEAD
-=======
 
     #[test]
     fn ungated_realtime_input_ignores_playback_backlog() {
@@ -1144,5 +1115,4 @@ mod tests {
         ));
         assert!(allow_input_until.is_some());
     }
->>>>>>> upstream_main
 }

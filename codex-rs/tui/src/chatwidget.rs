@@ -37,16 +37,11 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 use std::time::Instant;
 
-<<<<<<< HEAD
-use crate::app_event::RealtimeAudioDeviceKind;
-#[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
 use url::Url;
 
 use self::realtime::PendingSteerCompareKey;
 use crate::app_event::RealtimeAudioDeviceKind;
 #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
 use crate::audio_device::list_realtime_audio_device_names;
 use crate::bottom_pane::StatusLineItem;
 use crate::bottom_pane::StatusLinePreviewData;
@@ -1155,11 +1150,7 @@ impl ChatWidget {
     }
 
     fn realtime_audio_device_selection_enabled(&self) -> bool {
-<<<<<<< HEAD
-        self.realtime_conversation_enabled() && cfg!(feature = "voice-input")
-=======
         self.realtime_conversation_enabled()
->>>>>>> upstream_main
     }
 
     /// Synchronize the bottom-pane "task running" indicator with the current lifecycles.
@@ -1465,14 +1456,10 @@ impl ChatWidget {
         self.refresh_model_display();
         self.sync_fast_command_enabled();
         self.sync_personality_command_enabled();
-<<<<<<< HEAD
-        let startup_tooltip_override = self.startup_tooltip_override.take();
-=======
         self.sync_plugins_command_enabled();
         self.refresh_plugin_mentions();
         let startup_tooltip_override = self.startup_tooltip_override.take();
         let show_fast_status = self.should_show_fast_status(&model_for_header, event.service_tier);
->>>>>>> upstream_main
         let session_info_cell = history_cell::new_session_info(
             &self.config,
             &model_for_header,
@@ -3514,15 +3501,6 @@ impl ChatWidget {
             server_name: ev.server_name.clone(),
         });
 
-<<<<<<< HEAD
-        let request = ApprovalRequest::McpElicitation {
-            thread_id: self.thread_id.unwrap_or_default(),
-            thread_label: None,
-            server_name: ev.server_name,
-            request_id: ev.id,
-            message: ev.message,
-        };
-=======
         let thread_id = self.thread_id.unwrap_or_default();
         if let Some(request) = McpServerElicitationFormRequest::from_event(thread_id, ev.clone()) {
             self.bottom_pane
@@ -3542,24 +3520,17 @@ impl ChatWidget {
     }
 
     pub(crate) fn push_approval_request(&mut self, request: ApprovalRequest) {
->>>>>>> upstream_main
         self.bottom_pane
             .push_approval_request(request, &self.config.features);
         self.request_redraw();
     }
 
-<<<<<<< HEAD
-    pub(crate) fn push_approval_request(&mut self, request: ApprovalRequest) {
-        self.bottom_pane
-            .push_approval_request(request, &self.config.features);
-=======
     pub(crate) fn push_mcp_server_elicitation_request(
         &mut self,
         request: McpServerElicitationFormRequest,
     ) {
         self.bottom_pane
             .push_mcp_server_elicitation_request(request);
->>>>>>> upstream_main
         self.request_redraw();
     }
 
@@ -4362,14 +4333,8 @@ impl ChatWidget {
         // Terminals can encode Option+Up as Alt+Up or Ctrl+Up (e.g. CSI 1;5A),
         // so accept either modifier for queued-message restore.
         if key_event.kind == KeyEventKind::Press
-<<<<<<< HEAD
-            && (self.queued_message_edit_binding.is_press(key_event)
-                || self.queued_message_ctrl_up_fallback_matches(key_event))
-            && !self.queued_user_messages.is_empty()
-=======
             && self.queued_message_edit_binding.is_press(key_event)
             && self.has_queued_follow_up_messages()
->>>>>>> upstream_main
         {
             if let Some(user_message) = self.pop_latest_queued_user_message() {
                 self.restore_user_message_to_composer(user_message);
@@ -4432,18 +4397,8 @@ impl ChatWidget {
                     else {
                         return;
                     };
-<<<<<<< HEAD
-                    // Submissions during active final-answer streaming can race with turn
-                    // completion and strand the UI in a running state. Queue those inputs instead
-                    // of injecting immediately; `on_task_complete()` drains this FIFO via
-                    // `maybe_send_next_queued_input()`, so no typed prompt is dropped.
-                    let should_submit_now = self.is_session_configured()
-                        && !self.is_plan_streaming_in_tui()
-                        && self.stream_controller.is_none();
-=======
                     let should_submit_now =
                         self.is_session_configured() && !self.is_plan_streaming_in_tui();
->>>>>>> upstream_main
                     if should_submit_now {
                         // Submitted is emitted when user submits.
                         // Reset any reasoning header only when we are actually submitting a turn.
@@ -5330,10 +5285,7 @@ impl ChatWidget {
             model: effective_mode.model().to_string(),
             effort: effective_mode.reasoning_effort(),
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier,
->>>>>>> upstream_main
             final_output_json_schema: None,
             collaboration_mode,
             personality,
@@ -5699,11 +5651,8 @@ impl ChatWidget {
             | EventMsg::ReasoningRawContentDelta(_)
             | EventMsg::DynamicToolCallRequest(_)
             | EventMsg::DynamicToolCallResponse(_) => {}
-<<<<<<< HEAD
-=======
             EventMsg::HookStarted(event) => self.on_hook_started(event),
             EventMsg::HookCompleted(event) => self.on_hook_completed(event),
->>>>>>> upstream_main
             EventMsg::RealtimeConversationStarted(ev) => {
                 if !from_replay {
                     self.on_realtime_conversation_started(ev);
@@ -6471,11 +6420,7 @@ impl ChatWidget {
         });
     }
 
-<<<<<<< HEAD
-    #[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
     #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
     pub(crate) fn open_realtime_audio_device_selection(&mut self, kind: RealtimeAudioDeviceKind) {
         match list_realtime_audio_device_names(kind) {
             Ok(device_names) => {
@@ -6490,20 +6435,12 @@ impl ChatWidget {
         }
     }
 
-<<<<<<< HEAD
-    #[cfg(any(target_os = "linux", not(feature = "voice-input")))]
-=======
     #[cfg(target_os = "linux")]
->>>>>>> upstream_main
     pub(crate) fn open_realtime_audio_device_selection(&mut self, kind: RealtimeAudioDeviceKind) {
         let _ = kind;
     }
 
-<<<<<<< HEAD
-    #[cfg(all(not(target_os = "linux"), feature = "voice-input"))]
-=======
     #[cfg(not(target_os = "linux"))]
->>>>>>> upstream_main
     fn open_realtime_audio_device_selection_with_names(
         &mut self,
         kind: RealtimeAudioDeviceKind,
@@ -7985,14 +7922,6 @@ impl ChatWidget {
     }
 
     #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
-<<<<<<< HEAD
-    pub(crate) fn set_feature_enabled(&mut self, feature: Feature, enabled: bool) {
-        if enabled {
-            self.config.features.enable(feature);
-        } else {
-            self.config.features.disable(feature);
-        }
-=======
     pub(crate) fn set_feature_enabled(&mut self, feature: Feature, enabled: bool) -> bool {
         if let Err(err) = self.config.features.set_enabled(feature, enabled) {
             tracing::warn!(
@@ -8002,7 +7931,6 @@ impl ChatWidget {
             );
         }
         let enabled = self.config.features.enabled(feature);
->>>>>>> upstream_main
         if feature == Feature::VoiceTranscription {
             self.bottom_pane.set_voice_transcription_enabled(enabled);
         }
@@ -8114,8 +8042,6 @@ impl ChatWidget {
         self.config.personality = Some(personality);
     }
 
-<<<<<<< HEAD
-=======
     /// Set Fast mode in the widget's config copy.
     pub(crate) fn set_service_tier(&mut self, service_tier: Option<ServiceTier>) {
         self.config.service_tier = service_tier;
@@ -8143,7 +8069,6 @@ impl ChatWidget {
         self.config.features.enabled(Feature::FastMode)
     }
 
->>>>>>> upstream_main
     pub(crate) fn set_realtime_audio_device(
         &mut self,
         kind: RealtimeAudioDeviceKind,
@@ -8206,11 +8131,7 @@ impl ChatWidget {
     }
 
     pub(crate) fn realtime_conversation_is_live(&self) -> bool {
-<<<<<<< HEAD
-        self.realtime_conversation.is_active()
-=======
         self.realtime_conversation.is_live()
->>>>>>> upstream_main
     }
 
     fn current_realtime_audio_device_name(&self, kind: RealtimeAudioDeviceKind) -> Option<String> {
@@ -8225,14 +8146,11 @@ impl ChatWidget {
             .unwrap_or_else(|| "System default".to_string())
     }
 
-<<<<<<< HEAD
-=======
     fn sync_fast_command_enabled(&mut self) {
         self.bottom_pane
             .set_fast_command_enabled(self.fast_mode_enabled());
     }
 
->>>>>>> upstream_main
     fn sync_personality_command_enabled(&mut self) {
         self.bottom_pane
             .set_personality_command_enabled(self.config.features.enabled(Feature::Personality));
@@ -9000,8 +8918,6 @@ impl ChatWidget {
     }
 
     #[cfg(test)]
-<<<<<<< HEAD
-=======
     pub(crate) fn queued_user_message_texts(&self) -> Vec<String> {
         self.rejected_steers_queue
             .iter()
@@ -9015,7 +8931,6 @@ impl ChatWidget {
     }
 
     #[cfg(test)]
->>>>>>> upstream_main
     pub(crate) fn pending_thread_approvals(&self) -> &[String] {
         self.bottom_pane.pending_thread_approvals()
     }

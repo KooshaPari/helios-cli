@@ -1180,10 +1180,6 @@ pub(crate) fn new_session_info(
     } else {
         if config.show_tooltips
             && let Some(tooltips) = tooltip_override
-<<<<<<< HEAD
-                .or_else(|| tooltips::get_tooltip(auth_plan))
-                .map(TooltipHistoryCell::new)
-=======
                 .or_else(|| {
                     tooltips::get_tooltip(
                         auth_plan,
@@ -1191,7 +1187,6 @@ pub(crate) fn new_session_info(
                     )
                 })
                 .map(|tip| TooltipHistoryCell::new(tip, &config.cwd))
->>>>>>> upstream_main
         {
             parts.push(Box::new(tooltips));
         }
@@ -2784,10 +2779,7 @@ mod tests {
             false,
             Some("Model just became available".to_string()),
             Some(PlanType::Free),
-<<<<<<< HEAD
-=======
             false,
->>>>>>> upstream_main
         );
 
         let rendered = render_transcript(&cell).join("\n");
@@ -2805,10 +2797,7 @@ mod tests {
             false,
             Some("Model just became available".to_string()),
             Some(PlanType::Free),
-<<<<<<< HEAD
-=======
             false,
->>>>>>> upstream_main
         );
 
         let rendered = render_transcript(&cell).join("\n");
@@ -2825,10 +2814,7 @@ mod tests {
             true,
             Some("Model just became available".to_string()),
             Some(PlanType::Free),
-<<<<<<< HEAD
-=======
             false,
->>>>>>> upstream_main
         );
 
         let rendered = render_transcript(&cell).join("\n");
@@ -2847,10 +2833,7 @@ mod tests {
             false,
             Some("Model just became available".to_string()),
             Some(PlanType::Free),
-<<<<<<< HEAD
-=======
             false,
->>>>>>> upstream_main
         );
 
         let rendered = render_transcript(&cell).join("\n");

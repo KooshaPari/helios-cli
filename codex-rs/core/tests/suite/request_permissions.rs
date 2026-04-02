@@ -3,10 +3,7 @@
 use anyhow::Result;
 use codex_core::config::Constrained;
 use codex_core::sandboxing::SandboxPermissions;
-<<<<<<< HEAD
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::models::FileSystemPermissions;
 use codex_protocol::models::PermissionProfile;
 use codex_protocol::protocol::AskForApproval;
@@ -104,9 +101,6 @@ fn shell_event_with_request_permissions<S: serde::Serialize>(
     Ok(ev_function_call(call_id, "shell_command", &args_str))
 }
 
-<<<<<<< HEAD
-#[cfg(target_os = "macos")]
-=======
 fn request_permissions_tool_event(
     call_id: &str,
     reason: &str,
@@ -166,7 +160,6 @@ fn exec_command_event_with_missing_additional_permissions(
     Ok(ev_function_call(call_id, "exec_command", &args_str))
 }
 
->>>>>>> upstream_main
 fn shell_event_with_raw_request_permissions(
     call_id: &str,
     command: &str,
@@ -205,10 +198,7 @@ async fn submit_turn(
             model: session_model,
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -354,11 +344,7 @@ async fn with_additional_permissions_requires_approval_under_on_request() -> Res
     let requested_permissions = PermissionProfile {
         file_system: Some(FileSystemPermissions {
             read: Some(vec![]),
-<<<<<<< HEAD
-            write: Some(vec![absolute_path(&requested_write)]),
-=======
             write: Some(vec![absolute_path(&requested_dir_canonical)]),
->>>>>>> upstream_main
         }),
         ..Default::default()
     };
@@ -413,20 +399,12 @@ async fn with_additional_permissions_requires_approval_under_on_request() -> Res
 }
 
 #[tokio::test(flavor = "current_thread")]
-<<<<<<< HEAD
-#[cfg(target_os = "macos")]
-async fn relative_additional_permissions_resolve_against_tool_workdir() -> Result<()> {
-=======
 async fn request_permissions_tool_is_auto_denied_when_granular_request_permissions_is_disabled()
 -> Result<()> {
->>>>>>> upstream_main
     skip_if_no_network!(Ok(()));
     skip_if_sandbox!(Ok(()));
 
     let server = start_mock_server().await;
-<<<<<<< HEAD
-    let approval_policy = AskForApproval::OnRequest;
-=======
     let approval_policy = AskForApproval::Granular(GranularApprovalConfig {
         sandbox_approval: true,
         rules: true,
@@ -434,42 +412,12 @@ async fn request_permissions_tool_is_auto_denied_when_granular_request_permissio
         request_permissions: false,
         mcp_elicitations: true,
     });
->>>>>>> upstream_main
     let sandbox_policy = SandboxPolicy::new_read_only_policy();
     let sandbox_policy_for_config = sandbox_policy.clone();
 
     let mut builder = test_codex().with_config(move |config| {
         config.permissions.approval_policy = Constrained::allow_any(approval_policy);
         config.permissions.sandbox_policy = Constrained::allow_any(sandbox_policy_for_config);
-<<<<<<< HEAD
-        config.features.enable(Feature::RequestPermissions);
-    });
-    let test = builder.build(&server).await?;
-
-    let nested_dir = test.workspace_path("nested");
-    fs::create_dir_all(&nested_dir)?;
-    let requested_write = nested_dir.join("relative-write.txt");
-    let _ = fs::remove_file(&requested_write);
-
-    let call_id = "request_permissions_relative_workdir";
-    let command = "touch relative-write.txt";
-    let expected_permissions = PermissionProfile {
-        file_system: Some(FileSystemPermissions {
-            read: None,
-            write: Some(vec![absolute_path(&requested_write)]),
-        }),
-        ..Default::default()
-    };
-    let event = shell_event_with_raw_request_permissions(
-        call_id,
-        command,
-        Some("nested"),
-        json!({
-            "file_system": {
-                "write": ["./relative-write.txt"],
-            },
-        }),
-=======
         config
             .features
             .enable(Feature::RequestPermissionsTool)
@@ -485,66 +433,26 @@ async fn request_permissions_tool_is_auto_denied_when_granular_request_permissio
         call_id,
         "Request access through the standalone tool",
         &requested_permissions,
->>>>>>> upstream_main
     )?;
 
     let _ = mount_sse_once(
         &server,
         sse(vec![
-<<<<<<< HEAD
-            ev_response_created("resp-relative-1"),
-            event,
-            ev_completed("resp-relative-1"),
-=======
             ev_response_created("resp-request-permissions-reject-1"),
             event,
             ev_completed("resp-request-permissions-reject-1"),
->>>>>>> upstream_main
         ]),
     )
     .await;
     let results = mount_sse_once(
         &server,
         sse(vec![
-<<<<<<< HEAD
-            ev_assistant_message("msg-relative-1", "done"),
-            ev_completed("resp-relative-2"),
-=======
             ev_assistant_message("msg-request-permissions-reject-1", "done"),
             ev_completed("resp-request-permissions-reject-2"),
->>>>>>> upstream_main
         ]),
     )
     .await;
 
-<<<<<<< HEAD
-    submit_turn(&test, call_id, approval_policy, sandbox_policy.clone()).await?;
-
-    let approval = expect_exec_approval(&test, command).await;
-    assert_eq!(
-        approval.additional_permissions,
-        Some(expected_permissions.clone())
-    );
-    test.codex
-        .submit(Op::ExecApproval {
-            id: approval.effective_approval_id(),
-            turn_id: None,
-            decision: ReviewDecision::Approved,
-        })
-        .await?;
-    wait_for_completion(&test).await;
-
-    let result = parse_result(&results.single_request().function_call_output(call_id));
-    assert!(
-        result.exit_code.is_none() || result.exit_code == Some(0),
-        "unexpected exit code/output: {:?} {}",
-        result.exit_code,
-        result.stdout
-    );
-    assert!(
-        requested_write.exists(),
-        "touch command should create requested path"
-=======
     submit_turn(
         &test,
         "request permissions under granular.request_permissions = false",
@@ -574,19 +482,13 @@ async fn request_permissions_tool_is_auto_denied_when_granular_request_permissio
             permissions: RequestPermissionProfile::default(),
             scope: PermissionGrantScope::Turn,
         }
->>>>>>> upstream_main
     );
 
     Ok(())
 }
 
 #[tokio::test(flavor = "current_thread")]
-<<<<<<< HEAD
-#[cfg(target_os = "macos")]
-async fn read_only_with_additional_permissions_widens_to_unrequested_cwd_write() -> Result<()> {
-=======
 async fn relative_additional_permissions_resolve_against_tool_workdir() -> Result<()> {
->>>>>>> upstream_main
     skip_if_no_network!(Ok(()));
     skip_if_sandbox!(Ok(()));
 

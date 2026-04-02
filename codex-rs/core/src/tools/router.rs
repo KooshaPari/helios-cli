@@ -246,44 +246,7 @@ impl ToolRouter {
             payload,
         };
 
-<<<<<<< HEAD
-        match self.registry.dispatch(invocation).await {
-            Ok(response) => Ok(response),
-            Err(FunctionCallError::Fatal(message)) => Err(FunctionCallError::Fatal(message)),
-            Err(err) => Ok(Self::failure_response(
-                failure_call_id,
-                payload_outputs_custom,
-                err,
-            )),
-        }
-    }
-
-    fn failure_response(
-        call_id: String,
-        payload_outputs_custom: bool,
-        err: FunctionCallError,
-    ) -> ResponseInputItem {
-        let message = err.to_string();
-        if payload_outputs_custom {
-            ResponseInputItem::CustomToolCallOutput {
-                call_id,
-                output: codex_protocol::models::FunctionCallOutputPayload {
-                    body: FunctionCallOutputBody::Text(message),
-                    success: Some(false),
-                },
-            }
-        } else {
-            ResponseInputItem::FunctionCallOutput {
-                call_id,
-                output: codex_protocol::models::FunctionCallOutputPayload {
-                    body: FunctionCallOutputBody::Text(message),
-                    success: Some(false),
-                },
-            }
-        }
-=======
         self.registry.dispatch_any(invocation).await
->>>>>>> upstream_main
     }
 }
 #[cfg(test)]

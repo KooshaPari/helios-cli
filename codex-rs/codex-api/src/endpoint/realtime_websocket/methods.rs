@@ -328,11 +328,8 @@ impl RealtimeWebsocketWriter {
         let payload = serde_json::to_string(message)
             .map_err(|err| ApiError::Stream(format!("failed to encode realtime request: {err}")))?;
         debug!(?message, "realtime websocket request");
-<<<<<<< HEAD
-=======
         self.send_payload(payload).await
     }
->>>>>>> upstream_main
 
     pub async fn send_payload(&self, payload: String) -> Result<(), ApiError> {
         if self.is_closed.load(Ordering::SeqCst) {
@@ -374,12 +371,8 @@ impl RealtimeWebsocketEvents {
 
             match msg {
                 Message::Text(text) => {
-<<<<<<< HEAD
-                    if let Some(event) = parse_realtime_event(&text) {
-=======
                     if let Some(mut event) = parse_realtime_event(&text, self.event_parser) {
                         self.update_active_transcript(&mut event).await;
->>>>>>> upstream_main
                         debug!(?event, "realtime websocket parsed event");
                         return Ok(Some(event));
                     }
@@ -483,14 +476,6 @@ impl RealtimeWebsocketClient {
         request.headers_mut().extend(headers);
 
         info!("connecting realtime websocket: {ws_url}");
-<<<<<<< HEAD
-        let (stream, response) =
-            tokio_tungstenite::connect_async_with_config(request, Some(websocket_config()), false)
-                .await
-                .map_err(|err| {
-                    ApiError::Stream(format!("failed to connect realtime websocket: {err}"))
-                })?;
-=======
         // Realtime websocket TLS should honor the same custom-CA env vars as the rest of Codex's
         // outbound HTTPS and websocket traffic.
         let connector = maybe_build_rustls_client_config_with_custom_ca()
@@ -504,7 +489,6 @@ impl RealtimeWebsocketClient {
         )
         .await
         .map_err(|err| ApiError::Stream(format!("failed to connect realtime websocket: {err}")))?;
->>>>>>> upstream_main
         info!(
             ws_url = %ws_url,
             status = %response.status(),
@@ -512,17 +496,10 @@ impl RealtimeWebsocketClient {
         );
 
         let (stream, rx_message) = WsStream::new(stream);
-<<<<<<< HEAD
-        let connection = RealtimeWebsocketConnection::new(stream, rx_message);
-        debug!(
-            conversation_id = config.session_id.as_deref().unwrap_or("<none>"),
-            "realtime websocket sending session.create"
-=======
         let connection = RealtimeWebsocketConnection::new(stream, rx_message, config.event_parser);
         debug!(
             session_id = config.session_id.as_deref().unwrap_or("<none>"),
             "realtime websocket sending session.update"
->>>>>>> upstream_main
         );
         connection
             .writer

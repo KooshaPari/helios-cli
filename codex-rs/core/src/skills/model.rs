@@ -3,13 +3,8 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-<<<<<<< HEAD
-use crate::config::Permissions;
-use codex_protocol::models::PermissionProfile;
-=======
 use codex_protocol::models::PermissionProfile;
 use codex_protocol::protocol::Product;
->>>>>>> upstream_main
 use codex_protocol::protocol::SkillScope;
 use serde::Deserialize;
 
@@ -34,12 +29,7 @@ pub struct SkillMetadata {
     pub dependencies: Option<SkillDependencies>,
     pub policy: Option<SkillPolicy>,
     pub permission_profile: Option<PermissionProfile>,
-<<<<<<< HEAD
-    // This is an experimental field.
-    pub permissions: Option<Permissions>,
-=======
     pub managed_network_override: Option<SkillManagedNetworkOverride>,
->>>>>>> upstream_main
     /// Path to the SKILLS.md file that declares this skill.
     pub path_to_skills_md: PathBuf,
     pub scope: SkillScope,
