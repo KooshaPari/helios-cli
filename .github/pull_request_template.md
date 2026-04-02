@@ -1,8 +1,19 @@
-# External (non-OpenAI) Pull Request Requirements
+# Pull Request Description
 
-Before opening this Pull Request, please read the dedicated "Contributing" markdown file or your PR may be closed:
-https://github.com/openai/codex/blob/main/docs/contributing.md
+## Summary
+<!-- What does this PR do? -->
 
-If your PR conforms to our contribution guidelines, replace this text with a detailed and high quality description of your changes.
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
 
-Include a link to a bug report or enhancement request.
+## Testing
+<!-- How was this tested? -->
+
+## Checklist
+- [ ] Code follows project style guidelines
+- [ ] Self-review completed
+- [ ] Tests added/updated
+- [ ] Documentation updated
