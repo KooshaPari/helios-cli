@@ -24,7 +24,6 @@ members = [
     "secrets",
     "exec",
     "execpolicy",
-    "execpolicy-legacy",
     "keyring-store",
     "file-search",
     "linux-sandbox",
