@@ -80,7 +80,7 @@ impl AsciiAnimation {
         if self.variants.len() <= 1 {
             return false;
         }
-        let mut rng = rand::rng();
+        let mut rng = rand::thread_rng();
         let mut next = self.variant_idx;
         while next == self.variant_idx {
             next = rng.random_range(0..self.variants.len());

@@ -108,7 +108,7 @@ impl Guards {
             if names.is_empty() {
                 return None;
             }
-            let mut rng = rand::rng();
+            let mut rng = rand::thread_rng();
             let start_index = rng.random_range(0..names.len());
 
             let mut selected_name: Option<String> = None;

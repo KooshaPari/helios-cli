@@ -51,7 +51,7 @@ fn experimental_tooltips() -> Vec<&'static str> {
 
 /// Pick a random tooltip to show to the user when starting Codex.
 pub(crate) fn get_tooltip(plan: Option<PlanType>, fast_mode_enabled: bool) -> Option<String> {
-    let mut rng = rand::rng();
+    let mut rng = rand::thread_rng();
 
     if let Some(announcement) = announcement::fetch_announcement_tip() {
         return Some(announcement);

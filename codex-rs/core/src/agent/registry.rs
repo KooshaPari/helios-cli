@@ -215,7 +215,7 @@ impl AgentRegistry {
                 .map(|name| format_agent_nickname(name, active_agents.nickname_reset_count))
                 .filter(|name| !active_agents.used_agent_nicknames.contains(name))
                 .collect();
-            if let Some(name) = available_names.choose(&mut rand::rng()) {
+            if let Some(name) = available_names.choose(&mut rand::thread_rng()) {
                 name.clone()
             } else {
                 active_agents.used_agent_nicknames.clear();
@@ -228,7 +228,7 @@ impl AgentRegistry {
                     );
                 }
                 format_agent_nickname(
-                    names.choose(&mut rand::rng())?,
+                    names.choose(&mut rand::thread_rng())?,
                     active_agents.nickname_reset_count,
                 )
             }

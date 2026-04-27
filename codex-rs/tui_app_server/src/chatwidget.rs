@@ -4248,7 +4248,7 @@ impl ChatWidget {
         let mut config = config;
         config.model = model.clone();
         let prevent_idle_sleep = config.features.enabled(Feature::PreventIdleSleep);
-        let mut rng = rand::rng();
+        let mut rng = rand::thread_rng();
         let placeholder = PLACEHOLDERS[rng.random_range(0..PLACEHOLDERS.len())].to_string();
 
         let model_override = model.as_deref();
