@@ -61,7 +61,7 @@ jobs:
       # .github/prompts/issue-deduplicator.txt file is obsolete and removed.
       - id: codex-all
         name: Find duplicates (pass 1, all issues)
-        uses: openai/codex-action@main
+        uses: openai/codex-action@48c4212272635ce5c50529ae1f6516040f84dc35  # was: @main
         with:
           openai-api-key: ${{ secrets.CODEX_OPENAI_API_KEY }}
           allow-users: "*"
@@ -195,7 +195,7 @@ jobs:
 
       - id: codex-open
         name: Find duplicates (pass 2, open issues)
-        uses: openai/codex-action@main
+        uses: openai/codex-action@48c4212272635ce5c50529ae1f6516040f84dc35  # was: @main
         with:
           openai-api-key: ${{ secrets.CODEX_OPENAI_API_KEY }}
           allow-users: "*"
