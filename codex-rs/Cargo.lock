@@ -2071,26 +2071,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "codex-execpolicy-legacy"
-version = "0.0.0"
-dependencies = [
- "allocative",
- "anyhow",
- "clap",
- "derive_more 2.1.1",
- "env_logger",
- "log",
- "multimap",
- "path-absolutize",
- "regex-lite",
- "serde",
- "serde_json",
- "serde_with",
- "starlark",
- "tempfile",
-]
-
-[[package]]
 name = "codex-experimental-api-macros"
 version = "0.0.0"
 dependencies = [
@@ -4049,7 +4029,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a1c3cc8e57274ec99de65301228b537f1e4eedc1b8e0f9411c6caac8ae7308f"
 dependencies = [
  "log",
- "regex",
 ]
 
 [[package]]
@@ -4067,7 +4046,6 @@ dependencies = [
  "anstream",
  "anstyle",
  "env_filter",
- "jiff",
  "log",
 ]
 
@@ -4284,9 +4262,9 @@ checksum = "1d674e81391d1e1ab681a28d99df07927c6d4aa5b027d7da16ba32d1d21ecd99"
 
 [[package]]
 name = "flate2"
-version = "1.1.8"
+version = "1.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b375d6465b98090a5f25b1c7703f3859783755aa9a80433b36e0379a3ec2f369"
+checksum = "843fba2746e448b37e26a819579957415c8cef339bf08564fe8b7ddbd959573c"
 dependencies = [
  "crc32fast",
  "libz-sys",
@@ -5563,30 +5541,6 @@ name = "itoa"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
-
-[[package]]
-name = "jiff"
-version = "0.2.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e67e8da4c49d6d9909fe03361f9b620f58898859f5c7aded68351e85e71ecf50"
-dependencies = [
- "jiff-static",
- "log",
- "portable-atomic",
- "portable-atomic-util",
- "serde_core",
-]
-
-[[package]]
-name = "jiff-static"
-version = "0.2.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0c84ee7f197eca9a86c6fd6cb771e55eb991632f15f2bc3ca6ec838929e6e78"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.114",
-]
 
 [[package]]
 name = "jni"
@@ -7195,15 +7149,6 @@ name = "portable-atomic"
 version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c33a9471896f1c69cecef8d20cbe2f7accd12527ce60845ff44c153bb2a21b49"
-
-[[package]]
-name = "portable-atomic-util"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a9db96d7fa8782dd8c15ce32ffe8680bbd1e978a43bf51a34d39483540495f5"
-dependencies = [
- "portable-atomic",
-]
 
 [[package]]
 name = "portable-pty"
