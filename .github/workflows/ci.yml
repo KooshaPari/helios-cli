@@ -38,11 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           # Use a rust-release version that includes all native binaries.
-<<<<<<< HEAD
-          CODEX_VERSION=0.107.0
-=======
           CODEX_VERSION=0.115.0
->>>>>>> upstream_main
           OUTPUT_DIR="${RUNNER_TEMP}"
           python3 ./scripts/stage_npm_packages.py \
             --release-version "$CODEX_VERSION" \
@@ -52,12 +48,8 @@ jobs:
           echo "pack_output=$PACK_OUTPUT" >> "$GITHUB_OUTPUT"
 
       - name: Upload staged npm package artifact
-<<<<<<< HEAD
         if: steps.stage_npm_package.outcome == 'success'
-        uses: actions/upload-artifact@v6
-=======
         uses: actions/upload-artifact@v7
->>>>>>> upstream_main
         with:
           name: codex-npm-staging
           path: ${{ steps.stage_npm_package.outputs.pack_output }}
