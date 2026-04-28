@@ -286,7 +286,7 @@ codex auth diagnose
 
 - **Governance**: See `CLAUDE.md` for agent contract and development rules
 - **CI/CD**: See `.github/workflows/` for policy gates and release automation
-- **Worklogs**: Audit trail in `docs/worklogs/` (if present)
+- **Worklogs**: Audit trail in `worklogs/` (if present)
 - **Collection**: Homepage at `helios-cli.kooshapari.com`
 - **Related**: Part of Phenotype Ecosystem — see `projects.kooshapari.com`
 
