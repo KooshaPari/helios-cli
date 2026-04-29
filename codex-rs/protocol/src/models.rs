@@ -23,11 +23,7 @@ use crate::protocol::SandboxPolicy;
 use crate::protocol::WritableRoot;
 use crate::user_input::UserInput;
 use codex_execpolicy::Policy;
-<<<<<<< HEAD
-use codex_git::GhostCommit;
-=======
 use codex_git_utils::GhostCommit;
->>>>>>> upstream_main
 use codex_utils_absolute_path::AbsolutePathBuf;
 use codex_utils_image::error::ImageProcessingError;
 use schemars::JsonSchema;
@@ -147,32 +143,6 @@ pub enum MacOsAutomationPermission {
     BundleIds(Vec<String>),
 }
 
-<<<<<<< HEAD
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub enum MacOsPreferencesPermission {
-    // IMPORTANT: ReadOnly needs to be the default because it's the
-    // security-sensitive default and keeps cf prefs working.
-    #[default]
-    ReadOnly,
-    ReadWrite,
-    None,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub enum MacOsAutomationPermission {
-    #[default]
-    None,
-    All,
-    BundleIds(Vec<String>),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct MacOsSeatbeltProfileExtensions {
-    pub macos_preferences: MacOsPreferencesPermission,
-    pub macos_automation: MacOsAutomationPermission,
-    pub macos_accessibility: bool,
-    pub macos_calendar: bool,
-=======
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum MacOsAutomationPermissionDe {
@@ -238,7 +208,6 @@ pub struct MacOsSeatbeltProfileExtensions {
     pub macos_reminders: bool,
     #[serde(alias = "contacts")]
     pub macos_contacts: MacOsContactsPermission,
->>>>>>> upstream_main
 }
 
 #[derive(Debug, Clone, Default, Eq, Hash, PartialEq, Serialize, Deserialize, JsonSchema, TS)]
@@ -273,9 +242,6 @@ pub enum ResponseInputItem {
     },
     CustomToolCallOutput {
         call_id: String,
-<<<<<<< HEAD
-        output: FunctionCallOutputPayload,
-=======
         #[serde(default, skip_serializing_if = "Option::is_none")]
         #[ts(optional)]
         name: Option<String>,
@@ -284,12 +250,11 @@ pub enum ResponseInputItem {
         output: FunctionCallOutputPayload,
     },
     ToolSearchOutput {
-        call_id: String,
+        call_id: Option<String>,
         status: String,
         execution: String,
         #[ts(type = "unknown[]")]
         tools: Vec<serde_json::Value>,
->>>>>>> upstream_main
     },
 }
 
@@ -421,9 +386,6 @@ pub enum ResponseItem {
     // text or structured content items.
     CustomToolCallOutput {
         call_id: String,
-<<<<<<< HEAD
-        output: FunctionCallOutputPayload,
-=======
         #[serde(default, skip_serializing_if = "Option::is_none")]
         #[ts(optional)]
         name: Option<String>,
@@ -437,7 +399,6 @@ pub enum ResponseItem {
         execution: String,
         #[ts(type = "unknown[]")]
         tools: Vec<serde_json::Value>,
->>>>>>> upstream_main
     },
     // Emitted by the Responses API when the agent triggers a web search.
     // Example payload (from SSE `response.output_item.done`):
@@ -1081,7 +1042,7 @@ impl From<ResponseInputItem> for ResponseItem {
                 execution,
                 tools,
             } => Self::ToolSearchOutput {
-                call_id: Some(call_id),
+                call_id,
                 status,
                 execution,
                 tools,
@@ -2513,17 +2474,11 @@ mod tests {
     fn serializes_custom_tool_image_outputs_as_array() -> Result<()> {
         let item = ResponseInputItem::CustomToolCallOutput {
             call_id: "call1".into(),
-<<<<<<< HEAD
-            output: FunctionCallOutputPayload::from_content_items(vec![
-                FunctionCallOutputContentItem::InputImage {
-                    image_url: "data:image/png;base64,BASE64".into(),
-=======
             name: None,
             output: FunctionCallOutputPayload::from_content_items(vec![
                 FunctionCallOutputContentItem::InputImage {
                     image_url: "data:image/png;base64,BASE64".into(),
                     detail: None,
->>>>>>> upstream_main
                 },
             ]),
         };
@@ -2799,7 +2754,7 @@ mod tests {
     #[test]
     fn tool_search_output_roundtrips() -> Result<()> {
         let input = ResponseInputItem::ToolSearchOutput {
-            call_id: "search-1".to_string(),
+            call_id: Some("search-1".to_string()),
             status: "completed".to_string(),
             execution: "client".to_string(),
             tools: vec![serde_json::json!({

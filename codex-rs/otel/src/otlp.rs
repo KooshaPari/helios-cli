@@ -104,6 +104,12 @@ fn build_http_client_inner(
 ) -> Result<reqwest::blocking::Client, Box<dyn Error>> {
     let mut builder =
         reqwest::blocking::Client::builder().timeout(resolve_otlp_timeout(timeout_var));
+    #[cfg(test)]
+    {
+        // Avoid macOS system proxy discovery in tests; that path can panic inside
+        // system-configuration in sandboxed/current-thread runtime setups.
+        builder = builder.no_proxy();
+    }
 
     if let Some(path) = tls.ca_certificate.as_ref() {
         let (pem, location) = read_bytes(path)?;

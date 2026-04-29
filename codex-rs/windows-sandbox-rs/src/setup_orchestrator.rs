@@ -9,22 +9,22 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::process::Stdio;
 
-use crate::allow::compute_allow_paths;
 use crate::allow::AllowDenyPaths;
+use crate::allow::compute_allow_paths;
 use crate::helper_materialization::helper_bin_dir;
 use crate::logging::log_note;
 use crate::path_normalization::canonical_path_key;
 use crate::policy::SandboxPolicy;
+use crate::setup_error::SetupErrorCode;
+use crate::setup_error::SetupFailure;
 use crate::setup_error::clear_setup_error_report;
 use crate::setup_error::failure;
 use crate::setup_error::read_setup_error_report;
-use crate::setup_error::SetupErrorCode;
-use crate::setup_error::SetupFailure;
-use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
-use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use anyhow::anyhow;
 use base64::Engine;
+use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 
 use windows_sys::Win32::Foundation::CloseHandle;
 use windows_sys::Win32::Foundation::GetLastError;
@@ -51,15 +51,12 @@ const USERPROFILE_READ_ROOT_EXCLUSIONS: &[&str] = &[
     ".pki",
     ".terraform.d",
 ];
-<<<<<<< HEAD
-=======
 const WINDOWS_PLATFORM_DEFAULT_READ_ROOTS: &[&str] = &[
     r"C:\Windows",
     r"C:\Program Files",
     r"C:\Program Files (x86)",
     r"C:\ProgramData",
 ];
->>>>>>> upstream_main
 
 pub fn sandbox_dir(codex_home: &Path) -> PathBuf {
     codex_home.join(".sandbox")
@@ -290,13 +287,8 @@ fn profile_read_roots(user_profile: &Path) -> Vec<PathBuf> {
         .collect()
 }
 
-<<<<<<< HEAD
-pub(crate) fn gather_read_roots(command_cwd: &Path, policy: &SandboxPolicy) -> Vec<PathBuf> {
-    let mut roots: Vec<PathBuf> = Vec::new();
-=======
 fn gather_helper_read_roots(codex_home: &Path) -> Vec<PathBuf> {
     let mut roots = Vec::new();
->>>>>>> upstream_main
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
             roots.push(dir.to_path_buf());
@@ -389,6 +381,40 @@ pub(crate) fn gather_write_roots(
     out
 }
 
+const SHELL_EXECUTE_UNSAFE_ENV_KEYS: &[&str] = &[
+    "JAVA_TOOL_OPTIONS",
+    "JDK_JAVA_OPTIONS",
+    "NODE_OPTIONS",
+    "PYTHONPATH",
+    "PERL5LIB",
+    "RUBYLIB",
+    "GEM_HOME",
+    "GEM_PATH",
+    "CLASSPATH",
+    "RUSTC_WRAPPER",
+    "RUSTFLAGS",
+];
+
+fn scrub_shell_execute_env() -> Vec<(String, Option<std::ffi::OsString>)> {
+    // ShellExecuteExW cannot take a custom environment block, so temporarily scrub the
+    // injection-prone keys from this process and restore them immediately after launch.
+    let mut previous = Vec::with_capacity(SHELL_EXECUTE_UNSAFE_ENV_KEYS.len());
+    for key in SHELL_EXECUTE_UNSAFE_ENV_KEYS {
+        previous.push(((*key).to_string(), std::env::var_os(key)));
+        std::env::remove_var(key);
+    }
+    previous
+}
+
+fn restore_shell_execute_env(previous: Vec<(String, Option<std::ffi::OsString>)>) {
+    for (key, value) in previous {
+        match value {
+            Some(value) => std::env::set_var(key, value),
+            None => std::env::remove_var(key),
+        }
+    }
+}
+
 #[derive(Serialize)]
 struct ElevationPayload {
     version: u32,
@@ -476,11 +502,11 @@ fn run_setup_exe(
     codex_home: &Path,
 ) -> Result<()> {
     use windows_sys::Win32::System::Threading::GetExitCodeProcess;
-    use windows_sys::Win32::System::Threading::WaitForSingleObject;
     use windows_sys::Win32::System::Threading::INFINITE;
-    use windows_sys::Win32::UI::Shell::ShellExecuteExW;
+    use windows_sys::Win32::System::Threading::WaitForSingleObject;
     use windows_sys::Win32::UI::Shell::SEE_MASK_NOCLOSEPROCESS;
     use windows_sys::Win32::UI::Shell::SHELLEXECUTEINFOW;
+    use windows_sys::Win32::UI::Shell::ShellExecuteExW;
     let exe = find_setup_exe();
     let payload_json = serde_json::to_string(payload).map_err(|err| {
         failure(
@@ -546,7 +572,9 @@ fn run_setup_exe(
     sei.lpParameters = params_w.as_ptr();
     // Hide the window for the elevated helper.
     sei.nShow = 0; // SW_HIDE
+    let restored_env = scrub_shell_execute_env();
     let ok = unsafe { ShellExecuteExW(&mut sei) };
+    restore_shell_execute_env(restored_env);
     if ok == 0 || sei.hProcess == 0 {
         let last_error = unsafe { GetLastError() };
         let code = if last_error == ERROR_CANCELLED {
@@ -679,34 +707,26 @@ fn filter_sensitive_write_roots(mut roots: Vec<PathBuf>, codex_home: &Path) -> V
 
 #[cfg(test)]
 mod tests {
-<<<<<<< HEAD
-    use super::profile_read_roots;
-=======
+    use super::WINDOWS_PLATFORM_DEFAULT_READ_ROOTS;
     use super::gather_legacy_full_read_roots;
     use super::gather_read_roots;
     use super::profile_read_roots;
-    use super::WINDOWS_PLATFORM_DEFAULT_READ_ROOTS;
     use crate::helper_materialization::helper_bin_dir;
     use crate::policy::SandboxPolicy;
     use codex_protocol::protocol::ReadOnlyAccess;
     use codex_utils_absolute_path::AbsolutePathBuf;
->>>>>>> upstream_main
     use pretty_assertions::assert_eq;
     use std::collections::HashSet;
     use std::fs;
     use std::path::PathBuf;
     use tempfile::TempDir;
 
-<<<<<<< HEAD
-=======
     fn canonical_windows_platform_default_roots() -> Vec<PathBuf> {
         WINDOWS_PLATFORM_DEFAULT_READ_ROOTS
             .iter()
             .map(|path| dunce::canonicalize(path).unwrap_or_else(|_| PathBuf::from(path)))
             .collect()
     }
-
->>>>>>> upstream_main
     #[test]
     fn profile_read_roots_excludes_configured_top_level_entries() {
         let tmp = TempDir::new().expect("tempdir");
@@ -737,8 +757,6 @@ mod tests {
 
         assert_eq!(vec![missing_profile], roots);
     }
-<<<<<<< HEAD
-=======
 
     #[test]
     fn gather_read_roots_includes_helper_bin_dir() {
@@ -766,8 +784,10 @@ mod tests {
         let policy = SandboxPolicy::ReadOnly {
             access: ReadOnlyAccess::Restricted {
                 include_platform_defaults: false,
-                readable_roots: vec![AbsolutePathBuf::from_absolute_path(&readable_root)
-                    .expect("absolute readable root")],
+                readable_roots: vec![
+                    AbsolutePathBuf::from_absolute_path(&readable_root)
+                        .expect("absolute readable root"),
+                ],
             },
             network_access: false,
         };
@@ -782,9 +802,11 @@ mod tests {
         assert!(roots.contains(&expected_helper));
         assert!(roots.contains(&expected_cwd));
         assert!(roots.contains(&expected_readable));
-        assert!(canonical_windows_platform_default_roots()
-            .into_iter()
-            .all(|path| !roots.contains(&path)));
+        assert!(
+            canonical_windows_platform_default_roots()
+                .into_iter()
+                .all(|path| !roots.contains(&path))
+        );
     }
 
     #[test]
@@ -803,9 +825,11 @@ mod tests {
 
         let roots = gather_read_roots(&command_cwd, &policy, &codex_home);
 
-        assert!(canonical_windows_platform_default_roots()
-            .into_iter()
-            .all(|path| roots.contains(&path)));
+        assert!(
+            canonical_windows_platform_default_roots()
+                .into_iter()
+                .all(|path| roots.contains(&path))
+        );
     }
 
     #[test]
@@ -817,8 +841,10 @@ mod tests {
         fs::create_dir_all(&command_cwd).expect("create workspace");
         fs::create_dir_all(&writable_root).expect("create writable root");
         let policy = SandboxPolicy::WorkspaceWrite {
-            writable_roots: vec![AbsolutePathBuf::from_absolute_path(&writable_root)
-                .expect("absolute writable root")],
+            writable_roots: vec![
+                AbsolutePathBuf::from_absolute_path(&writable_root)
+                    .expect("absolute writable root"),
+            ],
             read_only_access: ReadOnlyAccess::Restricted {
                 include_platform_defaults: false,
                 readable_roots: Vec::new(),
@@ -845,9 +871,10 @@ mod tests {
 
         let roots = gather_legacy_full_read_roots(&command_cwd, &policy, &codex_home);
 
-        assert!(canonical_windows_platform_default_roots()
-            .into_iter()
-            .all(|path| roots.contains(&path)));
+        assert!(
+            canonical_windows_platform_default_roots()
+                .into_iter()
+                .all(|path| roots.contains(&path))
+        );
     }
->>>>>>> upstream_main
 }
