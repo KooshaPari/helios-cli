@@ -5,7 +5,11 @@
 > - Branch protection: 1 reviewer required, no force-push
 > - Authority: phenotype-org-governance/SUPERSEDED.md
 
+[![AI Slop Inside](https://sladge.net/badge.svg)](https://sladge.net)
+
 <!-- PHENOTYPE FORK CONTEXT — see "About this fork" below -->
+
+[![AI Slop Inside](https://sladge.net/badge.svg)](https://sladge.net)
 
 ## About this fork
 
