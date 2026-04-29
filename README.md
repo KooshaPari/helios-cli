@@ -9,8 +9,6 @@
 
 <!-- PHENOTYPE FORK CONTEXT — see "About this fork" below -->
 
-[![AI Slop Inside](https://sladge.net/badge.svg)](https://sladge.net)
-
 ## About this fork
 
 `KooshaPari/helios-cli` is a Phenotype-org fork of [OpenAI Codex CLI](https://github.com/openai/codex). The upstream README is preserved verbatim below; this preamble documents fork-specific divergence so downstream consumers can tell what is upstream behavior versus a Phenotype patch.
