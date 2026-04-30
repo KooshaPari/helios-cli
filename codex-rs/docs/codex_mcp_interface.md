@@ -1,199 +1,95 @@
-# Codex MCP Server Interface [experimental]
+# Codex MCP Server Interface
 
-This document describes Codex's experimental MCP server interface: a JSON-RPC API that runs over the Model Context Protocol (MCP) transport to control a local Codex engine.
+This document describes the experimental MCP interface used by Codex clients to control a local
+Codex engine.
 
-- Status: experimental and subject to change without notice
-- Server binary: `codex mcp-server` (or `codex-mcp-server`)
-- Transport: standard MCP over stdio (JSON-RPC 2.0, line-delimited)
+- Status: experimental and subject to change
+- Server binary: `codex mcp-server` or `codex-mcp-server`
+- Transport: MCP over stdio / JSON-RPC
 
-## Overview
+The authoritative protocol types live in `app-server-protocol/src/protocol/{common,v1,v2}.rs` and
+the server wiring lives in `app-server/`.
 
-Codex exposes MCP-compatible methods to manage threads, turns, accounts, config, and approvals. The types live in `app-server-protocol/src/protocol/{common,v1,v2}.rs` and are consumed by the app server implementation in `app-server/`.
+## Core surface
 
-At a glance:
+Use the v2 thread and turn APIs for new integrations:
 
-- Primary v2 RPCs
-  - `thread/start`, `thread/resume`, `thread/fork`, `thread/read`, `thread/list`
-  - `turn/start`, `turn/steer`, `turn/interrupt`
-  - `account/read`, `account/login/start`, `account/login/cancel`, `account/logout`, `account/rateLimits/read`
-  - `config/read`, `config/value/write`, `config/batchWrite`
-  - `model/list`, `app/list`, `collaborationMode/list`
-- Remaining v1 compatibility RPCs
-  - `getConversationSummary`
-  - `getAuthStatus`
-  - `gitDiffToRemote`
-  - `fuzzyFileSearch`, `fuzzyFileSearch/sessionStart`, `fuzzyFileSearch/sessionUpdate`, `fuzzyFileSearch/sessionStop`
-- Notifications
-  - v2 typed notifications such as `thread/started`, `turn/completed`, `account/login/completed`
-  - `codex/event/*` stream notifications for live agent events
-  - `fuzzyFileSearch/sessionUpdated`, `fuzzyFileSearch/sessionCompleted`
-- Approvals (server -> client requests)
-  - `applyPatchApproval`, `execCommandApproval`
+- `thread/start`, `thread/resume`, `thread/fork`, `thread/read`, `thread/list`
+- `turn/start`, `turn/steer`, `turn/interrupt`
+- `review/start`
+- `model/list`, `collaborationMode/list`, `app/list`
+- `config/read`, `config/value/write`, `config/batchWrite`
+- `command/exec`
+- `fs/readFile`, `fs/writeFile`, `fs/createDirectory`, `fs/getMetadata`, `fs/readDirectory`, `fs/remove`
+- `plugin/list`, `plugin/read`
 
-See code for full type definitions and exact shapes: `app-server-protocol/src/protocol/{common,v1,v2}.rs`.
-
-## Starting the server
-
-Run Codex as an MCP server and connect an MCP client:
-
-```bash
-codex mcp-server | your_mcp_client
-```
-
-For a simple inspection UI, you can also try:
-
-```bash
-npx @modelcontextprotocol/inspector codex mcp-server
-```
-
-Use the separate `codex mcp` subcommand to manage configured MCP server launchers in `config.toml`.
-
-## Threads and turns
-
-Use the v2 thread and turn APIs for all new integrations. `thread/start` creates a thread, `turn/start` submits user input, `turn/interrupt` stops an in-flight turn, and `thread/list` / `thread/read` expose persisted history.
-
-`getConversationSummary` remains as a compatibility helper for clients that still need a summary lookup by `conversationId` or `rolloutPath`.
-
-<<<<<<< HEAD
-- `model`: string model id (e.g. "o3", "gpt-5.1", "gpt-5.1-codex")
-- `profile`: optional named profile
-- `cwd`: optional working directory
-- `approvalPolicy`: `untrusted` | `on-request` | `on-failure` (deprecated) | `never`
-- `sandbox`: `read-only` | `workspace-write` | `external-sandbox` (honors `networkAccess` restricted/enabled) | `danger-full-access`
-- `config`: map of additional config overrides
-- `baseInstructions`: optional instruction override
-- `compactPrompt`: optional replacement for the default compaction prompt
-- `includePlanTool` / `includeApplyPatchTool`: booleans
-
-Response: `{ conversationId, model, reasoningEffort?, rolloutPath }`
-
-Send input to the active turn:
-
-- `sendUserMessage` → enqueue items to the conversation
-- `sendUserTurn` → structured turn with explicit `cwd`, `approvalPolicy`, `sandboxPolicy`, `model`, optional `effort`, `summary`, optional `personality`, and optional `outputSchema` (JSON Schema for the final assistant message)
-
-Valid `personality` values are `friendly`, `pragmatic`, and `none`. When `none` is selected, the personality placeholder is replaced with an empty string.
-
-For v2 threads, `turn/start` also accepts `outputSchema` to constrain the final assistant message for that turn.
-
-Interrupt a running turn: `interruptConversation`.
-
-List/resume/archive: `listConversations`, `resumeConversation`, `archiveConversation`.
-
-For v2 threads, use `thread/list` with filters such as `archived: true`, `cwd: "/path"`, or
-`searchTerm: "needle"` to
-narrow results, and `thread/unarchive` to restore archived rollouts to the active sessions
-directory (it returns the restored thread summary).
-=======
-For complete request and response shapes, see the app-server README and the protocol definitions in `app-server-protocol/src/protocol/v2.rs`.
->>>>>>> upstream_main
-
-## Models
-
-Fetch the catalog of models available in the current Codex build with `model/list`. The request accepts optional pagination inputs:
-
-<<<<<<< HEAD
-- `limit` – number of models to return (defaults to a server-selected value)
-- `cursor` – opaque string from the previous response’s `nextCursor`
-
-Each response yields:
-
-- `data` – ordered list of models. A model includes:
-  - `id`, `model`, `displayName`, `description`
-  - `supportedReasoningEfforts` – array of objects with:
-    - `reasoningEffort` – one of `none|minimal|low|medium|high|xhigh`
-    - `description` – human-friendly label for the effort
-  - `defaultReasoningEffort` – suggested effort for the UI
-  - `inputModalities` – accepted input types for the model
-  - `supportsPersonality` – whether the model supports personality-specific instructions
-  - `isDefault` – whether the model is recommended for most users
-  - `upgrade` – optional recommended upgrade model id
-  - `upgradeInfo` – optional upgrade metadata object with:
-    - `model` – recommended upgrade model id
-    - `upgradeCopy` – optional display copy for the upgrade recommendation
-    - `modelLink` – optional link for the upgrade recommendation
-    - `migrationMarkdown` – optional markdown shown when presenting the upgrade
-- `nextCursor` – pass into the next request to continue paging (optional)
-=======
-- `limit` - number of models to return (defaults to a server-selected value)
-- `cursor` - opaque string from the previous response's `nextCursor`
-
-Each response yields:
-
-- `data` - ordered list of models. A model includes:
-  - `id`, `model`, `displayName`, `description`
-  - `supportedReasoningEfforts` - array of objects with:
-    - `reasoningEffort` - one of `none|minimal|low|medium|high|xhigh`
-    - `description` - human-friendly label for the effort
-  - `defaultReasoningEffort` - suggested effort for the UI
-  - `inputModalities` - accepted input types for the model
-  - `supportsPersonality` - whether the model supports personality-specific instructions
-  - `isDefault` - whether the model is recommended for most users
-  - `upgrade` - optional recommended upgrade model id
-  - `upgradeInfo` - optional upgrade metadata object with:
-    - `model` - recommended upgrade model id
-    - `upgradeCopy` - optional display copy for the upgrade recommendation
-    - `modelLink` - optional link for the upgrade recommendation
-    - `migrationMarkdown` - optional markdown shown when presenting the upgrade
-- `nextCursor` - pass into the next request to continue paging (optional)
->>>>>>> upstream_main
-
-## Collaboration modes (experimental)
-
-Fetch the built-in collaboration mode presets with `collaborationMode/list`. This endpoint does not accept pagination and returns the full list in one response:
-
-- `data` - ordered list of collaboration mode masks (partial settings to apply on top of the base mode)
-  - For tri-state fields like `reasoning_effort` and `developer_instructions`, omit the field to keep the current value, set it to `null` to clear it, or set a concrete value to update it.
-
-When sending `turn/start` with `collaborationMode`, `settings.developer_instructions: null` means "use built-in instructions for the selected mode".
-
-## Event stream
-
-While a conversation runs, the server sends notifications:
-
-- `codex/event` with the serialized Codex event payload. The shape matches `core/src/protocol.rs`'s `Event` and `EventMsg` types. Some notifications include a `_meta.requestId` to correlate with the originating request.
-- `fuzzyFileSearch/sessionUpdated` and `fuzzyFileSearch/sessionCompleted` for the legacy fuzzy search flow.
-
-Clients should render events and, when present, surface approval requests (see next section).
-
-## Tool responses
-
-The `codex` and `codex-reply` tools return standard MCP `CallToolResult` payloads. For compatibility with MCP clients that prefer `structuredContent`, Codex mirrors the content blocks inside `structuredContent` alongside the `threadId`.
-
-Example:
-
-```json
-{
-  "content": [{ "type": "text", "text": "Hello from Codex" }],
-  "structuredContent": {
-    "threadId": "019bbed6-1e9e-7f31-984c-a05b65045719",
-    "content": "Hello from Codex"
-  }
-}
-```
-
-## Approvals (server -> client)
-
-When Codex needs approval to apply changes or run commands, the server issues JSON-RPC requests to the client:
-
-- `applyPatchApproval { conversationId, callId, fileChanges, reason?, grantRoot? }`
-- `execCommandApproval { conversationId, callId, approvalId?, command, cwd, reason? }`
-
-The client must reply with `{ decision: "allow" | "deny" }` for each request.
-
-## Auth helpers
-
-For the complete request/response shapes and flow examples, see the [Auth endpoints (v2) section in the app-server README](../app-server/README.md#auth-endpoints-v2).
-
-## Legacy compatibility methods
-
-The server still accepts a narrow v1 compatibility surface for existing app clients:
+Legacy compatibility methods remain available for older clients:
 
 - `getConversationSummary`
 - `getAuthStatus`
 - `gitDiffToRemote`
 - `fuzzyFileSearch`, `fuzzyFileSearch/sessionStart`, `fuzzyFileSearch/sessionUpdate`, `fuzzyFileSearch/sessionStop`
 
-## Compatibility and stability
+## Starting the server
 
-This interface is experimental. Method names, fields, and event shapes may evolve. For the authoritative schema, consult `app-server-protocol/src/protocol/{common,v1,v2}.rs` and the corresponding server wiring in `app-server/`.
+Run Codex as an MCP server and connect any compatible client:
+
+```bash
+codex mcp-server | your_mcp_client
+```
+
+For inspection, use the MCP inspector:
+
+```bash
+npx @modelcontextprotocol/inspector codex mcp-server
+```
+
+## Threads and turns
+
+- `thread/start` opens a new thread and emits `thread/started`
+- `thread/resume` reopens a persisted thread
+- `thread/fork` creates a new thread from stored history
+- `turn/start` begins generation and streams turn/item notifications
+- `turn/steer` injects more input into a live regular turn
+- `turn/interrupt` cancels an in-flight turn
+
+`thread/list` supports filters such as `archived`, `cwd`, `searchTerm`, `modelProviders`, and
+`sourceKinds`. `thread/read` can include turns on demand.
+
+## Models and collaboration modes
+
+`model/list` returns available models, reasoning efforts, and optional upgrade metadata.
+
+`collaborationMode/list` returns built-in presets. When sending `turn/start` with a collaboration
+mode, `settings.developer_instructions: null` means use the built-in instructions for that mode.
+
+## Event stream
+
+The server emits:
+
+- `thread/started`
+- `thread/status/changed`
+- `turn/completed`
+- `account/login/completed`
+- `codex/event/*`
+- `fuzzyFileSearch/sessionUpdated`
+- `fuzzyFileSearch/sessionCompleted`
+
+## Approvals
+
+When Codex needs to apply a patch or run a command, the server sends approval requests to the
+client:
+
+- `applyPatchApproval`
+- `execCommandApproval`
+
+The client responds with `allow` or `deny`.
+
+## Auth helpers
+
+See the app-server README for the auth endpoint flow and request/response shapes.
+
+## Stability
+
+The interface is experimental. Consult the protocol definitions and the app-server README for the
+current canonical behavior.

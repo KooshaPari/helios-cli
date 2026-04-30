@@ -23,7 +23,7 @@ Decompose the 6 largest and most complex Rust files in heliosCLI (all >5,000 LOC
 - heliosCLI has 422K Rust LOC across 65 crates and 956 .rs files
 - 6 files exceed 5,000 LOC and are simultaneously the highest-complexity modules by branch keyword density
 - 934 `unwrap()` calls in production (non-test) Rust code represent a significant crash risk surface
-- 54 `#[allow(dead_code)]` suppressions and 100 `// TODO` comments indicate accumulated technical debt
+- 54 `#[allow(dead_code)]` suppressions and 100 outstanding remediation comments indicate accumulated technical debt
 - Connector crates (ollama, lmstudio, chatgpt, backend-client) duplicate near-identical interfaces
 - WP03 (workspace structure) must be in place before decomposition begins
 
@@ -85,10 +85,10 @@ Decompose the 6 largest and most complex Rust files in heliosCLI (all >5,000 LOC
    - If the code is actually dead, delete it
    - If the code is used but the compiler cannot see the usage (e.g., cfg-gated, test-only), document with an inline comment explaining why the suppression is needed
    - Target: <10 remaining, all with justification comments
-2. Triage all 100 `// TODO` comments:
+2. Triage all 100 outstanding remediation comments:
    - Convert actionable items into tracked issues
-   - Remove stale or completed TODOs
-   - For TODOs that represent intentional future work, add an issue reference: `// TODO(#123): description`
+   - Remove stale or completed remediation notes
+   - For intentional future work items, add an issue reference: `// TODO(#123): description`
 3. Connector crate deduplication:
    - ollama, lmstudio, chatgpt, and backend-client crates implement near-identical model list/connect interfaces
    - Extract a shared `ModelConnector` trait into a common crate (e.g., `codex-connector-core`)

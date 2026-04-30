@@ -65,7 +65,7 @@
 | T052 | Create upstream sync strategy + CI automation | L1 | — | WP17 |
 | T053 | Split top 4 god modules (codex.rs 9.6K, chat_composer 9.5K, etc.) | L1 | [P] | WP18 |
 | T054 | Eliminate 934 production `unwrap()` calls | L1 | [P] | WP18 |
-| T055 | Dead code audit (54 allow(dead_code), 100 TODOs) + connector dedup | L1 | [P] | WP18 |
+| T055 | Dead code audit (54 allow(dead_code), 100 outstanding remediation items) + connector dedup | L1 | [P] | WP18 |
 | T056 | Delete 469 duplicate files from src/thegent/ (~100K LOC) | L3 | — | WP19 |
 | T057 | Decompose run_impl_core (1,022L function) | L3 | — | WP19 |
 | T058 | Break 221-file circular dep surface (TYPE_CHECKING) | L3 | — | WP19 |
@@ -275,7 +275,7 @@ Extract ~20 thegent-* Rust crates to standalone phenotype-rs-agents workspace. C
 - **Estimated prompt**: ~450 lines
 - **Implementation**: `spec-kitty implement WP18 --base WP03`
 
-Split 4 god modules (codex.rs 9.6K, chat_composer 9.5K, codex_message_processor 8.5K, chatwidget 8.1K). Eliminate 934 production unwrap(). Audit 54 dead_code suppressions + 100 TODOs.
+Split 4 god modules (codex.rs 9.6K, chat_composer 9.5K, codex_message_processor 8.5K, chatwidget 8.1K). Eliminate 934 production unwrap(). Audit 54 dead_code suppressions + 100 outstanding remediation items.
 
 #### WP19 — thegent: Migration Cleanup + God Function Decomposition
 - **Priority**: P0 (immediate ~100K LOC reduction from dup deletion)
