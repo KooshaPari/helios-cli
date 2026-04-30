@@ -3,7 +3,7 @@
 > - cargo-deny config: see deny.toml
 > - cargo-audit: rustsec/audit-check@v2 weekly
 > - Branch protection: 1 reviewer required, no force-push
-> - Authority: phenotype-org-governance/SUPERSEDED.md
+> - Authority: CLAUDE.md
 
 [![AI Slop Inside](https://sladge.net/badge.svg)](https://sladge.net)
 
