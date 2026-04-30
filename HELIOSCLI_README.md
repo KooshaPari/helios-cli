@@ -1,5 +1,7 @@
 # HeliosCLI - Fork of OpenAI Codex CLI
 
+[![AI Slop Inside](https://sladge.net/badge.svg)](https://sladge.net)
+
 ## Overview
 
 Forked from https://github.com/openai/codex for performance optimization and custom modifications.
