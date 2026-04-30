@@ -54,6 +54,12 @@ If you want Codex in your code editor (VS Code, Cursor, Windsurf), <a href="http
 [![Phenotype](https://img.shields.io/badge/Phenotype-org-blueviolet)](https://github.com/KooshaPari)
 
 
+[![Build](https://img.shields.io/github/actions/workflow/status/KooshaPari/helios-cli/rust-ci.yml?branch=main&label=build)](https://github.com/KooshaPari/helios-cli/actions/workflows/rust-ci.yml)
+[![Release](https://img.shields.io/github/v/release/KooshaPari/helios-cli?include_prereleases&sort=semver)](https://github.com/KooshaPari/helios-cli/releases)
+[![License](https://img.shields.io/github/license/KooshaPari/helios-cli)](LICENSE)
+[![Phenotype](https://img.shields.io/badge/Phenotype-org-blueviolet)](https://github.com/KooshaPari)
+
+
 **Status:** stable
 
 A multi-model coding agent CLI framework built with Bazel, Rust, and TypeScript. HeliosCLI provides a unified interface for integrating coding agents from OpenAI Codex, Claude, Gemini, and other AI models with a local sandboxing and execution engine.
