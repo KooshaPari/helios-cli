@@ -21,7 +21,7 @@ jobs:
       gates: ${{ steps.detect.outputs.gates }}
       lang: ${{ steps.detect-lang.outputs.lang }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Detect stage from branch
         id: detect
@@ -94,7 +94,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'format')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Format check (Rust)
         if: needs.detect-stage.outputs.lang == 'rust'
         run: cargo fmt --all --check --manifest-path codex-rs/Cargo.toml
@@ -113,7 +113,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'lint')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Install Linux build dependencies (Rust)
         if: needs.detect-stage.outputs.lang == 'rust'
         run: |
@@ -137,7 +137,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'secrets')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
@@ -149,7 +149,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'unit')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Install Linux build dependencies (Rust)
         if: needs.detect-stage.outputs.lang == 'rust'
         run: |
@@ -173,7 +173,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'integration')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Install Linux build dependencies (Rust)
         if: needs.detect-stage.outputs.lang == 'rust'
         run: |
@@ -197,7 +197,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'coverage-')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Install Linux build dependencies (Rust)
         if: needs.detect-stage.outputs.lang == 'rust'
         run: |
@@ -239,7 +239,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'sast')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: SAST (Rust)
         if: needs.detect-stage.outputs.lang == 'rust'
         run: cargo install cargo-audit && cargo audit --file codex-rs/Cargo.lock
@@ -258,7 +258,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'dep-audit')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Dep audit (Rust)
         if: needs.detect-stage.outputs.lang == 'rust'
         run: cargo install cargo-deny && cargo deny --manifest-path codex-rs/Cargo.toml check
@@ -277,7 +277,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'license') && secrets.FOSSA_API_KEY != ''
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: License scan
         uses: fossas/fossa-action@29693cc50323968e039056be419b32989fc5880c  # was: @main
         with:
@@ -288,7 +288,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'e2e-smoke')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Run smoke E2E tests
         run: |
           if [ -f Makefile ] && grep -q 'e2e-smoke' Makefile; then
@@ -302,7 +302,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'e2e-full')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Run full E2E tests
         run: |
           if [ -f Makefile ] && grep -q 'e2e-full' Makefile; then
@@ -316,7 +316,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'perf')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Run performance benchmarks
         run: |
           if [ -f Makefile ] && grep -q 'bench' Makefile; then
@@ -330,7 +330,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'sla-validation')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Validate SLA compliance
         run: |
           if [ -f Makefile ] && grep -q 'sla-check' Makefile; then
@@ -344,7 +344,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'coderabbit')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Trigger CodeRabbit review
         run: |
           echo "CodeRabbit review triggered for stage ${{ needs.detect-stage.outputs.stage }}"
@@ -357,7 +357,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'gca-review')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: GCA review gate
         run: echo "GCA review required for stage ${{ needs.detect-stage.outputs.stage }}. Ensure GCA sign-off before merge."
 
@@ -375,7 +375,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'sbom')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
@@ -386,7 +386,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'artifact-checksum')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Build and checksum artifacts
         run: |
           if [ -f Makefile ] && grep -q 'build' Makefile; then
@@ -407,7 +407,7 @@ jobs:
     if: contains(needs.detect-stage.outputs.gates, 'targeted-regression')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Run targeted regression tests
         run: |
           if [ -f Makefile ] && grep -q 'regression' Makefile; then
