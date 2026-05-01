@@ -46,7 +46,7 @@ If you want Codex in your code editor (VS Code, Cursor, Windsurf), <a href="http
 
 ---
 
-# HeliosCLI
+# Helios-CLI
 
 [![Build](https://img.shields.io/github/actions/workflow/status/KooshaPari/helios-cli/rust-ci.yml?branch=main&label=build)](https://github.com/KooshaPari/helios-cli/actions/workflows/rust-ci.yml)
 [![Release](https://img.shields.io/github/v/release/KooshaPari/helios-cli?include_prereleases&sort=semver)](https://github.com/KooshaPari/helios-cli/releases)
@@ -62,11 +62,11 @@ If you want Codex in your code editor (VS Code, Cursor, Windsurf), <a href="http
 
 **Status:** stable
 
-A multi-model coding agent CLI framework built with Bazel, Rust, and TypeScript. HeliosCLI provides a unified interface for integrating coding agents from OpenAI Codex, Claude, Gemini, and other AI models with a local sandboxing and execution engine.
+A multi-model coding agent CLI framework built with Bazel, Rust, and TypeScript. Helios-CLI provides a unified interface for integrating coding agents from OpenAI Codex, Claude, Gemini, and other AI models with a local sandboxing and execution engine.
 
 ## Purpose
 
-HeliosCLI is the execution layer for AI-powered coding agents. It abstracts model complexity, providing a consistent CLI interface for code generation, review, refactoring, and debugging tasks across multiple AI providers while maintaining code safety through sandboxing.
+Helios-CLI is the execution layer for AI-powered coding agents. It abstracts model complexity, providing a consistent CLI interface for code generation, review, refactoring, and debugging tasks across multiple AI providers while maintaining code safety through sandboxing.
 
 ## Architecture
 
@@ -119,7 +119,7 @@ bazel run //codex-cli:codex -- --help
 
 ## Configuration
 
-HeliosCLI uses environment variables for configuration:
+Helios-CLI uses environment variables for configuration:
 
 ```bash
 # OpenAI
@@ -180,7 +180,7 @@ cargo run --bin codex-cli -- server --port 8080
 
 ## Task Types
 
-HeliosCLI supports diverse coding tasks:
+Helios-CLI supports diverse coding tasks:
 
 - **Code Generation** — Write new code from specifications
 - **Code Review** — Analyze code for bugs, style, performance
