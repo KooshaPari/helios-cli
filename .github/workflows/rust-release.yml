@@ -498,7 +498,7 @@ jobs:
 
           echo "path=${notes_path}" >> "${GITHUB_OUTPUT}"
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           path: dist
 
@@ -553,7 +553,7 @@ jobs:
           run_install: false
 
       - name: Setup Node.js for npm packaging
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           node-version: 22
 
@@ -644,7 +644,7 @@ jobs:
 
     steps:
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
