@@ -1226,7 +1226,6 @@ fn synthetic_exit_status(code: i32) -> ExitStatus {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
@@ -1542,7 +1541,5 @@ mod tests {
         ]
     }
 }
-=======
 #[path = "exec_tests.rs"]
 mod tests;
->>>>>>> upstream_main

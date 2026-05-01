@@ -82,9 +82,7 @@ impl EnvironmentContext {
         } else {
             before_network
         };
-<<<<<<< HEAD
         EnvironmentContext::new(cwd, shell.clone(), current_date, timezone, network, None)
-=======
         EnvironmentContext::new(
             cwd,
             shell.clone(),
@@ -93,7 +91,6 @@ impl EnvironmentContext {
             network,
             /*subagents*/ None,
         )
->>>>>>> upstream_main
     }
 
     pub fn from_turn_context(turn_context: &TurnContext, shell: &Shell) -> Self {
@@ -103,11 +100,8 @@ impl EnvironmentContext {
             turn_context.current_date.clone(),
             turn_context.timezone.clone(),
             Self::network_from_turn_context(turn_context),
-<<<<<<< HEAD
             None,
-=======
             /*subagents*/ None,
->>>>>>> upstream_main
         )
     }
 
@@ -118,11 +112,8 @@ impl EnvironmentContext {
             turn_context_item.current_date.clone(),
             turn_context_item.timezone.clone(),
             Self::network_from_turn_context_item(turn_context_item),
-<<<<<<< HEAD
             None,
-=======
             /*subagents*/ None,
->>>>>>> upstream_main
         )
     }
 
@@ -218,7 +209,6 @@ impl From<EnvironmentContext> for ResponseItem {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use crate::shell::ShellType;
 
@@ -495,7 +485,5 @@ mod tests {
         assert_eq!(context.serialize_to_xml(), expected);
     }
 }
-=======
 #[path = "environment_context_tests.rs"]
 mod tests;
->>>>>>> upstream_main

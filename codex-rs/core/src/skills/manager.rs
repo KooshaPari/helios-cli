@@ -5,11 +5,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::RwLock;
 
-<<<<<<< HEAD
 use codex_app_server_protocol::ConfigLayerSource;
-=======
 use codex_protocol::protocol::Product;
->>>>>>> upstream_main
 use codex_protocol::protocol::SkillScope;
 use codex_utils_absolute_path::AbsolutePathBuf;
 use toml::Value as TomlValue;
@@ -196,7 +193,6 @@ impl SkillsManager {
                     scope: SkillScope::User,
                 }),
         );
-<<<<<<< HEAD
         let mut outcome = load_skills_from_roots(roots);
         if !extra_user_roots.is_empty() {
             // When extra user roots are provided, skip system skills before caching the result.
@@ -213,14 +209,12 @@ impl SkillsManager {
             Ok(cache) => cache,
             Err(err) => err.into_inner(),
         };
-=======
         let skill_config_rules = skill_config_rules_from_stack(&config_layer_stack);
         let outcome = self.build_skill_outcome(roots, &skill_config_rules);
         let mut cache = self
             .cache_by_cwd
             .write()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
->>>>>>> upstream_main
         cache.insert(cwd.to_path_buf(), outcome.clone());
         outcome
     }
@@ -287,7 +281,6 @@ struct ConfigSkillsCacheKey {
 
 pub(crate) fn bundled_skills_enabled_from_stack(
     config_layer_stack: &crate::config_loader::ConfigLayerStack,
-<<<<<<< HEAD
 ) -> HashSet<PathBuf> {
     let mut disabled = HashSet::new();
     let mut configs = HashMap::new();
@@ -299,7 +292,6 @@ pub(crate) fn bundled_skills_enabled_from_stack(
             ConfigLayerSource::User { .. } | ConfigLayerSource::SessionFlags
         ) {
             continue;
-=======
 ) -> bool {
     let effective_config = config_layer_stack.effective_config();
     let Some(skills_value) = effective_config
@@ -314,10 +306,8 @@ pub(crate) fn bundled_skills_enabled_from_stack(
         Err(err) => {
             warn!("invalid skills config: {err}");
             return true;
->>>>>>> upstream_main
         }
 
-<<<<<<< HEAD
         let Some(skills_value) = layer.config.get("skills") else {
             continue;
         };
@@ -342,9 +332,7 @@ pub(crate) fn bundled_skills_enabled_from_stack(
     }
 
     disabled
-=======
     skills.bundled.unwrap_or_default().enabled
->>>>>>> upstream_main
 }
 
 fn config_skills_cache_key(
@@ -391,7 +379,6 @@ fn normalize_extra_user_roots(extra_user_roots: &[PathBuf]) -> Vec<PathBuf> {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::config::ConfigBuilder;
@@ -663,7 +650,5 @@ enabled = false
         );
     }
 }
-=======
 #[path = "manager_tests.rs"]
 mod tests;
->>>>>>> upstream_main

@@ -20,11 +20,9 @@ use crate::thread_manager::ThreadManagerState;
 use codex_features::Feature;
 use codex_protocol::AgentPath;
 use codex_protocol::ThreadId;
-<<<<<<< HEAD
 use codex_protocol::models::FunctionCallOutputPayload;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::protocol::InitialHistory;
-=======
 use codex_protocol::items::TurnItem;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::FunctionCallOutputPayload;
@@ -32,7 +30,6 @@ use codex_protocol::models::ResponseInputItem;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::protocol::InitialHistory;
 use codex_protocol::protocol::InterAgentCommunication;
->>>>>>> upstream_main
 use codex_protocol::protocol::Op;
 use codex_protocol::protocol::RolloutItem;
 use codex_protocol::protocol::SessionSource;
@@ -50,14 +47,11 @@ use tracing::warn;
 
 const AGENT_NAMES: &str = include_str!("agent_names.txt");
 const FORKED_SPAWN_AGENT_OUTPUT_MESSAGE: &str = "You are the newly spawned agent. The prior conversation history was forked from your parent agent. Treat the next user message as your new task, and use the forked history only as background context.";
-<<<<<<< HEAD
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct SpawnAgentOptions {
     pub(crate) fork_parent_spawn_call_id: Option<String>,
 }
-=======
->>>>>>> upstream_main
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct SpawnAgentOptions {
@@ -134,13 +128,11 @@ impl AgentControl {
         items: Vec<UserInput>,
         session_source: Option<SessionSource>,
     ) -> CodexResult<ThreadId> {
-<<<<<<< HEAD
         self.spawn_agent_with_options(config, items, session_source, SpawnAgentOptions::default())
             .await
     }
 
     pub(crate) async fn spawn_agent_with_options(
-=======
         Ok(self
             .spawn_agent_internal(config, items, session_source, SpawnAgentOptions::default())
             .await?
@@ -148,15 +140,12 @@ impl AgentControl {
     }
 
     pub(crate) async fn spawn_agent_with_metadata(
->>>>>>> upstream_main
         &self,
         config: crate::config::Config,
         items: Vec<UserInput>,
         session_source: Option<SessionSource>,
         options: SpawnAgentOptions,
-<<<<<<< HEAD
     ) -> CodexResult<ThreadId> {
-=======
     ) -> CodexResult<LiveAgent> {
         self.spawn_agent_internal(config, items, session_source, options)
             .await
@@ -169,7 +158,6 @@ impl AgentControl {
         session_source: Option<SessionSource>,
         options: SpawnAgentOptions,
     ) -> CodexResult<LiveAgent> {
->>>>>>> upstream_main
         let state = self.upgrade()?;
         let mut reservation = self.state.reserve_spawn_slot(config.agent_max_threads)?;
         let inherited_shell_snapshot = self
@@ -238,11 +226,8 @@ impl AgentControl {
                                 "parent thread rollout unavailable for fork: {parent_thread_id}"
                             ))
                         })?;
-<<<<<<< HEAD
                     let mut forked_rollout_items =
-=======
                     let mut forked_rollout_items: Vec<RolloutItem> =
->>>>>>> upstream_main
                         RolloutRecorder::get_rollout_history(&rollout_path)
                             .await?
                             .get_rollout_items();
@@ -263,13 +248,10 @@ impl AgentControl {
                             initial_history,
                             self.clone(),
                             session_source,
-<<<<<<< HEAD
                             false,
-=======
                             /*persist_extended_history*/ false,
                             inherited_shell_snapshot,
                             inherited_exec_policy,
->>>>>>> upstream_main
                         )
                         .await?
                 } else {
@@ -278,15 +260,12 @@ impl AgentControl {
                             config,
                             self.clone(),
                             session_source,
-<<<<<<< HEAD
                             false,
                             None,
-=======
                             /*persist_extended_history*/ false,
                             /*metrics_service_name*/ None,
                             inherited_shell_snapshot,
                             inherited_exec_policy,
->>>>>>> upstream_main
                         )
                         .await?
                 }
@@ -728,7 +707,6 @@ impl AgentControl {
         &self,
         parent_thread_id: ThreadId,
     ) -> String {
-<<<<<<< HEAD
         let Ok(state) = self.upgrade() else {
             return String::new();
         };
@@ -757,7 +735,6 @@ impl AgentControl {
         }
         agents.sort();
         agents.join("\n")
-=======
         let Ok(agents) = self.open_thread_spawn_children(parent_thread_id).await else {
             return String::new();
         };
@@ -838,7 +815,6 @@ impl AgentControl {
         }
 
         Ok(agents)
->>>>>>> upstream_main
     }
 
     /// Starts a detached watcher for sub-agents spawned from another thread.
@@ -1215,7 +1191,6 @@ fn thread_spawn_depth(session_source: &SessionSource) -> Option<i32> {
     }
 }
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::CodexAuth;
@@ -2225,7 +2200,5 @@ mod tests {
             .expect("resumed child shutdown should submit");
     }
 }
-=======
 #[path = "control_tests.rs"]
 mod tests;
->>>>>>> upstream_main

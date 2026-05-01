@@ -131,10 +131,7 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -171,10 +168,7 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
             model: next_model.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -234,10 +228,7 @@ async fn model_and_personality_change_only_appends_model_instructions() -> Resul
             model: test.session_configured.model.clone(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -274,10 +265,7 @@ async fn model_and_personality_change_only_appends_model_instructions() -> Resul
             model: next_model.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -361,7 +349,6 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
     let server = MockServer::start().await;
     let image_model_slug = "test-image-model";
     let text_model_slug = "test-text-only-model";
-<<<<<<< HEAD
     let image_model = ModelInfo {
         slug: image_model_slug.to_string(),
         display_name: "Test Image Model".to_string(),
@@ -399,7 +386,6 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
     text_model.display_name = "Test Text Model".to_string();
     text_model.description = Some("text only".to_string());
     text_model.input_modalities = vec![InputModality::Text];
-=======
     let image_model = test_model_info(
         image_model_slug,
         "Test Image Model",
@@ -412,7 +398,6 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
         "text only",
         vec![InputModality::Text],
     );
->>>>>>> upstream_main
     mount_models_once(
         &server,
         ModelsResponse {
@@ -459,10 +444,7 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
             model: image_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -483,10 +465,7 @@ async fn model_change_from_image_to_text_strips_prior_image_content() -> Result<
             model: text_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1044,10 +1023,7 @@ async fn model_switch_to_smaller_model_updates_token_context_window() -> Result<
             model: large_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -1106,10 +1082,7 @@ async fn model_switch_to_smaller_model_updates_token_context_window() -> Result<
             model: smaller_model_slug.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

@@ -253,11 +253,7 @@ impl NetworkProxyState {
             state,
             reloader,
             audit_metadata,
-<<<<<<< HEAD
-            None,
-=======
             /*blocked_request_observer*/ None,
->>>>>>> upstream_main
         )
     }
 

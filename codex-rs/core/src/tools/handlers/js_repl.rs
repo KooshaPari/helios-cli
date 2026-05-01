@@ -174,7 +174,6 @@ impl ToolHandler for JsReplHandler {
         )
         .await;
 
-<<<<<<< HEAD
         Ok(ToolOutput::Function {
             body: if items.is_empty() {
                 FunctionCallOutputBody::Text(content)
@@ -183,13 +182,11 @@ impl ToolHandler for JsReplHandler {
             },
             success: Some(true),
         })
-=======
         if items.is_empty() {
             Ok(FunctionToolOutput::from_text(content, Some(true)))
         } else {
             Ok(FunctionToolOutput::from_content(items, Some(true)))
         }
->>>>>>> upstream_main
     }
 }
 

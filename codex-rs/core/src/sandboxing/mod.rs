@@ -11,7 +11,6 @@ use crate::exec::ExecCapturePolicy;
 use crate::exec::ExecExpiration;
 use crate::exec::ExecToolCallOutput;
 use crate::exec::StdoutStream;
-<<<<<<< HEAD
 use crate::exec::execute_exec_env;
 use crate::landlock::allow_network_for_proxy;
 use crate::landlock::create_linux_sandbox_command_args;
@@ -20,22 +19,17 @@ use crate::protocol::SandboxPolicy;
 use crate::seatbelt::MACOS_PATH_TO_SEATBELT_EXECUTABLE;
 #[cfg(target_os = "macos")]
 use crate::seatbelt::create_seatbelt_command_args_with_extensions;
-=======
 use crate::exec::WindowsRestrictedTokenFilesystemOverlay;
 use crate::exec::execute_exec_request;
->>>>>>> upstream_main
 #[cfg(target_os = "macos")]
 use crate::spawn::CODEX_SANDBOX_ENV_VAR;
 use crate::spawn::CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
 use codex_network_proxy::NetworkProxy;
 use codex_protocol::config_types::WindowsSandboxLevel;
-<<<<<<< HEAD
 use codex_protocol::models::FileSystemPermissions;
 #[cfg(target_os = "macos")]
 use codex_protocol::models::MacOsSeatbeltProfileExtensions;
 use codex_protocol::models::PermissionProfile;
-=======
->>>>>>> upstream_main
 pub use codex_protocol::models::SandboxPermissions;
 use codex_protocol::permissions::FileSystemSandboxPolicy;
 use codex_protocol::permissions::NetworkSandboxPolicy;
@@ -70,7 +64,6 @@ pub struct ExecRequest {
     pub arg0: Option<String>,
 }
 
-<<<<<<< HEAD
 /// Bundled arguments for sandbox transformation.
 ///
 /// This keeps call sites self-documenting when several fields are optional.
@@ -269,7 +262,6 @@ impl SandboxManager {
         &self,
         policy: &SandboxPolicy,
         pref: SandboxablePreference,
-=======
 impl ExecRequest {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
@@ -280,7 +272,6 @@ impl ExecRequest {
         expiration: ExecExpiration,
         capture_policy: ExecCapturePolicy,
         sandbox: SandboxType,
->>>>>>> upstream_main
         windows_sandbox_level: WindowsSandboxLevel,
         windows_sandbox_private_desktop: bool,
         sandbox_policy: SandboxPolicy,
@@ -315,15 +306,12 @@ impl ExecRequest {
             cwd,
             mut env,
             network,
-<<<<<<< HEAD
             sandbox_policy_cwd,
             #[cfg(target_os = "macos")]
             macos_seatbelt_profile_extensions,
             codex_linux_sandbox_exe,
             use_linux_sandbox_bwrap,
-=======
             sandbox,
->>>>>>> upstream_main
             windows_sandbox_level,
             windows_sandbox_private_desktop,
             sandbox_policy,
@@ -341,7 +329,6 @@ impl ExecRequest {
                 "1".to_string(),
             );
         }
-<<<<<<< HEAD
 
         let mut command = Vec::with_capacity(1 + spec.args.len());
         command.push(spec.program);
@@ -401,13 +388,11 @@ impl ExecRequest {
         env.extend(sandbox_env);
 
         Ok(ExecRequest {
-=======
         #[cfg(target_os = "macos")]
         if sandbox == SandboxType::MacosSeatbelt {
             env.insert(CODEX_SANDBOX_ENV_VAR.to_string(), "seatbelt".to_string());
         }
         Self {
->>>>>>> upstream_main
             command,
             cwd,
             env,

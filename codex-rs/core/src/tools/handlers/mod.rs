@@ -21,12 +21,9 @@ mod tool_suggest;
 pub(crate) mod unified_exec;
 mod view_image;
 
-<<<<<<< HEAD
-=======
 use codex_sandboxing::policy_transforms::intersect_permission_profiles;
 use codex_sandboxing::policy_transforms::merge_permission_profiles;
 use codex_sandboxing::policy_transforms::normalize_additional_permissions;
->>>>>>> upstream_main
 use codex_utils_absolute_path::AbsolutePathBufGuard;
 pub use plan::PLAN_TOOL;
 use serde::Deserialize;
@@ -110,10 +107,7 @@ pub(crate) fn normalize_and_validate_additional_permissions(
     approval_policy: AskForApproval,
     sandbox_permissions: SandboxPermissions,
     additional_permissions: Option<PermissionProfile>,
-<<<<<<< HEAD
-=======
     permissions_preapproved: bool,
->>>>>>> upstream_main
     _cwd: &Path,
 ) -> Result<Option<PermissionProfile>, String> {
     let uses_additional_permissions = matches!(
@@ -143,13 +137,10 @@ pub(crate) fn normalize_and_validate_additional_permissions(
                     .to_string(),
             );
         };
-<<<<<<< HEAD
-=======
         #[cfg(not(target_os = "macos"))]
         if additional_permissions.macos.is_some() {
             return Err("`additional_permissions.macos` is only supported on macOS".to_string());
         }
->>>>>>> upstream_main
         let normalized = normalize_additional_permissions(additional_permissions)?;
         if normalized.is_empty() {
             return Err(

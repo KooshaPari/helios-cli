@@ -148,10 +148,7 @@ fn event_msg_persistence_mode(ev: &EventMsg) -> Option<EventPersistenceMode> {
         | EventMsg::TerminalInteraction(_)
         | EventMsg::ExecCommandOutputDelta(_)
         | EventMsg::ExecApprovalRequest(_)
-<<<<<<< HEAD:codex-rs/core/src/rollout/policy.rs
-=======
         | EventMsg::RequestPermissions(_)
->>>>>>> upstream_main:codex-rs/rollout/src/policy.rs
         | EventMsg::RequestUserInput(_)
         | EventMsg::ElicitationRequest(_)
         | EventMsg::ApplyPatchApprovalRequest(_)

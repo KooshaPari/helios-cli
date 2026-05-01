@@ -1,5 +1,4 @@
 use codex_protocol::ThreadId;
-<<<<<<< HEAD
 
 pub fn get_thread_id_from_citations(citations: Vec<String>) -> Vec<ThreadId> {
     let mut result = Vec::new();
@@ -18,7 +17,6 @@ pub fn get_thread_id_from_citations(citations: Vec<String>) -> Vec<ThreadId> {
         }
 
         if let Some(ids_block) = ids_block {
-=======
 use codex_protocol::memory_citation::MemoryCitation;
 use codex_protocol::memory_citation::MemoryCitationEntry;
 use std::collections::HashSet;
@@ -40,24 +38,19 @@ pub fn parse_memory_citation(citations: Vec<String>) -> Option<MemoryCitation> {
         }
 
         if let Some(ids_block) = extract_ids_block(&citation) {
->>>>>>> upstream_main
             for id in ids_block
                 .lines()
                 .map(str::trim)
                 .filter(|line| !line.is_empty())
             {
-<<<<<<< HEAD
                 if let Ok(thread_id) = ThreadId::try_from(id) {
                     result.push(thread_id);
-=======
                 if seen_rollout_ids.insert(id.to_string()) {
                     rollout_ids.push(id.to_string());
->>>>>>> upstream_main
                 }
             }
         }
     }
-<<<<<<< HEAD
     result
 }
 
@@ -90,7 +83,6 @@ mod tests {
         assert_eq!(get_thread_id_from_citations(citations), vec![thread_id]);
     }
 }
-=======
 
     if entries.is_empty() && rollout_ids.is_empty() {
         None
@@ -147,4 +139,3 @@ fn extract_ids_block(text: &str) -> Option<&str> {
 #[cfg(test)]
 #[path = "citations_tests.rs"]
 mod tests;
->>>>>>> upstream_main

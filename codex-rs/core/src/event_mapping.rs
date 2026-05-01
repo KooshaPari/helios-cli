@@ -21,10 +21,8 @@ use tracing::warn;
 use uuid::Uuid;
 
 use crate::contextual_user_message::is_contextual_user_fragment;
-<<<<<<< HEAD
 use crate::web_search::web_search_action_detail;
 
-=======
 use crate::contextual_user_message::parse_visible_hook_prompt_message;
 use crate::web_search::web_search_action_detail;
 
@@ -36,13 +34,10 @@ const CONTEXTUAL_DEVELOPER_PREFIXES: &[&str] = &[
     "<personality_spec>",
 ];
 
->>>>>>> upstream_main
 pub(crate) fn is_contextual_user_message_content(message: &[ContentItem]) -> bool {
     message.iter().any(is_contextual_user_fragment)
 }
 
-<<<<<<< HEAD
-=======
 /// Returns true when a developer message contains any rollback-trimmable contextual fragment.
 ///
 /// `build_initial_context` can bundle these fragments together with persistent developer text in a
@@ -73,7 +68,6 @@ fn is_contextual_dev_fragment(content_item: &ContentItem) -> bool {
     })
 }
 
->>>>>>> upstream_main
 fn parse_user_message(message: &[ContentItem]) -> Option<UserMessageItem> {
     if is_contextual_user_message_content(message) {
         return None;
@@ -217,7 +211,6 @@ pub fn parse_turn_item(item: &ResponseItem) -> Option<TurnItem> {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::parse_turn_item;
     use codex_protocol::items::AgentMessageContent;
@@ -625,7 +618,5 @@ mod tests {
         }
     }
 }
-=======
 #[path = "event_mapping_tests.rs"]
 mod tests;
->>>>>>> upstream_main

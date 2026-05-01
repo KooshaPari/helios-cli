@@ -10,13 +10,10 @@ use codex_app_server_protocol::Result;
 use codex_app_server_protocol::ServerNotification;
 use codex_app_server_protocol::ServerRequest;
 use codex_app_server_protocol::ServerRequestPayload;
-<<<<<<< HEAD
 use codex_protocol::ThreadId;
-=======
 use codex_otel::span_w3c_trace_context;
 use codex_protocol::ThreadId;
 use codex_protocol::protocol::W3cTraceContext;
->>>>>>> upstream_main
 use serde::Serialize;
 use tokio::sync::Mutex;
 use tokio::sync::mpsc;
@@ -117,13 +114,10 @@ pub(crate) struct OutgoingMessageSender {
     next_server_request_id: AtomicI64,
     sender: mpsc::Sender<OutgoingEnvelope>,
     request_id_to_callback: Mutex<HashMap<RequestId, PendingCallbackEntry>>,
-<<<<<<< HEAD
-=======
     /// Incoming requests that are still waiting on a final response or error.
     /// We keep them here because this is where responses, errors, and
     /// disconnect cleanup all get handled.
     request_contexts: Mutex<HashMap<ConnectionRequestId, RequestContext>>,
->>>>>>> upstream_main
 }
 
 #[derive(Clone)]
@@ -174,13 +168,10 @@ impl ThreadScopedOutgoingMessageSender {
             .await;
     }
 
-<<<<<<< HEAD
-=======
     pub(crate) async fn send_global_server_notification(&self, notification: ServerNotification) {
         self.outgoing.send_server_notification(notification).await;
     }
 
->>>>>>> upstream_main
     pub(crate) async fn abort_pending_server_requests(&self) {
         self.outgoing
             .cancel_requests_for_thread(
@@ -222,8 +213,6 @@ impl OutgoingMessageSender {
         }
     }
 
-<<<<<<< HEAD
-=======
     pub(crate) async fn register_request_context(&self, request_context: RequestContext) {
         let mut request_contexts = self.request_contexts.lock().await;
         if request_contexts
@@ -273,19 +262,15 @@ impl OutgoingMessageSender {
         self.request_contexts.lock().await.len()
     }
 
->>>>>>> upstream_main
     pub(crate) async fn send_request(
         &self,
         request: ServerRequestPayload,
     ) -> (RequestId, oneshot::Receiver<ClientRequestResult>) {
-<<<<<<< HEAD
         self.send_request_to_connections(None, request, None).await
-=======
         self.send_request_to_connections(
             /*connection_ids*/ None, request, /*thread_id*/ None,
         )
         .await
->>>>>>> upstream_main
     }
 
     fn next_request_id(&self) -> RequestId {
@@ -332,10 +317,7 @@ impl OutgoingMessageSender {
                         .send(OutgoingEnvelope::ToConnection {
                             connection_id: *connection_id,
                             message: outgoing_message.clone(),
-<<<<<<< HEAD
-=======
                             write_complete_tx: None,
->>>>>>> upstream_main
                         })
                         .await
                     {
@@ -370,10 +352,7 @@ impl OutgoingMessageSender {
                 .send(OutgoingEnvelope::ToConnection {
                     connection_id,
                     message: OutgoingMessage::Request(request),
-<<<<<<< HEAD
-=======
                     write_complete_tx: None,
->>>>>>> upstream_main
                 })
                 .await
             {
@@ -417,7 +396,6 @@ impl OutgoingMessageSender {
         self.take_request_callback(id).await.is_some()
     }
 
-<<<<<<< HEAD
     async fn take_request_callback(
         &self,
         id: &RequestId,
@@ -460,7 +438,6 @@ impl OutgoingMessageSender {
                 }
             }
             entries
-=======
     pub(crate) async fn cancel_all_requests(&self, error: Option<JSONRPCErrorError>) {
         let entries = {
             let mut request_id_to_callback = self.request_id_to_callback.lock().await;
@@ -468,15 +445,12 @@ impl OutgoingMessageSender {
                 .drain()
                 .map(|(_, entry)| entry)
                 .collect::<Vec<_>>()
->>>>>>> upstream_main
         };
 
         if let Some(error) = error {
             for entry in entries {
                 if let Err(err) = entry.callback.send(Err(error.clone())) {
                     let request_id = entry.request.id();
-<<<<<<< HEAD
-=======
                     warn!("could not notify callback for {request_id:?} due to: {err:?}");
                 }
             }
@@ -533,7 +507,6 @@ impl OutgoingMessageSender {
             for entry in entries {
                 if let Err(err) = entry.callback.send(Err(error.clone())) {
                     let request_id = entry.request.id();
->>>>>>> upstream_main
                     warn!("could not notify callback for {request_id:?} due to: {err:?}",);
                 }
             }
@@ -728,10 +701,7 @@ mod tests {
     use codex_app_server_protocol::ConfigWarningNotification;
     use codex_app_server_protocol::DynamicToolCallParams;
     use codex_app_server_protocol::FileChangeRequestApprovalParams;
-<<<<<<< HEAD
     use codex_app_server_protocol::LoginChatGptCompleteNotification;
-=======
->>>>>>> upstream_main
     use codex_app_server_protocol::ModelRerouteReason;
     use codex_app_server_protocol::ModelReroutedNotification;
     use codex_app_server_protocol::RateLimitSnapshot;

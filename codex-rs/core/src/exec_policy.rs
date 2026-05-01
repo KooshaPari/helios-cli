@@ -879,7 +879,6 @@ async fn collect_policy_files(dir: impl AsRef<Path>) -> Result<Vec<PathBuf>, Exe
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::config_loader::ConfigLayerEntry;
@@ -2409,7 +2408,5 @@ prefix_rule(pattern=["git"], decision="prompt")
         );
     }
 }
-=======
 #[path = "exec_policy_tests.rs"]
 mod tests;
->>>>>>> upstream_main

@@ -1487,7 +1487,6 @@ impl AuthManager {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD:codex-rs/core/src/auth.rs
 mod tests {
     use super::*;
     use crate::auth::storage::FileAuthStorage;
@@ -1921,7 +1920,5 @@ mod tests {
         pretty_assertions::assert_eq!(auth.account_plan_type(), Some(AccountPlanType::Unknown));
     }
 }
-=======
 #[path = "auth_tests.rs"]
 mod tests;
->>>>>>> upstream_main:codex-rs/login/src/auth/manager.rs

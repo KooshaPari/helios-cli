@@ -247,15 +247,12 @@ pub(crate) async fn maybe_install_mcp_dependencies(
             &name,
             &oauth_config.url,
             config.mcp_oauth_credentials_store_mode,
-<<<<<<< HEAD
             oauth_config.http_headers,
             oauth_config.env_http_headers,
             &[],
-=======
             oauth_config.http_headers.clone(),
             oauth_config.env_http_headers.clone(),
             &resolved_scopes.scopes,
->>>>>>> upstream_main
             server_config.oauth_resource.as_deref(),
             config.mcp_oauth_callback_port,
             config.mcp_oauth_callback_url.as_deref(),
@@ -466,7 +463,6 @@ fn mcp_dependency_to_server_config(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::skills::model::SkillDependencies;
@@ -576,7 +572,5 @@ mod tests {
         );
     }
 }
-=======
 #[path = "skill_dependencies_tests.rs"]
 mod tests;
->>>>>>> upstream_main

@@ -527,10 +527,7 @@ async fn plan_mode_emits_plan_item_from_proposed_plan_block() -> anyhow::Result<
             model: session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(collaboration_mode),
             personality: None,
         })
@@ -607,10 +604,7 @@ async fn plan_mode_strips_plan_from_agent_messages() -> anyhow::Result<()> {
             model: session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(collaboration_mode),
             personality: None,
         })
@@ -714,18 +708,12 @@ async fn plan_mode_streaming_citations_are_stripped_across_added_deltas_and_done
             final_output_json_schema: None,
             cwd: std::env::current_dir()?,
             approval_policy: codex_protocol::protocol::AskForApproval::Never,
-<<<<<<< HEAD
-=======
             approvals_reviewer: None,
->>>>>>> upstream_main
             sandbox_policy: codex_protocol::protocol::SandboxPolicy::DangerFullAccess,
             model: session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(collaboration_mode),
             personality: None,
         })
@@ -907,18 +895,12 @@ async fn plan_mode_streaming_proposed_plan_tag_split_across_added_and_delta_is_p
             final_output_json_schema: None,
             cwd: std::env::current_dir()?,
             approval_policy: codex_protocol::protocol::AskForApproval::Never,
-<<<<<<< HEAD
-=======
             approvals_reviewer: None,
->>>>>>> upstream_main
             sandbox_policy: codex_protocol::protocol::SandboxPolicy::DangerFullAccess,
             model: session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(collaboration_mode),
             personality: None,
         })
@@ -1032,10 +1014,7 @@ async fn plan_mode_handles_missing_plan_close_tag() -> anyhow::Result<()> {
             model: session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(collaboration_mode),
             personality: None,
         })

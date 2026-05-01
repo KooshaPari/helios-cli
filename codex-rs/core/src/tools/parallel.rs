@@ -143,7 +143,6 @@ impl ToolCallRuntime {
                 tools: Vec::new(),
             },
             ToolPayload::Custom { .. } => ResponseInputItem::CustomToolCallOutput {
-<<<<<<< HEAD
                 call_id: call.call_id.clone(),
                 output: FunctionCallOutputPayload {
                     body: FunctionCallOutputBody::Text(Self::abort_message(call, secs)),
@@ -159,13 +158,11 @@ impl ToolCallRuntime {
                 output: FunctionCallOutputPayload {
                     body: FunctionCallOutputBody::Text(Self::abort_message(call, secs)),
                     ..Default::default()
-=======
                 call_id: call.call_id,
                 name: None,
                 output: codex_protocol::models::FunctionCallOutputPayload {
                     body: codex_protocol::models::FunctionCallOutputBody::Text(message),
                     success: Some(false),
->>>>>>> upstream_main
                 },
             },
             _ => ResponseInputItem::FunctionCallOutput {

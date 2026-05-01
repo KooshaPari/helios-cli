@@ -148,7 +148,6 @@ pub fn command_from_argv(argv: &[String]) -> Option<Command> {
     command.args(args);
     Some(command)
 }
-<<<<<<< HEAD
 
 #[cfg(test)]
 mod tests {
@@ -561,5 +560,3 @@ mod tests {
         Ok(())
     }
 }
-=======
->>>>>>> upstream_main

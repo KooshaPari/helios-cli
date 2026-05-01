@@ -28,11 +28,8 @@ pub const DEFAULT_OTEL_ENVIRONMENT: &str = "dev";
 pub const DEFAULT_MEMORIES_MAX_ROLLOUTS_PER_STARTUP: usize = 16;
 pub const DEFAULT_MEMORIES_MAX_ROLLOUT_AGE_DAYS: i64 = 30;
 pub const DEFAULT_MEMORIES_MIN_ROLLOUT_IDLE_HOURS: i64 = 6;
-<<<<<<< HEAD
 pub const DEFAULT_MEMORIES_MAX_RAW_MEMORIES_FOR_GLOBAL: usize = 256;
-=======
 pub const DEFAULT_MEMORIES_MAX_RAW_MEMORIES_FOR_CONSOLIDATION: usize = 256;
->>>>>>> upstream_main
 pub const DEFAULT_MEMORIES_MAX_UNUSED_DAYS: i64 = 30;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, JsonSchema)]
@@ -402,21 +399,15 @@ pub struct ToolSuggestConfig {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct MemoriesToml {
-<<<<<<< HEAD
-=======
     /// When `true`, web searches and MCP tool calls mark the thread `memory_mode` as `"polluted"`.
     pub no_memories_if_mcp_or_web_search: Option<bool>,
->>>>>>> upstream_main
     /// When `false`, newly created threads are stored with `memory_mode = "disabled"` in the state DB.
     pub generate_memories: Option<bool>,
     /// When `false`, skip injecting memory usage instructions into developer prompts.
     pub use_memories: Option<bool>,
     /// Maximum number of recent raw memories retained for global consolidation.
-<<<<<<< HEAD
     pub max_raw_memories_for_global: Option<usize>,
-=======
     pub max_raw_memories_for_consolidation: Option<usize>,
->>>>>>> upstream_main
     /// Maximum number of days since a memory was last used before it becomes ineligible for phase 2 selection.
     pub max_unused_days: Option<i64>,
     /// Maximum age of the threads used for memories.
@@ -434,16 +425,13 @@ pub struct MemoriesToml {
 /// Effective memories settings after defaults are applied.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MemoriesConfig {
-<<<<<<< HEAD
     pub generate_memories: bool,
     pub use_memories: bool,
     pub max_raw_memories_for_global: usize,
-=======
     pub no_memories_if_mcp_or_web_search: bool,
     pub generate_memories: bool,
     pub use_memories: bool,
     pub max_raw_memories_for_consolidation: usize,
->>>>>>> upstream_main
     pub max_unused_days: i64,
     pub max_rollout_age_days: i64,
     pub max_rollouts_per_startup: usize,
@@ -455,16 +443,13 @@ pub struct MemoriesConfig {
 impl Default for MemoriesConfig {
     fn default() -> Self {
         Self {
-<<<<<<< HEAD
             generate_memories: true,
             use_memories: true,
             max_raw_memories_for_global: DEFAULT_MEMORIES_MAX_RAW_MEMORIES_FOR_GLOBAL,
-=======
             no_memories_if_mcp_or_web_search: false,
             generate_memories: true,
             use_memories: true,
             max_raw_memories_for_consolidation: DEFAULT_MEMORIES_MAX_RAW_MEMORIES_FOR_CONSOLIDATION,
->>>>>>> upstream_main
             max_unused_days: DEFAULT_MEMORIES_MAX_UNUSED_DAYS,
             max_rollout_age_days: DEFAULT_MEMORIES_MAX_ROLLOUT_AGE_DAYS,
             max_rollouts_per_startup: DEFAULT_MEMORIES_MAX_ROLLOUTS_PER_STARTUP,
@@ -479,13 +464,11 @@ impl From<MemoriesToml> for MemoriesConfig {
     fn from(toml: MemoriesToml) -> Self {
         let defaults = Self::default();
         Self {
-<<<<<<< HEAD
             generate_memories: toml.generate_memories.unwrap_or(defaults.generate_memories),
             use_memories: toml.use_memories.unwrap_or(defaults.use_memories),
             max_raw_memories_for_global: toml
                 .max_raw_memories_for_global
                 .unwrap_or(defaults.max_raw_memories_for_global)
-=======
             no_memories_if_mcp_or_web_search: toml
                 .no_memories_if_mcp_or_web_search
                 .unwrap_or(defaults.no_memories_if_mcp_or_web_search),
@@ -494,7 +477,6 @@ impl From<MemoriesToml> for MemoriesConfig {
             max_raw_memories_for_consolidation: toml
                 .max_raw_memories_for_consolidation
                 .unwrap_or(defaults.max_raw_memories_for_consolidation)
->>>>>>> upstream_main
                 .min(4096),
             max_unused_days: toml
                 .max_unused_days
@@ -1009,7 +991,6 @@ impl Default for ShellEnvironmentPolicy {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
@@ -1327,7 +1308,5 @@ mod tests {
         );
     }
 }
-=======
 #[path = "types_tests.rs"]
 mod tests;
->>>>>>> upstream_main

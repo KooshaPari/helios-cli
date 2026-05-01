@@ -256,7 +256,6 @@ pub(super) fn rollout_summary_file_stem_from_parts(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::rollout_summary_file_stem;
     use super::rollout_summary_file_stem_from_parts;
@@ -329,7 +328,5 @@ mod tests {
         assert_eq!(rollout_summary_file_stem(&memory), FIXED_PREFIX);
     }
 }
-=======
 #[path = "storage_tests.rs"]
 mod tests;
->>>>>>> upstream_main

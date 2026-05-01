@@ -53,7 +53,6 @@ impl From<SkillInstructions> for ResponseItem {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use codex_protocol::models::ContentItem;
@@ -124,7 +123,5 @@ mod tests {
         assert!(!SKILL_FRAGMENT.matches_text("regular text"));
     }
 }
-=======
 #[path = "user_instructions_tests.rs"]
 mod tests;
->>>>>>> upstream_main

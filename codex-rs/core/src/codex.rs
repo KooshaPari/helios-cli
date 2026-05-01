@@ -27,13 +27,10 @@ use crate::compact_remote::run_inline_remote_auto_compact_task;
 use crate::config::ManagedFeatures;
 use crate::connectors;
 use crate::exec_policy::ExecPolicyManager;
-<<<<<<< HEAD
 use crate::features::FEATURES;
 use crate::features::Feature;
 use crate::features::Features;
 use crate::features::maybe_push_unstable_features_warning;
-=======
->>>>>>> upstream_main
 #[cfg(test)]
 use crate::models_manager::collaboration_mode_presets::CollaborationModesConfig;
 use crate::models_manager::manager::ModelsManager;
@@ -53,26 +50,20 @@ use crate::stream_events_utils::handle_output_item_done;
 use crate::stream_events_utils::last_assistant_message_from_item;
 use crate::stream_events_utils::raw_assistant_output_text_from_item;
 use crate::stream_events_utils::record_completed_response_item;
-<<<<<<< HEAD
 use crate::terminal;
 use crate::truncate::TruncationPolicy;
-=======
->>>>>>> upstream_main
 use crate::turn_metadata::TurnMetadataState;
 use crate::util::error_or_panic;
 use async_channel::Receiver;
 use async_channel::Sender;
 use chrono::Local;
 use chrono::Utc;
-<<<<<<< HEAD
-=======
 use codex_app_server_protocol::McpServerElicitationRequest;
 use codex_app_server_protocol::McpServerElicitationRequestParams;
 use codex_exec_server::Environment;
 use codex_features::FEATURES;
 use codex_features::Feature;
 use codex_features::unstable_features_warning_event;
->>>>>>> upstream_main
 use codex_hooks::HookEvent;
 use codex_hooks::HookEventAfterAgent;
 use codex_hooks::HookPayload;
@@ -130,11 +121,8 @@ use codex_protocol::request_user_input::RequestUserInputArgs;
 use codex_protocol::request_user_input::RequestUserInputResponse;
 use codex_rmcp_client::ElicitationResponse;
 use codex_rmcp_client::OAuthCredentialsStoreMode;
-<<<<<<< HEAD
-=======
 use codex_terminal_detection::user_agent;
 use codex_utils_output_truncation::TruncationPolicy;
->>>>>>> upstream_main
 use codex_utils_stream_parser::AssistantTextChunk;
 use codex_utils_stream_parser::AssistantTextStreamParser;
 use codex_utils_stream_parser::ProposedPlanSegment;
@@ -442,7 +430,6 @@ const DIRECT_APP_TOOL_EXPOSURE_THRESHOLD: usize = 100;
 
 impl Codex {
     /// Spawn a new [`Codex`] and initialize the session.
-<<<<<<< HEAD
     #[allow(clippy::too_many_arguments)]
     pub(crate) async fn spawn(
         mut config: Config,
@@ -457,7 +444,6 @@ impl Codex {
         persist_extended_history: bool,
         metrics_service_name: Option<String>,
     ) -> CodexResult<CodexSpawnOk> {
-=======
     pub(crate) async fn spawn(args: CodexSpawnArgs) -> CodexResult<CodexSpawnOk> {
         let parent_trace = match args.parent_trace {
             Some(trace) => {
@@ -502,7 +488,6 @@ impl Codex {
             inherited_exec_policy,
             parent_trace: _,
         } = args;
->>>>>>> upstream_main
         let (tx_sub, rx_sub) = async_channel::bounded(SUBMISSION_CHANNEL_CAPACITY);
         let (tx_event, rx_event) = async_channel::unbounded();
 
@@ -526,7 +511,6 @@ impl Codex {
         if config.features.enabled(Feature::JsRepl)
             && let Err(err) = resolve_compatible_node(config.js_repl_node_path.as_deref()).await
         {
-<<<<<<< HEAD
             let message = format!(
                 "Disabled `js_repl` for this session because the configured Node runtime is unavailable or incompatible. {err}"
             );
@@ -540,7 +524,6 @@ impl Codex {
             loaded_skills.allowed_skills_for_implicit_invocation();
         let user_instructions =
             get_user_instructions(&config, Some(&allowed_skills_for_implicit_invocation)).await;
-=======
             let _ = config.features.disable(Feature::JsRepl);
             let _ = config.features.disable(Feature::JsReplToolsOnly);
             let message = if config.features.enabled(Feature::JsRepl) {
@@ -565,7 +548,6 @@ impl Codex {
             let _ = config.features.disable(Feature::CodeMode);
             config.startup_warnings.push(message);
         }
->>>>>>> upstream_main
 
         let user_instructions = get_user_instructions(&config).await;
 
@@ -1093,10 +1075,7 @@ pub(crate) struct SessionConfiguration {
 
     collaboration_mode: CollaborationMode,
     model_reasoning_summary: Option<ReasoningSummaryConfig>,
-<<<<<<< HEAD
-=======
     service_tier: Option<ServiceTier>,
->>>>>>> upstream_main
 
     /// Developer instructions that supplement the base instructions.
     developer_instructions: Option<String>,
@@ -1181,12 +1160,9 @@ impl SessionConfiguration {
         }
         if let Some(summary) = updates.reasoning_summary {
             next_configuration.model_reasoning_summary = Some(summary);
-<<<<<<< HEAD
-=======
         }
         if let Some(service_tier) = updates.service_tier {
             next_configuration.service_tier = service_tier;
->>>>>>> upstream_main
         }
         if let Some(personality) = updates.personality {
             next_configuration.personality = Some(personality);
@@ -1403,11 +1379,8 @@ impl Session {
         let reasoning_summary = session_configuration
             .model_reasoning_summary
             .unwrap_or(model_info.default_reasoning_summary);
-<<<<<<< HEAD
         let otel_manager = otel_manager.clone().with_model(
-=======
         let session_telemetry = session_telemetry.clone().with_model(
->>>>>>> upstream_main
             session_configuration.collaboration_mode.model(),
             model_info.slug.as_str(),
         );
@@ -1587,34 +1560,28 @@ impl Session {
             session_init.ephemeral = config.ephemeral,
         ));
 
-<<<<<<< HEAD
         let history_meta_fut = async {
             if matches!(
                 session_configuration.session_source,
                 SessionSource::SubAgent(_)
             ) {
-=======
         let is_subagent = matches!(
             session_configuration.session_source,
             SessionSource::SubAgent(_)
         );
         let history_meta_fut = async {
             if is_subagent {
->>>>>>> upstream_main
                 (0, 0)
             } else {
                 crate::message_history::history_metadata(&config).await
             }
-<<<<<<< HEAD
         };
-=======
         }
         .instrument(info_span!(
             "session_init.history_metadata",
             otel.name = "session_init.history_metadata",
             session_init.is_subagent = is_subagent,
         ));
->>>>>>> upstream_main
         let auth_manager_clone = Arc::clone(&auth_manager);
         let config_for_mcp = Arc::clone(&config);
         let mcp_manager_for_mcp = Arc::clone(&mcp_manager);
@@ -1707,7 +1674,6 @@ impl Session {
         let account_id = auth.and_then(CodexAuth::get_account_id);
         let account_email = auth.and_then(CodexAuth::get_account_email);
         let originator = crate::default_client::originator().value;
-<<<<<<< HEAD
         let terminal_type = terminal::user_agent();
         let session_model = session_configuration.collaboration_mode.model().to_string();
         let mut otel_manager = OtelManager::new(
@@ -1724,7 +1690,6 @@ impl Session {
         );
         if let Some(service_name) = session_configuration.metrics_service_name.as_deref() {
             otel_manager = otel_manager.with_metrics_service_name(service_name);
-=======
         let terminal_type = user_agent();
         let session_model = session_configuration.collaboration_mode.model().to_string();
         let auth_env_telemetry = collect_auth_env_telemetry(
@@ -1746,7 +1711,6 @@ impl Session {
         .with_auth_env(auth_env_telemetry.to_otel_metadata());
         if let Some(service_name) = session_configuration.metrics_service_name.as_deref() {
             session_telemetry = session_telemetry.with_metrics_service_name(service_name);
->>>>>>> upstream_main
         }
         let network_proxy_audit_metadata = NetworkProxyAuditMetadata {
             conversation_id: Some(conversation_id.to_string()),
@@ -1759,17 +1723,14 @@ impl Session {
             model: Some(session_model.clone()),
             slug: Some(session_model),
         };
-<<<<<<< HEAD
         config.features.emit_metrics(&otel_manager);
         otel_manager.counter(
             "codex.thread.started",
             1,
-=======
         config.features.emit_metrics(&session_telemetry);
         session_telemetry.counter(
             THREAD_STARTED_METRIC,
             /*inc*/ 1,
->>>>>>> upstream_main
             &[(
                 "is_git",
                 if get_git_repo_root(&session_configuration.cwd).is_some() {
@@ -2248,10 +2209,7 @@ impl Session {
 
     async fn record_initial_history(&self, conversation_history: InitialHistory) {
         let turn_context = self.new_default_turn().await;
-<<<<<<< HEAD
         self.clear_mcp_tool_selection().await;
-=======
->>>>>>> upstream_main
         let is_subagent = {
             let state = self.state.lock().await;
             matches!(
@@ -2261,7 +2219,6 @@ impl Session {
         };
         match conversation_history {
             InitialHistory::New => {
-<<<<<<< HEAD
                 // Build and record initial items (user instructions + environment context)
                 // TODO(ccunningham): Defer initial context insertion until the first real turn
                 // starts so it reflects the actual first-turn settings (permissions, etc.) and
@@ -2292,7 +2249,6 @@ impl Session {
                     state.set_reference_context_item(reconstructed_rollout.reference_context_item);
                 }
                 self.set_previous_model(previous_model.clone()).await;
-=======
                 // Defer initial context insertion until the first real turn starts so
                 // turn/start overrides can be merged before we write model-visible context.
                 self.set_previous_turn_settings(/*previous_turn_settings*/ None)
@@ -2303,7 +2259,6 @@ impl Session {
                 let previous_turn_settings = self
                     .apply_rollout_reconstruction(&turn_context, &rollout_items)
                     .await;
->>>>>>> upstream_main
 
                 // If resuming, warn when the last recorded model differs from the current one.
                 let curr: &str = turn_context.model_info.slug.as_str();
@@ -2325,7 +2280,6 @@ impl Session {
                     .await;
                 }
 
-<<<<<<< HEAD
                 // Always add response items to conversation history
                 let reconstructed_history = reconstructed_rollout.history;
                 if !reconstructed_history.is_empty() {
@@ -2333,8 +2287,6 @@ impl Session {
                         .await;
                 }
 
-=======
->>>>>>> upstream_main
                 // Seed usage info from the recorded rollout so UIs can show token counts
                 // immediately on resume/fork.
                 if let Some(info) = Self::last_token_info_from_rollout(&rollout_items) {
@@ -2349,7 +2301,6 @@ impl Session {
                 }
             }
             InitialHistory::Forked(rollout_items) => {
-<<<<<<< HEAD
                 let restored_tool_selection =
                     Self::extract_mcp_tool_selection_from_rollout(&rollout_items);
                 let reconstructed_rollout = self
@@ -2364,10 +2315,8 @@ impl Session {
                     self.record_into_history(&reconstructed_history, &turn_context)
                         .await;
                 }
-=======
                 self.apply_rollout_reconstruction(&turn_context, &rollout_items)
                     .await;
->>>>>>> upstream_main
 
                 // Seed usage info from the recorded rollout so UIs can show token counts
                 // immediately on resume/fork.
@@ -2381,7 +2330,6 @@ impl Session {
                     self.persist_rollout_items(&rollout_items).await;
                 }
 
-<<<<<<< HEAD
                 // Append the current session's initial context after the reconstructed history.
                 let initial_context = self.build_initial_context(&turn_context, None).await;
                 self.record_conversation_items(&turn_context, &initial_context)
@@ -2391,8 +2339,6 @@ impl Session {
                     state.set_reference_context_item(Some(turn_context.to_turn_context_item()));
                 }
 
-=======
->>>>>>> upstream_main
                 // Forked threads should remain file-backed immediately after startup.
                 self.ensure_rollout_materialized().await;
 
@@ -2402,8 +2348,6 @@ impl Session {
                 }
             }
         }
-<<<<<<< HEAD
-=======
     }
 
     async fn apply_rollout_reconstruction(
@@ -2423,7 +2367,6 @@ impl Session {
         self.set_previous_turn_settings(previous_turn_settings.clone())
             .await;
         previous_turn_settings
->>>>>>> upstream_main
     }
 
     fn last_token_info_from_rollout(rollout_items: &[RolloutItem]) -> Option<TokenUsageInfo> {
@@ -3043,14 +2986,11 @@ impl Session {
     /// Emit an exec approval request event and await the user's decision.
     ///
     /// The request is keyed by `call_id` + `approval_id` so matching responses
-<<<<<<< HEAD
     /// are delivered to the correct in-flight turn. If the task is aborted,
     /// this returns the default `ReviewDecision` (`Denied`).
-=======
     /// are delivered to the correct in-flight turn. If the pending approval is
     /// cleared before a response arrives, treat it as an abort so interrupted
     /// turns do not continue on a synthetic denial.
->>>>>>> upstream_main
     ///
     /// Note that if `available_decisions` is `None`, then the other fields will
     /// be used to derive the available decisions via
@@ -3067,10 +3007,7 @@ impl Session {
         network_approval_context: Option<NetworkApprovalContext>,
         proposed_execpolicy_amendment: Option<ExecPolicyAmendment>,
         additional_permissions: Option<PermissionProfile>,
-<<<<<<< HEAD
-=======
         skill_metadata: Option<ExecApprovalRequestSkillMetadata>,
->>>>>>> upstream_main
         available_decisions: Option<Vec<ReviewDecision>>,
     ) -> ReviewDecision {
         //  command-level approvals use `call_id`.
@@ -3124,10 +3061,7 @@ impl Session {
             proposed_execpolicy_amendment,
             proposed_network_policy_amendments,
             additional_permissions,
-<<<<<<< HEAD
-=======
             skill_metadata,
->>>>>>> upstream_main
             available_decisions: Some(available_decisions),
             parsed_cmd,
         });
@@ -3258,8 +3192,6 @@ impl Session {
         rx_response.await.ok()
     }
 
-<<<<<<< HEAD
-=======
     pub async fn request_mcp_server_elicitation(
         &self,
         turn_context: &TurnContext,
@@ -3339,7 +3271,6 @@ impl Session {
         rx_response.await.ok()
     }
 
->>>>>>> upstream_main
     pub async fn notify_user_input_response(
         &self,
         sub_id: &str,
@@ -3637,11 +3568,9 @@ impl Session {
         let mut developer_sections = Vec::<String>::with_capacity(8);
         let mut contextual_user_sections = Vec::<String>::with_capacity(2);
         let shell = self.user_shell();
-<<<<<<< HEAD
         if let Some(model_switch_message) =
             crate::context_manager::updates::build_model_instructions_update_item(
                 previous_user_turn_model,
-=======
         let (
             reference_context_item,
             previous_turn_settings,
@@ -3661,7 +3590,6 @@ impl Session {
         if let Some(model_switch_message) =
             crate::context_manager::updates::build_model_instructions_update_item(
                 previous_turn_settings.as_ref(),
->>>>>>> upstream_main
                 turn_context,
             )
         {
@@ -3683,9 +3611,7 @@ impl Session {
             )
             .into_text(),
         );
-<<<<<<< HEAD
         if let Some(developer_instructions) = turn_context.developer_instructions.as_deref() {
-=======
         let separate_guardian_developer_message =
             crate::guardian::is_guardian_reviewer_source(&session_source);
         // Keep the guardian policy prompt out of the aggregated developer bundle so it
@@ -3693,7 +3619,6 @@ impl Session {
         if !separate_guardian_developer_message
             && let Some(developer_instructions) = turn_context.developer_instructions.as_deref()
         {
->>>>>>> upstream_main
             developer_sections.push(developer_instructions.to_string());
         }
         // Add developer instructions for memories.
@@ -3709,8 +3634,6 @@ impl Session {
             DeveloperInstructions::from_collaboration_mode(&collaboration_mode)
         {
             developer_sections.push(collab_instructions.into_text());
-<<<<<<< HEAD
-=======
         }
         if let Some(realtime_update) = crate::context_manager::updates::build_initial_realtime_item(
             reference_context_item.as_ref(),
@@ -3718,7 +3641,6 @@ impl Session {
             turn_context,
         ) {
             developer_sections.push(realtime_update.into_text());
->>>>>>> upstream_main
         }
         if self.features.enabled(Feature::Personality)
             && let Some(personality) = turn_context.personality
@@ -3739,10 +3661,8 @@ impl Session {
                 );
             }
         }
-<<<<<<< HEAD
         if turn_context.features.enabled(Feature::Apps) {
             developer_sections.push(render_apps_section());
-=======
         if turn_context.apps_enabled() {
             let mcp_connection_manager = self.services.mcp_connection_manager.read().await;
             let accessible_and_enabled_connectors =
@@ -3769,7 +3689,6 @@ impl Session {
         if let Some(plugin_section) = render_plugins_section(loaded_plugins.capability_summaries())
         {
             developer_sections.push(plugin_section);
->>>>>>> upstream_main
         }
         if turn_context.features.enabled(Feature::CodexGitCommit)
             && let Some(commit_message_instruction) = commit_message_trailer_instruction(
@@ -3798,11 +3717,8 @@ impl Session {
                 .serialize_to_xml(),
         );
 
-<<<<<<< HEAD
         let mut items = Vec::with_capacity(2);
-=======
         let mut items = Vec::with_capacity(3);
->>>>>>> upstream_main
         if let Some(developer_message) =
             crate::context_manager::updates::build_developer_update_item(developer_sections)
         {
@@ -3813,8 +3729,6 @@ impl Session {
         {
             items.push(contextual_user_message);
         }
-<<<<<<< HEAD
-=======
         // Emit the guardian policy prompt as a separate developer item so the guardian
         // subagent sees a distinct, easy-to-audit instruction block.
         if separate_guardian_developer_message
@@ -3826,7 +3740,6 @@ impl Session {
         {
             items.push(guardian_developer_message);
         }
->>>>>>> upstream_main
         items
     }
 
@@ -3875,12 +3788,9 @@ impl Session {
         };
         let should_inject_full_context = reference_context_item.is_none();
         let context_items = if should_inject_full_context {
-<<<<<<< HEAD
             self.build_initial_context(turn_context, previous_user_turn_model)
                 .await
-=======
             self.build_initial_context(turn_context).await
->>>>>>> upstream_main
         } else {
             // Steady-state path: append only context diffs to minimize token overhead.
             self.build_settings_update_items(reference_context_item.as_ref(), turn_context)
@@ -4545,7 +4455,6 @@ async fn submission_loop(sess: Arc<Session>, config: Arc<Config>, rx_sub: Receiv
                             ..Default::default()
                         },
                     )
-<<<<<<< HEAD
                 };
                 handlers::override_turn_context(
                     &sess,
@@ -4587,8 +4496,6 @@ async fn submission_loop(sess: Arc<Session>, config: Arc<Config>, rx_sub: Receiv
             }
             Op::GetHistoryEntryRequest { offset, log_id } => {
                 handlers::get_history_entry_request(&sess, &config, sub.id.clone(), offset, log_id)
-=======
->>>>>>> upstream_main
                     .await;
                     false
                 }
@@ -4871,10 +4778,7 @@ mod handlers {
                         windows_sandbox_level: None,
                         collaboration_mode,
                         reasoning_summary: summary,
-<<<<<<< HEAD
-=======
                         service_tier,
->>>>>>> upstream_main
                         final_output_json_schema: Some(final_output_json_schema),
                         personality,
                         app_server_client_name: None,
@@ -5669,17 +5573,14 @@ async fn spawn_review_thread(
         collaboration_mode: parent_turn_context.collaboration_mode.clone(),
         personality: parent_turn_context.personality,
         approval_policy: parent_turn_context.approval_policy.clone(),
-<<<<<<< HEAD
         // Enforce read-only sandbox for review threads so the reviewer cannot
         // modify files.
         sandbox_policy: Constrained::allow_only(SandboxPolicy::ReadOnly {
             access: Default::default(),
         }),
-=======
         sandbox_policy: parent_turn_context.sandbox_policy.clone(),
         file_system_sandbox_policy: parent_turn_context.file_system_sandbox_policy.clone(),
         network_sandbox_policy: parent_turn_context.network_sandbox_policy,
->>>>>>> upstream_main
         network: parent_turn_context.network.clone(),
         windows_sandbox_level: parent_turn_context.windows_sandbox_level,
         shell_environment_policy: parent_turn_context.shell_environment_policy.clone(),
@@ -7058,12 +6959,10 @@ fn realtime_text_for_event(msg: &EventMsg) -> Option<String> {
         | EventMsg::PatchApplyBegin(_)
         | EventMsg::PatchApplyEnd(_)
         | EventMsg::ViewImageToolCall(_)
-<<<<<<< HEAD
         | EventMsg::ExecApprovalRequest(_)
         | EventMsg::RequestUserInput(_)
         | EventMsg::DynamicToolCallRequest(_)
         | EventMsg::DynamicToolCallResponse(_)
-=======
         | EventMsg::ImageGenerationBegin(_)
         | EventMsg::ImageGenerationEnd(_)
         | EventMsg::ExecApprovalRequest(_)
@@ -7072,7 +6971,6 @@ fn realtime_text_for_event(msg: &EventMsg) -> Option<String> {
         | EventMsg::DynamicToolCallRequest(_)
         | EventMsg::DynamicToolCallResponse(_)
         | EventMsg::GuardianAssessment(_)
->>>>>>> upstream_main
         | EventMsg::ElicitationRequest(_)
         | EventMsg::ApplyPatchApprovalRequest(_)
         | EventMsg::DeprecationNotice(_)
@@ -7085,11 +6983,8 @@ fn realtime_text_for_event(msg: &EventMsg) -> Option<String> {
         | EventMsg::McpListToolsResponse(_)
         | EventMsg::ListCustomPromptsResponse(_)
         | EventMsg::ListSkillsResponse(_)
-<<<<<<< HEAD
         | EventMsg::ListRemoteSkillsResponse(_)
         | EventMsg::RemoteSkillDownloaded(_)
-=======
->>>>>>> upstream_main
         | EventMsg::SkillsUpdateAvailable
         | EventMsg::PlanUpdate(_)
         | EventMsg::TurnAborted(_)
@@ -7098,11 +6993,8 @@ fn realtime_text_for_event(msg: &EventMsg) -> Option<String> {
         | EventMsg::ExitedReviewMode(_)
         | EventMsg::RawResponseItem(_)
         | EventMsg::ItemStarted(_)
-<<<<<<< HEAD
-=======
         | EventMsg::HookStarted(_)
         | EventMsg::HookCompleted(_)
->>>>>>> upstream_main
         | EventMsg::AgentMessageContentDelta(_)
         | EventMsg::PlanDelta(_)
         | EventMsg::ReasoningContentDelta(_)
@@ -7358,13 +7250,10 @@ async fn handle_assistant_item_done_in_plan_mode(
     {
         maybe_complete_plan_item_from_message(sess, turn_context, state, item).await;
 
-<<<<<<< HEAD
         if let Some(turn_item) = handle_non_tool_response_item(item, true) {
-=======
         if let Some(turn_item) =
             handle_non_tool_response_item(sess, turn_context, item, /*plan_mode*/ true).await
         {
->>>>>>> upstream_main
             emit_turn_item_in_plan_mode(
                 sess,
                 turn_context,
@@ -7376,11 +7265,8 @@ async fn handle_assistant_item_done_in_plan_mode(
         }
 
         record_completed_response_item(sess, turn_context, item).await;
-<<<<<<< HEAD
         if let Some(agent_message) = last_assistant_message_from_item(item, true) {
-=======
         if let Some(agent_message) = last_assistant_message_from_item(item, /*plan_mode*/ true) {
->>>>>>> upstream_main
             *last_agent_message = Some(agent_message);
         }
         return true;
@@ -7541,9 +7427,7 @@ async fn try_run_sampling_request(
                 needs_follow_up |= output_result.needs_follow_up;
             }
             ResponseEvent::OutputItemAdded(item) => {
-<<<<<<< HEAD
                 if let Some(turn_item) = handle_non_tool_response_item(&item, plan_mode) {
-=======
                 if let Some(turn_item) = handle_non_tool_response_item(
                     sess.as_ref(),
                     turn_context.as_ref(),
@@ -7552,7 +7436,6 @@ async fn try_run_sampling_request(
                 )
                 .await
                 {
->>>>>>> upstream_main
                     let mut turn_item = turn_item;
                     let mut seeded_parsed: Option<ParsedAssistantTextDelta> = None;
                     let mut seeded_item_id: Option<String> = None;
@@ -7755,11 +7638,8 @@ async fn try_run_sampling_request(
 
 pub(super) fn get_last_assistant_message_from_turn(responses: &[ResponseItem]) -> Option<String> {
     for item in responses.iter().rev() {
-<<<<<<< HEAD
         if let Some(message) = last_assistant_message_from_item(item, false) {
-=======
         if let Some(message) = last_assistant_message_from_item(item, /*plan_mode*/ false) {
->>>>>>> upstream_main
             return Some(message);
         }
     }
@@ -7777,7 +7657,6 @@ pub(crate) use tests::make_session_and_context_with_rx;
 pub(crate) use tests::make_session_configuration_for_tests;
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::CodexAuth;
@@ -10915,7 +10794,5 @@ mod tests {
         pretty_assertions::assert_eq!(output, expected);
     }
 }
-=======
 #[path = "codex_tests.rs"]
 mod tests;
->>>>>>> upstream_main

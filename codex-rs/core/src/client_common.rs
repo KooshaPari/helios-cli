@@ -89,17 +89,14 @@ fn reserialize_shell_outputs(items: &mut [ResponseItem]) {
         {
             shell_call_ids.insert(call_id.clone());
         }
-<<<<<<< HEAD
         ResponseItem::FunctionCallOutput { call_id, output }
         | ResponseItem::CustomToolCallOutput { call_id, output } => {
-=======
         ResponseItem::FunctionCallOutput {
             call_id, output, ..
         }
         | ResponseItem::CustomToolCallOutput {
             call_id, output, ..
         } => {
->>>>>>> upstream_main
             if shell_call_ids.remove(call_id)
                 && let Some(structured) = output
                     .text_content()
@@ -329,7 +326,6 @@ impl Stream for ResponseStream {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use codex_api::ResponsesApiRequest;
     use codex_api::common::OpenAiVerbosity;
@@ -498,7 +494,5 @@ mod tests {
         );
     }
 }
-=======
 #[path = "client_common_tests.rs"]
 mod tests;
->>>>>>> upstream_main

@@ -1,10 +1,7 @@
 use super::CoreShellActionProvider;
 #[cfg(target_os = "macos")]
 use super::CoreShellCommandExecutor;
-<<<<<<< HEAD
-=======
 use super::InterceptedExecPolicyContext;
->>>>>>> upstream_main
 use super::ParsedShellCommand;
 use super::commands_for_intercepted_exec_policy;
 use super::evaluate_intercepted_exec_policy;
@@ -17,7 +14,6 @@ use crate::config::Constrained;
 use crate::config::Permissions;
 #[cfg(target_os = "macos")]
 use crate::config::types::ShellEnvironmentPolicy;
-<<<<<<< HEAD
 use crate::exec::SandboxType;
 use crate::protocol::AskForApproval;
 use crate::protocol::ReadOnlyAccess;
@@ -25,14 +21,12 @@ use crate::protocol::SandboxPolicy;
 use crate::sandboxing::SandboxPermissions;
 #[cfg(target_os = "macos")]
 use crate::seatbelt::MACOS_PATH_TO_SEATBELT_EXECUTABLE;
-=======
 use crate::protocol::AskForApproval;
 use crate::protocol::GranularApprovalConfig;
 use crate::protocol::ReadOnlyAccess;
 use crate::protocol::SandboxPolicy;
 use crate::sandboxing::SandboxPermissions;
 use crate::skills::SkillMetadata;
->>>>>>> upstream_main
 use codex_execpolicy::Decision;
 use codex_execpolicy::Evaluation;
 use codex_execpolicy::PolicyParser;
@@ -43,8 +37,6 @@ use codex_protocol::models::FileSystemPermissions;
 use codex_protocol::models::MacOsPreferencesPermission;
 use codex_protocol::models::MacOsSeatbeltProfileExtensions;
 use codex_protocol::models::PermissionProfile;
-<<<<<<< HEAD
-=======
 use codex_protocol::permissions::FileSystemAccessMode;
 use codex_protocol::permissions::FileSystemPath;
 use codex_protocol::permissions::FileSystemSandboxEntry;
@@ -55,7 +47,6 @@ use codex_protocol::protocol::SkillScope;
 use codex_sandboxing::SandboxType;
 #[cfg(target_os = "macos")]
 use codex_sandboxing::seatbelt::MACOS_PATH_TO_SEATBELT_EXECUTABLE;
->>>>>>> upstream_main
 use codex_shell_escalation::EscalationExecution;
 use codex_shell_escalation::EscalationPermissions;
 use codex_shell_escalation::ExecResult;
@@ -85,8 +76,6 @@ fn starlark_string(value: &str) -> String {
     value.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
-<<<<<<< HEAD
-=======
 fn read_only_file_system_sandbox_policy() -> FileSystemSandboxPolicy {
     FileSystemSandboxPolicy::restricted(vec![FileSystemSandboxEntry {
         path: FileSystemPath::Special {
@@ -200,16 +189,12 @@ fn approval_sandbox_permissions_only_downgrades_preapproved_additional_permissio
     );
 }
 
->>>>>>> upstream_main
 #[test]
 fn extract_shell_script_preserves_login_flag() {
     assert_eq!(
         extract_shell_script(&["/bin/zsh".into(), "-lc".into(), "echo hi".into()]).unwrap(),
         ParsedShellCommand {
-<<<<<<< HEAD
-=======
             program: "/bin/zsh".to_string(),
->>>>>>> upstream_main
             script: "echo hi".to_string(),
             login: true,
         }
@@ -217,10 +202,7 @@ fn extract_shell_script_preserves_login_flag() {
     assert_eq!(
         extract_shell_script(&["/bin/zsh".into(), "-c".into(), "echo hi".into()]).unwrap(),
         ParsedShellCommand {
-<<<<<<< HEAD
-=======
             program: "/bin/zsh".to_string(),
->>>>>>> upstream_main
             script: "echo hi".to_string(),
             login: false,
         }
@@ -239,10 +221,7 @@ fn extract_shell_script_supports_wrapped_command_prefixes() {
         ])
         .unwrap(),
         ParsedShellCommand {
-<<<<<<< HEAD
-=======
             program: "/bin/zsh".to_string(),
->>>>>>> upstream_main
             script: "echo hello".to_string(),
             login: true,
         }
@@ -259,10 +238,7 @@ fn extract_shell_script_supports_wrapped_command_prefixes() {
         ])
         .unwrap(),
         ParsedShellCommand {
-<<<<<<< HEAD
-=======
             program: "/bin/zsh".to_string(),
->>>>>>> upstream_main
             script: "pwd".to_string(),
             login: false,
         }
@@ -361,8 +337,6 @@ fn shell_request_escalation_execution_is_explicit() {
         exclude_tmpdir_env_var: false,
         exclude_slash_tmp: false,
     };
-<<<<<<< HEAD
-=======
     let file_system_sandbox_policy = FileSystemSandboxPolicy::restricted(vec![
         FileSystemSandboxEntry {
             path: FileSystemPath::Path {
@@ -378,7 +352,6 @@ fn shell_request_escalation_execution_is_explicit() {
         },
     ]);
     let network_sandbox_policy = NetworkSandboxPolicy::Restricted;
->>>>>>> upstream_main
     let macos_seatbelt_profile_extensions = MacOsSeatbeltProfileExtensions {
         macos_preferences: MacOsPreferencesPermission::ReadWrite,
         ..Default::default()
@@ -388,11 +361,8 @@ fn shell_request_escalation_execution_is_explicit() {
         CoreShellActionProvider::shell_request_escalation_execution(
             crate::sandboxing::SandboxPermissions::UseDefault,
             &sandbox_policy,
-<<<<<<< HEAD
-=======
             &file_system_sandbox_policy,
             network_sandbox_policy,
->>>>>>> upstream_main
             None,
             Some(&macos_seatbelt_profile_extensions),
         ),
@@ -402,11 +372,8 @@ fn shell_request_escalation_execution_is_explicit() {
         CoreShellActionProvider::shell_request_escalation_execution(
             crate::sandboxing::SandboxPermissions::RequireEscalated,
             &sandbox_policy,
-<<<<<<< HEAD
-=======
             &file_system_sandbox_policy,
             network_sandbox_policy,
->>>>>>> upstream_main
             None,
             Some(&macos_seatbelt_profile_extensions),
         ),
@@ -416,22 +383,16 @@ fn shell_request_escalation_execution_is_explicit() {
         CoreShellActionProvider::shell_request_escalation_execution(
             crate::sandboxing::SandboxPermissions::WithAdditionalPermissions,
             &sandbox_policy,
-<<<<<<< HEAD
-=======
             &file_system_sandbox_policy,
             network_sandbox_policy,
->>>>>>> upstream_main
             Some(&requested_permissions),
             Some(&macos_seatbelt_profile_extensions),
         ),
         EscalationExecution::Permissions(EscalationPermissions::Permissions(
             EscalatedPermissions {
                 sandbox_policy,
-<<<<<<< HEAD
-=======
                 file_system_sandbox_policy,
                 network_sandbox_policy,
->>>>>>> upstream_main
                 macos_seatbelt_profile_extensions: Some(macos_seatbelt_profile_extensions),
             },
         )),
@@ -439,8 +400,6 @@ fn shell_request_escalation_execution_is_explicit() {
 }
 
 #[test]
-<<<<<<< HEAD
-=======
 fn skill_escalation_execution_uses_additional_permissions() {
     let requested_permissions = PermissionProfile {
         file_system: Some(FileSystemPermissions {
@@ -477,7 +436,6 @@ fn skill_escalation_execution_ignores_empty_permissions() {
 }
 
 #[test]
->>>>>>> upstream_main
 fn evaluate_intercepted_exec_policy_uses_wrapper_command_when_shell_wrapper_parsing_disabled() {
     let policy_src = r#"prefix_rule(pattern = ["npm", "publish"], decision = "prompt")"#;
     let mut parser = PolicyParser::new();
@@ -494,12 +452,10 @@ fn evaluate_intercepted_exec_policy_uses_wrapper_command_when_shell_wrapper_pars
             "-lc".to_string(),
             "npm publish".to_string(),
         ],
-<<<<<<< HEAD
         AskForApproval::OnRequest,
         &SandboxPolicy::new_read_only_policy(),
         SandboxPermissions::UseDefault,
         enable_intercepted_exec_policy_shell_wrapper_parsing,
-=======
         InterceptedExecPolicyContext {
             approval_policy: AskForApproval::OnRequest,
             sandbox_policy: &SandboxPolicy::new_read_only_policy(),
@@ -507,7 +463,6 @@ fn evaluate_intercepted_exec_policy_uses_wrapper_command_when_shell_wrapper_pars
             sandbox_permissions: SandboxPermissions::UseDefault,
             enable_shell_wrapper_parsing: enable_intercepted_exec_policy_shell_wrapper_parsing,
         },
->>>>>>> upstream_main
     );
 
     assert!(
@@ -552,12 +507,10 @@ fn evaluate_intercepted_exec_policy_matches_inner_shell_commands_when_enabled() 
             "-lc".to_string(),
             "npm publish".to_string(),
         ],
-<<<<<<< HEAD
         AskForApproval::OnRequest,
         &SandboxPolicy::new_read_only_policy(),
         SandboxPermissions::UseDefault,
         enable_intercepted_exec_policy_shell_wrapper_parsing,
-=======
         InterceptedExecPolicyContext {
             approval_policy: AskForApproval::OnRequest,
             sandbox_policy: &SandboxPolicy::new_read_only_policy(),
@@ -565,7 +518,6 @@ fn evaluate_intercepted_exec_policy_matches_inner_shell_commands_when_enabled() 
             sandbox_permissions: SandboxPermissions::UseDefault,
             enable_shell_wrapper_parsing: enable_intercepted_exec_policy_shell_wrapper_parsing,
         },
->>>>>>> upstream_main
     );
 
     assert_eq!(
@@ -601,12 +553,10 @@ host_executable(name = "git", paths = ["{git_path_literal}"])
         &policy,
         &program,
         &["git".to_string(), "status".to_string()],
-<<<<<<< HEAD
         AskForApproval::OnRequest,
         &SandboxPolicy::new_read_only_policy(),
         SandboxPermissions::UseDefault,
         false,
-=======
         InterceptedExecPolicyContext {
             approval_policy: AskForApproval::OnRequest,
             sandbox_policy: &SandboxPolicy::new_read_only_policy(),
@@ -614,7 +564,6 @@ host_executable(name = "git", paths = ["{git_path_literal}"])
             sandbox_permissions: SandboxPermissions::UseDefault,
             enable_shell_wrapper_parsing: false,
         },
->>>>>>> upstream_main
     );
 
     assert_eq!(
@@ -636,8 +585,6 @@ host_executable(name = "git", paths = ["{git_path_literal}"])
 }
 
 #[test]
-<<<<<<< HEAD
-=======
 fn intercepted_exec_policy_treats_preapproved_additional_permissions_as_default() {
     let policy = PolicyParser::new().build();
     let program = AbsolutePathBuf::try_from(host_absolute_path(&["usr", "bin", "printf"])).unwrap();
@@ -679,7 +626,6 @@ fn intercepted_exec_policy_treats_preapproved_additional_permissions_as_default(
 }
 
 #[test]
->>>>>>> upstream_main
 fn intercepted_exec_policy_rejects_disallowed_host_executable_mapping() {
     let allowed_git = host_absolute_path(&["usr", "bin", "git"]);
     let other_git = host_absolute_path(&["opt", "homebrew", "bin", "git"]);
@@ -699,12 +645,10 @@ host_executable(name = "git", paths = ["{allowed_git_literal}"])
         &policy,
         &program,
         &["git".to_string(), "status".to_string()],
-<<<<<<< HEAD
         AskForApproval::OnRequest,
         &SandboxPolicy::new_read_only_policy(),
         SandboxPermissions::UseDefault,
         false,
-=======
         InterceptedExecPolicyContext {
             approval_policy: AskForApproval::OnRequest,
             sandbox_policy: &SandboxPolicy::new_read_only_policy(),
@@ -712,7 +656,6 @@ host_executable(name = "git", paths = ["{allowed_git_literal}"])
             sandbox_permissions: SandboxPermissions::UseDefault,
             enable_shell_wrapper_parsing: false,
         },
->>>>>>> upstream_main
     );
 
     assert!(matches!(
@@ -737,15 +680,12 @@ async fn prepare_escalated_exec_turn_default_preserves_macos_seatbelt_extensions
         network: None,
         sandbox: SandboxType::None,
         sandbox_policy: SandboxPolicy::new_read_only_policy(),
-<<<<<<< HEAD
         windows_sandbox_level: WindowsSandboxLevel::Disabled,
         sandbox_permissions: SandboxPermissions::UseDefault,
         justification: None,
-=======
         file_system_sandbox_policy: read_only_file_system_sandbox_policy(),
         network_sandbox_policy: NetworkSandboxPolicy::Restricted,
         windows_sandbox_level: WindowsSandboxLevel::Disabled,
->>>>>>> upstream_main
         arg0: None,
         sandbox_policy_cwd: cwd.to_path_buf(),
         macos_seatbelt_profile_extensions: Some(MacOsSeatbeltProfileExtensions {
@@ -753,11 +693,8 @@ async fn prepare_escalated_exec_turn_default_preserves_macos_seatbelt_extensions
             ..Default::default()
         }),
         codex_linux_sandbox_exe: None,
-<<<<<<< HEAD
         use_linux_sandbox_bwrap: false,
-=======
         use_legacy_landlock: false,
->>>>>>> upstream_main
     };
 
     let prepared = executor
@@ -797,42 +734,30 @@ async fn prepare_escalated_exec_permissions_preserve_macos_seatbelt_extensions()
         network: None,
         sandbox: SandboxType::None,
         sandbox_policy: SandboxPolicy::DangerFullAccess,
-<<<<<<< HEAD
         windows_sandbox_level: WindowsSandboxLevel::Disabled,
         sandbox_permissions: SandboxPermissions::UseDefault,
         justification: None,
-=======
         file_system_sandbox_policy: unrestricted_file_system_sandbox_policy(),
         network_sandbox_policy: NetworkSandboxPolicy::Enabled,
         windows_sandbox_level: WindowsSandboxLevel::Disabled,
->>>>>>> upstream_main
         arg0: None,
         sandbox_policy_cwd: cwd.to_path_buf(),
         macos_seatbelt_profile_extensions: None,
         codex_linux_sandbox_exe: None,
-<<<<<<< HEAD
         use_linux_sandbox_bwrap: false,
-=======
         use_legacy_landlock: false,
->>>>>>> upstream_main
     };
 
     let permissions = Permissions {
         approval_policy: Constrained::allow_any(AskForApproval::Never),
         sandbox_policy: Constrained::allow_any(SandboxPolicy::new_read_only_policy()),
-<<<<<<< HEAD
-=======
         file_system_sandbox_policy: read_only_file_system_sandbox_policy(),
         network_sandbox_policy: codex_protocol::permissions::NetworkSandboxPolicy::Restricted,
->>>>>>> upstream_main
         network: None,
         allow_login_shell: true,
         shell_environment_policy: ShellEnvironmentPolicy::default(),
         windows_sandbox_mode: None,
-<<<<<<< HEAD
-=======
         windows_sandbox_private_desktop: false,
->>>>>>> upstream_main
         macos_seatbelt_profile_extensions: Some(MacOsSeatbeltProfileExtensions {
             macos_preferences: MacOsPreferencesPermission::ReadWrite,
             ..Default::default()
@@ -848,11 +773,8 @@ async fn prepare_escalated_exec_permissions_preserve_macos_seatbelt_extensions()
             EscalationExecution::Permissions(EscalationPermissions::Permissions(
                 EscalatedPermissions {
                     sandbox_policy: permissions.sandbox_policy.get().clone(),
-<<<<<<< HEAD
-=======
                     file_system_sandbox_policy: permissions.file_system_sandbox_policy.clone(),
                     network_sandbox_policy: permissions.network_sandbox_policy,
->>>>>>> upstream_main
                     macos_seatbelt_profile_extensions: permissions
                         .macos_seatbelt_profile_extensions
                         .clone(),
@@ -876,8 +798,6 @@ async fn prepare_escalated_exec_permissions_preserve_macos_seatbelt_extensions()
         prepared.command
     );
 }
-<<<<<<< HEAD
-=======
 
 #[cfg(target_os = "macos")]
 #[tokio::test]
@@ -944,4 +864,3 @@ async fn prepare_escalated_exec_permission_profile_unions_turn_and_requested_mac
         prepared.command
     );
 }
->>>>>>> upstream_main

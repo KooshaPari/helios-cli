@@ -564,11 +564,8 @@ fn parse_skill_file(path: &Path, scope: SkillScope) -> Result<SkillMetadata, Ski
         dependencies,
         policy,
         permission_profile,
-<<<<<<< HEAD
         permissions,
-=======
         managed_network_override,
->>>>>>> upstream_main
     } = load_skill_metadata(path);
 
     validate_len(&name, MAX_NAME_LEN, "name")?;
@@ -591,18 +588,13 @@ fn parse_skill_file(path: &Path, scope: SkillScope) -> Result<SkillMetadata, Ski
         dependencies,
         policy,
         permission_profile,
-<<<<<<< HEAD
         permissions,
-=======
         managed_network_override,
->>>>>>> upstream_main
         path_to_skills_md: resolved_path,
         scope,
     })
 }
 
-<<<<<<< HEAD
-=======
 fn default_skill_name(path: &Path) -> String {
     path.parent()
         .and_then(Path::file_name)
@@ -618,7 +610,6 @@ fn namespaced_skill_name(path: &Path, base_name: &str) -> String {
         .unwrap_or_else(|| base_name.to_string())
 }
 
->>>>>>> upstream_main
 fn load_skill_metadata(skill_path: &Path) -> LoadedSkillMetadata {
     // Fail open: optional metadata should not block loading SKILL.md.
     let Some(skill_dir) = skill_path.parent() else {
@@ -664,7 +655,6 @@ fn load_skill_metadata(skill_path: &Path) -> LoadedSkillMetadata {
         policy,
         permissions,
     } = parsed;
-<<<<<<< HEAD
     let permission_profile = permissions.clone().filter(|profile| !profile.is_empty());
 
     LoadedSkillMetadata {
@@ -674,7 +664,6 @@ fn load_skill_metadata(skill_path: &Path) -> LoadedSkillMetadata {
         permission_profile,
         permissions: compile_permission_profile(skill_dir, permissions),
     }
-=======
     let (permission_profile, managed_network_override) = normalize_permissions(permissions);
     LoadedSkillMetadata {
         interface: resolve_interface(interface, skill_dir),
@@ -719,7 +708,6 @@ fn normalize_permissions(
         (!permission_profile.is_empty()).then_some(permission_profile),
         managed_network_override,
     )
->>>>>>> upstream_main
 }
 
 fn resolve_interface(interface: Option<Interface>, skill_dir: &Path) -> Option<SkillInterface> {
@@ -954,7 +942,6 @@ pub(crate) fn skill_roots_from_layer_stack(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::config::ConfigBuilder;
@@ -2796,7 +2783,5 @@ permissions:
         assert_eq!(scopes, expected);
     }
 }
-=======
 #[path = "loader_tests.rs"]
 mod tests;
->>>>>>> upstream_main

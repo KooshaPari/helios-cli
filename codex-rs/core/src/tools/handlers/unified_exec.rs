@@ -209,7 +209,6 @@ impl ToolHandler for UnifiedExecHandler {
 
                 let workdir = workdir.map(|dir| context.turn.resolve_path(Some(dir)));
                 let cwd = workdir.clone().unwrap_or(cwd);
-<<<<<<< HEAD
                 let normalized_additional_permissions =
                     match normalize_and_validate_additional_permissions(
                         request_permission_enabled,
@@ -224,7 +223,6 @@ impl ToolHandler for UnifiedExecHandler {
                             return Err(FunctionCallError::RespondToModel(err));
                         }
                     };
-=======
                 let normalized_additional_permissions = match implicit_granted_permissions(
                     sandbox_permissions,
                     requested_additional_permissions.as_ref(),
@@ -249,7 +247,6 @@ impl ToolHandler for UnifiedExecHandler {
                         return Err(FunctionCallError::RespondToModel(err));
                     }
                 };
->>>>>>> upstream_main
 
                 if let Some(output) = intercept_apply_patch(
                     &command,
@@ -375,7 +372,6 @@ pub(crate) fn get_command(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::shell::default_user_shell;
@@ -504,7 +500,5 @@ mod tests {
         Ok(())
     }
 }
-=======
 #[path = "unified_exec_tests.rs"]
 mod tests;
->>>>>>> upstream_main

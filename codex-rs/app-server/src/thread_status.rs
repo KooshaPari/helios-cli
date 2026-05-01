@@ -707,8 +707,6 @@ mod tests {
                 status: ThreadStatus::NotLoaded,
             },
         );
-<<<<<<< HEAD
-=======
     }
 
     #[tokio::test]
@@ -748,7 +746,6 @@ mod tests {
                 },
             },
         );
->>>>>>> upstream_main
     }
 
     async fn wait_for_status(

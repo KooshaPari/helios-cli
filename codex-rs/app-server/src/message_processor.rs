@@ -12,11 +12,8 @@ use crate::config_api::ConfigApi;
 use crate::error_code::INTERNAL_ERROR_CODE;
 use crate::error_code::INVALID_REQUEST_ERROR_CODE;
 use crate::external_agent_config_api::ExternalAgentConfigApi;
-<<<<<<< HEAD
-=======
 use crate::fs_api::FsApi;
 use crate::fs_watch::FsWatchManager;
->>>>>>> upstream_main
 use crate::outgoing_message::ConnectionId;
 use crate::outgoing_message::ConnectionRequestId;
 use crate::outgoing_message::OutgoingMessageSender;
@@ -34,10 +31,8 @@ use codex_app_server_protocol::ConfigReadParams;
 use codex_app_server_protocol::ConfigValueWriteParams;
 use codex_app_server_protocol::ConfigWarningNotification;
 use codex_app_server_protocol::ExperimentalApi;
-<<<<<<< HEAD
 use codex_app_server_protocol::ExternalAgentConfigDetectParams;
 use codex_app_server_protocol::ExternalAgentConfigImportParams;
-=======
 use codex_app_server_protocol::ExperimentalFeatureEnablementSetParams;
 use codex_app_server_protocol::ExternalAgentConfigDetectParams;
 use codex_app_server_protocol::ExternalAgentConfigImportParams;
@@ -50,7 +45,6 @@ use codex_app_server_protocol::FsRemoveParams;
 use codex_app_server_protocol::FsUnwatchParams;
 use codex_app_server_protocol::FsWatchParams;
 use codex_app_server_protocol::FsWriteFileParams;
->>>>>>> upstream_main
 use codex_app_server_protocol::InitializeResponse;
 use codex_app_server_protocol::JSONRPCError;
 use codex_app_server_protocol::JSONRPCErrorError;
@@ -74,10 +68,7 @@ use codex_core::default_client::get_codex_user_agent;
 use codex_core::default_client::set_default_client_residency_requirement;
 use codex_core::default_client::set_default_originator;
 use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
-<<<<<<< HEAD
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_feedback::CodexFeedback;
 use codex_login::auth::ExternalAuthRefreshContext;
 use codex_login::auth::ExternalAuthRefreshReason;
@@ -167,12 +158,9 @@ pub(crate) struct MessageProcessor {
     codex_message_processor: CodexMessageProcessor,
     config_api: ConfigApi,
     external_agent_config_api: ExternalAgentConfigApi,
-<<<<<<< HEAD
-=======
     fs_api: FsApi,
     auth_manager: Arc<AuthManager>,
     fs_watch_manager: FsWatchManager,
->>>>>>> upstream_main
     config: Arc<Config>,
     config_warnings: Arc<Vec<ConfigWarningNotification>>,
 }
@@ -183,10 +171,7 @@ pub(crate) struct ConnectionSessionState {
     pub(crate) experimental_api_enabled: bool,
     pub(crate) opted_out_notification_methods: HashSet<String>,
     pub(crate) app_server_client_name: Option<String>,
-<<<<<<< HEAD
-=======
     pub(crate) client_version: Option<String>,
->>>>>>> upstream_main
 }
 
 pub(crate) struct MessageProcessorArgs {
@@ -239,7 +224,6 @@ impl MessageProcessor {
         auth_manager.set_external_auth_refresher(Arc::new(ExternalAuthRefreshBridge {
             outgoing: outgoing.clone(),
         }));
-<<<<<<< HEAD
         let thread_manager = Arc::new(ThreadManager::new(
             config.codex_home.clone(),
             auth_manager.clone(),
@@ -251,7 +235,6 @@ impl MessageProcessor {
                     .enabled(codex_core::features::Feature::DefaultModeRequestUserInput),
             },
         ));
-=======
         let analytics_events_client =
             AnalyticsEventsClient::new(Arc::clone(&config), Arc::clone(&auth_manager));
         thread_manager
@@ -260,7 +243,6 @@ impl MessageProcessor {
 
         let cli_overrides = Arc::new(RwLock::new(cli_overrides));
         let runtime_feature_enablement = Arc::new(RwLock::new(BTreeMap::new()));
->>>>>>> upstream_main
         let cloud_requirements = Arc::new(RwLock::new(cloud_requirements));
         let codex_message_processor = CodexMessageProcessor::new(CodexMessageProcessorArgs {
             auth_manager: auth_manager.clone(),
@@ -289,23 +271,17 @@ impl MessageProcessor {
             analytics_events_client,
         );
         let external_agent_config_api = ExternalAgentConfigApi::new(config.codex_home.clone());
-<<<<<<< HEAD
-=======
         let fs_api = FsApi::default();
         let fs_watch_manager = FsWatchManager::new(outgoing.clone());
->>>>>>> upstream_main
 
         Self {
             outgoing,
             codex_message_processor,
             config_api,
             external_agent_config_api,
-<<<<<<< HEAD
-=======
             fs_api,
             auth_manager,
             fs_watch_manager,
->>>>>>> upstream_main
             config,
             config_warnings: Arc::new(config_warnings),
         }
@@ -567,7 +543,6 @@ impl MessageProcessor {
                         message: "Already initialized".to_string(),
                         data: None,
                     };
-<<<<<<< HEAD
                     self.outgoing.send_error(request_id, error).await;
                     return;
                 } else {
@@ -632,9 +607,7 @@ impl MessageProcessor {
                     self.codex_message_processor
                         .connection_initialized(connection_id)
                         .await;
-=======
                     self.outgoing.send_error(connection_request_id, error).await;
->>>>>>> upstream_main
                     return;
                 }
 
@@ -927,16 +900,13 @@ impl MessageProcessor {
                 // inline the full `CodexMessageProcessor::process_request` future, which
                 // can otherwise push worker-thread stack usage over the edge.
                 self.codex_message_processor
-<<<<<<< HEAD
                     .process_request(connection_id, other, session.app_server_client_name.clone())
-=======
                     .process_request(
                         connection_id,
                         other,
                         session.app_server_client_name.clone(),
                         request_context,
                     )
->>>>>>> upstream_main
                     .boxed()
                     .await;
             }
@@ -1035,8 +1005,6 @@ impl MessageProcessor {
             Err(error) => self.outgoing.send_error(request_id, error).await,
         }
     }
-<<<<<<< HEAD
-=======
 
     async fn handle_fs_read_file(&self, request_id: ConnectionRequestId, params: FsReadFileParams) {
         match self.fs_api.read_file(params).await {
@@ -1126,7 +1094,6 @@ impl MessageProcessor {
             Err(error) => self.outgoing.send_error(request_id, error).await,
         }
     }
->>>>>>> upstream_main
 }
 
 #[cfg(test)]

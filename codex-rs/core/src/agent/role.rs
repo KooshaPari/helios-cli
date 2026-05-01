@@ -419,7 +419,6 @@ Rules:
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::config::ConfigBuilder;
@@ -764,7 +763,5 @@ enabled = false
         );
     }
 }
-=======
 #[path = "role_tests.rs"]
 mod tests;
->>>>>>> upstream_main

@@ -5,10 +5,7 @@
 //! - Phase 2: claim a global consolidation lock, materialize consolidation inputs, and dispatch one consolidation agent.
 
 pub(crate) mod citations;
-<<<<<<< HEAD
-=======
 mod control;
->>>>>>> upstream_main
 mod phase1;
 mod phase2;
 pub(crate) mod prompts;
