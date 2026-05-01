@@ -209,7 +209,7 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Build patched Bash
         shell: bash
@@ -247,7 +247,7 @@ jobs:
       matrix: ${{ fromJSON(needs.billed-runner-policy.outputs.bash_darwin_matrix) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Build patched Bash
         shell: bash
@@ -345,7 +345,7 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Build patched zsh
         shell: bash
@@ -419,7 +419,7 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Build patched zsh
         shell: bash
@@ -485,7 +485,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.metadata.outputs.version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

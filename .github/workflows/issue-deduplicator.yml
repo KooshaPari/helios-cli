@@ -19,7 +19,7 @@ jobs:
       reason: ${{ steps.normalize-all.outputs.reason }}
       has_matches: ${{ steps.normalize-all.outputs.has_matches }}
     steps:
-      - uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Prepare Codex inputs
         env:
@@ -155,7 +155,7 @@ jobs:
       reason: ${{ steps.normalize-open.outputs.reason }}
       has_matches: ${{ steps.normalize-open.outputs.has_matches }}
     steps:
-      - uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Prepare Codex inputs
         env:

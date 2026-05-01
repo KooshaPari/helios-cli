@@ -45,7 +45,7 @@ jobs:
             git \
             libncursesw5-dev
 
-      - uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Build, smoke-test, and stage zsh artifact
         shell: bash
@@ -81,7 +81,7 @@ jobs:
             brew install autoconf
           fi
 
-      - uses: actions/checkout@v6@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Build, smoke-test, and stage zsh artifact
         shell: bash
