@@ -38,7 +38,7 @@ jobs:
       v8_version: ${{ steps.v8_version.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d870656
@@ -72,7 +72,7 @@ jobs:
             target: aarch64-unknown-linux-musl
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Bazel
         uses: bazelbuild/setup-bazelisk@v3
@@ -126,7 +126,7 @@ jobs:
             --output-dir "dist/${TARGET}"
 
       - name: Upload staged musl artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: v8-canary-${{ needs.metadata.outputs.v8_version }}-${{ matrix.target }}
           path: dist/${{ matrix.target }}/*
