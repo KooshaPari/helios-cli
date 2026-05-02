@@ -1,11 +1,8 @@
 use anyhow::Result;
 use chrono::Duration as ChronoDuration;
 use chrono::Utc;
-<<<<<<< HEAD
 use codex_core::features::Feature;
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::ThreadId;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::Op;
@@ -15,13 +12,10 @@ use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_response_created;
-<<<<<<< HEAD
 use core_test_support::responses::mount_sse_once;
-=======
 use core_test_support::responses::ev_web_search_call_done;
 use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::mount_sse_sequence;
->>>>>>> upstream_main
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::test_codex::TestCodex;
@@ -167,13 +161,11 @@ async fn memories_startup_phase2_tracks_added_and_removed_inputs_across_runs() -
     Ok(())
 }
 
-<<<<<<< HEAD
 async fn build_test_codex(server: &wiremock::MockServer, home: Arc<TempDir>) -> Result<TestCodex> {
     let mut builder = test_codex().with_home(home).with_config(|config| {
         config.features.enable(Feature::Sqlite);
         config.features.enable(Feature::MemoryTool);
         config.memories.max_raw_memories_for_global = 1;
-=======
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn web_search_pollution_moves_selected_thread_into_removed_phase2_inputs() -> Result<()> {
     let server = start_mock_server().await;
@@ -348,19 +340,15 @@ async fn build_test_codex(server: &wiremock::MockServer, home: Arc<TempDir>) -> 
             .enable(Feature::MemoryTool)
             .expect("test config should allow feature update");
         config.memories.max_raw_memories_for_consolidation = 1;
->>>>>>> upstream_main
     });
     builder.build(server).await
 }
 
 async fn init_state_db(home: &Arc<TempDir>) -> Result<Arc<codex_state::StateRuntime>> {
     let db =
-<<<<<<< HEAD
         codex_state::StateRuntime::init(home.path().to_path_buf(), "test-provider".into(), None)
             .await?;
-=======
         codex_state::StateRuntime::init(home.path().to_path_buf(), "test-provider".into()).await?;
->>>>>>> upstream_main
     db.mark_backfill_complete(None).await?;
     Ok(db)
 }
@@ -386,7 +374,6 @@ async fn seed_stage1_output(
     let metadata = metadata_builder.build("test-provider");
     db.upsert_thread(&metadata).await?;
 
-<<<<<<< HEAD
     let claim = db
         .try_claim_stage1_job(
             thread_id,
@@ -413,7 +400,6 @@ async fn seed_stage1_output(
         .await?,
         "stage-1 success should enqueue global consolidation"
     );
-=======
     seed_stage1_output_for_existing_thread(
         db,
         thread_id,
@@ -423,13 +409,11 @@ async fn seed_stage1_output(
         Some(rollout_slug),
     )
     .await?;
->>>>>>> upstream_main
 
     Ok(thread_id)
 }
 
 async fn wait_for_single_request(mock: &ResponseMock) -> ResponsesRequest {
-<<<<<<< HEAD
     let deadline = Instant::now() + Duration::from_secs(10);
     loop {
         let requests = mock.requests();
@@ -439,7 +423,6 @@ async fn wait_for_single_request(mock: &ResponseMock) -> ResponsesRequest {
         assert!(
             Instant::now() < deadline,
             "timed out waiting for phase2 request"
-=======
     wait_for_request(mock, 1).await.remove(0)
 }
 
@@ -453,7 +436,6 @@ async fn wait_for_request(mock: &ResponseMock, expected_count: usize) -> Vec<Res
         assert!(
             Instant::now() < deadline,
             "timed out waiting for {expected_count} phase2 requests"
->>>>>>> upstream_main
         );
         tokio::time::sleep(Duration::from_millis(50)).await;
     }
@@ -491,8 +473,6 @@ async fn wait_for_phase2_success(
     }
 }
 
-<<<<<<< HEAD
-=======
 async fn seed_stage1_output_for_existing_thread(
     db: &codex_state::StateRuntime,
     thread_id: ThreadId,
@@ -526,7 +506,6 @@ async fn seed_stage1_output_for_existing_thread(
     Ok(())
 }
 
->>>>>>> upstream_main
 async fn read_rollout_summary_bodies(memory_root: &Path) -> Result<Vec<String>> {
     let mut dir = tokio::fs::read_dir(memory_root.join("rollout_summaries")).await?;
     let mut summaries = Vec::new();

@@ -157,11 +157,8 @@ pub enum Feature {
     Steer,
     /// Allow request_user_input in Default collaboration mode.
     DefaultModeRequestUserInput,
-<<<<<<< HEAD:codex-rs/core/src/features.rs
-=======
     /// Enable automatic review for approval prompts.
     GuardianApproval,
->>>>>>> upstream_main:codex-rs/features/src/lib.rs
     /// Enable collaboration modes (Plan, Default).
     /// Kept for config backward compatibility; behavior is always collaboration-modes-enabled.
     CollaborationModes,
@@ -555,8 +552,6 @@ pub const FEATURES: &[FeatureSpec] = &[
             menu_description: "Enable a persistent Node-backed JavaScript REPL for interactive website debugging and other inline JavaScript execution capabilities. Requires Node >= v22.22.0 installed.",
             announcement: "NEW: JavaScript REPL is now available in /experimental. Enable it, then start a new chat or restart Codex to use it.",
         },
-<<<<<<< HEAD:codex-rs/core/src/features.rs
-=======
         default_enabled: false,
     },
     FeatureSpec {
@@ -569,7 +564,6 @@ pub const FEATURES: &[FeatureSpec] = &[
         id: Feature::CodeModeOnly,
         key: "code_mode_only",
         stage: Stage::UnderDevelopment,
->>>>>>> upstream_main:codex-rs/features/src/lib.rs
         default_enabled: false,
     },
     FeatureSpec {
@@ -758,8 +752,6 @@ pub const FEATURES: &[FeatureSpec] = &[
         key: "steer",
         stage: Stage::Removed,
         default_enabled: true,
-<<<<<<< HEAD:codex-rs/core/src/features.rs
-=======
     },
     FeatureSpec {
         id: Feature::DefaultModeRequestUserInput,
@@ -776,7 +768,6 @@ pub const FEATURES: &[FeatureSpec] = &[
             announcement: "",
         },
         default_enabled: false,
->>>>>>> upstream_main:codex-rs/features/src/lib.rs
     },
     FeatureSpec {
         id: Feature::DefaultModeRequestUserInput,
@@ -911,7 +902,6 @@ pub fn unstable_features_warning_event(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD:codex-rs/core/src/features.rs
 mod tests {
     use super::*;
 
@@ -987,6 +977,4 @@ mod tests {
         assert_eq!(feature_for_key("collab"), Some(Feature::Collab));
     }
 }
-=======
 mod tests;
->>>>>>> upstream_main:codex-rs/features/src/lib.rs

@@ -246,7 +246,6 @@ impl ToolRouter {
             payload,
         };
 
-<<<<<<< HEAD
         match self.registry.dispatch(invocation).await {
             Ok(response) => Ok(response),
             Err(FunctionCallError::Fatal(message)) => Err(FunctionCallError::Fatal(message)),
@@ -281,9 +280,7 @@ impl ToolRouter {
                 },
             }
         }
-=======
         self.registry.dispatch_any(invocation).await
->>>>>>> upstream_main
     }
 }
 #[cfg(test)]

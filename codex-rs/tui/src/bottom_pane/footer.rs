@@ -1416,10 +1416,7 @@ mod tests {
                 context_window_used_tokens: Some(123_456),
                 status_line_value: None,
                 status_line_enabled: false,
-<<<<<<< HEAD
-=======
                 active_agent_label: None,
->>>>>>> upstream_main
             },
         );
 

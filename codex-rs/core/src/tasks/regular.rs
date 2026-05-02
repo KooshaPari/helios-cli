@@ -20,7 +20,6 @@ use super::SessionTaskContext;
 pub(crate) struct RegularTask;
 
 impl RegularTask {
-<<<<<<< HEAD
     #[allow(dead_code)]
     pub(crate) async fn with_startup_prewarm(
         model_client: ModelClient,
@@ -50,10 +49,8 @@ impl RegularTask {
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .take()
-=======
     pub(crate) fn new() -> Self {
         Self
->>>>>>> upstream_main
     }
 }
 

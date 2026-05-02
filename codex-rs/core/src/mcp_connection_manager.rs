@@ -1711,7 +1711,6 @@ fn startup_outcome_error_message(error: StartupOutcomeError) -> String {
 mod mcp_init_error_display_tests {}
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use codex_protocol::protocol::McpAuthStatus;
@@ -2347,7 +2346,5 @@ mod tests {
         assert_eq!(transport_origin(&transport), Some("stdio".to_string()));
     }
 }
-=======
 #[path = "mcp_connection_manager_tests.rs"]
 mod tests;
->>>>>>> upstream_main

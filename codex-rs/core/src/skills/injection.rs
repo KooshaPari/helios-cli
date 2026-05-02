@@ -489,7 +489,6 @@ fn is_mention_name_char(byte: u8) -> bool {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
@@ -831,7 +830,5 @@ mod tests {
         assert_eq!(selected, Vec::new());
     }
 }
-=======
 #[path = "injection_tests.rs"]
 mod tests;
->>>>>>> upstream_main

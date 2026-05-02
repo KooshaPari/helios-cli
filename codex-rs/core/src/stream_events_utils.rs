@@ -16,10 +16,7 @@ use crate::error::CodexErr;
 use crate::error::Result;
 use crate::function_tool::FunctionCallError;
 use crate::memories::citations::get_thread_id_from_citations;
-<<<<<<< HEAD
-=======
 use crate::memories::citations::parse_memory_citation;
->>>>>>> upstream_main
 use crate::parse_turn_item;
 use crate::state_db;
 use crate::tools::parallel::ToolCallRuntime;
@@ -34,8 +31,6 @@ use futures::Future;
 use tracing::debug;
 use tracing::instrument;
 
-<<<<<<< HEAD
-=======
 const GENERATED_IMAGE_ARTIFACTS_DIR: &str = "generated_images";
 
 pub(crate) fn image_generation_artifact_path(
@@ -66,7 +61,6 @@ pub(crate) fn image_generation_artifact_path(
         .join(format!("{}.png", sanitize(call_id)))
 }
 
->>>>>>> upstream_main
 fn strip_hidden_assistant_markup(text: &str, plan_mode: bool) -> String {
     let (without_citations, _) = strip_citations(text);
     if plan_mode {
@@ -76,8 +70,6 @@ fn strip_hidden_assistant_markup(text: &str, plan_mode: bool) -> String {
     }
 }
 
-<<<<<<< HEAD
-=======
 fn strip_hidden_assistant_markup_and_parse_memory_citation(
     text: &str,
     plan_mode: bool,
@@ -94,7 +86,6 @@ fn strip_hidden_assistant_markup_and_parse_memory_citation(
     (visible_text, parse_memory_citation(citations))
 }
 
->>>>>>> upstream_main
 pub(crate) fn raw_assistant_output_text_from_item(item: &ResponseItem) -> Option<String> {
     if let ResponseItem::Message { role, content, .. } = item
         && role == "assistant"
@@ -111,8 +102,6 @@ pub(crate) fn raw_assistant_output_text_from_item(item: &ResponseItem) -> Option
     None
 }
 
-<<<<<<< HEAD
-=======
 async fn save_image_generation_result(
     codex_home: &std::path::Path,
     session_id: &str,
@@ -132,7 +121,6 @@ async fn save_image_generation_result(
     Ok(path)
 }
 
->>>>>>> upstream_main
 /// Persist a completed model response item and record any cited memory usage.
 pub(crate) async fn record_completed_response_item(
     sess: &Session,
@@ -141,11 +129,9 @@ pub(crate) async fn record_completed_response_item(
 ) {
     sess.record_conversation_items(turn_context, std::slice::from_ref(item))
         .await;
-<<<<<<< HEAD
     record_stage1_output_usage_for_completed_item(turn_context, item).await;
 }
 
-=======
     maybe_mark_thread_memory_mode_polluted_from_web_search(sess, turn_context, item).await;
     record_stage1_output_usage_for_completed_item(turn_context, item).await;
 }
@@ -171,7 +157,6 @@ async fn maybe_mark_thread_memory_mode_polluted_from_web_search(
     .await;
 }
 
->>>>>>> upstream_main
 async fn record_stage1_output_usage_for_completed_item(
     turn_context: &TurnContext,
     item: &ResponseItem,
@@ -186,11 +171,8 @@ async fn record_stage1_output_usage_for_completed_item(
         return;
     }
 
-<<<<<<< HEAD
     if let Some(db) = state_db::get_state_db(turn_context.config.as_ref(), None).await {
-=======
     if let Some(db) = state_db::get_state_db(turn_context.config.as_ref()).await {
->>>>>>> upstream_main
         let _ = db.record_stage1_output_usage(&thread_ids).await;
     }
 }
@@ -250,9 +232,7 @@ pub(crate) async fn handle_output_item_done(
         }
         // No tool call: convert messages/reasoning into turn items and mark them as complete.
         Ok(None) => {
-<<<<<<< HEAD
             if let Some(turn_item) = handle_non_tool_response_item(&item, plan_mode) {
-=======
             if let Some(turn_item) = handle_non_tool_response_item(
                 ctx.sess.as_ref(),
                 ctx.turn_context.as_ref(),
@@ -261,7 +241,6 @@ pub(crate) async fn handle_output_item_done(
             )
             .await
             {
->>>>>>> upstream_main
                 if previously_active_item.is_none() {
                     let mut started_item = turn_item.clone();
                     if let TurnItem::ImageGeneration(item) = &mut started_item {
@@ -279,10 +258,7 @@ pub(crate) async fn handle_output_item_done(
                     .emit_turn_item_completed(&ctx.turn_context, turn_item)
                     .await;
             }
-<<<<<<< HEAD
 
-=======
->>>>>>> upstream_main
             record_completed_response_item(ctx.sess.as_ref(), ctx.turn_context.as_ref(), &item)
                 .await;
             let last_agent_message = last_assistant_message_from_item(&item, plan_mode);
@@ -348,13 +324,10 @@ pub(crate) async fn handle_output_item_done(
     Ok(output)
 }
 
-<<<<<<< HEAD
 pub(crate) fn handle_non_tool_response_item(
-=======
 pub(crate) async fn handle_non_tool_response_item(
     sess: &Session,
     turn_context: &TurnContext,
->>>>>>> upstream_main
     item: &ResponseItem,
     plan_mode: bool,
 ) -> Option<TurnItem> {
@@ -374,12 +347,9 @@ pub(crate) async fn handle_non_tool_response_item(
                         codex_protocol::items::AgentMessageContent::Text { text } => text.as_str(),
                     })
                     .collect::<String>();
-<<<<<<< HEAD
                 let stripped = strip_hidden_assistant_markup(&combined, plan_mode);
-=======
                 let (stripped, memory_citation) =
                     strip_hidden_assistant_markup_and_parse_memory_citation(&combined, plan_mode);
->>>>>>> upstream_main
                 agent_message.content =
                     vec![codex_protocol::items::AgentMessageContent::Text { text: stripped }];
                 agent_message.memory_citation = memory_citation;
@@ -504,7 +474,6 @@ pub(crate) fn response_input_to_response_item(input: &ResponseInputItem) -> Opti
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::handle_non_tool_response_item;
     use super::last_assistant_message_from_item;
@@ -571,7 +540,5 @@ mod tests {
         assert_eq!(last_assistant_message_from_item(&item, true), None);
     }
 }
-=======
 #[path = "stream_events_utils_tests.rs"]
 mod tests;
->>>>>>> upstream_main

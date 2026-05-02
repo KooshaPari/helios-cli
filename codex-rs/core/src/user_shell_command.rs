@@ -55,7 +55,6 @@ pub fn user_shell_command_record_item(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::codex::make_session_and_context;
@@ -114,7 +113,5 @@ mod tests {
         );
     }
 }
-=======
 #[path = "user_shell_command_tests.rs"]
 mod tests;
->>>>>>> upstream_main

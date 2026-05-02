@@ -2,7 +2,11 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use codex_git_utils::GitSha;
+use uuid::Uuid;
 use codex_protocol::ThreadId;
+use codex_protocol::user_input::ByteRange;
+use codex_protocol::user_input::TextElement;
+use codex_protocol::protocol::EventMsg;
 use codex_protocol::config_types::ForcedLoginMethod;
 use codex_protocol::config_types::ReasoningSummary;
 use codex_protocol::config_types::SandboxMode;
@@ -243,7 +247,6 @@ pub struct SandboxSettings {
 pub struct InterruptConversationResponse {
     pub abort_reason: TurnAbortReason,
 }
-<<<<<<< HEAD
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
@@ -292,8 +295,8 @@ pub struct V1ByteRange {
     pub end: usize,
 }
 
-impl From<CoreByteRange> for V1ByteRange {
-    fn from(value: CoreByteRange) -> Self {
+impl From<ByteRange> for V1ByteRange {
+    fn from(value: ByteRange) -> Self {
         Self {
             start: value.start,
             end: value.end,
@@ -301,7 +304,7 @@ impl From<CoreByteRange> for V1ByteRange {
     }
 }
 
-impl From<V1ByteRange> for CoreByteRange {
+impl From<V1ByteRange> for ByteRange {
     fn from(value: V1ByteRange) -> Self {
         Self {
             start: value.start,
@@ -373,5 +376,3 @@ pub struct SessionConfiguredNotification {
 pub struct AuthStatusChangeNotification {
     pub auth_method: Option<AuthMode>,
 }
-=======
->>>>>>> upstream_main

@@ -96,13 +96,10 @@ use std::collections::HashMap;
 use std::io::ErrorKind;
 use std::path::Path;
 use std::path::PathBuf;
-<<<<<<< HEAD
 #[cfg(test)]
 use tempfile::tempdir;
-=======
 #[cfg(target_os = "linux")]
 use std::process::Command;
->>>>>>> upstream_main
 
 use crate::config::permissions::compile_permission_profile;
 use crate::config::permissions::get_readable_roots_required_for_codex_runtime;
@@ -159,8 +156,6 @@ const RESERVED_MODEL_PROVIDER_IDS: [&str; 3] = [
     LMSTUDIO_OSS_PROVIDER_ID,
 ];
 
-<<<<<<< HEAD
-=======
 #[cfg(target_os = "linux")]
 pub fn system_bwrap_warning() -> Option<String> {
     system_bwrap_warning_for_path(Path::new(SYSTEM_BWRAP_PATH))
@@ -202,7 +197,6 @@ fn system_bwrap_supports_argv0(system_bwrap_path: &Path) -> bool {
     stdout.contains("--argv0") || stderr.contains("--argv0")
 }
 
->>>>>>> upstream_main
 fn resolve_sqlite_home_env(resolved_cwd: &Path) -> Option<PathBuf> {
     let raw = std::env::var(codex_state::SQLITE_HOME_ENV).ok()?;
     let trimmed = raw.trim();
@@ -534,13 +528,10 @@ pub struct Config {
     /// Base URL for requests to ChatGPT (as opposed to the OpenAI API).
     pub chatgpt_base_url: String,
 
-<<<<<<< HEAD
-=======
     /// Experimental / do not use. Overrides the URL used when connecting to
     /// a remote exec server.
     pub experimental_exec_server_url: Option<String>,
 
->>>>>>> upstream_main
     /// Machine-local realtime audio device preferences used by realtime voice.
     pub realtime_audio: RealtimeAudioConfig,
 
@@ -1327,8 +1318,6 @@ pub struct ConfigToml {
     /// Base URL for requests to ChatGPT (as opposed to the OpenAI API).
     pub chatgpt_base_url: Option<String>,
 
-<<<<<<< HEAD
-=======
     /// Base URL override for the built-in `openai` model provider.
     pub openai_base_url: Option<String>,
 
@@ -1336,7 +1325,6 @@ pub struct ConfigToml {
     /// a remote exec server.
     pub experimental_exec_server_url: Option<String>,
 
->>>>>>> upstream_main
     /// Machine-local realtime audio device preferences used by realtime voice.
     #[serde(default)]
     pub audio: Option<RealtimeAudioToml>,
@@ -1501,8 +1489,6 @@ pub struct RealtimeAudioConfig {
     pub speaker: Option<String>,
 }
 
-<<<<<<< HEAD
-=======
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum RealtimeWsMode {
@@ -1529,7 +1515,6 @@ pub struct RealtimeToml {
     pub session_type: Option<RealtimeWsMode>,
 }
 
->>>>>>> upstream_main
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct RealtimeAudioToml {
@@ -2361,7 +2346,6 @@ impl Config {
                 "agents.max_depth must be at least 1",
             ));
         }
-<<<<<<< HEAD
         let agent_roles = cfg
             .agents
             .as_ref()
@@ -2385,8 +2369,6 @@ impl Config {
             })
             .transpose()?
             .unwrap_or_default();
-=======
->>>>>>> upstream_main
         let agent_job_max_runtime_seconds = cfg
             .agents
             .as_ref()
@@ -2548,7 +2530,6 @@ impl Config {
             .map(AbsolutePathBuf::to_path_buf)
             .or_else(|| resolve_sqlite_home_env(&resolved_cwd))
             .unwrap_or_else(|| codex_home.to_path_buf());
-<<<<<<< HEAD
 
         // Ensure that every field of ConfigRequirements is applied to the final
         // Config.
@@ -2561,9 +2542,7 @@ impl Config {
             enforce_residency,
             network: network_requirements,
         } = requirements;
-=======
         let original_sandbox_policy = sandbox_policy.clone();
->>>>>>> upstream_main
 
         apply_requirement_constrained_value(
             "approval_policy",
@@ -2731,10 +2710,7 @@ impl Config {
                 .chatgpt_base_url
                 .or(cfg.chatgpt_base_url)
                 .unwrap_or("https://chatgpt.com/backend-api/".to_string()),
-<<<<<<< HEAD
-=======
             experimental_exec_server_url: cfg.experimental_exec_server_url,
->>>>>>> upstream_main
             realtime_audio: cfg
                 .audio
                 .map_or_else(RealtimeAudioConfig::default, |audio| RealtimeAudioConfig {
@@ -2964,7 +2940,6 @@ pub fn log_dir(cfg: &Config) -> std::io::Result<PathBuf> {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use crate::config::edit::ConfigEdit;
     use crate::config::edit::ConfigEditsBuilder;
@@ -6780,7 +6755,5 @@ mod notifications_tests {
         assert_eq!(parsed.tui.notification_method, NotificationMethod::Bel);
     }
 }
-=======
 #[path = "config_tests.rs"]
 mod tests;
->>>>>>> upstream_main

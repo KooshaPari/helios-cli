@@ -194,8 +194,6 @@ impl ModelsManager {
         auth_manager: Arc<AuthManager>,
         model_catalog: Option<ModelsResponse>,
         collaboration_modes_config: CollaborationModesConfig,
-<<<<<<< HEAD
-=======
     ) -> Self {
         Self::new_with_provider(
             codex_home,
@@ -213,7 +211,6 @@ impl ModelsManager {
         model_catalog: Option<ModelsResponse>,
         collaboration_modes_config: CollaborationModesConfig,
         provider: ModelProviderInfo,
->>>>>>> upstream_main
     ) -> Self {
         let cache_path = codex_home.join(MODEL_CACHE_FILE);
         let cache_manager = ModelsCacheManager::new(cache_path, DEFAULT_MODEL_CACHE_TTL);
@@ -546,7 +543,6 @@ impl ModelsManager {
         auth_manager: Arc<AuthManager>,
         provider: ModelProviderInfo,
     ) -> Self {
-<<<<<<< HEAD
         let cache_path = codex_home.join(MODEL_CACHE_FILE);
         let cache_manager = ModelsCacheManager::new(cache_path, DEFAULT_MODEL_CACHE_TTL);
         Self {
@@ -556,10 +552,8 @@ impl ModelsManager {
             ),
             catalog_mode: CatalogMode::Default,
             collaboration_modes_config: CollaborationModesConfig::default(),
-=======
         Self::new_with_provider(
             codex_home,
->>>>>>> upstream_main
             auth_manager,
             /*model_catalog*/ None,
             CollaborationModesConfig::default(),
@@ -598,7 +592,6 @@ impl ModelsManager {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::CodexAuth;
@@ -1178,7 +1171,5 @@ mod tests {
         );
     }
 }
-=======
 #[path = "manager_tests.rs"]
 mod tests;
->>>>>>> upstream_main

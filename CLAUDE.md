@@ -1,6 +1,6 @@
-# Claude AI Agent Guide - heliosCLI
+# Claude AI Agent Guide - helios-cli
 
-heliosCLI is a multi-runtime AI coding CLI (Codex, Claude, Gemini, Cursor, Copilot) built with a Bazel monorepo, Rust core (`codex-rs`), and TypeScript CLI (`codex-cli`). It integrates with `thegent` for agent orchestration.
+helios-cli is a multi-runtime AI coding CLI (Codex, Claude, Gemini, Cursor, Copilot) built with a Bazel monorepo, Rust core (`codex-rs`), and TypeScript CLI (`codex-cli`). It integrates with `thegent` for agent orchestration.
 
 **Authority and Scope**
 
@@ -57,7 +57,7 @@ bazel run //codex-cli:codex -- --help
 ## 2. Repository Structure
 
 ```
-heliosCLI/
+helios-cli/
 ├── codex-rs/           # Rust core (exec engine, protocol, sandbox)
 │   ├── core/           # Core types, models, config
 │   ├── exec/           # Execution engine
@@ -77,7 +77,7 @@ heliosCLI/
 
 ## 3. Build System (Bazel)
 
-heliosCLI uses Bazel as the primary build system with Cargo and pnpm as secondary.
+helios-cli uses Bazel as the primary build system with Cargo and pnpm as secondary.
 
 ```bash
 # Build all targets
@@ -191,9 +191,9 @@ Root-level markdown: only `README.md`, `CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`.
 
 ## 8. Worktree Discipline
 
-- Feature work goes in `repos/worktrees/heliosCLI/<topic>/`
-- Legacy `heliosCLI-wtrees/` and `PROJECT-wtrees/` roots are migration-only and must not receive new work
-- Canonical `heliosCLI/` stays on `main`
+- Feature work goes in `repos/worktrees/helios-cli/<topic>/`
+- Legacy `helios-cli-wtrees/` and `PROJECT-wtrees/` roots are migration-only and must not receive new work
+- Canonical `helios-cli/` stays on `main`
 - Never commit feature branches directly to canonical `main`
 
 ---

@@ -1,11 +1,8 @@
 #![allow(clippy::expect_used, clippy::unwrap_used)]
 
 use anyhow::Result;
-<<<<<<< HEAD
 use codex_core::features::Feature;
-=======
 use codex_features::Feature;
->>>>>>> upstream_main
 use codex_protocol::protocol::EventMsg;
 use core_test_support::responses;
 use core_test_support::responses::ResponseMock;
@@ -35,8 +32,6 @@ fn custom_tool_output_text_and_success(
     (output.unwrap_or_default(), success)
 }
 
-<<<<<<< HEAD
-=======
 fn assert_js_repl_ok(req: &ResponsesRequest, call_id: &str, expected_output: &str) {
     let (output, success) = custom_tool_output_text_and_success(req, call_id);
     assert_ne!(
@@ -53,7 +48,6 @@ fn assert_js_repl_err(req: &ResponsesRequest, call_id: &str, expected_output: &s
     assert!(output.contains(expected_output), "output was: {output}");
 }
 
->>>>>>> upstream_main
 fn tool_names(body: &serde_json::Value) -> Vec<String> {
     body["tools"]
         .as_array()
@@ -125,7 +119,6 @@ async fn run_js_repl_sequence(
     responses::mount_sse_once(
         server,
         sse(vec![
-<<<<<<< HEAD
             ev_assistant_message("msg-1", "done"),
             ev_completed("resp-2"),
         ]),
@@ -207,8 +200,6 @@ async fn js_repl_persists_top_level_bindings_and_supports_tla() -> Result<()> {
     responses::mount_sse_once(
         &server,
         sse(vec![
-=======
->>>>>>> upstream_main
             ev_response_created("resp-1"),
             ev_custom_tool_call(calls[0].0, "js_repl", calls[0].1),
             ev_completed("resp-1"),

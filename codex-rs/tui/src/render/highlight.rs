@@ -749,8 +749,6 @@ mod tests {
             .join("\n")
     }
 
-<<<<<<< HEAD
-=======
     fn unique_foreground_colors_for_theme(theme_name: &str) -> Vec<String> {
         let theme = resolve_theme_by_name(theme_name, None)
             .unwrap_or_else(|| panic!("expected built-in theme {theme_name} to resolve"));
@@ -770,7 +768,6 @@ mod tests {
         colors
     }
 
->>>>>>> upstream_main
     fn theme_item(scope: &str, background: Option<(u8, u8, u8)>) -> ThemeItem {
         ThemeItem {
             scope: ScopeSelectors::from_str(scope).expect("scope selector should parse"),

@@ -7,11 +7,8 @@ use codex_protocol::models::PermissionProfile;
 use codex_protocol::protocol::AskForApproval;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::ExecApprovalRequestEvent;
-<<<<<<< HEAD
-=======
 use codex_protocol::protocol::ExecApprovalRequestSkillMetadata;
 use codex_protocol::protocol::GranularApprovalConfig;
->>>>>>> upstream_main
 use codex_protocol::protocol::Op;
 use codex_protocol::protocol::ReviewDecision;
 use codex_protocol::protocol::SandboxPolicy;
@@ -68,18 +65,12 @@ async fn submit_turn_with_policies(
             final_output_json_schema: None,
             cwd: test.cwd_path().to_path_buf(),
             approval_policy,
-<<<<<<< HEAD
-=======
             approvals_reviewer: None,
->>>>>>> upstream_main
             sandbox_policy,
             model: test.session_configured.model.clone(),
             effort: None,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -253,8 +244,6 @@ permissions:
             ..Default::default()
         })
     );
-<<<<<<< HEAD
-=======
     assert_eq!(
         approval.skill_metadata,
         Some(ExecApprovalRequestSkillMetadata {
@@ -263,7 +252,6 @@ permissions:
                 .join("skills/mbolin-test-skill/agents/openai.yaml"),
         })
     );
->>>>>>> upstream_main
 
     test.codex
         .submit(Op::ExecApproval {
@@ -288,7 +276,6 @@ permissions:
     Ok(())
 }
 
-<<<<<<< HEAD
 /// Look for `additional_permissions == None`, then verify that both the first
 /// run and the cached session-approval rerun stay inside the turn sandbox.
 #[cfg(unix)]
@@ -340,7 +327,6 @@ async fn shell_zsh_fork_skill_without_permissions_inherits_turn_sandbox() -> Res
         first_call_id,
         &first_arguments,
         "shell_command",
-=======
 #[cfg(unix)]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn shell_zsh_fork_skill_script_reject_policy_with_sandbox_approval_false_still_prompts()
@@ -379,7 +365,6 @@ permissions:
             )
             .unwrap();
         },
->>>>>>> upstream_main
     )
     .await?;
 
@@ -413,7 +398,6 @@ permissions:
     assert_eq!(approval.call_id, tool_call_id);
     assert_eq!(approval.command, vec![script_path_str]);
 
-<<<<<<< HEAD
     submit_turn_with_policies(
         &test,
         "use $mbolin-test-skill",
@@ -431,13 +415,10 @@ permissions:
     assert_eq!(approval.command, vec![script_path_str.clone()]);
     assert_eq!(approval.additional_permissions, None);
 
-=======
->>>>>>> upstream_main
     test.codex
         .submit(Op::ExecApproval {
             id: approval.effective_approval_id(),
             turn_id: None,
-<<<<<<< HEAD
             decision: ReviewDecision::ApprovedForSession,
         })
         .await?;
@@ -482,7 +463,6 @@ permissions:
     assert!(
         cached_approval.is_none(),
         "expected second run to reuse the cached session approval"
-=======
             decision: ReviewDecision::Denied,
         })
         .await?;
@@ -781,7 +761,6 @@ async fn shell_zsh_fork_skill_without_permissions_inherits_turn_sandbox() -> Res
     assert!(
         cached_approval.is_none(),
         "expected permissionless skill rerun to continue skipping exec approval"
->>>>>>> upstream_main
     );
 
     let second_output = second_mocks
@@ -803,8 +782,6 @@ async fn shell_zsh_fork_skill_without_permissions_inherits_turn_sandbox() -> Res
     Ok(())
 }
 
-<<<<<<< HEAD
-=======
 /// Empty skill permissions should behave like no skill override and inherit the
 /// turn sandbox without prompting.
 #[cfg(unix)]
@@ -930,7 +907,6 @@ async fn shell_zsh_fork_skill_with_empty_permissions_inherits_turn_sandbox() -> 
     Ok(())
 }
 
->>>>>>> upstream_main
 /// The validation to focus on is: writes to the skill-approved folder succeed,
 /// and writes to an unrelated folder fail, both before and after cached approval.
 #[cfg(unix)]

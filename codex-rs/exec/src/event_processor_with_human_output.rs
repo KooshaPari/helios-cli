@@ -15,7 +15,6 @@ use codex_protocol::protocol::SandboxPolicy;
 use codex_protocol::protocol::SessionConfiguredEvent;
 use owo_colors::OwoColorize;
 use owo_colors::Style;
-<<<<<<< HEAD
 use serde::Deserialize;
 use shlex::try_join;
 use std::collections::HashMap;
@@ -24,8 +23,6 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::time::Duration;
 use std::time::Instant;
-=======
->>>>>>> upstream_main
 
 use crate::event_processor::CodexStatus;
 use crate::event_processor::EventProcessor;
@@ -370,7 +367,6 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                 }
                 CodexStatus::Running
             }
-<<<<<<< HEAD
             EventMsg::ViewImageToolCall(view) => {
                 ts_msg!(
                     self,
@@ -594,10 +590,8 @@ impl EventProcessor for EventProcessorWithHumanOutput {
             | EventMsg::RealtimeConversationClosed(_)
             | EventMsg::DynamicToolCallRequest(_)
             | EventMsg::DynamicToolCallResponse(_) => {}
-=======
             ServerNotification::TurnStarted(_) => CodexStatus::Running,
             _ => CodexStatus::Running,
->>>>>>> upstream_main
         }
     }
 
@@ -624,7 +618,6 @@ impl EventProcessor for EventProcessorWithHumanOutput {
             );
         }
 
-<<<<<<< HEAD
         // In interactive terminals we already emitted the final assistant
         // message on stderr during event processing. Preserve stdout emission
         // only for non-interactive use so pipes and scripts still receive the
@@ -640,7 +633,6 @@ impl EventProcessor for EventProcessorWithHumanOutput {
                 print!("{message}");
             } else {
                 println!("{message}");
-=======
         #[allow(clippy::print_stdout)]
         if should_print_final_message_to_stdout(
             self.emit_final_message_on_shutdown
@@ -719,11 +711,9 @@ fn summarize_sandbox_policy(sandbox_policy: &SandboxPolicy) -> String {
             let mut summary = "read-only".to_string();
             if *network_access {
                 summary.push_str(" (network access enabled)");
->>>>>>> upstream_main
             }
             summary
         }
-<<<<<<< HEAD
     }
 }
 
@@ -797,7 +787,6 @@ impl EventProcessorWithHumanOutput {
                 }
             } else {
                 eprintln!();
-=======
         SandboxPolicy::ExternalSandbox { network_access } => {
             let mut summary = "external-sandbox".to_string();
             if matches!(
@@ -805,7 +794,6 @@ impl EventProcessorWithHumanOutput {
                 codex_protocol::protocol::NetworkAccess::Enabled
             ) {
                 summary.push_str(" (network access enabled)");
->>>>>>> upstream_main
             }
             summary
         }
@@ -821,7 +809,6 @@ impl EventProcessorWithHumanOutput {
             if !*exclude_slash_tmp {
                 writable_entries.push("/tmp".to_string());
             }
-<<<<<<< HEAD
             return;
         }
         if done && self.progress_done {
@@ -911,10 +898,8 @@ fn format_agent_job_progress_line(
             if columns > 2 && truncated.len() > columns {
                 truncated.truncate(columns - 2);
                 truncated.push_str("..");
-=======
             if !*exclude_tmpdir_env_var {
                 writable_entries.push("$TMPDIR".to_string());
->>>>>>> upstream_main
             }
             writable_entries.extend(
                 writable_roots

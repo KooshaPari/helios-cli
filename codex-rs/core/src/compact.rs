@@ -450,7 +450,6 @@ async fn drain_to_completed(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
 
     use super::*;
@@ -1015,7 +1014,5 @@ keep me updated
         assert_eq!(refreshed, expected);
     }
 }
-=======
 #[path = "compact_tests.rs"]
 mod tests;
->>>>>>> upstream_main

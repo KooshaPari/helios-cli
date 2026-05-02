@@ -10,15 +10,12 @@ use codex_core::auth::AuthCredentialsStoreMode;
 use codex_core::built_in_model_providers;
 use codex_core::default_client::originator;
 use codex_core::error::CodexErr;
-<<<<<<< HEAD
 use codex_core::features::Feature;
 use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
 use codex_otel::OtelManager;
-=======
 use codex_core::models_manager::collaboration_mode_presets::CollaborationModesConfig;
 use codex_features::Feature;
 use codex_otel::SessionTelemetry;
->>>>>>> upstream_main
 use codex_otel::TelemetryAuthMode;
 use codex_protocol::ThreadId;
 use codex_protocol::config_types::CollaborationMode;
@@ -395,10 +392,7 @@ async fn resume_replays_legacy_js_repl_image_rollout_shapes() {
             timestamp: "2024-01-01T00:00:02.000Z".to_string(),
             item: RolloutItem::ResponseItem(ResponseItem::CustomToolCallOutput {
                 call_id: "legacy-js-call".to_string(),
-<<<<<<< HEAD
-=======
                 name: None,
->>>>>>> upstream_main
                 output: FunctionCallOutputPayload::from_text("legacy js_repl stdout".to_string()),
             }),
         },
@@ -498,8 +492,6 @@ async fn resume_replays_legacy_js_repl_image_rollout_shapes() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-<<<<<<< HEAD
-=======
 async fn resume_replays_image_tool_outputs_with_detail() {
     skip_if_no_network!();
 
@@ -623,7 +615,6 @@ async fn resume_replays_image_tool_outputs_with_detail() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
->>>>>>> upstream_main
 async fn includes_conversation_id_and_model_headers_in_request() {
     skip_if_no_network!();
 
@@ -835,10 +826,7 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
         &config,
         auth_manager,
         SessionSource::Exec,
-<<<<<<< HEAD
         config.model_catalog.clone(),
-=======
->>>>>>> upstream_main
         CollaborationModesConfig {
             default_mode_request_user_input: config
                 .features
@@ -1335,10 +1323,7 @@ async fn user_turn_collaboration_mode_overrides_model_and_effort() -> anyhow::Re
                     .model_reasoning_summary
                     .unwrap_or(ReasoningSummary::Auto),
             ),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: Some(collaboration_mode),
             final_output_json_schema: None,
             personality: None,
@@ -1447,18 +1432,12 @@ async fn user_turn_explicit_reasoning_summary_overrides_model_catalog_default() 
             }],
             cwd: config.cwd.clone(),
             approval_policy: config.permissions.approval_policy.value(),
-<<<<<<< HEAD
-=======
             approvals_reviewer: None,
->>>>>>> upstream_main
             sandbox_policy: config.permissions.sandbox_policy.get().clone(),
             model: session_configured.model,
             effort: None,
             summary: Some(ReasoningSummary::Concise),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             final_output_json_schema: None,
             personality: None,
@@ -1927,10 +1906,7 @@ async fn azure_responses_request_includes_store_and_reasoning_ids() {
     });
     prompt.input.push(ResponseItem::CustomToolCallOutput {
         call_id: "custom-tool-call-id".into(),
-<<<<<<< HEAD
-=======
         name: None,
->>>>>>> upstream_main
         output: FunctionCallOutputPayload::from_text("ok".into()),
     });
 
@@ -1938,18 +1914,15 @@ async fn azure_responses_request_includes_store_and_reasoning_ids() {
         .stream(
             &prompt,
             &model_info,
-<<<<<<< HEAD
             &otel_manager,
             effort,
             summary.unwrap_or(ReasoningSummary::Auto),
             None,
-=======
             &session_telemetry,
             effort,
             summary.unwrap_or(ReasoningSummary::Auto),
             None,
             None,
->>>>>>> upstream_main
         )
         .await
         .expect("responses stream to start");

@@ -12,10 +12,7 @@ use codex_protocol::ThreadId;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::FunctionCallOutputContentItem;
 use codex_protocol::models::FunctionCallOutputPayload;
-<<<<<<< HEAD
-=======
 use codex_protocol::models::ImageDetail;
->>>>>>> upstream_main
 use codex_protocol::models::ResponseInputItem;
 use serde::Deserialize;
 use serde::Serialize;
@@ -45,18 +42,15 @@ use crate::original_image_detail::normalize_output_image_detail;
 use crate::sandboxing::ExecOptions;
 use crate::tools::ToolRouter;
 use crate::tools::context::SharedTurnDiffTracker;
-<<<<<<< HEAD
 use crate::tools::sandboxing::SandboxablePreference;
 use crate::truncate::TruncationPolicy;
 use crate::truncate::truncate_text;
-=======
 use codex_sandboxing::SandboxCommand;
 use codex_sandboxing::SandboxManager;
 use codex_sandboxing::SandboxTransformRequest;
 use codex_sandboxing::SandboxablePreference;
 use codex_utils_output_truncation::TruncationPolicy;
 use codex_utils_output_truncation::truncate_text;
->>>>>>> upstream_main
 
 pub(crate) const JS_REPL_PRAGMA_PREFIX: &str = "// codex-js-repl:";
 const KERNEL_SOURCE: &str = include_str!("kernel.js");
@@ -438,7 +432,6 @@ impl JsReplManager {
         Some(state.cancel.clone())
     }
 
-<<<<<<< HEAD
     async fn record_exec_tool_call_content_items(
         exec_tool_calls: &Arc<Mutex<HashMap<String, ExecToolCalls>>>,
         exec_id: &str,
@@ -451,7 +444,6 @@ impl JsReplManager {
         let mut calls = exec_tool_calls.lock().await;
         if let Some(state) = calls.get_mut(exec_id) {
             state.content_items.extend(content_items);
-=======
     async fn record_exec_content_item(
         exec_tool_calls: &Arc<Mutex<HashMap<String, ExecToolCalls>>>,
         exec_id: &str,
@@ -460,7 +452,6 @@ impl JsReplManager {
         let mut calls = exec_tool_calls.lock().await;
         if let Some(state) = calls.get_mut(exec_id) {
             state.content_items.push(content_item);
->>>>>>> upstream_main
         }
     }
 
@@ -530,8 +521,6 @@ impl JsReplManager {
         }
     }
 
-<<<<<<< HEAD
-=======
     async fn register_top_level_exec(&self, exec_id: String, turn_id: String) {
         let mut kernel = self.kernel.lock().await;
         let Some(state) = kernel.as_mut() else {
@@ -620,7 +609,6 @@ impl JsReplManager {
         })
     }
 
->>>>>>> upstream_main
     fn log_tool_call_response(
         req: &RunToolRequest,
         ok: bool,
@@ -790,7 +778,6 @@ impl JsReplManager {
                     output,
                 )
             }
-<<<<<<< HEAD
             ResponseInputItem::McpToolCallOutput { result, .. } => match result {
                 Ok(result) => {
                     let output = FunctionCallOutputPayload::from(result);
@@ -813,7 +800,6 @@ impl JsReplManager {
                     summary.result_is_error = Some(true);
                     summary
                 }
-=======
             ResponseInputItem::McpToolCallOutput { output, .. } => {
                 let function_output = output.as_function_call_output_payload();
                 let payload_kind = if output.success() {
@@ -840,21 +826,17 @@ impl JsReplManager {
                 ),
                 payload_item_count: Some(tools.len()),
                 ..Default::default()
->>>>>>> upstream_main
             },
         }
     }
 
     fn summarize_tool_call_error(error: &str) -> JsReplToolCallResponseSummary {
-<<<<<<< HEAD
         Self::summarize_text_payload(None, JsReplToolCallPayloadKind::Error, error)
-=======
         Self::summarize_text_payload(
             /*response_type*/ None,
             JsReplToolCallPayloadKind::Error,
             error,
         )
->>>>>>> upstream_main
     }
 
     pub async fn reset(&self) -> Result<(), FunctionCallError> {
@@ -1374,17 +1356,14 @@ impl JsReplManager {
                             .map(|state| state.content_items.clone())
                             .unwrap_or_default()
                     };
-<<<<<<< HEAD
                     let mut pending = pending_execs.lock().await;
                     if let Some(tx) = pending.remove(&id) {
-=======
                     let tx = {
                         let mut pending = pending_execs.lock().await;
                         pending.remove(&id)
                     };
                     if let Some(tx) = tx {
                         Self::clear_top_level_exec_if_matches_map(&manager_kernel, &id).await;
->>>>>>> upstream_main
                         let payload = if ok {
                             ExecResultMessage::Ok {
                                 content_items: build_exec_result_content_items(
@@ -1609,9 +1588,7 @@ impl JsReplManager {
         if is_js_repl_internal_tool(&req.tool_name) {
             let error = "js_repl cannot invoke itself".to_string();
             let summary = Self::summarize_tool_call_error(&error);
-<<<<<<< HEAD
             Self::log_tool_call_response(&req, false, &summary, None, Some(&error));
-=======
             Self::log_tool_call_response(
                 &req,
                 /*ok*/ false,
@@ -1619,7 +1596,6 @@ impl JsReplManager {
                 /*response*/ None,
                 Some(&error),
             );
->>>>>>> upstream_main
             return RunToolResult {
                 id: req.id,
                 ok: false,
@@ -1694,7 +1670,6 @@ impl JsReplManager {
             )
             .await
         {
-<<<<<<< HEAD
             Ok(response) => {
                 if let Some(items) = response_content_items(&response) {
                     Self::record_exec_tool_call_content_items(
@@ -1709,7 +1684,6 @@ impl JsReplManager {
                 match serde_json::to_value(response) {
                     Ok(value) => {
                         Self::log_tool_call_response(&req, true, &summary, Some(&value), None);
-=======
             Ok(result) => {
                 let response = result.into_response();
                 let summary = Self::summarize_tool_call_response(&response);
@@ -1722,7 +1696,6 @@ impl JsReplManager {
                             Some(&value),
                             /*error*/ None,
                         );
->>>>>>> upstream_main
                         RunToolResult {
                             id: req.id,
                             ok: true,
@@ -1733,9 +1706,7 @@ impl JsReplManager {
                     Err(err) => {
                         let error = format!("failed to serialize tool output: {err}");
                         let summary = Self::summarize_tool_call_error(&error);
-<<<<<<< HEAD
                         Self::log_tool_call_response(&req, false, &summary, None, Some(&error));
-=======
                         Self::log_tool_call_response(
                             &req,
                             /*ok*/ false,
@@ -1743,7 +1714,6 @@ impl JsReplManager {
                             /*response*/ None,
                             Some(&error),
                         );
->>>>>>> upstream_main
                         RunToolResult {
                             id: req.id,
                             ok: false,
@@ -1756,9 +1726,7 @@ impl JsReplManager {
             Err(err) => {
                 let error = err.to_string();
                 let summary = Self::summarize_tool_call_error(&error);
-<<<<<<< HEAD
                 Self::log_tool_call_response(&req, false, &summary, None, Some(&error));
-=======
                 Self::log_tool_call_response(
                     &req,
                     /*ok*/ false,
@@ -1766,7 +1734,6 @@ impl JsReplManager {
                     /*response*/ None,
                     Some(&error),
                 );
->>>>>>> upstream_main
                 RunToolResult {
                     id: req.id,
                     ok: false,
@@ -1811,7 +1778,6 @@ impl JsReplManager {
     }
 }
 
-<<<<<<< HEAD
 fn response_content_items(
     response: &ResponseInputItem,
 ) -> Option<Vec<FunctionCallOutputContentItem>> {
@@ -1827,7 +1793,6 @@ fn response_content_items(
             Err(_) => None,
         },
         ResponseInputItem::Message { .. } => None,
-=======
 fn emitted_image_content_item(
     turn: &TurnContext,
     image_url: String,
@@ -1847,7 +1812,6 @@ fn validate_emitted_image_url(image_url: &str) -> Result<(), String> {
         Ok(())
     } else {
         Err("codex.emitImage only accepts data URLs".to_string())
->>>>>>> upstream_main
     }
 }
 
@@ -2083,7 +2047,6 @@ pub(crate) fn resolve_node(config_path: Option<&Path>) -> Option<PathBuf> {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::codex::make_session_and_context;
@@ -3144,7 +3107,5 @@ console.log(out.type);
         Ok(())
     }
 }
-=======
 #[path = "mod_tests.rs"]
 mod tests;
->>>>>>> upstream_main

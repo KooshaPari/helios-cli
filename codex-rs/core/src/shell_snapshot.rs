@@ -384,7 +384,6 @@ alias_count=$(alias -p | wc -l | tr -d ' ')
 echo "# aliases $alias_count"
 alias -p
 echo ''
-<<<<<<< HEAD
 export_lines=$(export -p | awk '
 /^(export|declare -x|typeset -x) / {
   line=$0
@@ -409,7 +408,6 @@ export_lines=$(export -p | awk '
     print line
   }
 }')
-=======
 export_lines=$(
   while IFS= read -r name; do
     if [[ "$name" =~ ^(EXCLUDED_EXPORTS)$ ]]; then
@@ -421,7 +419,6 @@ export_lines=$(
     declare -xp "$name" 2>/dev/null || true
   done < <(compgen -e)
 )
->>>>>>> upstream_main
 export_count=$(printf '%s\n' "$export_lines" | sed '/^$/d' | wc -l | tr -d ' ')
 echo "# exports $export_count"
 if [ -n "$export_lines" ]; then
@@ -602,7 +599,6 @@ async fn remove_snapshot_file(path: &Path) {
     }
 }
 
-<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1003,7 +999,6 @@ mod tests {
             return Err(std::io::Error::last_os_error().into());
         }
         Ok(())
-=======
 fn snapshot_session_id_from_file_name(file_name: &str) -> Option<&str> {
     let (stem, extension) = file_name.rsplit_once('.')?;
     match extension {
@@ -1013,7 +1008,6 @@ fn snapshot_session_id_from_file_name(file_name: &str) -> Option<&str> {
         ),
         _ if extension.starts_with("tmp-") => Some(stem),
         _ => None,
->>>>>>> upstream_main
     }
 }
 

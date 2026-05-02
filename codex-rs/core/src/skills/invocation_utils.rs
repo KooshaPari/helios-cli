@@ -231,7 +231,6 @@ fn normalize_path(path: &Path) -> PathBuf {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::SkillLoadOutcome;
     use super::SkillMetadata;
@@ -356,7 +355,5 @@ mod tests {
         );
     }
 }
-=======
 #[path = "invocation_utils_tests.rs"]
 mod tests;
->>>>>>> upstream_main

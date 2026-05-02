@@ -168,7 +168,6 @@ impl FunctionToolOutput {
         }
     }
 
-<<<<<<< HEAD
     pub fn into_response(self, call_id: &str, payload: &ToolPayload) -> ResponseInputItem {
         match self {
             ToolOutput::Function { body, success } => {
@@ -181,7 +180,6 @@ impl FunctionToolOutput {
                         output: FunctionCallOutputPayload { body, success },
                     };
                 }
-=======
     pub fn from_content(
         content: Vec<FunctionCallOutputContentItem>,
         success: Option<bool>,
@@ -191,7 +189,6 @@ impl FunctionToolOutput {
             success,
         }
     }
->>>>>>> upstream_main
 
     pub fn into_text(self) -> String {
         function_call_output_content_items_to_text(&self.body).unwrap_or_default()
@@ -519,7 +516,6 @@ fn telemetry_preview(content: &str) -> String {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use codex_protocol::models::FunctionCallOutputContentItem;
@@ -658,7 +654,5 @@ mod tests {
         assert_eq!(lines.last(), Some(&TELEMETRY_PREVIEW_TRUNCATION_NOTICE));
     }
 }
-=======
 #[path = "context_tests.rs"]
 mod tests;
->>>>>>> upstream_main

@@ -6,8 +6,6 @@ use crate::config::AgentRoleConfig;
 use crate::mcp::CODEX_APPS_MCP_SERVER_NAME;
 use crate::mcp_connection_manager::ToolInfo;
 use crate::models_manager::collaboration_mode_presets::CollaborationModesConfig;
-<<<<<<< HEAD
-=======
 use crate::original_image_detail::can_request_original_image_detail;
 use crate::shell::Shell;
 use crate::shell::ShellType;
@@ -18,7 +16,6 @@ use crate::tools::discoverable::DiscoverablePluginInfo;
 use crate::tools::discoverable::DiscoverableTool;
 use crate::tools::discoverable::DiscoverableToolAction;
 use crate::tools::discoverable::DiscoverableToolType;
->>>>>>> upstream_main
 use crate::tools::handlers::PLAN_TOOL;
 use crate::tools::handlers::TOOL_SEARCH_DEFAULT_LIMIT;
 use crate::tools::handlers::TOOL_SEARCH_TOOL_NAME;
@@ -336,12 +333,9 @@ pub(crate) struct ToolsConfig {
     pub js_repl_tools_only: bool,
     pub can_request_original_image_detail: bool,
     pub collab_tools: bool,
-<<<<<<< HEAD
-=======
     pub multi_agent_v2: bool,
     pub artifact_tools: bool,
     pub request_user_input: bool,
->>>>>>> upstream_main
     pub default_mode_request_user_input: bool,
     pub experimental_supported_tools: Vec<String>,
     pub agent_jobs_tools: bool,
@@ -389,13 +383,11 @@ impl ToolsConfig {
         let include_js_repl_tools_only =
             include_js_repl && features.enabled(Feature::JsReplToolsOnly);
         let include_collab_tools = features.enabled(Feature::Collab);
-<<<<<<< HEAD
         let include_default_mode_request_user_input =
             features.enabled(Feature::DefaultModeRequestUserInput);
         let include_search_tool = features.enabled(Feature::Apps);
         let include_agent_jobs = include_collab_tools && features.enabled(Feature::Sqlite);
         let request_permission_enabled = features.enabled(Feature::RequestPermissions);
-=======
         let include_multi_agent_v2 = features.enabled(Feature::MultiAgentV2);
         let include_agent_jobs = features.enabled(Feature::SpawnCsv);
         let include_request_user_input = !matches!(session_source, SessionSource::SubAgent(_));
@@ -413,7 +405,6 @@ impl ToolsConfig {
             features.enabled(Feature::ImageGeneration) && supports_image_generation(model_info);
         let exec_permission_approvals_enabled = features.enabled(Feature::ExecPermissionApprovals);
         let request_permissions_tool_enabled = features.enabled(Feature::RequestPermissionsTool);
->>>>>>> upstream_main
         let shell_command_backend =
             if features.enabled(Feature::ShellTool) && features.enabled(Feature::ShellZshFork) {
                 ShellCommandBackendConfig::ZshFork
@@ -484,12 +475,9 @@ impl ToolsConfig {
             js_repl_tools_only: include_js_repl_tools_only,
             can_request_original_image_detail: include_original_image_detail,
             collab_tools: include_collab_tools,
-<<<<<<< HEAD
-=======
             multi_agent_v2: include_multi_agent_v2,
             artifact_tools: include_artifact_tools,
             request_user_input: include_request_user_input,
->>>>>>> upstream_main
             default_mode_request_user_input: include_default_mode_request_user_input,
             experimental_supported_tools: model_info.experimental_supported_tools.clone(),
             agent_jobs_tools: include_agent_jobs,
@@ -1185,8 +1173,6 @@ fn create_spawn_agent_tool(config: &ToolsConfig) -> ToolSpec {
                 ),
             },
         ),
-<<<<<<< HEAD
-=======
         (
             "model".to_string(),
             JsonSchema::String {
@@ -1205,7 +1191,6 @@ fn create_spawn_agent_tool(config: &ToolsConfig) -> ToolSpec {
                 ),
             },
         ),
->>>>>>> upstream_main
     ]);
     properties.insert(
         "task_name".to_string(),
@@ -1610,8 +1595,6 @@ fn create_wait_agent_tool_v1() -> ToolSpec {
     })
 }
 
-<<<<<<< HEAD
-=======
 fn create_wait_agent_tool_v2() -> ToolSpec {
     ToolSpec::Function(ResponsesApiTool {
         name: "wait_agent".to_string(),
@@ -1650,7 +1633,6 @@ fn create_list_agents_tool() -> ToolSpec {
     })
 }
 
->>>>>>> upstream_main
 fn create_request_user_input_tool(
     collaboration_modes_config: CollaborationModesConfig,
 ) -> ToolSpec {
@@ -2813,12 +2795,10 @@ pub(crate) fn build_specs_with_discoverable_tools(
     let mcp_handler = Arc::new(McpHandler);
     let mcp_resource_handler = Arc::new(McpResourceHandler);
     let shell_command_handler = Arc::new(ShellCommandHandler::from(config.shell_command_backend));
-<<<<<<< HEAD
     let request_user_input_handler = Arc::new(RequestUserInputHandler {
         default_mode_request_user_input: config.default_mode_request_user_input,
     });
     let search_tool_handler = Arc::new(SearchToolBm25Handler);
-=======
     let request_permissions_handler = Arc::new(RequestPermissionsHandler);
     let request_user_input_handler = Arc::new(RequestUserInputHandler {
         default_mode_request_user_input: config.default_mode_request_user_input,
@@ -2826,7 +2806,6 @@ pub(crate) fn build_specs_with_discoverable_tools(
     let tool_suggest_handler = Arc::new(ToolSuggestHandler);
     let code_mode_handler = Arc::new(CodeModeExecuteHandler);
     let code_mode_wait_handler = Arc::new(CodeModeWaitHandler);
->>>>>>> upstream_main
     let js_repl_handler = Arc::new(JsReplHandler);
     let js_repl_reset_handler = Arc::new(JsReplResetHandler);
     let artifacts_handler = Arc::new(ArtifactsHandler);
@@ -2982,12 +2961,10 @@ pub(crate) fn build_specs_with_discoverable_tools(
         builder.register_handler("js_repl_reset", js_repl_reset_handler);
     }
 
-<<<<<<< HEAD
     builder.push_spec(create_request_user_input_tool(CollaborationModesConfig {
         default_mode_request_user_input: config.default_mode_request_user_input,
     }));
     builder.register_handler("request_user_input", request_user_input_handler);
-=======
     if config.request_user_input {
         push_tool_spec(
             &mut builder,
@@ -2999,7 +2976,6 @@ pub(crate) fn build_specs_with_discoverable_tools(
         );
         builder.register_handler("request_user_input", request_user_input_handler);
     }
->>>>>>> upstream_main
 
     if config.request_permissions_tool_enabled {
         push_tool_spec(
@@ -3329,7 +3305,6 @@ pub(crate) fn build_specs_with_discoverable_tools(
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use crate::client_common::tools::FreeformTool;
     use crate::config::test_config;
@@ -4744,7 +4719,5 @@ Examples of valid command strings:
         );
     }
 }
-=======
 #[path = "spec_tests.rs"]
 mod tests;
->>>>>>> upstream_main

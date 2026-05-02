@@ -148,10 +148,7 @@ impl Default for ThreadEntry {
 struct ThreadStateManagerInner {
     live_connections: HashSet<ConnectionId>,
     threads: HashMap<ThreadId, ThreadEntry>,
-<<<<<<< HEAD
     subscription_state_by_id: HashMap<Uuid, SubscriptionState>,
-=======
->>>>>>> upstream_main
     thread_ids_by_connection: HashMap<ConnectionId, HashSet<ThreadId>>,
 }
 
@@ -181,7 +178,6 @@ impl ThreadStateManager {
             .map(|thread_entry| thread_entry.connection_ids.iter().copied().collect())
             .unwrap_or_default()
     }
-<<<<<<< HEAD
 
     pub(crate) async fn thread_state(&self, thread_id: ThreadId) -> Arc<Mutex<ThreadState>> {
         let mut state = self.state.lock().await;
@@ -250,12 +246,10 @@ impl ThreadStateManager {
             }
         }
         Some(thread_id)
-=======
 
     pub(crate) async fn thread_state(&self, thread_id: ThreadId) -> Arc<Mutex<ThreadState>> {
         let mut state = self.state.lock().await;
         state.threads.entry(thread_id).or_default().state.clone()
->>>>>>> upstream_main
     }
 
     pub(crate) async fn remove_thread_state(&self, thread_id: ThreadId) {
@@ -265,12 +259,9 @@ impl ThreadStateManager {
                 .threads
                 .remove(&thread_id)
                 .map(|thread_entry| thread_entry.state);
-<<<<<<< HEAD
             state
                 .subscription_state_by_id
                 .retain(|_, state| state.thread_id != thread_id);
-=======
->>>>>>> upstream_main
             state.thread_ids_by_connection.retain(|_, thread_ids| {
                 thread_ids.remove(&thread_id);
                 !thread_ids.is_empty()
@@ -289,7 +280,6 @@ impl ThreadStateManager {
             );
             thread_state.clear_listener();
         }
-<<<<<<< HEAD
     }
 
     pub(crate) async fn unsubscribe_connection_from_thread(
@@ -369,7 +359,6 @@ impl ThreadStateManager {
         {
             let mut thread_state_guard = thread_state.lock().await;
             thread_state_guard.set_experimental_raw_events(experimental_raw_events);
-=======
     }
 
     pub(crate) async fn clear_all_listeners(&self) {
@@ -392,12 +381,9 @@ impl ThreadStateManager {
                 "clearing thread listener during app-server shutdown"
             );
             thread_state.clear_listener();
->>>>>>> upstream_main
         }
     }
 
-<<<<<<< HEAD
-=======
     pub(crate) async fn unsubscribe_connection_from_thread(
         &self,
         thread_id: ThreadId,
@@ -440,7 +426,6 @@ impl ThreadStateManager {
             .is_some_and(|thread_entry| !thread_entry.connection_ids.is_empty())
     }
 
->>>>>>> upstream_main
     pub(crate) async fn try_ensure_connection_subscribed(
         &self,
         thread_id: ThreadId,
@@ -501,12 +486,9 @@ impl ThreadStateManager {
                 .thread_ids_by_connection
                 .remove(&connection_id)
                 .unwrap_or_default();
-<<<<<<< HEAD
             state
                 .subscription_state_by_id
                 .retain(|_, state| state.connection_id != connection_id);
-=======
->>>>>>> upstream_main
             for thread_id in &thread_ids {
                 if let Some(thread_entry) = state.threads.get_mut(thread_id) {
                     thread_entry.connection_ids.remove(&connection_id);

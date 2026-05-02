@@ -708,10 +708,7 @@ async fn per_turn_overrides_keep_cached_prefix_and_key_constant() -> anyhow::Res
             model: "o3".to_string(),
             effort: Some(ReasoningEffort::High),
             summary: Some(ReasoningSummary::Detailed),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             final_output_json_schema: None,
             personality: None,
@@ -824,10 +821,7 @@ async fn send_user_turn_with_no_changes_does_not_send_environment_context() -> a
             model: default_model.clone(),
             effort: default_effort,
             summary: Some(default_summary.unwrap_or(ReasoningSummary::Auto)),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             final_output_json_schema: None,
             personality: None,
@@ -848,10 +842,7 @@ async fn send_user_turn_with_no_changes_does_not_send_environment_context() -> a
             model: default_model.clone(),
             effort: default_effort,
             summary: Some(default_summary.unwrap_or(ReasoningSummary::Auto)),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             final_output_json_schema: None,
             personality: None,
@@ -956,10 +947,7 @@ async fn send_user_turn_with_changes_sends_environment_context() -> anyhow::Resu
             model: default_model,
             effort: default_effort,
             summary: Some(default_summary.unwrap_or(ReasoningSummary::Auto)),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             final_output_json_schema: None,
             personality: None,
@@ -980,10 +968,7 @@ async fn send_user_turn_with_changes_sends_environment_context() -> anyhow::Resu
             model: "o3".to_string(),
             effort: Some(ReasoningEffort::High),
             summary: Some(ReasoningSummary::Detailed),
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             final_output_json_schema: None,
             personality: None,

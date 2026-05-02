@@ -279,8 +279,6 @@ pub enum Op {
         /// fall back to the selected model's default on new sessions).
         #[serde(default, skip_serializing_if = "Option::is_none")]
         summary: Option<ReasoningSummaryConfig>,
-<<<<<<< HEAD
-=======
 
         /// Optional service tier override for this turn.
         ///
@@ -290,7 +288,6 @@ pub enum Op {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         service_tier: Option<Option<ServiceTier>>,
 
->>>>>>> upstream_main
         // The JSON schema to use for the final assistant message
         final_output_json_schema: Option<Value>,
 

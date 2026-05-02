@@ -50,10 +50,7 @@ async fn openai_model_header_mismatch_emits_warning_event_and_warning_item() -> 
             model: REQUESTED_MODEL.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -152,10 +149,7 @@ async fn response_model_field_mismatch_emits_warning_when_header_matches_request
             model: REQUESTED_MODEL.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -241,10 +235,7 @@ async fn openai_model_header_mismatch_only_emits_one_warning_per_turn() -> Resul
             model: REQUESTED_MODEL.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })
@@ -294,10 +285,7 @@ async fn openai_model_header_casing_only_mismatch_does_not_warn() -> Result<()> 
             model: REQUESTED_MODEL.to_string(),
             effort: test.config.model_reasoning_effort,
             summary: None,
-<<<<<<< HEAD
-=======
             service_tier: None,
->>>>>>> upstream_main
             collaboration_mode: None,
             personality: None,
         })

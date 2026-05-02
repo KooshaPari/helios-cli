@@ -157,7 +157,6 @@ pub fn merge_connectors_with_accessible(
     filter_disallowed_connectors(merged)
 }
 
-<<<<<<< HEAD
 async fn list_directory_connectors(config: &Config) -> anyhow::Result<Vec<DirectoryApp>> {
     let mut apps = Vec::new();
     let mut next_token: Option<String> = None;
@@ -396,8 +395,6 @@ fn normalize_connector_value(value: Option<&str>) -> Option<String> {
         .filter(|value| !value.is_empty())
         .map(str::to_string)
 }
-=======
->>>>>>> upstream_main
 #[cfg(test)]
 mod tests {
     use super::*;

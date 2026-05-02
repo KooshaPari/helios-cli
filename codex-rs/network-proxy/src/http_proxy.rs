@@ -187,11 +187,7 @@ async fn http_connect_accept(
             client_addr(&req),
             Some("CONNECT".to_string()),
             NetworkProtocol::HttpsConnect,
-<<<<<<< HEAD
-            None,
-=======
             /*audit_endpoint_override*/ None,
->>>>>>> upstream_main
         )
         .await);
     }
@@ -622,11 +618,7 @@ async fn http_plain_proxy(
             client_addr(&req),
             Some(req.method().as_str().to_string()),
             NetworkProtocol::Http,
-<<<<<<< HEAD
-            None,
-=======
             /*audit_endpoint_override*/ None,
->>>>>>> upstream_main
         )
         .await);
     }

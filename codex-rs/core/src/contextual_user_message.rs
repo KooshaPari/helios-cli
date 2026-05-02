@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 use codex_protocol::items::HookPromptItem;
 use codex_protocol::items::parse_hook_prompt_fragment;
->>>>>>> upstream_main
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::protocol::ENVIRONMENT_CONTEXT_CLOSE_TAG;
@@ -99,20 +96,16 @@ const CONTEXTUAL_USER_FRAGMENTS: &[ContextualUserFragmentDefinition] = &[
     SUBAGENT_NOTIFICATION_FRAGMENT,
 ];
 
-<<<<<<< HEAD
 pub(crate) fn is_contextual_user_fragment(content_item: &ContentItem) -> bool {
     let ContentItem::InputText { text } = content_item else {
         return false;
     };
-=======
 fn is_standard_contextual_user_text(text: &str) -> bool {
->>>>>>> upstream_main
     CONTEXTUAL_USER_FRAGMENTS
         .iter()
         .any(|definition| definition.matches_text(text))
 }
 
-<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -147,7 +140,6 @@ mod tests {
         }));
     }
 }
-=======
 /// Returns whether a contextual user fragment should be omitted from memory
 /// stage-1 inputs.
 ///
@@ -200,4 +192,3 @@ pub(crate) fn parse_visible_hook_prompt_message(
 #[cfg(test)]
 #[path = "contextual_user_message_tests.rs"]
 mod tests;
->>>>>>> upstream_main

@@ -43,7 +43,6 @@ pub enum TelemetryAuthMode {
     Chatgpt,
 }
 
-<<<<<<< HEAD
 #[derive(Debug, Clone)]
 pub struct OtelEventMetadata {
     pub(crate) conversation_id: ThreadId,
@@ -244,7 +243,6 @@ impl OtelManager {
         tags.push((key, value));
         Ok(())
     }
-=======
 impl From<codex_app_server_protocol::AuthMode> for TelemetryAuthMode {
     fn from(mode: codex_app_server_protocol::AuthMode) -> Self {
         match mode {
@@ -253,7 +251,6 @@ impl From<codex_app_server_protocol::AuthMode> for TelemetryAuthMode {
             | codex_app_server_protocol::AuthMode::ChatgptAuthTokens => Self::Chatgpt,
         }
     }
->>>>>>> upstream_main
 }
 
 /// Start a metrics timer using the globally installed metrics client.

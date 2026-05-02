@@ -11,12 +11,9 @@ use crate::agent::agent_resolver::resolve_agent_targets;
 use crate::agent::exceeds_thread_spawn_depth_limit;
 use crate::codex::Session;
 use crate::codex::TurnContext;
-<<<<<<< HEAD
 use crate::config::Config;
 use crate::error::CodexErr;
 use crate::features::Feature;
-=======
->>>>>>> upstream_main
 use crate::function_tool::FunctionCallError;
 use crate::tools::context::ToolInvocation;
 use crate::tools::context::ToolOutput;
@@ -27,13 +24,10 @@ use crate::tools::registry::ToolHandler;
 use crate::tools::registry::ToolKind;
 use async_trait::async_trait;
 use codex_protocol::ThreadId;
-<<<<<<< HEAD
 use codex_protocol::models::BaseInstructions;
 use codex_protocol::models::FunctionCallOutputBody;
-=======
 use codex_protocol::models::ResponseInputItem;
 use codex_protocol::openai_models::ReasoningEffort;
->>>>>>> upstream_main
 use codex_protocol::protocol::CollabAgentInteractionBeginEvent;
 use codex_protocol::protocol::CollabAgentInteractionEndEvent;
 use codex_protocol::protocol::CollabAgentRef;
@@ -48,7 +42,6 @@ use codex_protocol::protocol::CollabWaitingEndEvent;
 use codex_protocol::user_input::UserInput;
 use serde::Deserialize;
 use serde::Serialize;
-<<<<<<< HEAD
 use std::collections::HashMap;
 
 pub struct MultiAgentHandler;
@@ -2139,7 +2132,6 @@ mod tests {
         assert_eq!(config, expected);
     }
 }
-=======
 use serde_json::Value as JsonValue;
 
 pub(crate) use close_agent::Handler as CloseAgentHandler;
@@ -2157,4 +2149,3 @@ pub(crate) mod wait;
 #[cfg(test)]
 #[path = "multi_agents_tests.rs"]
 mod tests;
->>>>>>> upstream_main

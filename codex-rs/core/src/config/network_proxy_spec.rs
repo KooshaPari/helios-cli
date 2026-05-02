@@ -154,8 +154,6 @@ impl NetworkProxySpec {
         Ok(StartedNetworkProxy::new(proxy, handle))
     }
 
-<<<<<<< HEAD
-=======
     pub(crate) fn with_exec_policy_network_rules(
         &self,
         exec_policy: &Policy,
@@ -171,7 +169,6 @@ impl NetworkProxySpec {
         Ok(spec)
     }
 
->>>>>>> upstream_main
     fn build_state_with_audit_metadata(
         &self,
         audit_metadata: NetworkProxyAuditMetadata,
@@ -300,7 +297,6 @@ impl NetworkProxySpec {
     }
 }
 
-<<<<<<< HEAD
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -325,7 +321,6 @@ mod tests {
         assert_eq!(state.audit_metadata(), &metadata);
     }
 }
-=======
 fn apply_exec_policy_network_rules(config: &mut NetworkProxyConfig, exec_policy: &Policy) {
     let (allowed_domains, denied_domains) = exec_policy.compiled_network_domains();
     upsert_network_domains(
@@ -364,4 +359,3 @@ fn upsert_network_domains(
 #[cfg(test)]
 #[path = "network_proxy_spec_tests.rs"]
 mod tests;
->>>>>>> upstream_main

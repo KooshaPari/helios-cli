@@ -180,11 +180,8 @@ impl RolloutRecorder {
             allowed_sources,
             model_providers,
             default_provider,
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
             false,
-=======
             /*archived*/ false,
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs
             search_term,
         )
         .await
@@ -210,11 +207,8 @@ impl RolloutRecorder {
             allowed_sources,
             model_providers,
             default_provider,
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
             true,
-=======
             /*archived*/ true,
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs
             search_term,
         )
         .await
@@ -328,13 +322,10 @@ impl RolloutRecorder {
                     sort_key,
                     allowed_sources,
                     model_providers,
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
                     false,
                     None,
-=======
                     /*archived*/ false,
                     /*search_term*/ None,
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs
                 )
                 .await
                 else {
@@ -475,13 +466,10 @@ impl RolloutRecorder {
             rollout_path.clone(),
             state_db_ctx.clone(),
             state_builder,
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
             config.model_provider_id.clone(),
             config.memories.generate_memories,
-=======
             config.model_provider_id().to_string(),
             config.generate_memories(),
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs
         ));
 
         Ok(Self {
@@ -886,11 +874,8 @@ async fn write_session_meta(
         rollout_path,
         state_builder.as_ref(),
         std::slice::from_ref(&rollout_item),
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
         None,
-=======
         default_provider,
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs
         (!generate_memories).then_some("disabled"),
     )
     .await;
@@ -965,12 +950,9 @@ async fn sync_thread_state_after_write(
         state_builder,
         items,
         "rollout_writer",
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
         None,
-=======
         new_thread_memory_mode,
         Some(updated_at),
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs
     )
     .await;
 }
@@ -1092,11 +1074,8 @@ async fn resume_candidate_matches_cwd(
         return cwd_matches(latest_turn_context_cwd, cwd);
     }
 
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
     metadata::extract_metadata_from_rollout(rollout_path, default_provider, None)
-=======
     metadata::extract_metadata_from_rollout(rollout_path, default_provider)
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs
         .await
         .is_ok_and(|outcome| cwd_matches(outcome.metadata.cwd.as_path(), cwd))
 }
@@ -1137,7 +1116,6 @@ fn cwd_matches(session_cwd: &Path, cwd: &Path) -> bool {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD:codex-rs/core/src/rollout/recorder.rs
 mod tests {
     use super::*;
     use crate::config::ConfigBuilder;
@@ -1503,7 +1481,5 @@ mod tests {
         Ok(())
     }
 }
-=======
 #[path = "recorder_tests.rs"]
 mod tests;
->>>>>>> upstream_main:codex-rs/rollout/src/recorder.rs

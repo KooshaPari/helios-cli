@@ -89,8 +89,6 @@ pub fn status_line_items_edit(items: &[String]) -> ConfigEdit {
     }
 }
 
-<<<<<<< HEAD
-=======
 /// Produces a config edit that sets `[tui].terminal_title` to an explicit ordered list.
 ///
 /// The array is written even when it is empty so "disabled title updates" stays
@@ -104,7 +102,6 @@ pub fn terminal_title_items_edit(items: &[String]) -> ConfigEdit {
     }
 }
 
->>>>>>> upstream_main
 pub fn model_availability_nux_count_edits(shown_count: &HashMap<String, u32>) -> Vec<ConfigEdit> {
     let mut shown_count_entries: Vec<_> = shown_count.iter().collect();
     shown_count_entries.sort_unstable_by(|(left, _), (right, _)| left.cmp(right));
@@ -1041,7 +1038,6 @@ impl ConfigEditsBuilder {
 }
 
 #[cfg(test)]
-<<<<<<< HEAD
 mod tests {
     use super::*;
     use crate::config::types::McpServerTransportConfig;
@@ -2055,7 +2051,5 @@ model_reasoning_effort = "high"
         assert!(!contents.contains("mcp_servers"));
     }
 }
-=======
 #[path = "edit_tests.rs"]
 mod tests;
->>>>>>> upstream_main
