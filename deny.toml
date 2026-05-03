@@ -19,7 +19,7 @@ allow = [
     "BlueOak-1.0.0",
     "CDLA-Permissive-2.0",
     "Unlicense",
-    "WTFPL",
+    "WTFPL"
 ]
 
 [sources]
@@ -28,5 +28,5 @@ allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 
 [advisories]
 ignore = [
-    { id = "RUSTSEC-2026-0049", reason = "No safe upgrade available. async-nats 0.46.0 still uses vulnerable rustls-webpki." },
+    { id = "RUSTSEC-2026-0049", reason = "No safe upgrade available. async-nats 0.46.0 still uses vulnerable rustls-webpki." }
 ]
