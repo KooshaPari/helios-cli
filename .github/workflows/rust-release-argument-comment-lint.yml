@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      - uses: dtolnay/rust-toolchain@1.93.0
+      - uses: dtolnay/rust-toolchain@b1b44fef029483cc79808c5eb89461241fd8f32f
         with:
           toolchain: nightly-2025-09-18
           targets: ${{ matrix.target }}

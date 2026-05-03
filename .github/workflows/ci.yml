@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
         with:
           run_install: false
 
@@ -28,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # stage_npm_packages.py requires DotSlash when staging releases.
-      - uses: facebook/install-dotslash@v2
+      - uses: facebook/install-dotslash@1e4e7b3e07eaca387acb98f1d4720e0bee8dbb6a
 
       - name: Stage npm package
         id: stage_npm_package
