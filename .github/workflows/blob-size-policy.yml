@@ -8,7 +8,7 @@ jobs:
     name: Blob size policy
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
 

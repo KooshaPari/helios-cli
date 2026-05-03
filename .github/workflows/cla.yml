@@ -18,7 +18,7 @@ jobs:
     if: ${{ github.repository_owner == 'openai' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: contributor-assistant/github-action@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+      - uses: contributor-assistant/github-action@v2.6.1
         # Run on close only if the PR was merged. This will lock the PR to preserve
         # the CLA agreement. We don't want to lock PRs that have been closed without
         # merging because the contributor may want to respond with additional comments.

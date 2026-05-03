@@ -12,15 +12,15 @@ jobs:
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - name: Checkout repository
-        uses: actions/checkout@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+        uses: pnpm/action-setup@v5
         with:
           run_install: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e@8f152de45cc393bb48ce5d89d36b731f54556e65
         with:
           node-version: 22
 
@@ -28,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # stage_npm_packages.py requires DotSlash when staging releases.
-      - uses: facebook/install-dotslash@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+      - uses: facebook/install-dotslash@v2
 
       - name: Stage npm package
         id: stage_npm_package
@@ -54,9 +54,9 @@ jobs:
       - name: Upload staged npm package artifact
 <<<<<<< HEAD
         if: steps.stage_npm_package.outcome == 'success'
-        uses: actions/upload-artifact@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
 =======
-        uses: actions/upload-artifact@{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#get-a-commit","status":"404"}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
 >>>>>>> upstream_main
         with:
           name: codex-npm-staging
