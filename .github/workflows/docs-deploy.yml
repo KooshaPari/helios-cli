@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: KooshaPari/phenoShared/.github/workflows/reusable/vitepress-pages.yml@main
+    uses: KooshaPari/phenoShared/.github/workflows/reusable/vitepress-pages.yml@d95bb6755390f73c56ea496b246d098fbf97bbe9
     with:
       concurrency_group: pages-helios-cli
       docs_dir: docs

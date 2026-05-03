@@ -124,7 +124,7 @@ jobs:
         run: cargo clippy --manifest-path codex-rs/Cargo.toml -- -D warnings
       - name: Lint (Go)
         if: needs.detect-stage.outputs.lang == 'go'
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@d6238b002a20823d52840fda27e2d4891c5952dc
       - name: Lint (Python)
         if: needs.detect-stage.outputs.lang == 'python'
         run: pip install ruff && ruff check .
@@ -377,7 +377,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.1.1
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610
         with:
           artifact-name: sbom.spdx.json
 
