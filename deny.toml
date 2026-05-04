@@ -28,10 +28,6 @@ allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 
 [advisories]
 ignore = [
-<<<<<<< HEAD
-    { id = "RUSTSEC-2026-0049", reason = "No safe upgrade available. async-nats 0.46.0 still uses vulnerable rustls-webpki." }
-=======
     # No safe upgrade available - async-nats 0.46.0 still uses rustls-webpki 0.102.x
     { id = "RUSTSEC-2026-0049", reason = "No safe upgrade available. async-nats 0.46.0 still uses vulnerable rustls-webpki." },
->>>>>>> 7b56affdc (ci: pin all GitHub Actions SHA [org-bootstrap-2026-05-03])
 ]
