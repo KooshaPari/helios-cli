@@ -1,5 +1,27 @@
 [workspace]
 resolver = "2"
+members = [
+  "crates/thegent-benchmark",
+  "crates/thegent-cache",
+  "crates/thegent-crypto",
+  "crates/thegent-discovery",
+  "crates/thegent-fs",
+  "crates/thegent-git",
+  "crates/thegent-hooks",
+  "crates/thegent-jsonl",
+  "crates/thegent-maif",
+  "crates/thegent-memory",
+  "crates/thegent-metrics",
+  "crates/thegent-parser",
+  "crates/thegent-path-resolve",
+  "crates/thegent-policy",
+  "crates/thegent-resources",
+  "crates/thegent-router",
+  "crates/thegent-runtime",
+  "crates/thegent-shims",
+  "crates/thegent-shm",
+  "crates/thegent-subprocess",
+]
 
 [package]
 name = "helios"
