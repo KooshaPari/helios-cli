@@ -12,19 +12,6 @@ export type { CollaborationMode } from "./CollaborationMode";
 export type { ContentItem } from "./ContentItem";
 export type { ConversationGitInfo } from "./ConversationGitInfo";
 export type { ConversationSummary } from "./ConversationSummary";
-<<<<<<< HEAD
-export type { CreditsSnapshot } from "./CreditsSnapshot";
-export type { CustomPrompt } from "./CustomPrompt";
-export type { DeprecationNoticeEvent } from "./DeprecationNoticeEvent";
-export type { DynamicToolCallOutputContentItem } from "./DynamicToolCallOutputContentItem";
-export type { DynamicToolCallRequest } from "./DynamicToolCallRequest";
-export type { DynamicToolCallResponseEvent } from "./DynamicToolCallResponseEvent";
-export type { ElicitationRequestEvent } from "./ElicitationRequestEvent";
-export type { ErrorEvent } from "./ErrorEvent";
-export type { EventMsg } from "./EventMsg";
-export type { ExecApprovalRequestEvent } from "./ExecApprovalRequestEvent";
-=======
->>>>>>> upstream_main
 export type { ExecCommandApprovalParams } from "./ExecCommandApprovalParams";
 export type { ExecCommandApprovalResponse } from "./ExecCommandApprovalResponse";
 export type { ExecPolicyAmendment } from "./ExecPolicyAmendment";
@@ -79,18 +66,6 @@ export type { ServerRequest } from "./ServerRequest";
 export type { ServiceTier } from "./ServiceTier";
 export type { SessionSource } from "./SessionSource";
 export type { Settings } from "./Settings";
-<<<<<<< HEAD
-export type { SkillDependencies } from "./SkillDependencies";
-export type { SkillErrorInfo } from "./SkillErrorInfo";
-export type { SkillInterface } from "./SkillInterface";
-export type { SkillMetadata } from "./SkillMetadata";
-export type { SkillScope } from "./SkillScope";
-export type { SkillToolDependency } from "./SkillToolDependency";
-export type { SkillsListEntry } from "./SkillsListEntry";
-export type { StepStatus } from "./StepStatus";
-export type { StreamErrorEvent } from "./StreamErrorEvent";
-=======
->>>>>>> upstream_main
 export type { SubAgentSource } from "./SubAgentSource";
 export type { ThreadId } from "./ThreadId";
 export type { Tool } from "./Tool";
