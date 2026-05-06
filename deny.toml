@@ -26,6 +26,8 @@ multiple-versions = "warn"
 wildcards = "warn"
 highlight = "all"
 workspace-default-features = "warn"
+highlight = "all"
+workspace-default-features = "warn"
 [sources]
 unknown-git = "deny"
 

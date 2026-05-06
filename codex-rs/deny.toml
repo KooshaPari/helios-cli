@@ -196,7 +196,7 @@ registries = [
 # Lint level for when multiple versions of the same crate are detected
 multiple-versions = "warn"
 # Lint level for when a crate version requirement is `*`
-wildcards = "allow"
+wildcards = "warn"
 # The graph highlighting used when creating dotgraphs for crates
 # with multiple versions
 # * lowest-version - The path to the lowest versioned duplicate is highlighted
@@ -206,7 +206,7 @@ highlight = "all"
 # The default lint level for `default` features for crates that are members of
 # the workspace that is being checked. This can be overridden by allowing/denying
 # `default` on a crate-by-crate basis if desired.
-workspace-default-features = "allow"
+workspace-default-features = "warn"
 # The default lint level for `default` features for external crates that are not
 # members of the workspace. This can be overridden by allowing/denying `default`
 # on a crate-by-crate basis if desired.
