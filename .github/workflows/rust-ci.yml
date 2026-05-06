@@ -36,7 +36,7 @@ jobs:
       lint_build_matrix: ${{ steps.detect.outputs.lint_build_matrix }}
       tests_matrix: ${{ steps.detect.outputs.tests_matrix }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Detect changed paths (no external action)
@@ -191,7 +191,7 @@ jobs:
       run:
         working-directory: codex-rs
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@b1b44fef029483cc79808c5eb89461241fd8f32f
 
       - name: Enforce Cargo.lock/manifest sync
@@ -241,7 +241,7 @@ jobs:
       run:
         working-directory: codex-rs
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@b1b44fef029483cc79808c5eb89461241fd8f32f
         with:
           components: rustfmt
@@ -257,7 +257,7 @@ jobs:
       run:
         working-directory: codex-rs
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@b1b44fef029483cc79808c5eb89461241fd8f32f
       - uses: taiki-e/install-action@44c6d64aa62cd779e873306675c7a58e86d6d532 # v2
         with:
@@ -272,7 +272,7 @@ jobs:
     needs: changed
     if: ${{ needs.changed.outputs.argument_comment_lint_package == 'true' || github.event_name == 'push' }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@b1b44fef029483cc79808c5eb89461241fd8f32f
         with:
           toolchain: nightly-2025-09-18
@@ -316,7 +316,7 @@ jobs:
               group: codex-runners
               labels: codex-windows-x64
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
       - name: Install Linux sandbox build dependencies
         if: ${{ runner.os == 'Linux' }}
         shell: bash
@@ -358,7 +358,7 @@ jobs:
       matrix: ${{ fromJSON(needs.changed.outputs.lint_build_matrix) }}
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
       - name: Install Linux build dependencies
         if: ${{ runner.os == 'Linux' }}
         shell: bash
@@ -699,7 +699,7 @@ jobs:
 >>>>>>> upstream_main
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v4
       - name: Set up Node.js for js_repl tests
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e@8f152de45cc393bb48ce5d89d36b731f54556e65
         with:
