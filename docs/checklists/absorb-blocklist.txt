@@ -1,0 +1,11 @@
+# Known extra roots to exclude from absorb stack
+# Seeded from 20260303 absorb session notes.
+rust_core/
+helios-rs/
+perf-results/
+transport/
+python/
+pnpm-*/
+justfile
+rbe.bzl
+defs.bzl
