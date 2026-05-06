@@ -193,8 +193,6 @@
         "string",
         "null"
       ]
-<<<<<<< HEAD
-=======
     },
     "serviceTier": {
       "anyOf": [
@@ -212,7 +210,6 @@
           "type": "null"
         }
       ]
->>>>>>> upstream_main
     }
   },
   "title": "ThreadStartParams",
