@@ -6,4 +6,3 @@
 export type ModelAvailabilityNux = { message: string, };
 ========
 export type AgentPath = string;
->>>>>>>> upstream_main:codex-rs/app-server-protocol/schema/typescript/AgentPath.ts
