@@ -4,10 +4,7 @@
 import type { AdditionalPermissionProfile } from "./AdditionalPermissionProfile";
 import type { CommandAction } from "./CommandAction";
 import type { CommandExecutionApprovalDecision } from "./CommandExecutionApprovalDecision";
-<<<<<<< HEAD
-=======
 import type { CommandExecutionRequestApprovalSkillMetadata } from "./CommandExecutionRequestApprovalSkillMetadata";
->>>>>>> upstream_main
 import type { ExecPolicyAmendment } from "./ExecPolicyAmendment";
 import type { NetworkApprovalContext } from "./NetworkApprovalContext";
 import type { NetworkPolicyAmendment } from "./NetworkPolicyAmendment";
