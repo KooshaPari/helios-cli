@@ -1,6 +1,11 @@
 name: Monthly SBOM Refresh
 on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
   schedule:
+  timeout-minutes: 15
     - cron: '0 0 1 * *'  # 1st of each month
   workflow_dispatch:
 

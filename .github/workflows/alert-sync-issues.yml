@@ -1,6 +1,11 @@
 name: Alert sync issues
 on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
   schedule:
+  timeout-minutes: 10
     - cron: '17 * * * *'
   workflow_dispatch:
 

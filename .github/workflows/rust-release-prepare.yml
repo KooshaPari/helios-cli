@@ -1,6 +1,11 @@
 name: rust-release-prepare
 on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
   workflow_dispatch:
+  timeout-minutes: 20
   schedule:
     - cron: "0 */4 * * *"
 

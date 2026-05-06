@@ -1,6 +1,10 @@
 name: Issue Deduplicator
 
 on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
   issues:
     types:
       - opened
