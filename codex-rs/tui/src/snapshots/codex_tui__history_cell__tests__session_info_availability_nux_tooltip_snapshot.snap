@@ -1,9 +1,5 @@
 ---
 source: tui/src/history_cell.rs
-<<<<<<< HEAD
-assertion_line: 2608
-=======
->>>>>>> upstream_main
 expression: rendered
 ---
 ╭─────────────────────────────────────╮
