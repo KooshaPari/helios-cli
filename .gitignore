@@ -1,26 +1,34 @@
+# Rust build
 target/
 .build_output.log
 
-# standard ignores
+# Build artifacts
 dist/
 bazel-*
 build/
 out/
-node_modules/
-.turbo/
-.cache/
-.vscode/
-.idea/
-*.swp
-*~
-.claude/
 
 # Node.js
-pnpm-lock.yaml
-!pnpm-lock.yaml
 node_modules/
 .pnpm-store/
+.pnpm-debug.log
+!pnpm-lock.yaml
 
 # Editor
+.vscode/
+.idea/
 .history/
 .zed/
+*.swp
+*~
+
+# CLI tools
+.claude/
+AGENTS.override.md
+
+# Caches
+.cache/
+.turbo/
+
+# Nix
+result
