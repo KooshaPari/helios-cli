@@ -6,4 +6,3 @@
 export type DynamicToolCallStatus = "inProgress" | "completed" | "failed";
 ========
 export type FuzzyFileSearchMatchType = "file" | "directory";
->>>>>>>> upstream_main:codex-rs/app-server-protocol/schema/typescript/FuzzyFileSearchMatchType.ts
