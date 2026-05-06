@@ -6,4 +6,3 @@
 export type ExternalAgentConfigImportResponse = Record<string, never>;
 ========
 export type ImageDetail = "auto" | "low" | "high" | "original";
->>>>>>>> upstream_main:codex-rs/app-server-protocol/schema/typescript/ImageDetail.ts
