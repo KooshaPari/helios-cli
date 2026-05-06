@@ -54,8 +54,8 @@ Top skew in lowercase mirror (`only-in-helios-cli.topdirs.txt`):
 
 - [x] Generated deterministic manifests for both repos.
 - [x] Produced directional diffs and topdir skew reports.
-- [ ] Author `absorb-allowlist.txt` from canonical roots.
-- [ ] Author `absorb-blocklist.txt` for mirror/generated roots.
+- [x] Author `absorb-allowlist.txt` from canonical roots.
+- [x] Author `absorb-blocklist.txt` for mirror/generated roots.
 - [ ] Prepare Commit A (tooling/config parity).
 - [ ] Prepare Commit B (docs/sdk normalization).
 - [ ] Prepare Commit C (runtime subtree mapping).
