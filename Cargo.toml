@@ -23,6 +23,9 @@ members = [
   "crates/thegent-subprocess",
 ]
 
+[workspace.dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
 [package]
 name = "helios"
 version = "0.1.0"
