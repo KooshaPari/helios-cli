@@ -107,12 +107,8 @@ jobs:
           fi
 
           codex=false
-<<<<<<< HEAD
-          rust_core=false
-=======
           argument_comment_lint=false
           argument_comment_lint_package=false
->>>>>>> upstream_main
           workflows=false
           feature_drift=false
           for f in "${files[@]}"; do
@@ -667,9 +663,6 @@ jobs:
 
     strategy:
       fail-fast: false
-<<<<<<< HEAD
-      matrix: ${{ fromJSON(needs.changed.outputs.tests_matrix) }}
-=======
       matrix:
         include:
           - runner: macos-15-xlarge
@@ -700,7 +693,6 @@ jobs:
             runs_on:
               group: codex-runners
               labels: codex-windows-arm64
->>>>>>> upstream_main
 
     steps:
       - uses: actions/checkout@v4
@@ -882,9 +874,6 @@ jobs:
   # --- Gatherer job that you mark as the ONLY required status -----------------
   results:
     name: CI results (required)
-<<<<<<< HEAD
-    needs: [changed, billed_runner_policy, drift_detection, general, cargo_shear, lint_build, tests]
-=======
     needs:
       [
         changed,
@@ -895,7 +884,6 @@ jobs:
         lint_build,
         tests,
       ]
->>>>>>> upstream_main
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -913,29 +901,11 @@ jobs:
 
           # If nothing relevant changed (PR touching only root README, etc.),
           # declare success regardless of other jobs.
-<<<<<<< HEAD
-          if [[ '${{ needs.changed.outputs.skip_rust_ci }}' == 'true' ]]; then
-            echo 'Rust CI intentionally skipped for this run.'
-            exit 0
-          fi
-
-          if [[ '${{ needs.changed.outputs.codex }}' != 'true' && '${{ needs.changed.outputs.workflows }}' != 'true' && '${{ github.event_name }}' != 'push' ]]; then
-=======
           if [[ '${{ needs.changed.outputs.argument_comment_lint }}' != 'true' && '${{ needs.changed.outputs.codex }}' != 'true' && '${{ needs.changed.outputs.workflows }}' != 'true' && '${{ github.event_name }}' != 'push' ]]; then
->>>>>>> upstream_main
             echo 'No relevant changes -> CI not required.'
             exit 0
           fi
 
-<<<<<<< HEAD
-          # Otherwise require the jobs to have succeeded
-          [[ '${{ needs.drift_detection.result }}' == 'success' ]] || { echo 'drift_detection failed'; exit 1; }
-          [[ '${{ needs.billed_runner_policy.result }}' == 'success' ]] || { echo 'billed_runner_policy failed'; exit 1; }
-          [[ '${{ needs.general.result }}' == 'success' ]] || { echo 'general failed'; exit 1; }
-          [[ '${{ needs.cargo_shear.result }}' == 'success' ]] || { echo 'cargo_shear failed'; exit 1; }
-          [[ '${{ needs.lint_build.result }}' == 'success' ]] || { echo 'lint_build failed'; exit 1; }
-          [[ '${{ needs.tests.result }}' == 'success' ]] || { echo 'tests failed'; exit 1; }
-=======
           if [[ '${{ needs.changed.outputs.argument_comment_lint_package }}' == 'true' || '${{ github.event_name }}' == 'push' ]]; then
             [[ '${{ needs.argument_comment_lint_package.result }}' == 'success' ]] || { echo 'argument_comment_lint_package failed'; exit 1; }
           fi
@@ -950,7 +920,6 @@ jobs:
             [[ '${{ needs.lint_build.result }}' == 'success' ]] || { echo 'lint_build failed'; exit 1; }
             [[ '${{ needs.tests.result }}' == 'success' ]] || { echo 'tests failed'; exit 1; }
           fi
->>>>>>> upstream_main
 
       - name: sccache summary note
         if: always()

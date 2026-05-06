@@ -431,31 +431,17 @@ jobs:
       release-lto: ${{ contains(github.ref_name, '-alpha') && 'thin' || 'fat' }}
     secrets: inherit
 
-<<<<<<< HEAD
-  shell-tool-mcp:
-    name: shell-tool-mcp
-    needs:
-      - tag-check
-      - billed-runner-policy
-    uses: ./.github/workflows/shell-tool-mcp.yml
-=======
   argument-comment-lint-release-assets:
     name: argument-comment-lint release assets
     needs: tag-check
     uses: ./.github/workflows/rust-release-argument-comment-lint.yml
->>>>>>> upstream_main
     with:
       publish: true
-<<<<<<< HEAD
-      enable-billed-runners: ${{ needs.billed-runner-policy.outputs.enable_billed_runners == 'true' }}
-    secrets: inherit
-=======
 
   zsh-release-assets:
     name: zsh release assets
     needs: tag-check
     uses: ./.github/workflows/rust-release-zsh.yml
->>>>>>> upstream_main
 
   release:
     needs:
@@ -573,16 +559,10 @@ jobs:
             --package codex-responses-api-proxy \
             --package codex-sdk
 
-<<<<<<< HEAD
-      - name: Stage macOS and Linux installer script
-        run: |
-          cp scripts/install/install.sh dist/install.sh
-=======
       - name: Stage installer scripts
         run: |
           cp scripts/install/install.sh dist/install.sh
           cp scripts/install/install.ps1 dist/install.ps1
->>>>>>> upstream_main
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda

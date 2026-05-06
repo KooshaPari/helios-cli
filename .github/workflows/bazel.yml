@@ -79,9 +79,6 @@ jobs:
     needs: billed_runner_policy
     strategy:
       fail-fast: false
-<<<<<<< HEAD
-      matrix: ${{ fromJSON(needs.billed_runner_policy.outputs.bazel_matrix) }}
-=======
       matrix:
         include:
           # macOS
@@ -105,7 +102,6 @@ jobs:
           # TODO: Enable Windows once we fix the toolchain issues there.
           #- os: windows-latest
           #  target: x86_64-pc-windows-gnullvm
->>>>>>> upstream_main
     runs-on: ${{ matrix.os }}
 
     # Configure a human readable name for each job
