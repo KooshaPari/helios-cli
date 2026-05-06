@@ -1,7 +1,5 @@
 load("//:defs.bzl", "codex_rust_crate")
 
-<<<<<<< HEAD
-=======
 exports_files(
     [
         "templates/collaboration_mode/default.md",
@@ -10,7 +8,6 @@ exports_files(
     visibility = ["//visibility:public"],
 )
 
->>>>>>> upstream_main
 filegroup(
     name = "model_availability_nux_fixtures",
     srcs = [
