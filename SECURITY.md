@@ -1,8 +1,8 @@
 # Security Policy
 
-## Reporting a Vulnerability
+## Reporting Vulnerability
 
-If you discover a security vulnerability, please follow the responsible disclosure process:
+If you discover security vulnerability, please follow responsible disclosure process:
 
 1. **Do NOT** open public GitHub issue security vulnerabilities.
 2. Email maintainers directly [maintainer email] GitHub Security Advisories feature.
@@ -17,10 +17,10 @@ If you discover a security vulnerability, please follow the responsible disclosu
 | Version | Supported |
 |---------|-----------|
 | 1.0.0   | :white_check_mark: |
-| <1.0.0 | :x: |
+| <1.0.0  | :x: |
 
-**Response Timeline**
+## Response Timeline
 
 **Acknowledgment**: Within 48 hours
 **Initial Assessment**: Within 7 days
-**Fix Timeline**: Varies based on severity
+**Fix Timeline**: Varies based severity
