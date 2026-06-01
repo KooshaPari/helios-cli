@@ -32,3 +32,4 @@ AGENTS.override.md
 
 # Nix
 result
+Cargo.lock
