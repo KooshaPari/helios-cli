@@ -7,17 +7,17 @@ If you discover security vulnerability, please follow the responsible disclosure
 1. **Do NOT** open public GitHub issue security vulnerabilities.
 2. Email maintainers directly [maintainer email] GitHub Security Advisories feature.
 3. Provide detailed information, including:
-   - Description issue
-   - Steps reproduce
-   - Potential impact
-   - Any suggested fixes (if applicable)
+    - Description issue
+    - Steps reproduce
+    - Potential impact
+    - Any suggested fixes (if applicable)
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
+| Version | Supported          |
+| ------- | ------------------ |
 | 1.0.0   | :white_check_mark: |
-| <1.0.0  | :x: |
+| <1.0.0  | :x:                |
 
 ## Response Timeline
 

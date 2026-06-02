@@ -6,14 +6,14 @@
 
 ## Verdict
 
-| Criterion | Result |
-|-----------|--------|
-| Same upstream (openai/codex) | Yes — both are codex-monorepo forks |
-| Canonical absorber | **helios-cli** (`main`) — active Phenotype fork with CVE/workspace fixes |
-| Retire candidate | **helioscope** (`master`) — legacy fork; README still references `heliosCLI` |
-| `git merge-base` | **None** — unrelated histories after divergent rebases |
-| Unique commits on helioscope | ~283 (sample: harness version bumps, deny.toml, fleet docs) |
-| Unique commits on helios-cli | ~4169 ahead of helioscope tip |
+| Criterion                            | Result                                                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Same upstream (openai/codex)         | Yes — both are codex-monorepo forks                                                                           |
+| Canonical absorber                   | **helios-cli** (`main`) — active Phenotype fork with CVE/workspace fixes                                      |
+| Retire candidate                     | **helioscope** (`master`) — legacy fork; README still references `heliosCLI`                                  |
+| `git merge-base`                     | **None** — unrelated histories after divergent rebases                                                        |
+| Unique commits on helioscope         | ~283 (sample: harness version bumps, deny.toml, fleet docs)                                                   |
+| Unique commits on helios-cli         | ~4169 ahead of helioscope tip                                                                                 |
 | Full-tree `git subtree add --squash` | **Mechanically succeeds** but adds **~5,134 files** (~790k LOC) — duplicate codex monorepo, not consolidation |
 
 ## Why full subtree merge is rejected
