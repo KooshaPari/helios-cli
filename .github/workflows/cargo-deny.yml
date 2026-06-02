@@ -1,9 +1,9 @@
 name: cargo-deny
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+    pull_request:
+    push:
+        branches:
+            - main
 jobs:
-  cargo-deny:
-    uses: KooshaPari/phenotype-tooling/.github/workflows/reusable/cargo-deny.yml@main
+    cargo-deny:
+        uses: KooshaPari/phenotype-tooling/.github/workflows/reusable/cargo-deny.yml@main

@@ -1,72 +1,71 @@
 name: ci
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 on:
-  pull_request: {}
-  push: { branches: [main] }
+    pull_request: {}
+    push: { branches: [main] }
 
 jobs:
-  build-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      NODE_OPTIONS: --max-old-space-size=4096
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
-        with:
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v6.9.0
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      # stage_npm_packages.py requires DotSlash when staging releases.
-      - uses: facebook/install-dotslash@1e4e7b3e07eaca387acb98f1d4720e0bee8dbb6a
-
-      - name: Stage npm package
-        id: stage_npm_package
-        continue-on-error: true
+    build-test:
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          # Use a rust-release version that includes all native binaries.
-          CODEX_VERSION=0.115.0
-          OUTPUT_DIR="${RUNNER_TEMP}"
-          python3 ./scripts/stage_npm_packages.py \
-            --release-version "$CODEX_VERSION" \
-            --package codex \
-            --output-dir "$OUTPUT_DIR"
-          PACK_OUTPUT="${OUTPUT_DIR}/codex-npm-${CODEX_VERSION}.tgz"
-          echo "pack_output=$PACK_OUTPUT" >> "$GITHUB_OUTPUT"
+            NODE_OPTIONS: --max-old-space-size=4096
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Upload staged npm package artifact
-        if: steps.stage_npm_package.outcome == 'success'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v5.0.0
-        with:
-          name: codex-npm-staging
-          path: ${{ steps.stage_npm_package.outputs.pack_output }}
+            - name: Setup pnpm
+              uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320
+              with:
+                  run_install: false
 
-      - name: Ensure root README.md contains only ASCII and certain Unicode code points
-        run: python3 scripts/asciicheck.py README.md
-      - name: Check root README ToC
-        run: python3 scripts/readme_toc.py README.md
+            - name: Setup Node.js
+              uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v6.9.0
+              with:
+                  node-version: 22
 
-      - name: Ensure codex-cli/README.md contains only ASCII and certain Unicode code points
-        run: python3 scripts/asciicheck.py codex-cli/README.md
-      - name: Check codex-cli/README ToC
-        run: python3 scripts/readme_toc.py codex-cli/README.md
+            - name: Install dependencies
+              run: pnpm install --no-frozen-lockfile
 
-      - name: OXC format (run `pnpm run format:fix` to fix)
-        run: pnpm run format
+            # stage_npm_packages.py requires DotSlash when staging releases.
+            - uses: facebook/install-dotslash@1e4e7b3e07eaca387acb98f1d4720e0bee8dbb6a
+
+            - name: Stage npm package
+              id: stage_npm_package
+              continue-on-error: true
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  set -euo pipefail
+                  # Use a rust-release version that includes all native binaries.
+                  CODEX_VERSION=0.115.0
+                  OUTPUT_DIR="${RUNNER_TEMP}"
+                  python3 ./scripts/stage_npm_packages.py \
+                    --release-version "$CODEX_VERSION" \
+                    --package codex \
+                    --output-dir "$OUTPUT_DIR"
+                  PACK_OUTPUT="${OUTPUT_DIR}/codex-npm-${CODEX_VERSION}.tgz"
+                  echo "pack_output=$PACK_OUTPUT" >> "$GITHUB_OUTPUT"
+
+            - name: Upload staged npm package artifact
+              if: steps.stage_npm_package.outcome == 'success'
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v5.0.0
+              with:
+                  name: codex-npm-staging
+                  path: ${{ steps.stage_npm_package.outputs.pack_output }}
+
+            - name: Ensure root README.md contains only ASCII and certain Unicode code points
+              run: python3 scripts/asciicheck.py README.md
+            - name: Check root README ToC
+              run: python3 scripts/readme_toc.py README.md
+
+            - name: Ensure codex-cli/README.md contains only ASCII and certain Unicode code points
+              run: python3 scripts/asciicheck.py codex-cli/README.md
+            - name: Check codex-cli/README ToC
+              run: python3 scripts/readme_toc.py codex-cli/README.md
+
+            - name: OXC format (run `pnpm run format:fix` to fix)
+              run: pnpm run format
