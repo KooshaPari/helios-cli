@@ -1,0 +1,4 @@
+# helios-cli deny.toml — v1
+advisories = { severity = "high" }
+bans = { multiple-versions = "deny" }
+sources = [{ crate-io = {} }]
