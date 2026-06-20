@@ -1,26 +1,84 @@
 # Security Policy
 
+HeliosCLI takes the security of its users, their data, and the surrounding ecosystem
+seriously. This document explains how to report a vulnerability, what to expect, and
+which versions we currently support.
+
 ## Reporting a Vulnerability
 
-If you discover security vulnerability, please follow the responsible disclosure process:
+**Please do not file public issues for suspected security vulnerabilities.**
 
-1. **Do NOT** open public GitHub issue security vulnerabilities.
-2. Email maintainers directly [maintainer email] GitHub Security Advisories feature.
-3. Provide detailed information, including:
-    - Description issue
-    - Steps reproduce
-    - Potential impact
-    - Any suggested fixes (if applicable)
+Report privately via one of the following channels, in order of preference:
+
+1. **GitHub Security Advisories**: <https://github.com/KooshaPari/HeliosCLI/security/advisories/new>
+2. **Email**: <security@phenotype.dev> (PGP key available on request)
+3. **Direct DM** to the maintainer: [@kooshapari](https://github.com/kooshapari)
+
+Please include:
+
+- A clear description of the issue and its impact.
+- Steps to reproduce, ideally with a minimal test case or `helios --version` output.
+- The commit SHA, tag, or release affected.
+- Your contact details for follow-up.
+
+We acknowledge new reports within **3 business days** and aim to provide a triage
+decision within **10 business days**.
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.0   | :white_check_mark: |
-| <1.0.0  | :x:                |
+| Version  | Status            | Security fixes |
+|----------|-------------------|----------------|
+| `main`   | Active development| Yes            |
+| Latest tagged release (`v*.*.*`) | Supported | Yes |
+| Older releases | Best effort | At maintainer's discretion |
 
-## Response Timeline
+HeliosCLI is currently published from the `main` branch; we strongly recommend
+running the latest commit on `main` or the most recent tagged release.
 
-**Acknowledgment**: Within 48 hours
-**Initial Assessment**: Within 7 days
-**Fix Timeline**: Varies based on severity
+## Coordinated Disclosure
+
+We follow a 90-day coordinated disclosure window. We will:
+
+- Confirm the report and assign a CVE ID (via GitHub Security Advisories).
+- Develop, review, and ship a fix in a private fork.
+- Credit the reporter (unless anonymity is requested) in the release notes.
+- Publish the advisory and CVE details once a fix is available or the 90-day
+  window expires, whichever comes first.
+
+If a reported issue is already publicly known, or if the reporter fails to engage
+in good faith during the disclosure window, we may release a fix and advisory
+on our own schedule.
+
+## Security Tooling
+
+The following tooling runs on every push and pull request:
+
+- `cargo check --workspace` and `cargo clippy --all-targets -- -D warnings`
+- `cargo test --all`
+- `cargo fmt --all -- --check`
+- `cargo-audit` (RustSec advisory database) — see `.github/workflows/audit.yml`
+- `cargo-deny` (licenses, advisories, bans, sources) — see `deny.toml`
+- CodeQL static analysis (Rust) — see `.github/workflows/audit.yml`
+- OpenSSF Scorecard — see `.github/workflows/scorecard.yml`
+
+Supply-chain hardening:
+
+- All third-party GitHub Actions are pinned by SHA.
+- Release artifacts are attested with SLSA Build L2 provenance
+  (`.github/workflows/release-attestation.yml`).
+- Dependabot is enabled for Cargo, npm, GitHub Actions, Docker, and
+  rust-toolchain — see `.github/dependabot.yml`.
+
+## Out of Scope
+
+The following are not considered security vulnerabilities in HeliosCLI:
+
+- Issues in upstream crates we vendor verbatim from `openai/codex`
+  (`codex-rs/`) — please report these to the upstream project.
+- Issues in third-party `codex-rs` extensions that run untrusted code.
+- Self-inflicted damage from running `helios exec` with elevated approvals.
+
+## Acknowledgements
+
+We thank all security researchers and contributors who report issues responsibly.
+Past reporters are credited in the relevant GitHub Security Advisories.

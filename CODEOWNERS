@@ -1,0 +1,5 @@
+# Canonical CODEOWNERS lives at .github/CODEOWNERS.
+# This file is kept as a fallback so older tooling that only checks the repo root still works.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @kooshapari

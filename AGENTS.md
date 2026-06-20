@@ -1,91 +1,177 @@
-# AGENTS.md — helios-cli
+<!-- Base: platforms/thegent/governance/AGENTS.base.md -->
+<!-- Last synced: 2026-03-29 -->
 
-**Repo:** [KooshaPari/helios-cli](https://github.com/KooshaPari/helios-cli)
-**Branch this AGENTS.md is maintained on:** `main`
-**Date:** 2026-06-19 (L5-104 ratatui fork verification shard)
+# AGENTS.md — heliosCLI
+
+Extends thegent governance base. See `platforms/thegent/governance/AGENTS.base.md` for canonical definitions of agent expectations, testing requirements, research patterns, and standard operating procedures.
+
+## Project Identity & Work Management
+
+### Project Overview
+
+- **Name**: heliosCLI
+- **Description**: Rust-based CLI for managing Helioscope applications with multi-backend support and sandboxing
+- **Location**: `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI`
+- **Language Stack**: Rust (edition 2021)
+- **Published**: Internal
+
+### AgilePlus Integration
+
+All work MUST be tracked in AgilePlus:
+- Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
+- CLI: `cd AgilePlus && agileplus <command>`
+- Specs: `AgilePlus/kitty-specs/<feature-id>/`
+- Worklog: `AgilePlus/.work-audit/worklog.md`
+
+**Requirements**:
+1. Check for AgilePlus spec before implementing
+2. Create spec for new work: `agileplus specify --title "<feature>"`
+3. Update work package status as work progresses
+4. No code without corresponding AgilePlus spec
 
 ---
 
-## Project Overview
+## Repository Mental Model
 
-`helios-cli` is the **Phenotype-org multi-runtime CLI scaffold** — a fork of [openai/codex](https://github.com/openai/codex).
-
-**Work state:** **SCAFFOLD** (per `README.md` work-state header, 10% progress, 2026-06-02). The `codex-rs/` workspace declares its member crates in `Cargo.toml` (and the dependency manifest is committed), but the source code for those workspace members is **NOT committed** in this repo. `helios-cli` is governance + CI skeleton only — it does not build.
-
-When source is vendored from upstream `openai/codex`, the pins in `codex-rs/Cargo.toml` (including the ratatui fork below) become authoritative.
-
-See `README.md` for the work-state header and `docs/` for project docs.
-
----
-
-## SOTA exceptions
-
-This repo has **one SOTA exception** carried in `codex-rs/Cargo.toml` `[patch.crates-io]` (lines 387-393):
-
-### `ratatui` — `nornagon-v0.29.0-patch` git fork
-
-**Verdict (verified 2026-06-19, L5-104):** **KEEP** the fork pin. The patch has **not** landed upstream as a `pub fn`. Drop the pin when the upstream ratatui release (next minor, likely 0.31.x) exposes `set_viewport_area` as `pub` or an equivalent public API on `Terminal` is added; revisit on every upstream ratatui release.
-
-#### What the fork actually contains
-
-The fork `nornagon/ratatui` branch `nornagon-v0.29.0-patch` (HEAD `9b2ad1298408c45918ee9f8241a6f95498cdbed2`) adds **2 commits** on top of upstream `ratatui v0.29.0` (`28732176e1`):
-
-| SHA | Date | Subject |
-|---|---|---|
-| `bca287ddc5` | 2025-07-26 | **expose set_viewport_area** — the patch (changes `fn` → `pub fn` + 1-line docstring in `src/terminal/terminal.rs`) |
-| `9b2ad12984` | 2025-08-03 | Merge PR #1: bump `unicode-width` 0.2.0 → 0.2.1 (transitive dep bump) |
-
-> **Note:** the SOTA research doc `findings/sota-research-2026-06-19.md` § 7 / § 10 frames this as a "renderer bug fix". That framing is inaccurate. The patch is an **API visibility change** (private → public), not a rendering bug. The Codex TUI needs to call `Terminal::set_viewport_area()` directly from outside the ratatui crate, which the upstream API does not allow.
-
-#### Upstream state (ratatui 0.30.x, verified 2026-06-19)
-
-- **Latest stable:** `ratatui-v0.30.2` (released 2026-06-19, today). Also: `ratatui-v0.30.1` (2026-06-05), `ratatui-v0.30.0`, `ratatui-v0.29.0`.
-- **The literal patch (`fn` → `pub fn`) has NOT been applied upstream.** In `ratatui-v0.30.2/ratatui-core/src/terminal/resize.rs:78`, the same method exists as `pub(crate) fn set_viewport_area(&mut self, area: Rect)` — accessible only within the `ratatui-core` crate, not from external crates like Codex.
-- **Upstream's chosen solution:** expose viewport-area control through higher-level public API: `Terminal::with_options(Viewport::Inline(area))` (constructor) and `Terminal::resize(area)` (runtime). The internal `set_viewport_area` helper stays crate-internal.
-- **Implication for bumping:** to drop the fork pin and move to `ratatui = "0.30.2"` will require a **Codex TUI refactor** — replace direct `terminal.set_viewport_area(area)` calls with the appropriate `Terminal::with_options(Viewport::Inline(area))` (construction-time) or `terminal.resize(area)` (runtime) calls. This is a code change, not a Cargo.toml bump.
-
-#### Cargo.lock evidence (this branch)
+### Project Structure
 
 ```
-$ grep -A 3 'name = "ratatui"' codex-rs/Cargo.lock
-name = "ratatui"
-version = "0.29.0"
-source = "git+https://github.com/nornagon/ratatui?branch=nornagon-v0.29.0-patch#9b2ad1298408c45918ee9f8241a6f95498cdbed2"
+src/
+  main.rs               # CLI entrypoint using clap
+  commands/             # Command handlers by domain
+    mod.rs              # Command registry
+    app.rs              # App management commands
+    config.rs           # Configuration commands
+    execution.rs        # Execution backend commands
+  config/               # Configuration loading and parsing
+    mod.rs              # Config loader
+  execution/            # Backend executors
+    mod.rs              # Executor trait
+    docker.rs           # Docker executor
+    kubernetes.rs       # Kubernetes executor
+    local.rs            # Local executor
+    sandbox.rs          # Sandbox executor
+  app/                  # Core application logic
+  models/               # Data models (App, Config, etc.)
+  utils/                # Shared utilities
+  errors.rs             # Error types using thiserror
+
+tests/                  # Integration tests
+docs/
+  adr/                  # Architecture decision records
+  sessions/             # Session-based work documentation
+  reference/            # Architecture docs and quick references
 ```
 
-The fork pin is the **active** resolved source — not a no-op override.
+### Style Constraints
 
-#### Sibling SOTA exceptions in the same `[patch.crates-io]` section (out of scope for this shard)
+- **Line length**: 100 characters (Rust convention)
+- **Formatter**: `cargo fmt` (mandatory)
+- **Type checker**: Rust compiler (strict)
+- **Linter**: `cargo clippy` with `-- -D warnings` (zero warnings)
+- **File size target**: ≤350 lines per source file, hard limit ≤500 lines
+- **Typing**: Full type annotations required; no `impl Trait` in public APIs
 
-For audit completeness only — not addressed by the L5-104 shard. Track separately:
+### Key Constraints
 
-| Package | Pin | Status |
-|---|---|---|
-| `crossterm` | `nornagon/crossterm` branch `nornagon/color-query` | unverified |
-| `tokio-tungstenite` | `openai-oss-forks/tokio-tungstenite` rev `132f5b39...` | unverified |
-| `tungstenite` | `openai-oss-forks/tungstenite-rs` rev `9200079d...` (double-pinned via SSH + HTTPS) | unverified |
+- All CLI commands must use `clap` for argument parsing
+- All backends must implement a common executor trait
+- Error handling via `thiserror` with clear error types
+- Async code uses `tokio` runtime
+- No global state; dependency injection for configuration
+- Tests verify both happy path and error conditions
 
 ---
 
-## Stack
+## Session Documentation
 
-- **Languages:** Rust (primary — codex-rs workspace)
-- **Build system:** Cargo workspace (`codex-rs/Cargo.toml`)
-- **Upstream lineage:** `openai/codex` (the Codex CLI from OpenAI) — this repo is a Phenotype-org fork
+All agents MUST maintain session documentation for research, decisions, and findings:
 
-## Conventions
+### Location
 
-- **Branch naming:** `chore/<req-id>-<slug>-<date>` for chore work; `feat/<req-id>-<slug>-<date>` for features.
-- **Commit messages:** Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `build:`, `ci:`) with optional scope.
-- **PR labels:** `governance` for cleanup, `L<n>-#<n>` for tracking against DAG level.
-- **Meta-bundle for a release-ready crate:** `AGENTS.md` + `llms.txt` + `WORKLOG.md` + `CHANGELOG.md` + `LICENSE-MIT`.
-- **SOTA artifacts:** `findings/`, `plans/`, `worklogs/`, `docs/adr/<date>/`.
+- Default: `docs/sessions/<session-id>/`
 
-## Related
+### Standard Session Structure
 
-- `README.md` — work-state header + project overview
-- `CHANGELOG.md` — release notes
-- `codex-rs/Cargo.toml` — workspace manifest with the SOTA-exception `[patch.crates-io]` section (lines 387-393)
-- `codex-rs/Cargo.lock` — resolved dependency graph (confirms fork is active)
-- `findings/sota-research-2026-06-19.md` § 7 (ratatui) and § 10 (SOTA exception log) — source SOTA research; see also the revisit trigger note above
-- `findings/2026-06-19-L5-104-ratatui-fork-verification.md` — verification log for this shard (TODO; see "Shard release" below)
+```
+docs/sessions/<session-id>/
+├── README.md           # Overview and context
+├── 01_RESEARCH.md      # Findings and analysis
+├── 02_PLAN.md          # Design and approach
+├── 03_IMPLEMENTATION.md # Code changes and rationale
+├── 04_VALIDATION.md    # Tests and verification
+└── 05_KNOWN_ISSUES.md  # Blockers and follow-ups
+```
+
+---
+
+## Quality Standards
+
+### Code Quality Mandate
+
+- **All linters must pass**: `cargo clippy --all-targets -- -D warnings`
+- **All tests must pass**: `cargo test --all`
+- **No AI slop**: Avoid placeholder TODOs, lorem ipsum, generic comments
+- **Backwards incompatibility**: No shims, full migrations, clean breaks
+
+### Test-First Mandate
+
+- **For NEW modules**: test file MUST exist before implementation file
+- **For BUG FIXES**: failing test MUST be written before the fix
+- **For REFACTORS**: existing tests must pass before AND after
+
+### FR Traceability
+
+All tests MUST reference a Functional Requirement (FR):
+
+```rust
+// Traces to: FR-HELIOS-NNN
+#[test]
+fn test_feature_name() {
+    // Test body
+}
+```
+
+---
+
+## Governance Reference
+
+See thegent governance base for complete guidance on:
+
+1. **Core Agent Expectations** — Autonomous operation, when to ask vs. decide
+2. **Standard Operating Loop (SWE Autopilot)** — Review, Research, Plan, Execute, Size-Check, Test, Review & Polish, Repeat
+3. **File Size & Modularity Mandate** — ≤500 line hard limit, decomposition patterns
+4. **Research-First Development** — Codebase research, web research, documentation
+5. **Branch Discipline** — Worktree usage, PR workflow, git best practices
+6. **Child-Agent and Delegation Policy** — When to spawn subagents, parallel vs. sequential
+7. **Tool Usage & CLI Priority** — CLI as primary interface, read-only tools first
+8. **Naming Conventions** — Session naming, file naming, branch naming
+
+Location: `platforms/thegent/governance/AGENTS.base.md`
+
+---
+
+## Quick Reference Commands
+
+```bash
+# Run all quality checks
+cargo test --all
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check
+
+# Auto-format code
+cargo fmt
+
+# Run specific test
+cargo test <test_name>
+
+# Build and run
+cargo build
+./target/debug/helios-cli --help
+
+# Build release
+cargo build --release
+
+# View documentation
+cargo doc --open
+```

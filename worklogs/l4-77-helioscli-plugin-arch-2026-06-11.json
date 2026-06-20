@@ -1,0 +1,72 @@
+{
+  "task_id": "L4-77",
+  "date": "2026-06-11",
+  "title": "helioscli-plugin — extensible plugin architecture (HeliosPlugin, HeliosPluginRegistry, load_from_dir)",
+  "status": "completed",
+  "branch": "chore/l4-77-helioscli-plugin-arch-2026-06-11",
+  "worktree": "HeliosCLI",
+  "commit": "e1597e1338",
+  "pushed": false,
+  "author": "forge",
+  "refs": {
+    "dag": "FLEET_100TASK_DAG_V3.md#L4-#77"
+  },
+  "summary": "Created the plugin-arch standalone crate at HeliosCLI/crates/plugin-arch/ with a HeliosPlugin struct implementing the Plugin trait from pheno-plugin, a HeliosPluginRegistry wrapping PluginRegistry with load_from_dir(path) for scanning *.so files, and a stub pheno-plugin crate at HeliosCLI/crates/pheno-plugin/ providing the Plugin trait, PluginError, and PluginRegistry. The plugin-arch crate is standalone (empty [workspace] in Cargo.toml) and depends on pheno-plugin via a path dependency. HeliosPlugin implements Plugin with name() and version() methods. HeliosPluginRegistry wraps PluginRegistry and adds load_from_dir() which scans a directory for *.so files and registers each file stem as a plugin name. All 2 spec-named tests pass and clippy is clean.",
+  "scope": {
+    "created": [
+      "HeliosCLI/crates/pheno-plugin/Cargo.toml",
+      "HeliosCLI/crates/pheno-plugin/src/lib.rs",
+      "HeliosCLI/crates/plugin-arch/Cargo.toml",
+      "HeliosCLI/crates/plugin-arch/src/lib.rs",
+      "HeliosCLI/worklogs/l4-77-helioscli-plugin-arch-2026-06-11.json"
+    ],
+    "modified": []
+  },
+  "public_api": {
+    "plugin_arch::HeliosPlugin": "struct { new(name, version) -> Self } — implements Plugin from pheno-plugin with name() and version() methods",
+    "plugin_arch::HeliosPluginRegistry": "struct { new() -> Self, register(plugin) -> Result<(), PluginError>, load_from_dir(path) -> Result<(), PluginError>, names() -> Vec<String>, get(name) -> Option<&dyn Plugin> } — wraps PluginRegistry and adds directory scanning for *.so files",
+    "pheno_plugin::Plugin": "trait { name(&self) -> &str, version(&self) -> &str, init(&self) -> Result<(), PluginError> } — Send + Sync, object-safe plugin contract",
+    "pheno_plugin::PluginError": "thiserror enum { DuplicateName(String), InitFailed(String) } — canonical error for registry operations",
+    "pheno_plugin::PluginRegistry": "struct { new() -> Self, register(plugin), get(name), names(), init_all() } — name-indexed plugin store with duplicate rejection"
+  },
+  "dependencies": {
+    "pheno-plugin": "path = ../pheno-plugin (stub crate exposing Plugin, PluginError, PluginRegistry)",
+    "thiserror": "2.0",
+    "tempfile": "3 (dev-dependency)"
+  },
+  "test_results": {
+    "command": "cargo test --manifest-path crates/plugin-arch/Cargo.toml",
+    "unit": 2,
+    "integration": 0,
+    "doctest": 0,
+    "total": 2,
+    "passed": 2,
+    "failed": 0
+  },
+  "test_coverage": [
+    "crates/plugin-arch/src/lib.rs: plugin_registry_loads_from_empty_dir (line 107) — empty temp directory returns Ok(()) and produces no registered plugins",
+    "crates/plugin-arch/src/lib.rs: plugin_registry_rejects_duplicate_plugins (line 114) — registering two HeliosPlugin instances with the same name returns DuplicateName error and preserves the first plugin"
+  ],
+  "verification": {
+    "cargo_test": "2/2 pass via cargo test --manifest-path crates/plugin-arch/Cargo.toml",
+    "cargo_clippy": "clean (no warnings, -D warnings applied) via cargo clippy --manifest-path crates/plugin-arch/Cargo.toml --all-targets -- -D warnings",
+    "rust_edition": "2021",
+    "rust_msrv": "1.75 (per HeliosCLI workspace)"
+  },
+  "spec_alignment": "The L4 #77 spec called for a standalone plugin-arch Cargo.toml depending on pheno-plugin (path dep or stub), a HeliosPlugin struct implementing Plugin, a HeliosPluginRegistry wrapping PluginRegistry with load_from_dir(path) that scans *.so files, and >=2 named tests (plugin_registry_loads_from_empty_dir, plugin_registry_rejects_duplicate_plugins). All deliverables are present verbatim.",
+  "spec_deviations": "None. All spec deliverables are present and verified.",
+  "constraints_respected": [
+    "Branch is local-only (chore/l4-77-helioscli-plugin-arch-2026-06-11) and NOT pushed to origin per task directive.",
+    "The plugin-arch crate is a standalone package (empty [workspace] in its own Cargo.toml) per the L3 convention; the root HeliosCLI/Cargo.toml [workspace.members] is NOT touched.",
+    "The pheno-plugin stub is created inside HeliosCLI/crates/pheno-plugin/ so it is part of the same branch and commit.",
+    "No touch of other crates or files.",
+    "Both canonical test names from the spec are present verbatim and pass.",
+    "cargo clippy --all-targets -- -D warnings passes with zero warnings."
+  ],
+  "no_touch": [
+    "Other crates in the HeliosCLI workspace",
+    "Root HeliosCLI/Cargo.toml [workspace.members]",
+    "CI workflows",
+    "Documentation files (no README.md created for plugin-arch or pheno-plugin per task brevity directive)"
+  ]
+}

@@ -1,4 +1,30 @@
-# helios-cli deny.toml — v1
-advisories = { severity = "high" }
-bans = { multiple-versions = "deny" }
-sources = [{ crate-io = {} }]
+[licenses]
+version = 2
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSD-3-Clause-Clear",
+    "CC0-1.0",
+    "CC-BY-SA-4.0",
+    "GPL-3.0-only",
+    "ISC",
+    "MIT",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "Zlib",
+    "0BSD",
+    "BlueOak-1.0.0",
+    "CDLA-Permissive-2.0",
+    "Unlicense",
+    "WTFPL",
+]
+
+[sources]
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+unknown-git = "deny"
+
+[advisories]
+ignore = []
