@@ -13,7 +13,11 @@
 [![Phenotype](https://img.shields.io/badge/Phenotype-org-blueviolet)](https://github.com/KooshaPari)
 [![AI Slop Inside](https://sladge.net/badge.svg)](https://sladge.net)
 
-Rust-based CLI for managing Helioscope applications with multi-backend support and sandboxing. A community fork of [OpenAI Codex CLI](https://github.com/openai/codex) with performance optimizations, a multi-crate harness system, and Phenotype governance integration.
+Rust-based CLI for managing Helios CLI applications with multi-backend support and sandboxing. A community fork of [OpenAI Codex CLI](https://github.com/openai/codex) with performance optimizations, a multi-crate harness system, and Phenotype governance integration.
+
+> **Note:** The legacy `helioscope` fork (`KooshaPari/helioscope`) was retired 2026-06-21
+> per [the v12-20 closure rationale](https://github.com/KooshaPari/helios-cli/blob/main/docs/rationalization/helioscope-absorption.md).
+> `helios-cli` is the canonical codex fork in the Phenotype fleet.
 
 <p align="center">
   <strong>helios</strong> — run AI coding agents locally with full control over execution, sandboxing, and model backends.
