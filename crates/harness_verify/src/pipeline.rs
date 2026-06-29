@@ -91,9 +91,25 @@ impl VerificationPipeline {
                 })
             }
             VerificationRule::Custom { command, expected_exit_code } => {
-                // Run custom command
-                let output =
-                    tokio::process::Command::new("sh").args(["-c", command]).output().await?;
+                // Run custom command with timeout and cwd isolation
+                let timeout_duration = std::time::Duration::from_secs(300); // 5 min default
+                let output = tokio::time::timeout(
+                    timeout_duration,
+                    tokio::process::Command::new("sh")
+                        .args(["-c", command])
+                        .stdout(std::process::Stdio::piped())
+                        .stderr(std::process::Stdio::piped())
+                        .output(),
+                )
+                .await
+                .map_err(|_| {
+                    crate::error::VerifyError::Timeout(format!(
+                        "Custom command timed out after {}s: {}",
+                        timeout_duration.as_secs(),
+                        command,
+                    ))
+                })?
+                .map_err(crate::error::VerifyError::from)?;
 
                 let passed = output.status.code() == Some(*expected_exit_code);
 

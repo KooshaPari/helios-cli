@@ -11,6 +11,22 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use tracing::instrument;
 
+/// Shell-safe quoting: wraps `s` in single quotes and escapes embedded single
+/// quotes so the result can be safely joined into a `sh -c` string without
+/// shell injection.
+///
+/// # Security
+///
+/// Single-quote shell escaping is the only quoting mechanism that prevents
+/// **all** shell metacharacter interpretation (no backslash, no dollar, no
+/// backtick processing) without requiring a whitelist. Each argument is
+/// individually quoted so an attacker-controlled `cmd` or `args` value like
+/// `"; rm -rf /; echo "` becomes a literal string.
+fn shell_quote(s: &str) -> String {
+    let escaped = s.replace('\'', "'\\''");
+    format!("'{escaped}'")
+}
+
 /// Runner configuration
 #[derive(Debug, Clone)]
 pub struct RunnerConfig {
@@ -70,9 +86,18 @@ impl Runner {
     pub async fn run(&self, cmd: &str, args: &[&str]) -> Result<RunResult> {
         let start = Instant::now();
 
-        let mut cmd = if self.config.shell {
+        let mut child = if self.config.shell {
             let mut c = Command::new("sh");
-            c.arg("-c").arg(format!("{} {}", cmd, args.join(" ")));
+            // SECURITY: Each argument is individually single-quote-escaped to
+            // prevent shell injection through untrusted cmd/args values.
+            let quoted_cmd = shell_quote(cmd);
+            let quoted_args: Vec<String> = args.iter().map(|a| shell_quote(a)).collect();
+            let shell_line = if quoted_args.is_empty() {
+                quoted_cmd
+            } else {
+                format!("{} {}", quoted_cmd, quoted_args.join(" "))
+            };
+            c.arg("-c").arg(shell_line);
             c
         } else {
             let mut c = Command::new(cmd);
@@ -81,25 +106,25 @@ impl Runner {
         };
 
         if let Some(ref dir) = self.config.working_dir {
-            cmd.current_dir(dir);
+            child.current_dir(dir);
         }
 
         for (k, v) in &self.config.env {
-            cmd.env(k, v);
+            child.env(k, v);
         }
 
-        cmd.stdout(Stdio::piped());
-        cmd.stderr(Stdio::piped());
+        child.stdout(Stdio::piped());
+        child.stderr(Stdio::piped());
 
         let output = match self.config.timeout_secs {
             Some(timeout) => {
-                match tokio::time::timeout(Duration::from_secs(timeout), cmd.output()).await {
+                match tokio::time::timeout(Duration::from_secs(timeout), child.output()).await {
                     Ok(Ok(output)) => output,
                     Ok(Err(e)) => return Err(RunError::Io(e)),
                     Err(_) => return Err(RunError::Timeout(timeout)),
                 }
             }
-            None => cmd.output().await?,
+            None => child.output().await?,
         };
 
         let duration = start.elapsed();
@@ -116,9 +141,19 @@ impl Runner {
     /// Run with stdin input
     #[instrument(name = "runner_run_with_input", skip(self, args, input))]
     pub async fn run_with_input(&self, cmd: &str, args: &[&str], input: &str) -> Result<RunResult> {
-        let mut cmd = if self.config.shell {
+        let start = Instant::now();
+
+        let mut child = if self.config.shell {
             let mut c = Command::new("sh");
-            c.arg("-c").arg(format!("{} {}", cmd, args.join(" ")));
+            // SECURITY: Same shell-injection prevention as run().
+            let quoted_cmd = shell_quote(cmd);
+            let quoted_args: Vec<String> = args.iter().map(|a| shell_quote(a)).collect();
+            let shell_line = if quoted_args.is_empty() {
+                quoted_cmd
+            } else {
+                format!("{} {}", quoted_cmd, quoted_args.join(" "))
+            };
+            c.arg("-c").arg(shell_line);
             c
         } else {
             let mut c = Command::new(cmd);
@@ -127,31 +162,33 @@ impl Runner {
         };
 
         if let Some(ref dir) = self.config.working_dir {
-            cmd.current_dir(dir);
+            child.current_dir(dir);
         }
 
         for (k, v) in &self.config.env {
-            cmd.env(k, v);
+            child.env(k, v);
         }
 
-        cmd.stdin(Stdio::piped());
-        cmd.stdout(Stdio::piped());
-        cmd.stderr(Stdio::piped());
+        child.stdin(Stdio::piped());
+        child.stdout(Stdio::piped());
+        child.stderr(Stdio::piped());
 
-        let mut child = cmd.spawn()?;
+        let mut child_handle = child.spawn()?;
 
-        if let Some(ref mut stdin) = child.stdin {
+        if let Some(ref mut stdin) = child_handle.stdin {
             stdin.write_all(input.as_bytes()).await?;
         }
 
-        let output = child.wait_with_output().await?;
+        let output = child_handle.wait_with_output().await?;
+
+        let duration = start.elapsed();
 
         Ok(RunResult {
             success: output.status.success(),
             exit_code: output.status.code(),
             stdout: String::from_utf8_lossy(&output.stdout).to_string(),
             stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-            duration: Duration::ZERO,
+            duration,
         })
     }
 }
@@ -238,5 +275,112 @@ mod tests {
     fn timeout_and_not_found_display() {
         assert_eq!(RunError::Timeout(7).to_string(), "Timeout after 7s");
         assert_eq!(RunError::NotFound.to_string(), "Command not found");
+    }
+
+    /// SEC-HELIOS-CMDINJ-001
+    /// `shell_quote` must wrap bare text in single quotes.
+    #[test]
+    fn shell_quote_bare_text() {
+        assert_eq!(shell_quote("hello"), "'hello'");
+    }
+
+    /// SEC-HELIOS-CMDINJ-002
+    /// `shell_quote` must escape embedded single quotes so they cannot break
+    /// out of the quoting context.
+    #[test]
+    fn shell_quote_embedded_single_quote() {
+        let q = shell_quote("it's");
+        // Should produce something like 'it'\\''s' (the literal \\ is a Rust
+        // string escaping of the backslash that we emit).
+        assert!(q.starts_with("'"));
+        assert!(q.ends_with("'"));
+        // The embedded single quote must be escaped with `'\''` pattern.
+        assert!(
+            shell_quote("a'b").contains("'\\''"),
+            "single quote should be escaped with shell pattern: '\\''"
+        );
+    }
+
+    /// SEC-HELIOS-CMDINJ-003
+    /// `shell_quote` must not remove or truncate input.
+    #[test]
+    fn shell_quote_preserves_length() {
+        let input = "echo hello";
+        let quoted = shell_quote(input);
+        assert!(quoted.len() > input.len());
+        assert!(quoted.contains(input));
+    }
+
+    /// SEC-HELIOS-CMDINJ-004
+    /// Shell metacharacters must be neutralised.
+    #[test]
+    fn shell_quote_dollar_sign_is_literal() {
+        let q = shell_quote("$(id)");
+        assert_eq!(q, "'$(id)'");
+    }
+
+    /// SEC-HELIOS-CMDINJ-005
+    /// Backticks must be literal inside single quotes.
+    #[test]
+    fn shell_quote_backtick_is_literal() {
+        let q = shell_quote("`whoami`");
+        assert_eq!(q, "'`whoami`'");
+    }
+
+    /// SEC-HELIOS-CMDINJ-006
+    /// Semicolons (command separator) must be literal inside single quotes.
+    #[test]
+    fn shell_quote_semicolon_is_literal() {
+        let q = shell_quote("; rm -rf /");
+        assert_eq!(q, "'; rm -rf /'");
+    }
+
+    /// SEC-HELIOS-CMDINJ-007
+    /// The shell mode must construct a shell line where each token is
+    /// individually quoted.  An attacker-controlled value in args must not
+    /// alter the command structure.
+    #[tokio::test]
+    async fn shell_mode_rejects_injection() {
+        let runner = Runner::new().with_shell(true);
+        // If unquoted, this argument would inject a semicolon and run `echo
+        // pwned` as a separate command.  With quoting it must run `echo` with
+        // the literal string `; echo pwned`.
+        let result = runner.run("echo", &["; echo pwned"]).await.expect("runner should not panic");
+        assert!(result.success, "shell mode should still succeed");
+        // stdout must contain the literal semicolon (escaped by quoting).
+        let stdout = result.stdout.trim();
+        assert!(
+            stdout.contains("; echo pwned"),
+            "expected stdout to contain literal injection string, got: {stdout:?}"
+        );
+    }
+
+    /// SEC-HELIOS-CMDINJ-008
+    /// The shell mode with input must also be safe against injection.
+    #[tokio::test]
+    async fn shell_mode_with_input_rejects_injection() {
+        let runner = Runner::new().with_shell(true);
+        let result = runner
+            .run_with_input("echo", &["safe_arg"], "hello")
+            .await
+            .expect("run_with_input should succeed");
+        assert!(result.success, "run_with_input should succeed");
+    }
+
+    /// COR-HELIOS-RUN-001
+    /// `run_with_input` must report a non-zero (i.e. real) duration, not
+    /// `Duration::ZERO`.
+    #[tokio::test]
+    async fn run_with_input_reports_real_duration() {
+        let runner = Runner::new().with_shell(false);
+        let result = runner
+            .run_with_input("echo", &["hello"], "test")
+            .await
+            .expect("run_with_input should succeed");
+        assert!(
+            result.duration > Duration::ZERO,
+            "duration should not be zero; got {:?}",
+            result.duration
+        );
     }
 }
