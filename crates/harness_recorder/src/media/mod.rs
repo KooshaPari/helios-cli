@@ -1,9 +1,9 @@
-use anyhow::{Context, Result};
-use std::path::{Path, PathBuf};
+use anyhow::Result;
+use std::path::Path;
 
+pub mod gif;
 pub mod recorder;
 pub mod screenshot;
-pub mod gif;
 
 pub use recorder::MediaRecorder;
 
@@ -20,10 +20,12 @@ impl OutputFormat {
             "png" => Ok(OutputFormat::Png),
             "gif" => Ok(OutputFormat::Gif),
             "mp4" => Ok(OutputFormat::Mp4),
-            _ => Err(anyhow::anyhow!("Unsupported format: {}. Supported formats: png, gif, mp4", s)),
+            _ => {
+                Err(anyhow::anyhow!("Unsupported format: {}. Supported formats: png, gif, mp4", s))
+            }
         }
     }
-    
+
     pub fn extension(&self) -> &str {
         match self {
             OutputFormat::Png => "png",
@@ -55,9 +57,9 @@ impl Default for MediaConfig {
             font_size: 14,
             line_height: 1.2,
             padding: 20,
-            background_color: (40, 44, 52),   // Dark background
-            text_color: (171, 178, 191),      // Light text
-            cursor_color: (97, 175, 239),     // Blue cursor
+            background_color: (40, 44, 52), // Dark background
+            text_color: (171, 178, 191),    // Light text
+            cursor_color: (97, 175, 239),   // Blue cursor
         }
     }
 }
@@ -100,7 +102,7 @@ impl ThemeConfig {
             ],
         }
     }
-    
+
     pub fn dracula_theme() -> Self {
         Self {
             name: "Dracula".to_string(),
@@ -128,7 +130,7 @@ impl ThemeConfig {
             ],
         }
     }
-    
+
     pub fn from_name(name: &str) -> Self {
         match name.to_lowercase().as_str() {
             "dracula" => Self::dracula_theme(),

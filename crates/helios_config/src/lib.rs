@@ -91,7 +91,6 @@ pub struct HeliosConfig {
     pub token_bucket: TokenBucketConfig,
 }
 
-
 impl HeliosConfig {
     /// Load configuration from the default locations.
     ///
@@ -150,28 +149,18 @@ impl HeliosConfig {
 
     /// Parse config from a TOML or YAML file.
     pub fn from_file(path: &std::path::Path) -> Result<Self> {
-        let contents =
-            std::fs::read_to_string(path).map_err(|e| ConfigError::FileRead { path: path.to_owned(), inner: e })?;
+        let contents = std::fs::read_to_string(path)
+            .map_err(|e| ConfigError::FileRead { path: path.to_owned(), inner: e })?;
 
-        let ext = path
-            .extension()
-            .and_then(|e| e.to_str())
-            .unwrap_or("")
-            .to_lowercase();
+        let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("").to_lowercase();
 
         match ext.as_str() {
-            "yaml" | "yml" => {
-                serde_yaml::from_str(&contents).map_err(|e| ConfigError::FileParse {
-                    path: path.to_owned(),
-                    inner: e,
-                })
-            }
-            "toml" => {
-                toml::from_str(&contents).map_err(|e| ConfigError::FileParse {
-                    path: path.to_owned(),
-                    inner: serde_yaml::Error::custom(e.to_string()),
-                })
-            }
+            "yaml" | "yml" => serde_yaml::from_str(&contents)
+                .map_err(|e| ConfigError::FileParse { path: path.to_owned(), inner: e }),
+            "toml" => toml::from_str(&contents).map_err(|e| ConfigError::FileParse {
+                path: path.to_owned(),
+                inner: serde_yaml::Error::custom(e.to_string()),
+            }),
             _ => {
                 // Try YAML first, then TOML
                 serde_yaml::from_str(&contents).or_else(|_| {
@@ -190,15 +179,18 @@ impl HeliosConfig {
     /// For example `HELIOS_CACHE_MAX_CAPACITY=5000`.
     fn apply_env_overrides(&mut self) {
         // Cache
-        self.cache.max_capacity = env_override("HELIOS_CACHE_MAX_CAPACITY", self.cache.max_capacity);
+        self.cache.max_capacity =
+            env_override("HELIOS_CACHE_MAX_CAPACITY", self.cache.max_capacity);
         self.cache.ttl_secs = env_override("HELIOS_CACHE_TTL", self.cache.ttl_secs);
 
         // Runner
         self.runner.timeout_secs = env_override("HELIOS_RUNNER_TIMEOUT", self.runner.timeout_secs);
 
         // Scaling
-        self.scaling.min_instances = env_override("HELIOS_SCALING_MIN_INSTANCES", self.scaling.min_instances);
-        self.scaling.max_instances = env_override("HELIOS_SCALING_MAX_INSTANCES", self.scaling.max_instances);
+        self.scaling.min_instances =
+            env_override("HELIOS_SCALING_MIN_INSTANCES", self.scaling.min_instances);
+        self.scaling.max_instances =
+            env_override("HELIOS_SCALING_MAX_INSTANCES", self.scaling.max_instances);
         self.scaling.target_cpu_percent =
             env_override("HELIOS_SCALING_TARGET_CPU", self.scaling.target_cpu_percent);
         self.scaling.target_memory_percent =
@@ -231,10 +223,14 @@ impl HeliosConfig {
             env_override("HELIOS_SPEC_TIMEOUT", self.spec.default_timeout_secs);
 
         // Checkpoint
-        self.checkpoint.git_signature_name =
-            env_override_string("HELIOS_CHECKPOINT_SIGNATURE_NAME", &self.checkpoint.git_signature_name);
-        self.checkpoint.git_signature_email =
-            env_override_string("HELIOS_CHECKPOINT_SIGNATURE_EMAIL", &self.checkpoint.git_signature_email);
+        self.checkpoint.git_signature_name = env_override_string(
+            "HELIOS_CHECKPOINT_SIGNATURE_NAME",
+            &self.checkpoint.git_signature_name,
+        );
+        self.checkpoint.git_signature_email = env_override_string(
+            "HELIOS_CHECKPOINT_SIGNATURE_EMAIL",
+            &self.checkpoint.git_signature_email,
+        );
 
         // Elicitation
         self.elicitation.confidence_threshold =
@@ -599,7 +595,8 @@ mod tests {
     fn test_config_roundtrip_yaml() {
         let config = HeliosConfig::default();
         let yaml = serde_yaml::to_string(&config).expect("serialize to yaml");
-        let deserialized: HeliosConfig = serde_yaml::from_str(&yaml).expect("deserialize from yaml");
+        let deserialized: HeliosConfig =
+            serde_yaml::from_str(&yaml).expect("deserialize from yaml");
 
         assert_eq!(deserialized.cache.max_capacity, config.cache.max_capacity);
         assert_eq!(deserialized.runner.timeout_secs, config.runner.timeout_secs);

@@ -1,9 +1,9 @@
-use std::path::PathBuf;
 use anyhow::{Context, Result};
+use std::path::PathBuf;
 
-use crate::script::{Script, ScriptLoader};
-use crate::pty::TerminalController;
 use crate::media::{MediaRecorder, OutputFormat};
+use crate::pty::TerminalController;
+use crate::script::{Script, ScriptLoader};
 
 pub async fn record_command(
     script_path: PathBuf,
@@ -11,24 +11,24 @@ pub async fn record_command(
     format: String,
 ) -> Result<()> {
     println!("🎬 Recording script: {}", script_path.display());
-    
+
     // Load script
     let script = ScriptLoader::load_from_file(&script_path)
         .with_context(|| format!("Failed to load script: {}", script_path.display()))?;
-    
+
     // Parse output format
     let output_format = OutputFormat::from_string(&format)?;
-    
+
     // Create output directory
     std::fs::create_dir_all(&output_dir)
         .with_context(|| format!("Failed to create output directory: {}", output_dir.display()))?;
-    
+
     // Initialize terminal controller
     let mut terminal = TerminalController::new(&script.settings)?;
-    
+
     // Initialize media recorder
     let mut recorder = MediaRecorder::new(output_format, &output_dir)?;
-    
+
     // Execute script
     println!("🚀 Executing {} steps...", script.steps.len());
 
@@ -93,11 +93,8 @@ fn print_recording_summary(output_dir: &std::path::Path, steps: usize, artifacts
 
     // Rounded (unicode) border on a real terminal; plain ASCII border when
     // piped or in CI so downstream consumers never see unicode box-drawing.
-    let border = if caps.is_tty {
-        rck_core::BorderStyle::Rounded
-    } else {
-        rck_core::BorderStyle::Ascii
-    };
+    let border =
+        if caps.is_tty { rck_core::BorderStyle::Rounded } else { rck_core::BorderStyle::Ascii };
 
     let mut out = std::io::stdout().lock();
     // On any rendering failure, fall back to a plain status line so the command
@@ -112,30 +109,31 @@ fn print_recording_summary(output_dir: &std::path::Path, steps: usize, artifacts
 
 pub async fn screenshot_command(command: String, output: PathBuf) -> Result<()> {
     println!("📸 Taking screenshot of command: {}", command);
-    
+
     // Create a simple single-command script
     let script = Script::single_command(&command)?;
-    
+
     // Initialize terminal
     let mut terminal = TerminalController::new(&script.settings)?;
-    
+
     // Execute command
     terminal.execute_command(&command).await?;
-    
+
     // Take screenshot
-    let recorder = MediaRecorder::new(OutputFormat::Png, &output.parent().unwrap_or(&PathBuf::from(".")))?;
+    let recorder =
+        MediaRecorder::new(OutputFormat::Png, output.parent().unwrap_or(&PathBuf::from(".")))?;
     recorder.take_screenshot(&terminal, &output).await?;
-    
+
     println!("✅ Screenshot saved: {}", output.display());
     Ok(())
 }
 
 pub async fn demo_command(script_path: PathBuf, interactive: bool) -> Result<()> {
     println!("🎭 Running demo: {}", script_path.display());
-    
+
     let script = ScriptLoader::load_from_file(&script_path)?;
     let mut terminal = TerminalController::new(&script.settings)?;
-    
+
     for (i, step) in script.steps.iter().enumerate() {
         if interactive {
             println!("\n📋 Next step {}/{}: {:?}", i + 1, script.steps.len(), step.step_type);
@@ -143,7 +141,7 @@ pub async fn demo_command(script_path: PathBuf, interactive: bool) -> Result<()>
             let mut input = String::new();
             std::io::stdin().read_line(&mut input)?;
         }
-        
+
         match step.step_type {
             crate::script::StepType::Command { ref text, wait } => {
                 terminal.execute_command(text).await?;
@@ -157,17 +155,17 @@ pub async fn demo_command(script_path: PathBuf, interactive: bool) -> Result<()>
             _ => {} // Skip recording steps in demo mode
         }
     }
-    
+
     println!("✅ Demo complete!");
     Ok(())
 }
 
 pub async fn convert_command(input: PathBuf, output: PathBuf) -> Result<()> {
     println!("🔄 Converting {} to {}", input.display(), output.display());
-    
+
     // TODO: Implement format conversion logic
     // This would handle converting between different recording formats
-    
+
     println!("✅ Conversion complete!");
     Ok(())
 }

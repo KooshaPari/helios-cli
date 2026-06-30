@@ -1,15 +1,61 @@
+# helios-cli Rust workspace CI
+# Replaces the upstream Codex rust-ci (hard-fork 2026-06-30).
+# Checks: build, test, clippy (-D warnings), fmt, cargo-deny.
 name: rust-ci
 on:
   pull_request: {}
+  push:
+    branches: [main]
   workflow_dispatch:
 
-# Cargo's libgit2 transport has been flaky when fetching git dependencies with
-# nested submodules. Prefer the system git CLI across every Cargo invocation.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  # --- Detect what changed so the fast PR workflow only runs relevant jobs ----
+  workspace:
+    name: build + test + clippy + fmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo build --workspace
+        run: cargo build --workspace
+
+      - name: cargo test --workspace
+        run: cargo test --workspace
+
+      - name: cargo clippy --all-targets -D warnings
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: cargo fmt --check
+        run: cargo fmt --check
+
+  deny:
+    name: cargo deny
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+
+  # --- Gatherer: single required status check ----------------------------------
+  # NOTE: upstream Codex jobs (changed, general, cargo_shear, etc.) removed.
+  # Retained as empty stubs below so GitHub branch-protection rules that
+  # reference these names do not break during migration.
+  # TODO: remove stubs once branch protection is updated.
+
   changed:
     name: Detect changed areas
     runs-on: ubuntu-24.04

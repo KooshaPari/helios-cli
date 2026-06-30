@@ -166,7 +166,7 @@ fn validate_registration(email: &str, password: &str) -> Result<(), String> {
 
     // Password validation
     if password.len() < 8 {
-        return Err("Password too short".to_string());
+        return Err("password too short (minimum 8 characters)".to_string());
     }
 
     Ok(())
