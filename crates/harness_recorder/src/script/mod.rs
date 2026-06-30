@@ -1,7 +1,7 @@
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::Duration;
-use anyhow::{Context, Result};
 
 pub mod loader;
 pub mod types;
@@ -20,16 +20,16 @@ pub struct Script {
 pub struct TerminalSettings {
     #[serde(default = "default_width")]
     pub width: u16,
-    
+
     #[serde(default = "default_height")]
     pub height: u16,
-    
+
     #[serde(default = "default_shell")]
     pub shell: String,
-    
+
     #[serde(default = "default_theme")]
     pub theme: String,
-    
+
     #[serde(default)]
     pub working_dir: Option<PathBuf>,
 }
@@ -91,19 +91,27 @@ impl Default for TerminalSettings {
 }
 
 // Default value functions
-fn default_width() -> u16 { 120 }
-fn default_height() -> u16 { 30 }
-fn default_shell() -> String { 
+fn default_width() -> u16 {
+    120
+}
+fn default_height() -> u16 {
+    30
+}
+fn default_shell() -> String {
     std::env::var("SHELL").unwrap_or_else(|_| "/bin/bash".to_string())
 }
-fn default_theme() -> String { "default".to_string() }
-fn default_typing_speed() -> Duration { Duration::from_millis(50) }
+fn default_theme() -> String {
+    "default".to_string()
+}
+fn default_typing_speed() -> Duration {
+    Duration::from_millis(50)
+}
 
 // Serde duration helpers
 mod duration_option {
     use super::*;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    
+
     pub fn serialize<S>(duration: &Option<Duration>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -113,7 +121,7 @@ mod duration_option {
             None => serializer.serialize_none(),
         }
     }
-    
+
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Duration>, D::Error>
     where
         D: Deserializer<'de>,
@@ -129,14 +137,14 @@ mod duration_option {
 mod duration_ms {
     use super::*;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    
+
     pub fn serialize<S>(duration: &Duration, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         format!("{}ms", duration.as_millis()).serialize(serializer)
     }
-    
+
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Duration, D::Error>
     where
         D: Deserializer<'de>,
@@ -149,14 +157,14 @@ mod duration_ms {
 mod duration_secs {
     use super::*;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    
+
     pub fn serialize<S>(duration: &Duration, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         format!("{}s", duration.as_secs()).serialize(serializer)
     }
-    
+
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Duration, D::Error>
     where
         D: Deserializer<'de>,
@@ -168,12 +176,10 @@ mod duration_secs {
 
 fn parse_duration(s: &str) -> Result<Duration> {
     if s.ends_with("ms") {
-        let ms: u64 = s.trim_end_matches("ms").parse()
-            .context("Invalid milliseconds value")?;
+        let ms: u64 = s.trim_end_matches("ms").parse().context("Invalid milliseconds value")?;
         Ok(Duration::from_millis(ms))
     } else if s.ends_with('s') {
-        let secs: u64 = s.trim_end_matches('s').parse()
-            .context("Invalid seconds value")?;
+        let secs: u64 = s.trim_end_matches('s').parse().context("Invalid seconds value")?;
         Ok(Duration::from_secs(secs))
     } else {
         Err(anyhow::anyhow!("Duration must end with 'ms' or 's'"))

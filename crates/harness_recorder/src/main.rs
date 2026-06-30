@@ -1,10 +1,13 @@
-use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+// Forward-declared public API surface (L5-200 integration pending).
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
+use clap::Parser;
 
 mod cli;
-mod script;
-mod pty;
 mod media;
+mod pty;
+mod script;
 
 use cli::Commands;
 
@@ -20,10 +23,18 @@ struct Cli {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    // Bootstrap structured tracing (RUST_LOG controls level; defaults to "warn").
+    // env_logger is retained for log:: macros emitted by transitive deps.
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("warn")),
+        )
+        .init();
     env_logger::init();
-    
+
     let cli = Cli::parse();
-    
+
     match cli::execute_command(cli.command).await {
         Ok(_) => Ok(()),
         Err(e) => {
