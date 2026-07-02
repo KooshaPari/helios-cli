@@ -13,5 +13,8 @@ authors = ["kooshapari"]
 [dependencies]
 tokio = { version = "1", features = ["sync", "rt"] }
 
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt", "sync"] }
+
 [lib]
 path = "src/lib.rs"
