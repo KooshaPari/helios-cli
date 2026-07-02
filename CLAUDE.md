@@ -8,7 +8,7 @@ Extends thegent governance base. See `platforms/thegent/dotfiles/governance/CLAU
 ## Project Overview
 
 - **Name**: heliosCLI
-- **Description**: Rust-based CLI for managing Helioscope applications with multi-backend support and sandboxing
+- **Description**: Rust-based CLI for managing Helios CLI applications with multi-backend support and sandboxing.
 - **Location**: `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI`
 - **Language Stack**: Rust (edition 2021)
 - **Published**: Internal
@@ -69,7 +69,7 @@ fn test_feature_name() {
 
 ## Project-Specific Configuration
 
-heliosCLI provides a comprehensive CLI for Helioscope application management with multiple execution backends:
+heliosCLI provides a comprehensive CLI for Helios CLI application management with multiple execution backends:
 
 ### Architecture
 
