@@ -287,3 +287,105 @@ impl TokenBucket {
         self.last_refill = std::time::Instant::now();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Traces to: FR-HELIOS-SCALING-001 (default scaling config)
+    #[test]
+    fn scaling_config_default_is_within_bounds() {
+        let c = ScalingConfig::default();
+        assert!(c.min_instances <= c.max_instances);
+        assert!(c.scale_down_threshold < c.scale_up_threshold);
+    }
+
+    // Traces to: FR-HELIOS-SCALING-002 (sampler window + stats)
+    #[test]
+    fn resource_sampler_evicts_and_computes_stats() {
+        let mut s = ResourceSampler::new(3);
+        assert!(s.is_empty());
+        assert_eq!(s.average(), 0.0);
+        s.add(10.0);
+        s.add(20.0);
+        s.add(30.0);
+        s.add(40.0); // evicts oldest (10.0)
+        assert_eq!(s.len(), 3);
+        assert_eq!(s.average(), 30.0);
+        assert_eq!(s.max(), 40.0);
+        assert_eq!(s.min(), 20.0);
+    }
+
+    // Traces to: FR-HELIOS-SCALING-003 (predictive scaler)
+    #[test]
+    fn predictive_scaler_needs_two_samples() {
+        let mut p = PredictiveScaler::new(1);
+        assert_eq!(p.predict(), None);
+        p.add_sample(1.0);
+        assert_eq!(p.predict(), None);
+    }
+
+    // Traces to: FR-HELIOS-SCALING-003 (predictive scaler linear trend)
+    #[test]
+    fn predictive_scaler_extrapolates_linear_trend() {
+        let mut p = PredictiveScaler::new(1);
+        for v in [0.0, 1.0, 2.0, 3.0] {
+            p.add_sample(v);
+        }
+        // Perfect line y = x; next steps continue upward.
+        let predicted = p.predict().expect("prediction");
+        assert!(predicted > 3.0, "expected extrapolation beyond last sample, got {predicted}");
+    }
+
+    // Traces to: FR-HELIOS-SCALING-004 (replica hysteresis)
+    #[test]
+    fn calculate_replicas_scales_up_down_and_clamps() {
+        let c = ScalingConfig::default();
+        // High load -> scale up.
+        assert!(calculate_replicas(&c, 90.0, 90.0, 2) > 2);
+        // Low load -> scale down.
+        assert!(calculate_replicas(&c, 5.0, 5.0, 5) < 5);
+        // Mid load -> hold.
+        assert_eq!(calculate_replicas(&c, 25.0, 25.0, 4), 4);
+        // Clamp to max.
+        assert_eq!(calculate_replicas(&c, 100.0, 100.0, 100), c.max_instances);
+        // Clamp to min.
+        assert_eq!(calculate_replicas(&c, 0.0, 0.0, 1), c.min_instances);
+    }
+
+    // Traces to: FR-HELIOS-SCALING-005 (circuit breaker transitions)
+    #[test]
+    fn circuit_breaker_opens_after_threshold() {
+        let mut cb = CircuitBreaker::new(2);
+        assert_eq!(cb.state(), &CircuitState::Closed);
+        assert!(cb.is_available());
+        cb.record_failure();
+        assert!(cb.is_available());
+        cb.record_failure();
+        assert_eq!(cb.state(), &CircuitState::Open);
+        assert!(!cb.is_available());
+    }
+
+    // Traces to: FR-HELIOS-SCALING-005 (circuit breaker retry timeout)
+    #[test]
+    fn circuit_breaker_can_attempt_only_when_not_open() {
+        let mut cb = CircuitBreaker::new(1);
+        assert!(cb.can_attempt(60));
+        cb.record_failure();
+        assert_eq!(cb.state(), &CircuitState::Open);
+        // With a large retry timeout it cannot attempt yet.
+        assert!(!cb.can_attempt(3600));
+        // With a zero timeout the elapsed time already qualifies.
+        assert!(cb.can_attempt(0));
+    }
+
+    // Traces to: FR-HELIOS-SCALING-006 (token bucket rate limiting)
+    #[test]
+    fn token_bucket_drains_and_rejects_when_empty() {
+        let mut tb = TokenBucket::new(5.0, 0.0);
+        assert!(tb.try_acquire(3.0));
+        assert!(tb.try_acquire(2.0));
+        // Bucket empty and no refill rate -> reject.
+        assert!(!tb.try_acquire(1.0));
+    }
+}

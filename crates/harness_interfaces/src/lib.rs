@@ -98,3 +98,86 @@ pub trait Publisher: Send + Sync {
 pub trait Subscriber: Send + Sync {
     async fn on_event(&self, event: Event);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Traces to: FR-HELIOS-IFACE-001 (request builder)
+    #[test]
+    fn request_builder_sets_fields_and_unique_ids() {
+        let r = Request::new("GET", "/health")
+            .with_header("x-trace", "abc")
+            .with_body(b"ping".to_vec());
+        assert_eq!(r.method, "GET");
+        assert_eq!(r.path, "/health");
+        assert_eq!(r.headers.get("x-trace").map(String::as_str), Some("abc"));
+        assert_eq!(r.body.as_deref(), Some(b"ping".as_ref()));
+        assert!(!r.id.is_empty());
+
+        let other = Request::new("GET", "/health");
+        assert_ne!(r.id, other.id, "request ids must be unique");
+    }
+
+    // Traces to: FR-HELIOS-IFACE-002 (response constructors)
+    #[test]
+    fn response_constructors_carry_expected_status() {
+        assert_eq!(Response::ok().status, 200);
+        assert_eq!(Response::created().status, 201);
+        assert_eq!(Response::error(503).status, 503);
+    }
+
+    // Traces to: FR-HELIOS-IFACE-002 (response builder)
+    #[test]
+    fn response_builder_sets_header_and_body() {
+        let resp = Response::ok()
+            .with_header("content-type", "application/json")
+            .with_body(b"{}".to_vec());
+        assert_eq!(resp.headers.get("content-type").map(String::as_str), Some("application/json"));
+        assert_eq!(resp.body.as_deref(), Some(b"{}".as_ref()));
+    }
+
+    // Traces to: FR-HELIOS-IFACE-003 (event pub/sub payload)
+    #[test]
+    fn event_new_preserves_topic_and_payload() {
+        let e = Event::new("orders", vec![1, 2, 3]);
+        assert_eq!(e.topic, "orders");
+        assert_eq!(e.payload, vec![1, 2, 3]);
+        assert!(e.metadata.is_empty());
+    }
+
+    struct EchoHandler;
+    impl Handler for EchoHandler {
+        fn handle(&self, request: Request) -> Response {
+            Response::ok().with_header("echo-path", &request.path)
+        }
+    }
+
+    // Traces to: FR-HELIOS-IFACE-004 (handler trait)
+    #[test]
+    fn handler_trait_processes_request() {
+        let handler = EchoHandler;
+        let resp = handler.handle(Request::new("POST", "/echo"));
+        assert_eq!(resp.status, 200);
+        assert_eq!(resp.headers.get("echo-path").map(String::as_str), Some("/echo"));
+    }
+
+    struct CountingPublisher;
+    impl Publisher for CountingPublisher {
+        fn publish(&self, event: Event) -> Result<(), String> {
+            if event.topic.is_empty() {
+                Err("empty topic".to_string())
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    // Traces to: FR-HELIOS-IFACE-005 (publisher trait)
+    #[test]
+    fn publisher_trait_reports_errors() {
+        let pubr = CountingPublisher;
+        assert!(pubr.publish(Event::new("t", vec![])).is_ok());
+        assert!(pubr.publish(Event::new("", vec![])).is_err());
+    }
+}

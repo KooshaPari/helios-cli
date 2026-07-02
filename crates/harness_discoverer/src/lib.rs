@@ -75,3 +75,68 @@ impl Default for ServiceRegistry {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn svc(name: &str, healthy: bool) -> ServiceInfo {
+        ServiceInfo {
+            name: name.to_string(),
+            address: "127.0.0.1".to_string(),
+            port: 8080,
+            metadata: HashMap::new(),
+            healthy,
+        }
+    }
+
+    // Traces to: FR-HELIOS-DISCO-001 (register + get)
+    #[tokio::test]
+    async fn register_then_get_returns_service() {
+        let reg = ServiceRegistry::new();
+        reg.register(svc("api", true)).await;
+        let got = reg.get("api").await.expect("service present");
+        assert_eq!(got.name, "api");
+        assert_eq!(got.port, 8080);
+        assert!(reg.get("missing").await.is_none());
+    }
+
+    // Traces to: FR-HELIOS-DISCO-002 (unregister)
+    #[tokio::test]
+    async fn unregister_reports_removal() {
+        let reg = ServiceRegistry::new();
+        reg.register(svc("api", true)).await;
+        assert!(reg.unregister("api").await);
+        assert!(!reg.unregister("api").await);
+        assert!(reg.get("api").await.is_none());
+    }
+
+    // Traces to: FR-HELIOS-DISCO-003 (list + healthy filter)
+    #[tokio::test]
+    async fn list_and_healthy_filter() {
+        let reg = ServiceRegistry::new();
+        reg.register(svc("a", true)).await;
+        reg.register(svc("b", false)).await;
+        assert_eq!(reg.list().await.len(), 2);
+        let healthy = reg.healthy().await;
+        assert_eq!(healthy.len(), 1);
+        assert_eq!(healthy[0].name, "a");
+    }
+
+    // Traces to: FR-HELIOS-DISCO-004 (health toggle)
+    #[tokio::test]
+    async fn set_healthy_updates_existing_only() {
+        let reg = ServiceRegistry::new();
+        reg.register(svc("a", true)).await;
+        assert!(reg.set_healthy("a", false).await);
+        assert!(!reg.get("a").await.unwrap().healthy);
+        assert!(!reg.set_healthy("ghost", true).await);
+    }
+
+    // Traces to: FR-HELIOS-DISCO-005 (default constructor)
+    #[tokio::test]
+    async fn default_registry_starts_empty() {
+        let reg = ServiceRegistry::default();
+        assert!(reg.list().await.is_empty());
+    }
+}
