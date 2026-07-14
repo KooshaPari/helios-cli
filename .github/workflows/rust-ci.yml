@@ -50,11 +50,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: EmbarkStudios/cargo-deny-action@v2
 
-  # --- Gatherer: single required status check ----------------------------------
-  # NOTE: upstream Codex jobs (changed, general, cargo_shear, etc.) removed.
-  # Retained as empty stubs below so GitHub branch-protection rules that
-  # reference these names do not break during migration.
-  # TODO: remove stubs once branch protection is updated.
+  ci_contract:
+    name: Required CI contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Test required-check contract
+        run: python3 -m unittest discover -s .github/scripts -p 'test_verify_required_ci.py'
+      - name: Verify required-check contract
+        run: python3 .github/scripts/verify_required_ci.py
+
+  # --- Change-aware Codex checks ------------------------------------------------
 
   changed:
     name: Detect changed areas
@@ -276,6 +284,9 @@ jobs:
     name: CI results (required)
     needs:
       [
+        workspace,
+        deny,
+        ci_contract,
         changed,
         general,
         cargo_shear,
@@ -290,11 +301,21 @@ jobs:
         run: |
           echo "argpkg : ${{ needs.argument_comment_lint_package.result }}"
           echo "arglint: ${{ needs.argument_comment_lint_prebuilt.result }}"
+          echo "workspace: ${{ needs.workspace.result }}"
+          echo "deny     : ${{ needs.deny.result }}"
+          echo "contract : ${{ needs.ci_contract.result }}"
           echo "general: ${{ needs.general.result }}"
           echo "shear  : ${{ needs.cargo_shear.result }}"
 
+          [[ '${{ needs.workspace.result }}' == 'success' ]] || { echo 'workspace failed'; exit 1; }
+          [[ '${{ needs.deny.result }}' == 'success' ]] || { echo 'deny failed'; exit 1; }
+          [[ '${{ needs.ci_contract.result }}' == 'success' ]] || { echo 'ci_contract failed'; exit 1; }
+          [[ '${{ needs.changed.result }}' == 'success' ]] || { echo 'changed failed'; exit 1; }
+
           # If nothing relevant changed (PR touching only root README, etc.),
-          # declare success regardless of other jobs.
+          # only the change-aware Codex checks may be skipped. The workspace,
+          # dependency-policy, contract, and change-detection checks above are
+          # always required.
           if [[ "${NEEDS_CHANGED_OUTPUTS_ARGUMENT_COMMENT_LINT}" != 'true' && "${NEEDS_CHANGED_OUTPUTS_CODEX}" != 'true' && "${NEEDS_CHANGED_OUTPUTS_WORKFLOWS}" != 'true' ]]; then
             echo 'No relevant changes -> CI not required.'
             exit 0

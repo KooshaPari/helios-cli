@@ -28,14 +28,13 @@ jobs:
                   node-version: 22
 
             - name: Install dependencies
-              run: pnpm install --no-frozen-lockfile
+              run: pnpm install --frozen-lockfile
 
             # stage_npm_packages.py requires DotSlash when staging releases.
             - uses: facebook/install-dotslash@1e4e7b3e07eaca387acb98f1d4720e0bee8dbb6a
 
             - name: Stage npm package
               id: stage_npm_package
-              continue-on-error: true
               env:
                   GH_TOKEN: ${{ github.token }}
               run: |
@@ -51,7 +50,6 @@ jobs:
                   echo "pack_output=$PACK_OUTPUT" >> "$GITHUB_OUTPUT"
 
             - name: Upload staged npm package artifact
-              if: steps.stage_npm_package.outcome == 'success'
               uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v5.0.0
               with:
                   name: codex-npm-staging
