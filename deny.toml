@@ -25,6 +25,13 @@ allow = [
 [sources]
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 unknown-git = "deny"
+# kla (harness_recorder) pins phenotype rich-cli-kit for the recording summary panel.
+allow-git = ["https://github.com/KooshaPari/rich-cli-kit"]
 
 [advisories]
+version = 2
 ignore = []
+
+[bans]
+multiple-versions = "warn"
+wildcards = "warn"

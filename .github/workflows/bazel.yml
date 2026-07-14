@@ -2,12 +2,44 @@ name: Bazel
 
 # Note this workflow was originally derived from:
 # https://github.com/cerisier/toolchains_llvm_bootstrapped/blob/main/.github/workflows/ci.yaml
+#
+# Helios hard-fork (2026-07-14): `codex-rs/` is excluded from the active root
+# Cargo workspace. Bazel/self-hosted/BuildBuddy jobs stay DISABLED (if: false)
+# so harness-only green is not blocked. Re-enable by flipping job `if:` and/or
+# restoring PR/push triggers below. Do NOT mark Bazel as a required check.
 
 on:
-  pull_request: {}
+  # Path filters retained for documentation; jobs are gated with `if: false`.
+  pull_request:
+    paths:
+      - "codex-rs/**"
+      - "MODULE.bazel"
+      - "MODULE.bazel.lock"
+      - "third_party/**"
+      - ".bazelrc"
+      - ".bazelversion"
+      - "defs.bzl"
+      - ".github/workflows/bazel.yml"
+      - ".github/actions/prepare-bazel-ci/**"
+      - ".github/actions/setup-bazel-ci/**"
+      - ".github/scripts/run-bazel-ci.sh"
+      - ".github/scripts/rusty_v8_bazel.py"
   push:
     branches:
       - main
+    paths:
+      - "codex-rs/**"
+      - "MODULE.bazel"
+      - "MODULE.bazel.lock"
+      - "third_party/**"
+      - ".bazelrc"
+      - ".bazelversion"
+      - "defs.bzl"
+      - ".github/workflows/bazel.yml"
+      - ".github/actions/prepare-bazel-ci/**"
+      - ".github/actions/setup-bazel-ci/**"
+      - ".github/scripts/run-bazel-ci.sh"
+      - ".github/scripts/rusty_v8_bazel.py"
   workflow_dispatch:
 
 concurrency:
@@ -18,6 +50,8 @@ concurrency:
 
 jobs:
   test:
+    # Hard-fork: disabled until BuildBuddy/self-hosted Bazel runners are wired.
+    if: false
     # PRs use the sharded Windows cross-compiled test jobs below. Post-merge
     # pushes to main also run the native Windows test job for broader Windows
     # signal without putting PR latency back on the critical path. When
@@ -139,6 +173,8 @@ jobs:
         uses: ./.github/actions/check-clean-worktree
 
   test-windows-shard:
+    # Hard-fork: disabled (self-hosted Windows runners unavailable).
+    if: false
     # Split the Windows Bazel test leg across separate Windows hosts. Jobs with
     # BuildBuddy credentials use Linux RBE for build actions; test execution
     # remains on a Windows runner.
@@ -248,9 +284,8 @@ jobs:
         uses: ./.github/actions/check-clean-worktree
 
   test-windows:
-    # Preserve the existing required-check surface while the real work happens
-    # in the sharded Windows jobs above.
-    if: always()
+    # Hard-fork: disabled with the Windows shards (was `if: always()` aggregator).
+    if: false
     needs: test-windows-shard
     runs-on: ubuntu-24.04
     name: Bazel test on windows-latest for x86_64-pc-windows-gnullvm
@@ -265,10 +300,8 @@ jobs:
           fi
 
   test-windows-native-main:
-    # Native Windows Bazel tests are slower and frequently approach the
-    # 30-minute PR budget. Run this only for post-merge commits to main and give
-    # it a larger timeout.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Hard-fork: disabled (self-hosted Windows runners unavailable).
+    if: false
     timeout-minutes: 40
     runs-on:
       group: ${{ github.event.repository.name }}-runners
@@ -346,6 +379,8 @@ jobs:
         uses: ./.github/actions/check-clean-worktree
 
   clippy:
+    # Hard-fork: disabled until BuildBuddy/self-hosted Bazel runners are wired.
+    if: false
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -450,6 +485,8 @@ jobs:
         uses: ./.github/actions/check-clean-worktree
 
   verify-release-build:
+    # Hard-fork: disabled until BuildBuddy/self-hosted Bazel runners are wired.
+    if: false
     timeout-minutes: 30
     strategy:
       fail-fast: false

@@ -1,4 +1,8 @@
 name: cargo-deny
+# Helios hard-fork: run deny against the root harness workspace deny.toml
+# (allow-git includes rich-cli-kit for kla/harness_recorder). Prefer the
+# in-repo EmbarkStudios action over the phenotype reusable until that
+# workflow is confirmed green for this fork.
 on:
     pull_request:
     push:
@@ -6,4 +10,9 @@ on:
             - main
 jobs:
     cargo-deny:
-        uses: KooshaPari/phenotype-tooling/.github/workflows/reusable/cargo-deny.yml@main
+        name: cargo deny
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            - uses: actions/checkout@v4
+            - uses: EmbarkStudios/cargo-deny-action@v2
