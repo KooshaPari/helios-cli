@@ -45,6 +45,9 @@ Checklist semantics are evidence-based:
       termination, while failed spawns skip the exit wait because no process exists.
       Test: `tests/exec.test.ts` proves early stream closure remains pending until child exit and
       proves spawn failure cannot hang waiting for an exit event.
-      Evidence: focused `tests/exec.test.ts` passes. With the pinned Rust 1.95 debug binary, all four
-      real-binary abort cases pass; the non-aborted control remains a proper red at the unchanged
-      five-second Jest limit when debug startup exceeds that budget under host contention.
+      Evidence: focused `tests/exec.test.ts` passes 11/11. With the pinned Rust 1.95 debug binary,
+      full SDK Jest improves from 18/39 to 27/41 (25/39 when comparing the pre-existing tests) at
+      unchanged timeouts. `exec.test.ts` and `abort.test.ts` are fully green. The remaining 14 tests
+      are proper timeout reds under host contention: 11 non-streamed runs and three streamed runs,
+      each followed by a secondary Windows SQLite cleanup lock. No pinned binary process remains
+      after suite completion, so the evidence does not support another persistent-process leak.
