@@ -1,0 +1,95 @@
+# Dependabot configuration for helios-cli
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options
+
+version: 2
+
+# Enable security updates (auto-PR for known vulns) AND version updates (scheduled)
+# Security updates are auto-applied per GH defaults; this config also requests
+# weekly version-update PRs grouped per ecosystem.
+enable-beta-ecosystems: false
+
+updates:
+  # Rust workspace (helios-cli + phenotype-shared + ffi_utils)
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 8
+    labels:
+      - "dependencies"
+      - "rust"
+      - "security"
+    groups:
+      rust-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      rust-major:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+    ignore:
+      - dependency-name: "helios-cli"
+      - dependency-name: "phenotype-shared"
+
+  # Node.js / npm (helios-cli has package.json - likely codex-rs/web tooling)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:30"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "node"
+      - "security"
+    groups:
+      npm-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker base images (Dockerfile)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docker"
+      - "security"
+
+  # GitHub Actions (.github/workflows/*.yml)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:30"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "security"
+    groups:
+      actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
