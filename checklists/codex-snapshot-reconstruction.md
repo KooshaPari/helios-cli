@@ -14,9 +14,13 @@ Status: proper red; do not regenerate or accept dependency lockfiles yet.
   `4723d2c4c`; they are committed corruption, not a local merge in progress.
 - [x] The last OpenAI Codex commit returned before the import timestamp is
   `6d2168f06ae275d5e1f73cabf935d2bcc8549998` at `2026-06-26T08:27:41Z`.
-- [ ] Prove that commit is the imported source by comparing Git blob IDs for representative root,
-  Rust, workflow, and lock files. Network fetch and GitHub tree requests timed out on 2026-07-14,
-  so the commit remains the leading candidate rather than asserted provenance.
+- [x] Prove the timestamped source boundary. Commit
+  `6d2168f06ae275d5e1f73cabf935d2bcc8549998` supplies the exact imported
+  `pnpm-lock.yaml` blob (`2d4c6f34972b61e8336433ff7e6a6d2b35974df9`) and the Rust source families
+  added by the pseudo-merge. The pseudo-merge retained the older fork
+  `codex-rs/Cargo.toml`, committed conflict-marked Rust locks, and omitted 1,050 files that exist
+  in that source tree; those omissions explain the incoherent workspace without requiring a
+  newer upstream snapshot.
 
 ## Current deterministic failures
 
@@ -26,18 +30,24 @@ Status: proper red; do not regenerate or accept dependency lockfiles yet.
   `debug-client`, `cloud-requirements`, and `test-macros`.
 - [x] The interrupted local rewrite of `tools/argument-comment-lint/Cargo.lock` was reverted; it
   was a broad registry refresh unrelated to snapshot reconstruction.
-- [ ] Determine whether each missing member belongs to the timestamped upstream snapshot or is a
-  later manifest-only fork change.
-- [ ] Audit all workspace path dependencies and member manifests after restoring those sources.
-- [ ] Regenerate `codex-rs/Cargo.lock` only from the restored, coherent source/manifests.
-- [ ] Reconcile `pnpm-lock.yaml` against the timestamped root workspace and prove a frozen install.
+- [x] Determine whether each missing member belongs to the timestamped upstream snapshot or is a
+  later manifest-only fork change. `debug-client`, `cloud-requirements`, and `test-macros` are stale
+  entries in the retained fork manifest and do not exist in the timestamped source tree.
+- [x] Audit workspace members and path dependencies after restoring the omitted timestamped files;
+  locked Cargo metadata succeeds for the reconstructed workspace.
+- [x] Restore `codex-rs/Cargo.lock` from the exact timestamped source tree. This avoids inventing a
+  resolution from the incoherent retained manifest and preserves the upstream-tested lock graph.
+- [ ] Prove a frozen pnpm install. The lock blob already matches the timestamped source exactly, but
+  the 2026-07-14 local attempt timed out while `npm exec` tried to obtain pnpm; the installed Corepack
+  shim is also broken (`Cannot find module ...corepack/dist/pnpm.js`). CI remains the authoritative
+  frozen-install gate.
 
 ## Required acceptance gates
 
-- [ ] No merge markers in `codex-rs/Cargo.lock`, `tools/argument-comment-lint/Cargo.lock`, or
+- [x] No merge markers in `codex-rs/Cargo.lock`, `tools/argument-comment-lint/Cargo.lock`, or
   `pnpm-lock.yaml`.
-- [ ] `cargo metadata --locked --manifest-path codex-rs/Cargo.toml --no-deps` succeeds.
-- [ ] `cargo metadata --locked --manifest-path tools/argument-comment-lint/Cargo.toml --no-deps`
+- [x] `cargo metadata --locked --manifest-path codex-rs/Cargo.toml --no-deps` succeeds.
+- [x] `cargo metadata --locked --manifest-path tools/argument-comment-lint/Cargo.toml --no-deps`
   succeeds.
 - [ ] `pnpm install --frozen-lockfile` succeeds at the repository root.
 - [ ] The repository CI-contract tests pass.
