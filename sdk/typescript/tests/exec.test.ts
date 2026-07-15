@@ -44,6 +44,22 @@ function createEarlyExitChild(exitCode = 2): FakeChildProcess {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("CodexExec", () => {
+  it("normalizes a malformed Windows module URL", async () => {
+    const { toModuleFileUrl } = await import("../src/exec");
+
+    expect(toModuleFileUrl("file://C:\\workspace\\sdk\\dist\\index.js").href).toBe(
+      "file:///C:/workspace/sdk/dist/index.js",
+    );
+  });
+
+  it("preserves a valid POSIX module URL", async () => {
+    const { toModuleFileUrl } = await import("../src/exec");
+
+    expect(toModuleFileUrl("file:///opt/codex-sdk/dist/index.js").href).toBe(
+      "file:///opt/codex-sdk/dist/index.js",
+    );
+  });
+
   it("rejects when exit happens before stdout closes", async () => {
     const { CodexExec } = await import("../src/exec");
     const child = createEarlyExitChild();

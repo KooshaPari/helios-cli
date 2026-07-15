@@ -32,5 +32,11 @@ Checklist semantics are evidence-based:
       Code: `sdk/typescript/` plus its direct `@eslint/js` and `@jest/globals` tooling dependencies.
       Evidence: tracked SDK formatting issues fell from 4 to 0 under Oxfmt, SDK Prettier/build/lint pass,
       and the authoritative repository-wide Oxfmt count fell from 1,092 to 1,089 of 1,332 files.
-      The full format gate deliberately remains red on those 1,089 files. SDK Jest now starts but remains
-      a proper red on Windows because `createRequire` receives the malformed `file://C:\...` path.
+      The full format gate deliberately remains red on those 1,089 files.
+
+- [x] **FR-HELIOS-CI-005 — TypeScript SDK module URLs are normalized cross-platform.**
+      Code: `sdk/typescript/src/exec.ts` canonicalizes malformed Windows `file://C:\...` locations
+      before calling `createRequire` while preserving valid POSIX file URLs.
+      Evidence: `tests/exec.test.ts` covers both URL forms and passes 9/9 with SDK
+      Prettier/build/lint green. Full SDK Jest reaches integration execution and remains a proper red
+      only because `codex-rs/target/debug/codex` is absent from this no-Rust validation slice.
