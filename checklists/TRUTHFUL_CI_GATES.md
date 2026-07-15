@@ -37,6 +37,14 @@ Checklist semantics are evidence-based:
 - [x] **FR-HELIOS-CI-005 — TypeScript SDK module URLs are normalized cross-platform.**
       Code: `sdk/typescript/src/exec.ts` canonicalizes malformed Windows `file://C:\...` locations
       before calling `createRequire` while preserving valid POSIX file URLs.
-      Evidence: `tests/exec.test.ts` covers both URL forms and passes 9/9 with SDK
-      Prettier/build/lint green. Full SDK Jest reaches integration execution and remains a proper red
-      only because `codex-rs/target/debug/codex` is absent from this no-Rust validation slice.
+      Evidence: `tests/exec.test.ts` covers both URL forms and passes with SDK
+      Prettier/build/lint green.
+
+- [x] **FR-HELIOS-CI-006 — TypeScript SDK stream cleanup owns spawned-process termination.**
+      Code: `sdk/typescript/src/exec.ts` waits for the exact spawned process to exit after sending
+      termination, while failed spawns skip the exit wait because no process exists.
+      Test: `tests/exec.test.ts` proves early stream closure remains pending until child exit and
+      proves spawn failure cannot hang waiting for an exit event.
+      Evidence: focused `tests/exec.test.ts` passes. With the pinned Rust 1.95 debug binary, all four
+      real-binary abort cases pass; the non-aborted control remains a proper red at the unchanged
+      five-second Jest limit when debug startup exceeds that budget under host contention.

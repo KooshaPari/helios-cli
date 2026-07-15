@@ -17,6 +17,7 @@ const _actualChildProcess =
 const spawnMock = child_process.spawn as jest.MockedFunction<typeof _actualChildProcess.spawn>;
 
 class FakeChildProcess extends EventEmitter {
+  pid: number | undefined = 123;
   stdin = new PassThrough();
   stdout = new PassThrough();
   stderr = new PassThrough();
@@ -85,6 +86,52 @@ describe("CodexExec", () => {
       expect(result.error).toBeInstanceOf(Error);
       expect(result.error.message).toMatch(/Codex Exec exited/);
     }
+  });
+
+  it("waits for the spawned process to exit when the stream is closed", async () => {
+    const { CodexExec } = await import("../src/exec");
+    const child = new FakeChildProcess();
+    spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
+
+    const exec = new CodexExec("codex");
+    const generator = exec.run({ input: "hi" });
+    child.stdout.write("event\n");
+    await expect(generator.next()).resolves.toEqual({ value: "event", done: false });
+
+    let cleanupFinished = false;
+    const cleanupPromise = generator.return(undefined).then(() => {
+      cleanupFinished = true;
+    });
+    await delay(10);
+
+    expect(child.killed).toBe(true);
+    expect(cleanupFinished).toBe(false);
+
+    child.emit("exit", null, "SIGTERM");
+    await cleanupPromise;
+    expect(cleanupFinished).toBe(true);
+  });
+
+  it("does not wait for an exit event when spawning fails", async () => {
+    const { CodexExec } = await import("../src/exec");
+    const child = new FakeChildProcess();
+    child.pid = undefined;
+    spawnMock.mockReturnValue(child as unknown as child_process.ChildProcess);
+
+    setImmediate(() => {
+      child.emit("error", new Error("spawn failed"));
+      child.stdout.end();
+      child.stderr.end();
+    });
+
+    const exec = new CodexExec("codex");
+    const runPromise = (async () => {
+      for await (const _ of exec.run({ input: "hi" })) {
+        // no-op
+      }
+    })();
+
+    await expect(runPromise).rejects.toThrow("spawn failed");
   });
 
   it("places resume args before image args", async () => {

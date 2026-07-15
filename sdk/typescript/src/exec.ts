@@ -261,12 +261,19 @@ export class CodexExec {
       }
     } finally {
       rl.close();
-      child.removeAllListeners();
       try {
         if (!child.killed) child.kill();
       } catch {
         // ignore
       }
+      // `killed` only means that a termination signal was sent. Wait for the
+      // process itself to exit before releasing ownership so callers can
+      // safely clean up resources such as an isolated CODEX_HOME.
+      // A failed spawn has no process (and therefore no exit event) to await.
+      if (child.pid !== undefined) {
+        await exitPromise;
+      }
+      child.removeAllListeners();
     }
   }
 }
