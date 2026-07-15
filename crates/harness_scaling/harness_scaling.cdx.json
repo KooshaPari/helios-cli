@@ -1,0 +1,67 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.3",
+  "version": 1,
+  "serialNumber": "urn:uuid:6e48e9d2-c592-49f1-9411-6ab728b2d60f",
+  "metadata": {
+    "timestamp": "2026-06-28T19:27:38.274433000Z",
+    "tools": [
+      {
+        "vendor": "CycloneDX",
+        "name": "cargo-cyclonedx",
+        "version": "0.5.9"
+      }
+    ],
+    "authors": [
+      {
+        "name": "kooshapari"
+      }
+    ],
+    "component": {
+      "type": "library",
+      "bom-ref": "path+file:///Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli/crates/harness_scaling#0.2.1",
+      "author": "kooshapari",
+      "name": "harness_scaling",
+      "version": "0.2.1",
+      "description": "harness scaling — Phenotype infrastructure crate (HeliosCLI)",
+      "scope": "required",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "purl": "pkg:cargo/harness_scaling@0.2.1?download_url=file://.",
+      "externalReferences": [
+        {
+          "type": "documentation",
+          "url": "https://docs.rs/harness_scaling"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/KooshaPari/HeliosCLI"
+        }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "bom-ref": "path+file:///Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli/crates/harness_scaling#0.2.1 bin-target-0",
+          "name": "harness_scaling",
+          "version": "0.2.1",
+          "purl": "pkg:cargo/harness_scaling@0.2.1?download_url=file://.#src/lib.rs"
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "cdx:rustc:sbom:target:triple",
+        "value": "aarch64-apple-darwin"
+      }
+    ]
+  },
+  "components": [],
+  "dependencies": [
+    {
+      "ref": "path+file:///Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli/crates/harness_scaling#0.2.1"
+    }
+  ]
+}

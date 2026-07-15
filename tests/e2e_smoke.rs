@@ -11,7 +11,7 @@ fn smoke_binary_help_exits_ok() {
             "run",
             "--quiet",
             "--manifest-path",
-            "codex-rs/Cargo.toml",
+            "helios-cli/codex-rs/Cargo.toml",
             "-p",
             "codex-cli",
             "--",

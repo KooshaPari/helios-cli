@@ -30,6 +30,8 @@ members = [
     "crates/plugin-arch",
     # Centralised configuration
     "crates/helios_config",
+    # forge3 multi-agent daemon client
+    "crates/forge3_client",
 ]
 
 [workspace.package]

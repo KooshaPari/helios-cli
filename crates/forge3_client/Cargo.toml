@@ -1,0 +1,22 @@
+[package]
+name = "forge3_client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "forge3_client — JSON-RPC 2.0 client for the forge3d multi-agent daemon (HeliosCLI)"
+keywords = ["phenotype", "helios", "forge3", "daemon"]
+categories = ["development-tools"]
+authors.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
