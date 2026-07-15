@@ -3,7 +3,6 @@ resolver = "2"
 exclude = [
     "codex-rs",                            # Vendored Codex/Codex Rust workspace (separate root)
     "helios-rs",                           # Vendored helios-rs workspace (separate root)
-    "crates/harness_pyo3",                 # Excluded: path dep `phenotype-shared` is broken (should be `phenoShared`); fix before re-including
     "target",
 ]
 members = [
@@ -22,6 +21,7 @@ members = [
     "crates/harness_cache",
     "crates/harness_checkpoint",
     "crates/harness_discoverer",
+    "crates/harness_pyo3",
     "crates/harness_elicitation",
     "crates/harness_interfaces",
     "crates/harness_normalizer",
