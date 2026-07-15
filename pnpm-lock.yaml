@@ -29,6 +29,12 @@ importers:
 
   sdk/typescript:
     devDependencies:
+      '@eslint/js':
+        specifier: 9.36.0
+        version: 9.36.0
+      '@jest/globals':
+        specifier: 29.7.0
+        version: 29.7.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.26.0
         version: 1.26.0(zod@3.25.76)
