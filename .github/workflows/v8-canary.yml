@@ -53,6 +53,8 @@ concurrency:
 jobs:
   metadata:
     runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
     outputs:
       v8_version: ${{ steps.v8_version.outputs.version }}
       windows_source_required: ${{ steps.changes.outputs.windows_source_required }}
