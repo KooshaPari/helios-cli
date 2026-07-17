@@ -39,6 +39,10 @@ build:
 test:
     cargo test --workspace
 
+# Compile each Rust benchmark and execute it once without measuring performance
+bench-smoke:
+    cargo bench --manifest-path codex-rs/Cargo.toml -p codex-utils-image --bench prompt_images -- --test
+
 # Run clippy with warnings as errors
 lint:
     cargo clippy --workspace --all-targets -- -D warnings
