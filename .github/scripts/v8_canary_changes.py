@@ -31,13 +31,15 @@ def resolved_v8_version(cargo_lock: bytes) -> str:
 
 def windows_source_required(
     changed_files: set[str],
-    base_v8_version: str,
-    head_v8_version: str,
+    base_v8_version: str | None,
+    head_v8_version: str | None,
     *,
     force: bool = False,
 ) -> bool:
     return (
         force
+        or base_v8_version is None
+        or head_v8_version is None
         or base_v8_version != head_v8_version
         or not changed_files.isdisjoint(WINDOWS_SOURCE_BUILD_PATHS)
     )
@@ -47,10 +49,13 @@ def git_output(*args: str, root: Path = ROOT) -> bytes:
     return subprocess.check_output(["git", *args], cwd=root)
 
 
-def v8_version_at_revision(revision: str, *, root: Path = ROOT) -> str:
-    return resolved_v8_version(
-        git_output("show", f"{revision}:codex-rs/Cargo.lock", root=root)
-    )
+def v8_version_at_revision(revision: str, *, root: Path = ROOT) -> str | None:
+    try:
+        return resolved_v8_version(
+            git_output("show", f"{revision}:codex-rs/Cargo.lock", root=root)
+        )
+    except (UnicodeDecodeError, tomllib.TOMLDecodeError, KeyError, ValueError):
+        return None
 
 
 def merge_base(base: str, head: str, *, root: Path = ROOT) -> str:
@@ -88,7 +93,11 @@ def main() -> None:
         base_version = v8_version_at_revision(merge_base(args.base, args.head))
         head_version = v8_version_at_revision(args.head)
         required = windows_source_required(files, base_version, head_version)
-        if base_version != head_version:
+        if base_version is None:
+            reason = "unable to resolve v8 version at merge base"
+        elif head_version is None:
+            reason = "unable to resolve v8 version at head"
+        elif base_version != head_version:
             reason = f"v8 version changed from {base_version} to {head_version}"
         else:
             matched_paths = sorted(files & WINDOWS_SOURCE_BUILD_PATHS)

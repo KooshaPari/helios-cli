@@ -2,10 +2,12 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from v8_canary_changes import changed_files
 from v8_canary_changes import merge_base
 from v8_canary_changes import resolved_v8_version
+from v8_canary_changes import v8_version_at_revision
 from v8_canary_changes import windows_source_required
 
 
@@ -36,6 +38,16 @@ version = "149.2.0"
 
     def test_v8_version_change_requires_source_build(self) -> None:
         self.assertTrue(windows_source_required(set(), "149.2.0", "150.0.0"))
+
+    def test_unresolved_v8_version_requires_source_build(self) -> None:
+        self.assertTrue(windows_source_required(set(), None, "149.2.0"))
+
+    def test_invalid_cargo_lock_has_no_resolved_v8_version(self) -> None:
+        with mock.patch(
+            "v8_canary_changes.git_output",
+            return_value=b"<<<<<<< HEAD\n=======\n>>>>>>> upstream/main\n",
+        ):
+            self.assertIsNone(v8_version_at_revision("base"))
 
     def test_module_helper_change_requires_source_build(self) -> None:
         self.assertTrue(
