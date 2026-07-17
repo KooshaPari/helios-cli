@@ -1,0 +1,1045 @@
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	﻿2026-07-14T20:28:48.8116576Z ##[group]Run EmbarkStudios/cargo-deny-action@v2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8116880Z with:
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8117086Z   command: check
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8117298Z   arguments: --all-features
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8117529Z   manifest-path: ./Cargo.toml
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8117760Z   log-level: warn
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8117953Z   use-git-cli: false
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8118152Z ##[endgroup]
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:48.8241950Z ##[command]/usr/bin/docker run --name c3d22839587a2ac74af08e7390ae731510ba_0d8212 --label 08c3d2 --workdir /github/workspace --rm -e "INPUT_COMMAND" -e "INPUT_ARGUMENTS" -e "INPUT_COMMAND-ARGUMENTS" -e "INPUT_MANIFEST-PATH" -e "INPUT_LOG-LEVEL" -e "INPUT_RUST-VERSION" -e "INPUT_CREDENTIALS" -e "INPUT_SSH-KEY" -e "INPUT_SSH-KNOWN-HOSTS" -e "INPUT_USE-GIT-CLI" -e "HOME" -e "GITHUB_JOB" -e "GITHUB_REF" -e "GITHUB_SHA" -e "GITHUB_REPOSITORY" -e "GITHUB_REPOSITORY_OWNER" -e "GITHUB_REPOSITORY_OWNER_ID" -e "GITHUB_RUN_ID" -e "GITHUB_RUN_NUMBER" -e "GITHUB_RETENTION_DAYS" -e "GITHUB_RUN_ATTEMPT" -e "GITHUB_ACTOR_ID" -e "GITHUB_ACTOR" -e "GITHUB_WORKFLOW" -e "GITHUB_HEAD_REF" -e "GITHUB_BASE_REF" -e "GITHUB_EVENT_NAME" -e "GITHUB_SERVER_URL" -e "GITHUB_API_URL" -e "GITHUB_GRAPHQL_URL" -e "GITHUB_REF_NAME" -e "GITHUB_REF_PROTECTED" -e "GITHUB_REF_TYPE" -e "GITHUB_WORKFLOW_REF" -e "GITHUB_WORKFLOW_SHA" -e "GITHUB_REPOSITORY_ID" -e "GITHUB_TRIGGERING_ACTOR" -e "GITHUB_WORKSPACE" -e "GITHUB_ACTION" -e "GITHUB_EVENT_PATH" -e "GITHUB_ACTION_REPOSITORY" -e "GITHUB_ACTION_REF" -e "GITHUB_PATH" -e "GITHUB_ENV" -e "GITHUB_STEP_SUMMARY" -e "GITHUB_STATE" -e "GITHUB_OUTPUT" -e "RUNNER_OS" -e "RUNNER_ARCH" -e "RUNNER_NAME" -e "RUNNER_ENVIRONMENT" -e "RUNNER_TOOL_CACHE" -e "RUNNER_TEMP" -e "RUNNER_WORKSPACE" -e "ACTIONS_RUNTIME_URL" -e "ACTIONS_RUNTIME_TOKEN" -e "ACTIONS_CACHE_URL" -e "ACTIONS_RESULTS_URL" -e "ACTIONS_ORCHESTRATION_ID" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp":"/github/runner_temp" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v "/home/runner/work/helios-cli/helios-cli":"/github/workspace" 08c3d2:2839587a2ac74af08e7390ae731510ba  "" "" "" "" "--log-level" "warn" "--manifest-path" "./Cargo.toml" "--all-features" "check" ""
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4791016Z Default host: x86_64-unknown-linux-musl
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4801989Z error: override toolchain 'stable-x86_64-unknown-linux-musl' is not installed: the toolchain file at '/github/workspace/rust-toolchain.toml' specifies an uninstalled toolchain
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4802699Z rustup home:  /usr/local/rustup
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4802853Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4802955Z installed toolchains
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4803159Z --------------------
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4803385Z 1.85.0-x86_64-unknown-linux-musl (default)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4803562Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4803728Z active toolchain
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4803923Z ----------------
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.4871858Z info: syncing channel updates for 'stable-x86_64-unknown-linux-musl'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.6547428Z info: latest update on 2026-07-09, rust version 1.97.0 (2d8144b78 2026-07-07)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.6547972Z info: downloading component 'cargo'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.8418163Z info: downloading component 'clippy'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:49.9401253Z info: downloading component 'rust-std'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:50.2635675Z info: downloading component 'rustc'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:50.9510556Z info: downloading component 'rustfmt'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:51.0448003Z info: installing component 'cargo'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:52.0199690Z info: installing component 'clippy'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:52.4370390Z info: installing component 'rust-std'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:28:55.6950778Z info: installing component 'rustc'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:03.7426142Z info: installing component 'rustfmt'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:04.1281474Z info: the active toolchain `stable-x86_64-unknown-linux-musl` has been installed
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:04.1282427Z info: it's active because: overridden by '/github/workspace/rust-toolchain.toml'
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3021312Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3022402Z   [0m[36m┌─[0m ./deny.toml:8:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3022807Z   [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3023347Z [0m[36m8[0m [0m[36m│[0m     "[0m[33mBSD-3-Clause-Clear[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3024304Z   [0m[36m│[0m      [0m[33m━━━━━━━━━━━━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3024908Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3025439Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3026222Z    [0m[36m┌─[0m ./deny.toml:19:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3026647Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3027180Z [0m[36m19[0m [0m[36m│[0m     "[0m[33mBlueOak-1.0.0[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3028107Z    [0m[36m│[0m      [0m[33m━━━━━━━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3028687Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3029392Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3040018Z    [0m[36m┌─[0m ./deny.toml:10:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3040505Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3041019Z [0m[36m10[0m [0m[36m│[0m     "[0m[33mCC-BY-SA-4.0[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3041871Z    [0m[36m│[0m      [0m[33m━━━━━━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3042391Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3042887Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3043661Z   [0m[36m┌─[0m ./deny.toml:9:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3044078Z   [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3044555Z [0m[36m9[0m [0m[36m│[0m     "[0m[33mCC0-1.0[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3045333Z   [0m[36m│[0m      [0m[33m━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3045842Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3046404Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3047275Z    [0m[36m┌─[0m ./deny.toml:20:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3047711Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3048268Z [0m[36m20[0m [0m[36m│[0m     "[0m[33mCDLA-Permissive-2.0[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3049311Z    [0m[36m│[0m      [0m[33m━━━━━━━━━━━━━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3049887Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3050394Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3051684Z    [0m[36m┌─[0m ./deny.toml:11:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3052212Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3052829Z [0m[36m11[0m [0m[36m│[0m     "[0m[33mGPL-3.0-only[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3053472Z    [0m[36m│[0m      [0m[33m━━━━━━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3053794Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3054080Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3054507Z    [0m[36m┌─[0m ./deny.toml:12:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3054844Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3055109Z [0m[36m12[0m [0m[36m│[0m     "[0m[33mISC[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3055532Z    [0m[36m│[0m      [0m[33m━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3055782Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3056065Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3056542Z    [0m[36m┌─[0m ./deny.toml:14:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3056864Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3057293Z [0m[36m14[0m [0m[36m│[0m     "[0m[33mMPL-2.0[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3058069Z    [0m[36m│[0m      [0m[33m━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3058577Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3059071Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3060280Z    [0m[36m┌─[0m ./deny.toml:16:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3060753Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3061450Z [0m[36m16[0m [0m[36m│[0m     "[0m[33mUnicode-DFS-2016[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3063011Z    [0m[36m│[0m      [0m[33m━━━━━━━━━━━━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3063709Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3064348Z [0m[1m[38;5;11mwarning[license-not-encountered][0m[1m: license was not encountered[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3065302Z    [0m[36m┌─[0m ./deny.toml:22:6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3065960Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3066484Z [0m[36m22[0m [0m[36m│[0m     "[0m[33mWTFPL[0m",
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3067533Z    [0m[36m│[0m      [0m[33m━━━━━[0m [0m[33munmatched license allowance[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3068010Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3068663Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'bitflags'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3070034Z    [0m[36m┌─[0m /github/workspace/Cargo.lock:21:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3070571Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3071874Z [0m[36m21[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mbitflags 1.3.2 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3073604Z [0m[36m22[0m [0m[36m│[0m [0m[33m│[0m [0m[33mbitflags 2.13.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3075661Z    [0m[36m│[0m [0m[33m╰[0m[0m[33m─────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3076785Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3077198Z    [0m[36m├[0m bitflags v1.3.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3077917Z      ├── nix v0.25.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3078395Z      │   └── portable-pty v0.8.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3078863Z      │       └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3079442Z      ├── png v0.17.16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3079865Z      │   └── image v0.24.9
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3080356Z      │       └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3080848Z      └── portable-pty v0.8.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3081361Z    [0m[36m├[0m bitflags v2.13.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3082017Z      ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3082520Z      │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3082957Z      ├── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3083395Z      │   └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3083890Z      │       └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3084318Z      ├── git2 v0.20.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3084763Z      │   └── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3085353Z      │       ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3085971Z      │       └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3086511Z      ├── png v0.18.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3086919Z      │   └── image v0.25.10
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3087374Z      │       └── rck-core v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3087891Z      ├── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3088364Z      │   └── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3088835Z      ├── raw-cpuid v11.6.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3089392Z      │   └── pulp v0.22.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3089929Z      │       └── exr v1.74.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3090374Z      │           └── image v0.24.9
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3090833Z      │               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3091362Z      ├── redox_syscall v0.5.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3091907Z      │   └── parking_lot_core v0.9.12
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3092475Z      │       └── parking_lot v0.12.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3092996Z      │           ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3093637Z      │           ├── crossterm v0.28.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3094156Z      │           ├── moka v0.12.15
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3094745Z      │           │   └── harness_cache v0.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3095266Z      │           └── tokio v1.52.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3095854Z      │               ├── harness_cache v0.3.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3096574Z      │               ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3097206Z      │               ├── (dev) harness_discoverer v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3097834Z      │               ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3098592Z      │               ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3099154Z      │               ├── harness_runner v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3100106Z      │               ├── harness_spec v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3100712Z      │               │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3101393Z      │               │   ├── harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3102116Z      │               │   ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3102741Z      │               │   ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3103408Z      │               │   └── harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3104055Z      │               │       └── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3104722Z      │               ├── harness_teammates v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3105330Z      │               ├── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3105952Z      │               ├── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3106519Z      │               ├── rck-core v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3107048Z      │               ├── tokio-stream v0.1.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3107663Z      │               │   └── tokio-test v0.4.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3108370Z      │               │       ├── (dev) harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3109496Z      │               │       ├── (dev) harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3110253Z      │               │       ├── (dev) harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3110987Z      │               │       ├── (dev) harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3111688Z      │               │       ├── (dev) harness_spec v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3112383Z      │               │       ├── (dev) harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3113124Z      │               │       └── (dev) kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3113701Z      │               └── tokio-test v0.4.5 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3114262Z      ├── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3114731Z      │   └── crossterm v0.28.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3115172Z      └── rustix v1.1.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3115645Z          └── tempfile v3.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3116129Z              ├── arch_test v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3116657Z              ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3117254Z              ├── (dev) kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3117803Z              ├── (dev) plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3118339Z              ├── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3118842Z              └── rusty-fork v0.3.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3119462Z                  └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3119770Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3120303Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'crossterm'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3121231Z    [0m[36m┌─[0m /github/workspace/Cargo.lock:50:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3121822Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3122893Z [0m[36m50[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mcrossterm 0.27.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3124489Z [0m[36m51[0m [0m[36m│[0m [0m[33m│[0m [0m[33mcrossterm 0.28.1 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3126392Z    [0m[36m│[0m [0m[33m╰[0m[0m[33m──────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3127513Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3127951Z    [0m[36m├[0m crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3128424Z      └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3128835Z    [0m[36m├[0m crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3129486Z      └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3129949Z          └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3130189Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3130755Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'getrandom'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3131664Z    [0m[36m┌─[0m /github/workspace/Cargo.lock:80:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3132278Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3133212Z [0m[36m80[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mgetrandom 0.3.4 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3134767Z [0m[36m81[0m [0m[36m│[0m [0m[33m│[0m [0m[33mgetrandom 0.4.3 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3136705Z    [0m[36m│[0m [0m[33m╰[0m[0m[33m─────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3137880Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3138310Z    [0m[36m├[0m getrandom v0.3.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3138830Z      └── rand_core v0.9.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3139370Z          ├── rand v0.9.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3139892Z          │   └── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3140434Z          │       └── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3140929Z          ├── rand_chacha v0.9.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3141417Z          │   └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3141913Z          └── rand_xorshift v0.4.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3142424Z              └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3142985Z    [0m[36m├[0m getrandom v0.4.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3143520Z      ├── jobserver v0.1.35
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3143970Z      │   └── cc v1.2.67
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3144470Z      │       ├── (build) alloca v0.4.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3145067Z      │       │   └── criterion v0.8.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3145735Z      │       │       └── (dev) harness_cache v0.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3146384Z      │       ├── (build) iana-time-zone-haiku v0.1.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3147066Z      │       │   └── iana-time-zone v0.1.65
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3147619Z      │       │       └── chrono v0.4.45
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3148230Z      │       │           ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3148882Z      │       │           │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3149703Z      │       │           │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3150412Z      │       │           ├── harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3151143Z      │       │           ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3151884Z      │       │           ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3152567Z      │       │           ├── harness_spec v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3153228Z      │       │           │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3153945Z      │       │           │   ├── harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3154693Z      │       │           │   ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3155431Z      │       │           │   ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3156072Z      │       │           │   └── harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3156744Z      │       │           │       └── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3157509Z      │       │           └── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3158115Z      │       ├── (build) libgit2-sys v0.18.5+1.9.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3158655Z      │       │   └── git2 v0.20.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3159365Z      │       │       └── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3160022Z      │       ├── (build) libssh2-sys v0.3.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3160852Z      │       │   └── libgit2-sys v0.18.5+1.9.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3161450Z      │       ├── (build) libz-sys v1.1.29
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3162045Z      │       │   ├── libgit2-sys v0.18.5+1.9.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3162601Z      │       │   └── libssh2-sys v0.3.2 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3163167Z      │       └── (build) openssl-sys v0.9.117
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3163727Z      │           ├── git2 v0.20.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3164258Z      │           ├── libgit2-sys v0.18.5+1.9.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3164987Z      │           └── libssh2-sys v0.3.2 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3165493Z      ├── tempfile v3.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3165946Z      │   ├── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3166516Z      │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3167125Z      │   ├── (dev) kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3167601Z      │   ├── (dev) plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3168101Z      │   ├── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3168604Z      │   │   └── arch_test v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3169325Z      │   └── rusty-fork v0.3.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3169820Z      │       └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3170547Z      └── uuid v1.23.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3171000Z          ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3171526Z          ├── harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3172122Z          ├── harness_interfaces v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3172733Z          ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3173349Z          ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3173892Z          ├── harness_spec v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3174403Z          ├── harness_teammates v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3174977Z          ├── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3175511Z          └── moka v0.12.15
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3175985Z              └── harness_cache v0.3.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3176282Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3176862Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'gif'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3177846Z    [0m[36m┌─[0m /github/workspace/Cargo.lock:82:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3178408Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3179487Z [0m[36m82[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mgif 0.12.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3181047Z [0m[36m83[0m [0m[36m│[0m [0m[33m│[0m [0m[33mgif 0.13.3 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3182691Z    [0m[36m│[0m [0m[33m╰[0m[0m[33m────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3183956Z    [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3184416Z    [0m[36m├[0m gif v0.12.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3184871Z      └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3185277Z    [0m[36m├[0m gif v0.13.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3185791Z      └── image v0.24.9
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3186277Z          └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3186555Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3187149Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 1 wildcard dependency for crate 'harness_checkpoint'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3188628Z    [0m[36m┌─[0m /github/workspace/crates/harness_checkpoint/Cargo.toml:14:16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3189489Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3190124Z [0m[36m14[0m [0m[36m│[0m harness_spec = [0m[33m{ path = "../harness_spec" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3191334Z    [0m[36m│[0m                [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3192256Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3192746Z    [0m[36m├[0m harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3193334Z      ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3193851Z      └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3194127Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3194780Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 1 wildcard dependency for crate 'harness_elicitation'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3196099Z    [0m[36m┌─[0m /github/workspace/crates/harness_elicitation/Cargo.toml:14:16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3196784Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3197439Z [0m[36m14[0m [0m[36m│[0m harness_spec = [0m[33m{ path = "../harness_spec" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3198912Z    [0m[36m│[0m                [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3200045Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3200528Z    [0m[36m├[0m harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3200851Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3201508Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 3 wildcard dependencies for crate 'harness_orchestrator'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3202699Z    [0m[36m┌─[0m /github/workspace/crates/harness_orchestrator/Cargo.toml:14:16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3203529Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3204251Z [0m[36m14[0m [0m[36m│[0m harness_spec = [0m[33m{ path = "../harness_spec" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3205411Z    [0m[36m│[0m                [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3206602Z [0m[36m15[0m [0m[36m│[0m harness_checkpoint = [0m[33m{ path = "../harness_checkpoint" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3208072Z    [0m[36m│[0m                      [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3209469Z [0m[36m16[0m [0m[36m│[0m harness_verify = [0m[33m{ path = "../harness_verify" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3210682Z    [0m[36m│[0m                  [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3211586Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3212143Z    [0m[36m├[0m harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3212509Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3213171Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 2 wildcard dependencies for crate 'harness_rollback'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3214309Z    [0m[36m┌─[0m /github/workspace/crates/harness_rollback/Cargo.toml:14:16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3215079Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3215721Z [0m[36m14[0m [0m[36m│[0m harness_spec = [0m[33m{ path = "../harness_spec" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3216964Z    [0m[36m│[0m                [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3218273Z [0m[36m15[0m [0m[36m│[0m harness_checkpoint = [0m[33m{ path = "../harness_checkpoint" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3219737Z    [0m[36m│[0m                      [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3220696Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3221196Z    [0m[36m├[0m harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3221552Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3222153Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 1 wildcard dependency for crate 'harness_verify'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3223190Z    [0m[36m┌─[0m /github/workspace/crates/harness_verify/Cargo.toml:14:16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3223951Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3224707Z [0m[36m14[0m [0m[36m│[0m harness_spec = [0m[33m{ path = "../harness_spec" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3225998Z    [0m[36m│[0m                [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3227073Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3227557Z    [0m[36m├[0m harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3228179Z      └── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3228514Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3229086Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'image'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3230080Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:119:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3230692Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3231641Z [0m[36m119[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mimage 0.24.9 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3233173Z [0m[36m120[0m [0m[36m│[0m [0m[33m│[0m [0m[33mimage 0.25.10 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3234935Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m───────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3236087Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3236554Z     [0m[36m├[0m image v0.24.9
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3237235Z       └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3237656Z     [0m[36m├[0m image v0.25.10
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3238128Z       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3238603Z           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3238865Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3239516Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 1 wildcard dependency for crate 'kla'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3240614Z    [0m[36m┌─[0m /github/workspace/crates/harness_recorder/Cargo.toml:52:12
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3241309Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3242455Z [0m[36m52[0m [0m[36m│[0m rck-core = [0m[33m{ git = "https://github.com/KooshaPari/rich-cli-kit", rev = "4db13bcd7ab1ed1c8113cf755178da418ae6a519" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3245102Z    [0m[36m│[0m            [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3246696Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3247119Z    [0m[36m├[0m kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3247423Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3248115Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'linux-raw-sys'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3249096Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:138:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3249744Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3250719Z [0m[36m138[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mlinux-raw-sys 0.4.15 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3252275Z [0m[36m139[0m [0m[36m│[0m [0m[33m│[0m [0m[33mlinux-raw-sys 0.12.1 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3254168Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m──────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3255321Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3255876Z     [0m[36m├[0m linux-raw-sys v0.4.15
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3256579Z       └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3257116Z           └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3257659Z               └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3258202Z                   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3258733Z     [0m[36m├[0m linux-raw-sys v0.12.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3259353Z       └── rustix v1.1.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3259842Z           └── tempfile v3.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3260324Z               ├── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3260895Z               ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3261615Z               │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3262236Z               │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3262864Z               ├── (dev) kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3263403Z               ├── (dev) plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3263920Z               ├── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3264423Z               │   └── arch_test v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3264973Z               └── rusty-fork v0.3.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3265596Z                   └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3266216Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3266757Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'mio'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3267694Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:147:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3268220Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3269357Z [0m[36m147[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mmio 0.8.11 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3270893Z [0m[36m148[0m [0m[36m│[0m [0m[33m│[0m [0m[33mmio 1.2.2 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3272608Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m───────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3273645Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3274138Z     [0m[36m├[0m mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3274715Z       ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3275230Z       │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3275696Z       └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3276248Z           ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3276734Z           └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3277273Z               └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3277746Z                   └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3278261Z     [0m[36m├[0m mio v1.2.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3278759Z       ├── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3279346Z       │   └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3279826Z       │       └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3280367Z       ├── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3280872Z       │   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3281391Z       │   │   └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3281956Z       │   └── crossterm v0.28.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3282476Z       └── tokio v1.52.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3282940Z           ├── harness_cache v0.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3283497Z           ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3284165Z           │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3284870Z           │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3285509Z           ├── (dev) harness_discoverer v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3286050Z           ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3286689Z           ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3287239Z           ├── harness_runner v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3287770Z           ├── harness_spec v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3288399Z           │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3289020Z           │   ├── harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3289723Z           │   ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3290339Z           │   ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3290966Z           │   └── harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3291597Z           │       └── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3292252Z           ├── harness_teammates v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3293161Z           ├── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3293644Z           ├── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3294220Z           ├── rck-core v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3294808Z           ├── tokio-stream v0.1.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3295399Z           │   └── tokio-test v0.4.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3295975Z           │       ├── (dev) harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3296718Z           │       ├── (dev) harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3297460Z           │       ├── (dev) harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3298216Z           │       ├── (dev) harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3298904Z           │       ├── (dev) harness_spec v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3299795Z           │       ├── (dev) harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3300486Z           │       └── (dev) kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3301091Z           └── tokio-test v0.4.5 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3301453Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3302151Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 1 wildcard dependency for crate 'plugin-arch'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3303453Z    [0m[36m┌─[0m /github/workspace/crates/plugin-arch/Cargo.toml:18:16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3304124Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3304834Z [0m[36m18[0m [0m[36m│[0m pheno-plugin = [0m[33m{ path = "../pheno-plugin" }[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3306174Z    [0m[36m│[0m                [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3307111Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3307623Z    [0m[36m├[0m plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3308002Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3308564Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'png'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3309644Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:174:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3310256Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3311370Z [0m[36m174[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mpng 0.17.16 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3312869Z [0m[36m175[0m [0m[36m│[0m [0m[33m│[0m [0m[33mpng 0.18.1 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3314696Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3315839Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3316342Z     [0m[36m├[0m png v0.17.16
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3316841Z       └── image v0.24.9
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3317260Z           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3317749Z     [0m[36m├[0m png v0.18.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3318244Z       └── image v0.25.10
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3318708Z           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3319380Z               └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3319639Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3320212Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'r-efi'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3321124Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:188:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3321787Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3322889Z [0m[36m188[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mr-efi 5.3.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3324530Z [0m[36m189[0m [0m[36m│[0m [0m[33m│[0m [0m[33mr-efi 6.0.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3326346Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m─────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3327565Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3328060Z     [0m[36m├[0m r-efi v5.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3328534Z       └── getrandom v0.3.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3328973Z           └── rand_core v0.9.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3330360Z               ├── rand v0.9.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3330852Z               │   └── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3331474Z               │       └── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3332093Z               ├── rand_chacha v0.9.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3332892Z               │   └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3333476Z               └── rand_xorshift v0.4.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3334141Z                   └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3334715Z     [0m[36m├[0m r-efi v6.0.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3335271Z       └── getrandom v0.4.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3335709Z           ├── jobserver v0.1.35
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3336157Z           │   └── cc v1.2.67
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3336640Z           │       ├── (build) alloca v0.4.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3337187Z           │       │   └── criterion v0.8.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3337814Z           │       │       └── (dev) harness_cache v0.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3338449Z           │       ├── (build) iana-time-zone-haiku v0.1.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3339072Z           │       │   └── iana-time-zone v0.1.65
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3339857Z           │       │       └── chrono v0.4.45
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3340511Z           │       │           ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3341287Z           │       │           │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3342141Z           │       │           │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3342858Z           │       │           ├── harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3343664Z           │       │           ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3344472Z           │       │           ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3345226Z           │       │           ├── harness_spec v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3345981Z           │       │           │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3346750Z           │       │           │   ├── harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3347471Z           │       │           │   ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3348190Z           │       │           │   ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3348901Z           │       │           │   └── harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3349756Z           │       │           │       └── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3350453Z           │       │           └── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3351165Z           │       ├── (build) libgit2-sys v0.18.5+1.9.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3351744Z           │       │   └── git2 v0.20.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3352305Z           │       │       └── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3352961Z           │       ├── (build) libssh2-sys v0.3.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3353665Z           │       │   └── libgit2-sys v0.18.5+1.9.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3354325Z           │       ├── (build) libz-sys v1.1.29
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3354908Z           │       │   ├── libgit2-sys v0.18.5+1.9.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3355474Z           │       │   └── libssh2-sys v0.3.2 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3356019Z           │       └── (build) openssl-sys v0.9.117
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3356575Z           │           ├── git2 v0.20.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3357209Z           │           ├── libgit2-sys v0.18.5+1.9.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3358137Z           │           └── libssh2-sys v0.3.2 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3358800Z           ├── tempfile v3.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3359467Z           │   ├── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3360019Z           │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3360554Z           │   ├── (dev) kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3361053Z           │   ├── (dev) plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3361547Z           │   ├── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3362048Z           │   │   └── arch_test v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3362524Z           │   └── rusty-fork v0.3.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3363072Z           │       └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3363563Z           └── uuid v1.23.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3364099Z               ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3364727Z               ├── harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3365328Z               ├── harness_interfaces v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3365927Z               ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3366564Z               ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3367434Z               ├── harness_spec v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3368033Z               ├── harness_teammates v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3368572Z               ├── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3369088Z               └── moka v0.12.15
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3369928Z                   └── harness_cache v0.3.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3370311Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3370766Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'rustix'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3371590Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:208:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3371990Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3372892Z [0m[36m208[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mrustix 0.38.44 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3374501Z [0m[36m209[0m [0m[36m│[0m [0m[33m│[0m [0m[33mrustix 1.1.4 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3376065Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m──────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3377078Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3377513Z     [0m[36m├[0m rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3377993Z       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3378455Z           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3485976Z               └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3486548Z     [0m[36m├[0m rustix v1.1.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3487046Z       └── tempfile v3.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3487499Z           ├── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3487996Z           ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3488574Z           │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3489152Z           │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3489833Z           ├── (dev) kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3490316Z           ├── (dev) plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3490856Z           ├── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3491337Z           │   └── arch_test v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3491943Z           └── rusty-fork v0.3.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3492410Z               └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3492737Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3493237Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'thiserror'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3494077Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:245:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3494582Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3495584Z [0m[36m245[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mthiserror 1.0.69 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3497040Z [0m[36m246[0m [0m[36m│[0m [0m[33m│[0m [0m[33mthiserror 2.0.18 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3498634Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m──────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3499985Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3500416Z     [0m[36m├[0m thiserror v1.0.69
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3501050Z       ├── filedescriptor v0.8.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3501537Z       │   └── portable-pty v0.8.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3502001Z       │       └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3502464Z       ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3502978Z       │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3503591Z       │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3504103Z       ├── harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3504618Z       ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3505148Z       ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3505629Z       ├── harness_runner v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3506096Z       ├── harness_spec v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3506572Z       │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3507140Z       │   ├── harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3507699Z       │   ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3508270Z       │   ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3508794Z       │   └── harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3511667Z       │       └── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3512329Z       ├── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3512827Z       ├── helios_config v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3513119Z       ├── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3513367Z       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3513622Z           └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3513894Z     [0m[36m├[0m thiserror v2.0.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3514179Z       ├── harness_cache v0.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3514451Z       ├── harness_normalizer v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3514727Z       ├── harness_queue v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3514989Z       ├── harness_schema v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3515261Z       ├── harness_teammates v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3515536Z       ├── harness_utils v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3515804Z       ├── pheno-plugin v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3516097Z       │   └── plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3516369Z       └── plugin-arch v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3516527Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3516861Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'thiserror-impl'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3517381Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:247:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3517698Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3518272Z [0m[36m247[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mthiserror-impl 1.0.69 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3519129Z [0m[36m248[0m [0m[36m│[0m [0m[33m│[0m [0m[33mthiserror-impl 2.0.18 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3520907Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m───────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3521932Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3522364Z     [0m[36m├[0m thiserror-impl v1.0.69
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3523113Z       └── thiserror v1.0.69
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3523622Z           ├── filedescriptor v0.8.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3524149Z           │   └── portable-pty v0.8.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3524604Z           │       └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3525093Z           ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3525637Z           │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3526178Z           │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3526727Z           ├── harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3527282Z           ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3527814Z           ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3528325Z           ├── harness_runner v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3528821Z           ├── harness_spec v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3529490Z           │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3530062Z           │   ├── harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3530666Z           │   ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3531252Z           │   ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3531977Z           │   └── harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3532531Z           │       └── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3533098Z           ├── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3533608Z           ├── helios_config v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3534096Z           ├── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3534560Z           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3535013Z               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3535558Z     [0m[36m├[0m thiserror-impl v2.0.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3536091Z       └── thiserror v2.0.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3536533Z           ├── harness_cache v0.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3537026Z           ├── harness_normalizer v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3537539Z           ├── harness_queue v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3538043Z           ├── harness_schema v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3538579Z           ├── harness_teammates v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3539182Z           ├── harness_utils v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3539808Z           ├── pheno-plugin v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3540260Z           │   └── plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3540761Z           └── plugin-arch v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3541044Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3541603Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'unicode-width'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3542473Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:269:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3543027Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3544048Z [0m[36m269[0m [0m[36m│[0m [0m[33m╭[0m [0m[33municode-width 0.1.14 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3545614Z [0m[36m270[0m [0m[36m│[0m [0m[33m│[0m [0m[33municode-width 0.2.2 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3547264Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m─────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3548257Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3548724Z     [0m[36m├[0m unicode-width v0.1.14
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3549325Z       └── vt100 v0.15.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3549729Z           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3550180Z     [0m[36m├[0m unicode-width v0.2.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3550616Z       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3551032Z           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3551256Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3551777Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 3 duplicate entries for crate 'windows-sys'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3552625Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:301:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3553171Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3554073Z [0m[36m301[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows-sys 0.48.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3555577Z [0m[36m302[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows-sys 0.59.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3557242Z [0m[36m303[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows-sys 0.61.2 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3558897Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3560048Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3560477Z     [0m[36m├[0m windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3560967Z       └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3561379Z           ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3561832Z           │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3562398Z           └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3562916Z               ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3563410Z               └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3563879Z                   └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3564361Z                       └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3564861Z     [0m[36m├[0m windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3565347Z       └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3565761Z           └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3566401Z               └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3566844Z                   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3567311Z     [0m[36m├[0m windows-sys v0.61.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3567793Z       ├── anstyle-query v1.1.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3568240Z       │   └── anstream v1.0.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3568691Z       │       └── clap_builder v4.6.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3569169Z       │           └── clap v4.6.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3569809Z       │               ├── criterion v0.8.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3570411Z       │               │   └── (dev) harness_cache v0.3.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3570981Z       │               └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3571449Z       ├── anstyle-wincon v3.0.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3571924Z       │   └── anstream v1.0.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3572370Z       ├── errno v0.3.14
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3572787Z       │   ├── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3573289Z       │   │   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3573832Z       │   │       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3574329Z       │   │           └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3574824Z       │   ├── rustix v1.1.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3575268Z       │   │   └── tempfile v3.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3575759Z       │   │       ├── arch_test v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3576318Z       │   │       ├── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3576931Z       │   │       │   ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3577490Z       │   │       │   └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3578047Z       │   │       ├── (dev) kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3578573Z       │   │       ├── (dev) plugin-arch v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3579089Z       │   │       ├── proptest v1.11.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3579720Z       │   │       │   └── arch_test v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3580262Z       │   │       └── rusty-fork v0.3.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3581023Z       │   │           └── proptest v1.11.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3581584Z       │   └── signal-hook-registry v1.4.8
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3582157Z       │       ├── signal-hook v0.3.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3582662Z       │       │   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3583183Z       │       │   │   └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3583700Z       │       │   ├── crossterm v0.28.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3584237Z       │       │   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3584799Z       │       │       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3585352Z       │       │       └── crossterm v0.28.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3585862Z       │       └── tokio v1.52.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3586314Z       │           ├── harness_cache v0.3.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3586869Z       │           ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3587479Z       │           ├── (dev) harness_discoverer v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3588107Z       │           ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3588706Z       │           ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3589374Z       │           ├── harness_runner v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3590091Z       │           ├── harness_spec v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3590682Z       │           │   ├── harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3591284Z       │           │   ├── harness_elicitation v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3591926Z       │           │   ├── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3592526Z       │           │   ├── harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3593084Z       │           │   └── harness_verify v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3593710Z       │           │       └── harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3594312Z       │           ├── harness_teammates v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3594861Z       │           ├── harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3595380Z       │           ├── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3595880Z       │           ├── rck-core v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3596421Z       │           ├── tokio-stream v0.1.18
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3597012Z       │           │   └── tokio-test v0.4.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3597650Z       │           │       ├── (dev) harness_checkpoint v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3598326Z       │           │       ├── (dev) harness_elicitation v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3598999Z       │           │       ├── (dev) harness_orchestrator v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3599772Z       │           │       ├── (dev) harness_rollback v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3600420Z       │           │       ├── (dev) harness_spec v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3601052Z       │           │       ├── (dev) harness_verify v0.2.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3601642Z       │           │       └── (dev) kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3602188Z       │           └── tokio-test v0.4.5 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3602693Z       ├── is-terminal v0.4.17
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3603153Z       │   └── env_logger v0.10.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3603584Z       │       └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3604049Z       ├── mio v1.2.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3604466Z       │   ├── crossterm v0.28.1 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3604978Z       │   ├── signal-hook-mio v0.2.5 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3605475Z       │   └── tokio v1.52.3 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3605947Z       ├── nu-ansi-term v0.50.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3606443Z       │   └── tracing-subscriber v0.3.23
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3606918Z       │       └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3607377Z       ├── rustix v1.1.4 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3607828Z       ├── socket2 v0.6.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3608246Z       │   └── tokio v1.52.3 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3608690Z       ├── tempfile v3.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3609131Z       ├── tokio v1.52.3 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3609658Z       └── winapi-util v0.1.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3610111Z           ├── same-file v1.0.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3610561Z           │   └── walkdir v2.5.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3610992Z           │       ├── arch_test v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3611529Z           │       └── criterion v0.8.2 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3612208Z           ├── termcolor v1.4.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3612681Z           │   └── env_logger v0.10.2 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3613167Z           └── walkdir v2.5.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3613424Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3613934Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows-targets'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3614817Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:304:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3615347Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3616350Z [0m[36m304[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows-targets 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3617857Z [0m[36m305[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows-targets 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3619640Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3620743Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3621184Z     [0m[36m├[0m windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3621791Z       └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3622243Z           └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3622662Z               ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3623177Z               │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3623700Z               └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3624222Z                   ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3624739Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3625238Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3625749Z                           └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3626308Z     [0m[36m├[0m windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3626810Z       └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3627308Z           └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3627740Z               └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3628235Z                   └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3628771Z                       └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3629062Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3629866Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows_aarch64_gnullvm'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3630938Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:306:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3631466Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3632469Z [0m[36m306[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows_aarch64_gnullvm 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3634053Z [0m[36m307[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows_aarch64_gnullvm 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3635891Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m────────────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3637057Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3637519Z     [0m[36m├[0m windows_aarch64_gnullvm v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3638248Z       └── windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3638802Z           └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3639370Z               └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3639843Z                   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3640355Z                   │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3640867Z                   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3641405Z                       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3641966Z                       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3642494Z                           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3643036Z                               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3643550Z     [0m[36m├[0m windows_aarch64_gnullvm v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3644102Z       └── windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3644572Z           └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3645026Z               └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3645494Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3646027Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3646706Z                           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3646994Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3647595Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows_aarch64_msvc'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3648483Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:308:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3648999Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3650116Z [0m[36m308[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows_aarch64_msvc 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3651660Z [0m[36m309[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows_aarch64_msvc 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3653345Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m─────────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3654460Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3654928Z     [0m[36m├[0m windows_aarch64_msvc v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3655463Z       └── windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3655953Z           └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3656394Z               └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3656790Z                   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3657304Z                   │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3657856Z                   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3658402Z                       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3658933Z                       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3659503Z                           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3660042Z                               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3660577Z     [0m[36m├[0m windows_aarch64_msvc v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3661097Z       └── windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3661549Z           └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3661981Z               └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3662533Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3663041Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3663536Z                           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3663825Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3664389Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows_i686_gnu'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3665256Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:310:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3665770Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3666716Z [0m[36m310[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows_i686_gnu 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3668170Z [0m[36m311[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows_i686_gnu 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3669933Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m─────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3671156Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3671588Z     [0m[36m├[0m windows_i686_gnu v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3672128Z       └── windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3672603Z           └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3673066Z               └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3673536Z                   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3673993Z                   │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3674523Z                   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3675068Z                       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3675594Z                       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3676170Z                           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3676701Z                               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3677224Z     [0m[36m├[0m windows_i686_gnu v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3677739Z       └── windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3678198Z           └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3678681Z               └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3679143Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3679966Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3680483Z                           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3680769Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3681330Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows_i686_msvc'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3682196Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:313:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3682710Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3683676Z [0m[36m313[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows_i686_msvc 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3685179Z [0m[36m314[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows_i686_msvc 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3686811Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m──────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3687862Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3688317Z     [0m[36m├[0m windows_i686_msvc v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3688832Z       └── windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3689459Z           └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3689917Z               └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3690374Z                   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3690858Z                   │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3691360Z                   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3691883Z                       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3692418Z                       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3692952Z                           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3693495Z                               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3694036Z     [0m[36m├[0m windows_i686_msvc v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3694557Z       └── windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3695211Z           └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3695672Z               └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3696172Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3696681Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3697144Z                           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3697427Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3697998Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows_x86_64_gnu'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3698866Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:315:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3699488Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3700453Z [0m[36m315[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows_x86_64_gnu 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3701902Z [0m[36m316[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows_x86_64_gnu 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3703566Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m───────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3704825Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3705297Z     [0m[36m├[0m windows_x86_64_gnu v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3705820Z       └── windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3706291Z           └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3706763Z               └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3707222Z                   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3707686Z                   │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3708210Z                   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3708752Z                       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3709412Z                       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3709944Z                           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3710486Z                               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3711035Z     [0m[36m├[0m windows_x86_64_gnu v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3711549Z       └── windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3712014Z           └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3712466Z               └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3712944Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3713441Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3713960Z                           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3714236Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3714853Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows_x86_64_gnullvm'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3715698Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:317:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3716215Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3717228Z [0m[36m317[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows_x86_64_gnullvm 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3718850Z [0m[36m318[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows_x86_64_gnullvm 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3720740Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m───────────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3721853Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3722315Z     [0m[36m├[0m windows_x86_64_gnullvm v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3722845Z       └── windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3723291Z           └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3723770Z               └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3724229Z                   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3724716Z                   │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3725233Z                   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3725800Z                       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3726333Z                       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3726858Z                           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3727362Z                               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3728143Z     [0m[36m├[0m windows_x86_64_gnullvm v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3728692Z       └── windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3729178Z           └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3729772Z               └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3730246Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3730715Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3731203Z                           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3731475Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3732070Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows_x86_64_msvc'[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3732964Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:319:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3733487Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3734484Z [0m[36m319[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows_x86_64_msvc 0.48.5 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3735978Z [0m[36m320[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows_x86_64_msvc 0.52.6 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3737701Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m────────────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3738921Z     [0m[36m│[0m  
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3739546Z     [0m[36m├[0m windows_x86_64_msvc v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3740069Z       └── windows-targets v0.48.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3740539Z           └── windows-sys v0.48.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3740989Z               └── mio v0.8.11
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3741515Z                   ├── crossterm v0.27.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3742001Z                   │   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3742557Z                   └── signal-hook-mio v0.2.5
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3743109Z                       ├── crossterm v0.27.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3743644Z                       └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3744162Z                           └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3744698Z                               └── kla v0.1.0 (*)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3745274Z     [0m[36m├[0m windows_x86_64_msvc v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3745803Z       └── windows-targets v0.52.6
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3746281Z           └── windows-sys v0.59.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3746832Z               └── rustix v0.38.44
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3747303Z                   └── crossterm v0.28.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3747756Z                       └── rck-core v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3748262Z                           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.3748553Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5589172Z [0m[1m[38;5;9merror[unsound][0m[1m: Potential undefined behavior when calling Remote::list()[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5591178Z    [0m[36m┌─[0m /github/workspace/Cargo.lock:84:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5592443Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5593198Z [0m[36m84[0m [0m[36m│[0m [0m[31mgit2 0.20.4 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5594110Z    [0m[36m│[0m [0m[31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[31munsound advisory detected[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5595014Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5595343Z    [0m[36m├[0m ID: RUSTSEC-2026-0183
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5595866Z    [0m[36m├[0m Advisory: https://rustsec.org/advisories/RUSTSEC-2026-0183
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5597941Z    [0m[36m├[0m When calling `Remote::list()` for a remote of a git repository, when that remote does not advertise any references, git2 passes a null pointer to the unsafe function `slice::from_raw_parts()`. Based on the safety section documentation of function, data must be non-null even for slices of length zero. Thus, the use of a null pointer leads to undefined behavior.
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5599862Z    [0m[36m├[0m Announcement: https://github.com/rust-lang/git2-rs/pull/1250
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5600566Z    [0m[36m├[0m Solution: Upgrade to >=0.21.0 (try `cargo update -p git2`)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5601042Z    [0m[36m├[0m git2 v0.20.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5601410Z      └── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5601781Z          ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5602349Z          └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5602562Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5603052Z [0m[1m[38;5;9merror[unsound][0m[1m: Potential undefined behavior with Signature from a buffer-created BlameHunk[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5603744Z    [0m[36m┌─[0m /github/workspace/Cargo.lock:84:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5604124Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5604688Z [0m[36m84[0m [0m[36m│[0m [0m[31mgit2 0.20.4 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5605595Z    [0m[36m│[0m [0m[31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[31munsound advisory detected[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5606140Z    [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5606447Z    [0m[36m├[0m ID: RUSTSEC-2026-0184
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5606945Z    [0m[36m├[0m Advisory: https://rustsec.org/advisories/RUSTSEC-2026-0184
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5609030Z    [0m[36m├[0m When a `Blame` is created via `Blame::blame_buffer()`, and a `BlameHunk` is retrieved, the pointers to the original author, original committer, final author, and final committer may be null if unavailable. The corresponding `BlameHunk` methods then create `Signature`s based on null pointers; attempting to access the data of the `Signature`s leads to dereferencing null pointers.
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5611024Z    [0m[36m├[0m Announcement: https://github.com/rust-lang/git2-rs/pull/1254
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5611648Z    [0m[36m├[0m Solution: Upgrade to >=0.21.0 (try `cargo update -p git2`)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5612122Z    [0m[36m├[0m git2 v0.20.4
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5612464Z      └── harness_checkpoint v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5612831Z          ├── harness_orchestrator v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5613201Z          └── harness_rollback v0.2.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5613405Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5613703Z [0m[1m[38;5;9merror[unmaintained][0m[1m: paste - no longer maintained[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5614276Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:164:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5614712Z     [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5615282Z [0m[36m164[0m [0m[36m│[0m [0m[31mpaste 1.0.15 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5616270Z     [0m[36m│[0m [0m[31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[31munmaintained advisory detected[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5616821Z     [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5617143Z     [0m[36m├[0m ID: RUSTSEC-2024-0436
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5617657Z     [0m[36m├[0m Advisory: https://rustsec.org/advisories/RUSTSEC-2024-0436
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5618553Z     [0m[36m├[0m The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5621105Z       that this project is not longer maintained as well as archived the repository
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5621567Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5621830Z       ## Possible Alternative(s)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5622384Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5622876Z       - [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5624298Z       - [`with_builtin_macros`]: crate providing a [superset of `paste`'s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5625426Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5625702Z       [`pastey`]: https://crates.io/crates/pastey
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5626162Z       [`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5626787Z     [0m[36m├[0m Announcement: https://github.com/dtolnay/paste
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5627296Z     [0m[36m├[0m Solution: No safe upgrade is available!
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5627709Z     [0m[36m├[0m paste v1.0.15
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5628049Z       └── pulp v0.22.3
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5628354Z           └── exr v1.74.2
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5628692Z               └── image v0.24.9
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5629160Z                   └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5629517Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5629839Z [0m[1m[38;5;9merror[unmaintained][0m[1m: `serial` crate is unmaintained[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5630392Z     [0m[36m┌─[0m /github/workspace/Cargo.lock:222:1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5630773Z     [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5631348Z [0m[36m222[0m [0m[36m│[0m [0m[31mserial 0.4.0 registry+https://github.com/rust-lang/crates.io-index[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5632264Z     [0m[36m│[0m [0m[31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[31munmaintained advisory detected[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5632819Z     [0m[36m│[0m
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5633134Z     [0m[36m├[0m ID: RUSTSEC-2017-0008
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5633634Z     [0m[36m├[0m Advisory: https://rustsec.org/advisories/RUSTSEC-2017-0008
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5634364Z     [0m[36m├[0m The [`serial`](https://crates.io/crates/serial) crate is no longer maintained.
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5634852Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5635087Z       Last release was on 2017-07-02.
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5635395Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5635616Z       ## Possible alternatives
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5635876Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5636193Z       Consider using an alternative, for instance the blocking librarys:
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5636585Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5636841Z       - [serial2](https://crates.io/crates/serial2)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5637250Z       - [serialport](https://crates.io/crates/serialport)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5637601Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5637838Z       or async alternatives:
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5638112Z       
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5638381Z       - [mio-serial](https://crates.io/crates/mio-serial)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5638854Z       - [tokio-serial](https://crates.io/crates/tokio-serial)
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5639688Z     [0m[36m├[0m Announcement: https://github.com/dcuddeback/serial-rs/issues/71
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5640290Z     [0m[36m├[0m Solution: No safe upgrade is available!
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5640719Z     [0m[36m├[0m serial v0.4.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5641064Z       └── portable-pty v0.8.1
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5641402Z           └── kla v0.1.0
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5641552Z 
+cargo deny	Run EmbarkStudios/cargo-deny-action@v2	2026-07-14T20:29:08.5676140Z advisories [31mFAILED[0m, bans [32mok[0m, licenses [32mok[0m, sources [32mok[0m
