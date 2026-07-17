@@ -28,6 +28,7 @@ jobs:
         uses: codespell-project/actions-codespell@8f01853be192eb0f849a5c7d721450e7a467c579 # v2.2
         with:
           ignore_words_file: .codespellignore
+          skip: .git*,*assets?chunks?*.js,*fragemented?commands?clone-playbook.html,*fragemented?commands?merged.html,*perf-results?attribution-hotspots-v2-20260223-031254?xctrace-traces?*
 
       - name: Check for a clean worktree
         if: always() && !cancelled()

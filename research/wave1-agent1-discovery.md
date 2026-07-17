@@ -51,7 +51,7 @@ Timestamp: 2026-02-22 (workspace local snapshot)
 - `API/research/opencode`
   - Branch: `dev`
   - Remote: `https://github.com/sst/opencode.git`
-  - Last commit: `070ced0b3` (`fix: revert hook try/catch that surpressed errors`, `2025-12-10`)
+  - Last commit: `070ced0b3` (`fix: revert hook try/catch that suppressed errors`, `2025-12-10`)
   - `git status --short` count: `0`
 
 - `API/research/goose`
