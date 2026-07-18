@@ -33,13 +33,13 @@ Notes:
 - At `--concurrency 1`, behavior is sequential and matches prior runs.
 - At `--concurrency > 1`, each iteration is a batch window over N parallel worker invocations.
 - Optional profile metadata:
-  - `--profile-name` (optional)
-  - `--profile-phase` (default: `measure`)
+    - `--profile-name` (optional)
+    - `--profile-phase` (default: `measure`)
 - A temporary `CODEX_HOME` is created per benchmark run.
 - In concurrent mode, each worker gets an isolated `CODEX_HOME` suffix under the same temp root.
 - OTEL metrics are exported to a local in-process HTTP collector via:
-  - `[analytics] enabled = true`
-  - `[otel] metrics_exporter = { otlp-http = { ..., protocol = "json" } }`
+    - `[analytics] enabled = true`
+    - `[otel] metrics_exporter = { otlp-http = { ..., protocol = "json" } }`
 - `--top-attach` enables `top(1)` PID sampling for each worker.
 - `--top-interval-ms` controls `top` sampling interval (default: `250` ms).
 - `--vmmap-snapshots` captures start/mid/end `vmmap -summary` snapshots.
@@ -53,36 +53,36 @@ Notes:
 
 All benchmark outputs should preserve these keys and units.
 
-| Scope | Key | Unit |
-|---|---|---|
-| `summary` | `latency_ms.{mean,p50,p95,min,max}` | `ms` |
-| `summary` | `throughput_runs_per_sec.{mean,p50,p95}` | `runs/s` |
-| `summary` | `max_rss_mb.{mean,p50,p95,min,max}` | `MB` |
-| `summary` | `user_cpu_sec.{mean,p50,p95}` | `sec` |
-| `summary` | `system_cpu_sec.{mean,p50,p95}` | `sec` |
-| `summary` | `cpu_pct.{mean,p50,p95}` | `percent` |
-| `summary` | `peak_open_fds.{mean,p50,p95,max}` | `count` |
-| `summary` | `peak_direct_children.{mean,p50,p95,max}` | `count` |
-| `summary` | `process_tree_sampled.peak_tree_rss_mb.{mean,p50,p95,max}` | `MB` |
-| `summary` | `process_tree_sampled.peak_tree_cpu_pct.{mean,p50,p95,max}` | `percent` |
-| `summary` | `process_tree_sampled.mean_tree_cpu_pct.{mean,p50,p95}` | `percent` |
-| `summary` | `worker_step_timings_ms.{build_cmd,spawn_proc,monitor_loop,communicate,parse_stats}.{mean,p50,p95}` | `ms` |
-| `summary` | `top_attach.sample_count.{mean,p50,p95}` | `samples` |
-| `summary` | `top_attach.peak_rss_mb.{mean,p50,p95,max}` | `MB` |
-| `summary` | `top_attach.mean_rss_mb.{mean,p50,p95}` | `MB` |
-| `summary` | `top_attach.peak_cpu_pct.{mean,p50,p95,max}` | `percent` |
-| `summary` | `top_attach.mean_cpu_pct.{mean,p50,p95}` | `percent` |
-| `summary` | `vmmap_snapshots.start_physical_footprint_mb.{mean,p50,p95}` | `MB` |
-| `summary` | `vmmap_snapshots.mid_physical_footprint_mb.{mean,p50,p95}` | `MB` |
-| `summary` | `vmmap_snapshots.end_physical_footprint_mb.{mean,p50,p95}` | `MB` |
-| `summary` | `xctrace.trace_count` | `count` |
-| `summary` | `xctrace.trace_paths` | `paths[]` |
-| `summary` | `xctrace.hotspots_top[]` | `frame, weight_ms, samples` |
-| `summary` | `otel_turn_action_stream.{turn_metric_points,action_metric_points,stream_metric_points}` | `points` |
-| `summary` | `queue_cancel_metrics` | `name->count` |
-| `summary` | `successful_runs_total`, `failed_runs_total` | `count` |
-| `runs[]` | `duration_ms`, `max_rss_mb` | `ms`, `MB` |
-| `runs[]` | `top_sample_count`, `top_peak_rss_mb`, `top_mean_rss_mb`, `top_peak_cpu_pct`, `top_mean_cpu_pct` | `samples`, `MB`, `MB`, `percent`, `percent` |
+| Scope     | Key                                                                                                 | Unit                                        |
+| --------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `summary` | `latency_ms.{mean,p50,p95,min,max}`                                                                 | `ms`                                        |
+| `summary` | `throughput_runs_per_sec.{mean,p50,p95}`                                                            | `runs/s`                                    |
+| `summary` | `max_rss_mb.{mean,p50,p95,min,max}`                                                                 | `MB`                                        |
+| `summary` | `user_cpu_sec.{mean,p50,p95}`                                                                       | `sec`                                       |
+| `summary` | `system_cpu_sec.{mean,p50,p95}`                                                                     | `sec`                                       |
+| `summary` | `cpu_pct.{mean,p50,p95}`                                                                            | `percent`                                   |
+| `summary` | `peak_open_fds.{mean,p50,p95,max}`                                                                  | `count`                                     |
+| `summary` | `peak_direct_children.{mean,p50,p95,max}`                                                           | `count`                                     |
+| `summary` | `process_tree_sampled.peak_tree_rss_mb.{mean,p50,p95,max}`                                          | `MB`                                        |
+| `summary` | `process_tree_sampled.peak_tree_cpu_pct.{mean,p50,p95,max}`                                         | `percent`                                   |
+| `summary` | `process_tree_sampled.mean_tree_cpu_pct.{mean,p50,p95}`                                             | `percent`                                   |
+| `summary` | `worker_step_timings_ms.{build_cmd,spawn_proc,monitor_loop,communicate,parse_stats}.{mean,p50,p95}` | `ms`                                        |
+| `summary` | `top_attach.sample_count.{mean,p50,p95}`                                                            | `samples`                                   |
+| `summary` | `top_attach.peak_rss_mb.{mean,p50,p95,max}`                                                         | `MB`                                        |
+| `summary` | `top_attach.mean_rss_mb.{mean,p50,p95}`                                                             | `MB`                                        |
+| `summary` | `top_attach.peak_cpu_pct.{mean,p50,p95,max}`                                                        | `percent`                                   |
+| `summary` | `top_attach.mean_cpu_pct.{mean,p50,p95}`                                                            | `percent`                                   |
+| `summary` | `vmmap_snapshots.start_physical_footprint_mb.{mean,p50,p95}`                                        | `MB`                                        |
+| `summary` | `vmmap_snapshots.mid_physical_footprint_mb.{mean,p50,p95}`                                          | `MB`                                        |
+| `summary` | `vmmap_snapshots.end_physical_footprint_mb.{mean,p50,p95}`                                          | `MB`                                        |
+| `summary` | `xctrace.trace_count`                                                                               | `count`                                     |
+| `summary` | `xctrace.trace_paths`                                                                               | `paths[]`                                   |
+| `summary` | `xctrace.hotspots_top[]`                                                                            | `frame, weight_ms, samples`                 |
+| `summary` | `otel_turn_action_stream.{turn_metric_points,action_metric_points,stream_metric_points}`            | `points`                                    |
+| `summary` | `queue_cancel_metrics`                                                                              | `name->count`                               |
+| `summary` | `successful_runs_total`, `failed_runs_total`                                                        | `count`                                     |
+| `runs[]`  | `duration_ms`, `max_rss_mb`                                                                         | `ms`, `MB`                                  |
+| `runs[]`  | `top_sample_count`, `top_peak_rss_mb`, `top_mean_rss_mb`, `top_peak_cpu_pct`, `top_mean_cpu_pct`    | `samples`, `MB`, `MB`, `percent`, `percent` |
 
 ## Swarm Profiles
 
@@ -211,20 +211,20 @@ Reference runs:
 Proposed initial thresholds:
 
 - Cold start (`codex --help`, concurrency `1`)
-  - `failed_runs_total == 0`
-  - `latency_ms.p95 <= 1000`
-  - `throughput_runs_per_sec.mean >= 2.0`
-  - `peak_open_fds.mean <= 6`
+    - `failed_runs_total == 0`
+    - `latency_ms.p95 <= 1000`
+    - `throughput_runs_per_sec.mean >= 2.0`
+    - `peak_open_fds.mean <= 6`
 - Swarm throughput (`codex --help`, concurrency `6`)
-  - `failed_runs_total == 0`
-  - `latency_ms.p95 <= 1200`
-  - `throughput_runs_per_sec.mean >= 8.0`
-  - `peak_open_fds.mean <= 6`
+    - `failed_runs_total == 0`
+    - `latency_ms.p95 <= 1200`
+    - `throughput_runs_per_sec.mean >= 8.0`
+    - `peak_open_fds.mean <= 6`
 - Real exec (`codex exec`, concurrency `1`)
-  - `failed_runs_total == 0`
-  - `latency_ms.p95 <= 8000`
-  - `throughput_runs_per_sec.mean >= 0.14`
-  - `peak_direct_children.mean <= 1.5`
+    - `failed_runs_total == 0`
+    - `latency_ms.p95 <= 8000`
+    - `throughput_runs_per_sec.mean >= 0.14`
+    - `peak_direct_children.mean <= 1.5`
 
 Use `codex-rs/scripts/perf_sla_check.py` to enforce:
 
@@ -292,15 +292,15 @@ Notes:
 New summary blocks now emitted by `perf_otel_benchmark.py`:
 
 - `summary.process_tree_sampled`
-  - `peak_tree_rss_mb` (mean/p50/p95/max)
-  - `peak_tree_cpu_pct` (mean/p50/p95/max)
-  - `mean_tree_cpu_pct` (mean/p50/p95)
+    - `peak_tree_rss_mb` (mean/p50/p95/max)
+    - `peak_tree_cpu_pct` (mean/p50/p95/max)
+    - `mean_tree_cpu_pct` (mean/p50/p95)
 - `summary.worker_step_timings_ms`
-  - `build_cmd`
-  - `spawn_proc`
-  - `monitor_loop`
-  - `communicate`
-  - `parse_stats`
+    - `build_cmd`
+    - `spawn_proc`
+    - `monitor_loop`
+    - `communicate`
+    - `parse_stats`
 
 Per-iteration payloads include these fields too, plus worker-level fields under `worker_results`
 for concurrent runs.

@@ -33,7 +33,7 @@ def _top_level_permissions(workflow: str) -> set[tuple[str, str]]:
 
 def _job_block(workflow: str, job: str) -> str:
     match = re.search(
-        rf"(?ms)^  {re.escape(job)}:\s*\n(.*?)(?=^  [A-Za-z0-9_-]+:\s*\n|\Z)",
+        rf"(?ms)^    {re.escape(job)}:\s*\n(.*?)(?=^    [A-Za-z0-9_-]+:\s*\n|\Z)",
         workflow,
     )
     if match is None:
@@ -52,7 +52,7 @@ def contract_errors(workflow: str) -> list[str]:
     except ValueError as error:
         return [*errors, str(error)]
 
-    needs_match = re.search(r"(?ms)^    needs:\s*(.*?)(?=^    [A-Za-z0-9_-]+:|\Z)", results)
+    needs_match = re.search(r"(?ms)^        needs:\s*(.*?)(?=^        [A-Za-z0-9_-]+:|\Z)", results)
     if needs_match is None:
         return [*errors, "results job has no needs dependency list"]
 

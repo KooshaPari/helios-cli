@@ -4,8 +4,9 @@
     "description": "Tools for repo-wide maintenance.",
     "scripts": {
         "lint": "oxlint .",
-        "format": "oxfmt --check *.json *.md docs/*.md .github/workflows/*.yml **/*.js",
-        "format:fix": "oxfmt --write *.json *.md docs/*.md .github/workflows/*.yml **/*.js",
+        "format": "node scripts/format-targets.mjs --check",
+        "format:fix": "node scripts/format-targets.mjs --write",
+        "format:contract": "node scripts/verify-oxfmt-targets.mjs",
         "write-hooks-schema": "cargo run --manifest-path ./codex-rs/Cargo.toml -p codex-hooks --bin write_hooks_schema_fixtures",
         "build": "echo 'no build step'",
         "prepare": "echo 'no prepare step'"

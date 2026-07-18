@@ -22,7 +22,7 @@ class RequiredCiContractTest(unittest.TestCase):
         self.assertEqual([], verify_required_ci.contract_errors(self.workflow))
 
     def test_missing_rust_ci_token_permissions_are_rejected(self) -> None:
-        broken = self.workflow.replace("permissions:\n  contents: read\n\n", "", 1)
+        broken = self.workflow.replace("permissions:\n    contents: read\n\n", "", 1)
         self.assertIn(
             "Rust CI token permissions must be exactly contents: read",
             verify_required_ci.contract_errors(broken),
@@ -30,11 +30,11 @@ class RequiredCiContractTest(unittest.TestCase):
 
     def test_broader_rust_ci_token_permissions_are_rejected(self) -> None:
         for replacement in (
-            "permissions:\n  contents: write",
-            "permissions:\n  contents: read\n  actions: read",
+            "permissions:\n    contents: write",
+            "permissions:\n    contents: read\n    actions: read",
         ):
             with self.subTest(replacement=replacement):
-                broken = self.workflow.replace("permissions:\n  contents: read", replacement, 1)
+                broken = self.workflow.replace("permissions:\n    contents: read", replacement, 1)
                 self.assertIn(
                     "Rust CI token permissions must be exactly contents: read",
                     verify_required_ci.contract_errors(broken),
@@ -42,7 +42,7 @@ class RequiredCiContractTest(unittest.TestCase):
 
     def test_rust_ci_least_privilege_is_documented(self) -> None:
         threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
-        self.assertIn("permissions:\n  contents: read", self.workflow)
+        self.assertIn("permissions:\n    contents: read", self.workflow)
         self.assertIn(
             "`rust-ci.yml` limits mutable pull-request jobs to `contents: read`",
             threat_model,

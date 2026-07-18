@@ -68,5 +68,8 @@ jobs:
             - name: Check codex-cli/README ToC
               run: python3 scripts/readme_toc.py codex-cli/README.md
 
+            - name: Verify OXC formatter target contract
+              run: pnpm run format:contract
+
             - name: OXC format (run `pnpm run format:fix` to fix)
               run: pnpm run format

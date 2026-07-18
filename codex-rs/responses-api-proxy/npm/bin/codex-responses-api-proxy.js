@@ -43,9 +43,7 @@ function determineTargetTriple(platform, arch) {
 
 const targetTriple = determineTargetTriple(process.platform, process.arch);
 if (!targetTriple) {
-  throw new Error(
-    `Unsupported platform: ${process.platform} (${process.arch})`,
-  );
+  throw new Error(`Unsupported platform: ${process.platform} (${process.arch})`);
 }
 
 const vendorRoot = path.join(__dirname, "..", "vendor");

@@ -1,4 +1,5 @@
 > **Pinned references (Phenotype-org)**
+>
 > - MSRV: see rust-toolchain.toml
 > - cargo-deny config: see deny.toml
 > - cargo-audit: rustsec/audit-check@v2 weekly
@@ -46,7 +47,7 @@ crates/
 `-- harness_verify/         # Verification and validation
 ```
 
-**Note:** Additional crates in `crates/` (harness_cache, harness_checkpoint, harness_discoverer, harness_elicitation, harness_interfaces, harness_normalizer, harness_orchestrator, harness_pyo3, harness_mojo, harness_zig, thegent-*, adrs, api, arch_test, changes, governance) are utility, documentation, or test crates not included in the root workspace members list.
+**Note:** Additional crates in `crates/` (harness_cache, harness_checkpoint, harness_discoverer, harness_elicitation, harness_interfaces, harness_normalizer, harness_orchestrator, harness_pyo3, harness_mojo, harness_zig, thegent-\*, adrs, api, arch_test, changes, governance) are utility, documentation, or test crates not included in the root workspace members list.
 
 ### CLI Workspace (`codex-cli/package.json`)
 
@@ -75,26 +76,26 @@ codex-rs/
 
 ### Key Crates and Responsibilities
 
-| Crate                  | Responsibility                                                                        |
-| ---------------------- | ------------------------------------------------------------------------------------- |
-| `codex-cli`            | TypeScript CLI entry point and command registry                                       |
-| `codex-core`           | Agent core: config loading, terminal detection, session management                   |
-| `codex-tui`            | Interactive terminal UI with streaming responses                                     |
-| `codex-exec`           | Non-interactive execution mode for scripted/CI usage                                  |
-| `codex-protocol`       | Wire protocol types for client-server communication                                   |
-| `codex-state`          | Session and conversation state persistence                                            |
-| `codex-login`          | OAuth device code flow and API key authentication                                     |
+| Crate            | Responsibility                                                     |
+| ---------------- | ------------------------------------------------------------------ |
+| `codex-cli`      | TypeScript CLI entry point and command registry                    |
+| `codex-core`     | Agent core: config loading, terminal detection, session management |
+| `codex-tui`      | Interactive terminal UI with streaming responses                   |
+| `codex-exec`     | Non-interactive execution mode for scripted/CI usage               |
+| `codex-protocol` | Wire protocol types for client-server communication                |
+| `codex-state`    | Session and conversation state persistence                         |
+| `codex-login`    | OAuth device code flow and API key authentication                  |
 
 ## Setup Instructions
 
 ### System Requirements
 
-| Requirement | Details                                                              |
-| ----------- | -------------------------------------------------------------------- |
-| OS          | macOS 12+, Ubuntu 20.04+/Debian 10+, or Windows 11 via WSL2          |
+| Requirement | Details                                                             |
+| ----------- | ------------------------------------------------------------------- |
+| OS          | macOS 12+, Ubuntu 20.04+/Debian 10+, or Windows 11 via WSL2         |
 | Rust        | Edition 2024 (codex-rs workspace), Edition 2021 (harness workspace) |
-| RAM         | 4 GB minimum (8 GB recommended)                                      |
-| Git         | 2.23+ for built-in PR helpers (optional)                             |
+| RAM         | 4 GB minimum (8 GB recommended)                                     |
+| Git         | 2.23+ for built-in PR helpers (optional)                            |
 
 ### Building from Source
 
