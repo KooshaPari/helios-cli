@@ -68,7 +68,7 @@ class RequestQueue:
 
     async def dequeue(self, timeout: float | None = None) -> QueuedRequest | None:
         """Dequeue a request."""
-        timeout = timeout or self.max_wait
+        timeout = self.max_wait if timeout is None else timeout
 
         try:
             request = await asyncio.wait_for(self._queue.get(), timeout=timeout)
