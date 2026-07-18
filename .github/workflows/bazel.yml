@@ -1,5 +1,6 @@
 name: Bazel
 
+# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
 # Note this workflow was originally derived from:
 # https://github.com/cerisier/toolchains_llvm_bootstrapped/blob/main/.github/workflows/ci.yaml
 #

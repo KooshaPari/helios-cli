@@ -1,4 +1,5 @@
 # helios-cli Rust workspace CI
+# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
 # Replaces the upstream Codex rust-ci (hard-fork 2026-06-30).
 # Checks: build, test, clippy (-D warnings), fmt, cargo-deny.
 name: rust-ci
@@ -48,7 +49,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2
 
   # --- Gatherer: single required status check ----------------------------------
   # NOTE: upstream Codex jobs (changed, general, cargo_shear, etc.) removed.

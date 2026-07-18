@@ -1,4 +1,5 @@
 name: cargo-deny
+# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
 # Helios hard-fork: run deny against the root harness workspace deny.toml
 # (allow-git includes rich-cli-kit for kla/harness_recorder). Prefer the
 # in-repo EmbarkStudios action over the phenotype reusable until that
@@ -15,4 +16,4 @@ jobs:
         timeout-minutes: 10
         steps:
             - uses: actions/checkout@v4
-            - uses: EmbarkStudios/cargo-deny-action@v2
+            - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2

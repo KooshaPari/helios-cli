@@ -1,5 +1,7 @@
 # Workflow Strategy
 
+AgilePlus trace: [`003-helios-portage-completion` WP02](../../agileplus/003-helios-portage-completion/spec.md).
+
 The workflows in this directory are split so that pull requests get fast, review-friendly signal while optional vendored/upstream trees stay off the critical path.
 
 ## Active harness gate (required for green main)
