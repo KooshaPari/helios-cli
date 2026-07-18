@@ -99,6 +99,15 @@ def full_rust_contract_errors(workflow: str) -> list[str]:
     return []
 
 
+def full_rust_nextest_platform_contract_errors(workflow: str) -> list[str]:
+    """Return violations of the reusable nextest platform token contract."""
+    if _top_level_permissions(workflow) != {("contents", "read")}:
+        return [
+            "Full Rust nextest platform token permissions must be exactly contents: read"
+        ]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -117,11 +126,21 @@ def main() -> int:
         type=Path,
         default=Path(".github/workflows/rust-ci-full.yml"),
     )
+    parser.add_argument(
+        "--full-rust-nextest-platform-workflow",
+        type=Path,
+        default=Path(".github/workflows/rust-ci-full-nextest-platform.yml"),
+    )
     args = parser.parse_args()
     errors = contract_errors(args.workflow.read_text(encoding="utf-8"))
     errors.extend(npm_contract_errors(args.npm_workflow.read_text(encoding="utf-8")))
     errors.extend(
         full_rust_contract_errors(args.full_rust_workflow.read_text(encoding="utf-8"))
+    )
+    errors.extend(
+        full_rust_nextest_platform_contract_errors(
+            args.full_rust_nextest_platform_workflow.read_text(encoding="utf-8")
+        )
     )
     if errors:
         for error in errors:

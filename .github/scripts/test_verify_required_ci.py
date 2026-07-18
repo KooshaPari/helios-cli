@@ -19,6 +19,9 @@ class RequiredCiContractTest(unittest.TestCase):
         cls.full_rust_workflow = Path(".github/workflows/rust-ci-full.yml").read_text(
             encoding="utf-8"
         )
+        cls.full_rust_nextest_platform_workflow = Path(
+            ".github/workflows/rust-ci-full-nextest-platform.yml"
+        ).read_text(encoding="utf-8")
         cls.npm_workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
 
     def test_repository_workflow_satisfies_contract(self) -> None:
@@ -72,6 +75,36 @@ class RequiredCiContractTest(unittest.TestCase):
         self.assertIn("permissions:\n    contents: read", self.full_rust_workflow)
         self.assertIn(
             "`rust-ci-full.yml` limits its repository token to `contents: read`",
+            threat_model,
+        )
+
+    def test_full_rust_nextest_platform_permissions_are_least_privilege(self) -> None:
+        self.assertEqual(
+            [],
+            verify_required_ci.full_rust_nextest_platform_contract_errors(
+                self.full_rust_nextest_platform_workflow
+            ),
+        )
+
+    def test_full_rust_nextest_platform_broader_permissions_are_rejected(self) -> None:
+        broken = self.full_rust_nextest_platform_workflow.replace(
+            "permissions:\n    contents: read",
+            "permissions:\n    contents: read\n    actions: write",
+            1,
+        )
+        self.assertIn(
+            "Full Rust nextest platform token permissions must be exactly contents: read",
+            verify_required_ci.full_rust_nextest_platform_contract_errors(broken),
+        )
+
+    def test_full_rust_nextest_platform_least_privilege_is_documented(self) -> None:
+        threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "permissions:\n    contents: read", self.full_rust_nextest_platform_workflow
+        )
+        self.assertIn(
+            "`rust-ci-full-nextest-platform.yml` limits its repository token to "
+            "`contents: read`",
             threat_model,
         )
 

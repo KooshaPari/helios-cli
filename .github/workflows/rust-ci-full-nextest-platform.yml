@@ -48,6 +48,9 @@ on:
                 default: false
                 type: boolean
 
+permissions:
+    contents: read
+
 # Caller workflow-level env does not flow through workflow_call, so keep the
 # Cargo git transport hardening on the archive and shard jobs directly here.
 env:
