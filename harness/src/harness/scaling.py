@@ -311,6 +311,7 @@ class CircuitBreaker:
         self.timeout_seconds = timeout_seconds
         self.success_threshold = success_threshold
         self._failures = 0
+        self._successes = 0
         self._state = "closed"
         self._last_failure_time = 0.0
         self._last_state_change = time.time()
@@ -318,16 +319,26 @@ class CircuitBreaker:
     def record_success(self):
         """Record successful call."""
         if self._state == "half_open":
-            self._failures = 0
-            self._state = "closed"
+            self._successes += 1
+            if self._successes >= self.success_threshold:
+                self._failures = 0
+                self._successes = 0
+                self._state = "closed"
+                self._last_state_change = time.time()
+        else:
+            # Successful closed-state calls must not count toward a later
+            # half-open recovery.
+            self._successes = 0
 
     def record_failure(self):
         """Record failure."""
+        self._successes = 0
         self._failures += 1
         self._last_failure_time = time.time()
 
-        if self._failures >= self.failure_threshold:
+        if self._state == "half_open" or self._failures >= self.failure_threshold:
             self._state = "open"
+            self._last_state_change = self._last_failure_time
 
     def can_execute(self) -> bool:
         """Check if execution allowed."""
@@ -336,6 +347,8 @@ class CircuitBreaker:
         if self._state == "open":
             if now - self._last_failure_time >= self.timeout_seconds:
                 self._state = "half_open"
+                self._successes = 0
+                self._last_state_change = now
                 return True
             return False
 
