@@ -17,6 +17,20 @@ CONDITIONAL_JOBS = (
 )
 
 
+def _top_level_permissions(workflow: str) -> set[tuple[str, str]]:
+    permissions_match = re.search(
+        r"(?ms)^permissions:\s*\n((?:^[ \t]+.*\n?)+)", workflow
+    )
+    if permissions_match is None:
+        return set()
+    return set(
+        re.findall(
+            r"(?m)^\s+([a-z-]+):\s*(read|write|none)\s*(?:#.*)?$",
+            permissions_match.group(1),
+        )
+    )
+
+
 def _job_block(workflow: str, job: str) -> str:
     match = re.search(
         rf"(?ms)^  {re.escape(job)}:\s*\n(.*?)(?=^  [A-Za-z0-9_-]+:\s*\n|\Z)",
@@ -29,17 +43,20 @@ def _job_block(workflow: str, job: str) -> str:
 
 def contract_errors(workflow: str) -> list[str]:
     """Return violations of the required-check aggregation contract."""
+    errors: list[str] = []
+    if _top_level_permissions(workflow) != {("contents", "read")}:
+        errors.append("Rust CI token permissions must be exactly contents: read")
+
     try:
         results = _job_block(workflow, "results")
     except ValueError as error:
-        return [str(error)]
+        return [*errors, str(error)]
 
     needs_match = re.search(r"(?ms)^    needs:\s*(.*?)(?=^    [A-Za-z0-9_-]+:|\Z)", results)
     if needs_match is None:
-        return ["results job has no needs dependency list"]
+        return [*errors, "results job has no needs dependency list"]
 
     needs = set(re.findall(r"\b[A-Za-z][A-Za-z0-9_]*\b", needs_match.group(1)))
-    errors: list[str] = []
     for job in (*REQUIRED_JOBS, *CONDITIONAL_JOBS):
         if job not in needs:
             errors.append(f"results job does not depend on {job}")
@@ -57,20 +74,7 @@ def contract_errors(workflow: str) -> list[str]:
 def npm_contract_errors(workflow: str) -> list[str]:
     """Return violations that can hide an npm staging failure or lock drift."""
     errors: list[str] = []
-    permissions_match = re.search(
-        r"(?ms)^permissions:\s*\n((?:^[ \t]+.*\n?)+)", workflow
-    )
-    declared_permissions = (
-        set(
-            re.findall(
-                r"(?m)^\s+([a-z-]+):\s*(read|write|none)\s*(?:#.*)?$",
-                permissions_match.group(1),
-            )
-        )
-        if permissions_match is not None
-        else set()
-    )
-    if declared_permissions != {("contents", "read")}:
+    if _top_level_permissions(workflow) != {("contents", "read")}:
         errors.append("npm CI token permissions must be exactly contents: read")
 
     if "pnpm install --frozen-lockfile" not in workflow:
