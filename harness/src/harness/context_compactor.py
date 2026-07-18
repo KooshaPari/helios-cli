@@ -230,11 +230,16 @@ class ContextWindowManager:
         """Add context from a source."""
         with self._lock:
             for msg in messages:
+                content = msg.get("content", "")
                 self._contexts[source].append(
                     ContextMessage(
                         role=msg.get("role", "user"),
-                        content=msg.get("content", ""),
+                        content=content,
                         priority=msg.get("priority", 5),
+                        # ContextWindowManager assigns messages directly to the
+                        # compactor, so preserve the compactor's token estimate
+                        # here instead of relying on its mutating add_message().
+                        token_count=len(content) // self._compactor._config.avg_token_per_char,
                         metadata=msg.get("metadata", {}),
                     )
                 )
