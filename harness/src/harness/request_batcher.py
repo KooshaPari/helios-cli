@@ -70,7 +70,7 @@ class RequestBatcher(Generic[T, R]):
         self._queue: deque[BatchRequest[T]] = deque()
         self._lock = threading.Lock()
         self._processing = False
-        self._flush_event = asyncio.Event()
+        self._flush_task: asyncio.Task[None] | None = None
 
         # Metrics
         self._total_requests = 0
@@ -93,12 +93,59 @@ class RequestBatcher(Generic[T, R]):
             )
             self._queue.append(request)
             self._total_requests += 1
+            should_flush = len(self._queue) >= self._batch_size
+            if not should_flush:
+                self._schedule_timeout_flush_locked()
 
         # Trigger flush if batch is full
-        if len(self._queue) >= self._batch_size:
+        if should_flush:
             asyncio.create_task(self._flush())
 
-        return await future
+        try:
+            return await future
+        except asyncio.CancelledError:
+            # A cancelled caller must not leave an unflushable request behind.
+            with self._lock:
+                try:
+                    self._queue.remove(request)
+                except ValueError:
+                    # The request is already being processed; its cancelled
+                    # future is safely ignored when results are mapped back.
+                    pass
+                else:
+                    if not self._queue:
+                        self._cancel_timeout_flush_locked()
+            raise
+
+    def _schedule_timeout_flush_locked(self) -> None:
+        """Schedule one timeout flush while the queue is non-empty.
+
+        The caller must hold ``_lock``.  Keeping a single timer prevents a
+        steady stream of below-size submissions from accumulating background
+        tasks, while still giving the first queued request its timeout bound.
+        """
+        if self._flush_task is None or self._flush_task.done():
+            self._flush_task = asyncio.create_task(self._flush_after_timeout())
+
+    def _cancel_timeout_flush_locked(self) -> None:
+        """Cancel a pending timeout timer, unless it is the current task."""
+        flush_task = self._flush_task
+        if flush_task is None:
+            return
+
+        self._flush_task = None
+        if flush_task is not asyncio.current_task():
+            flush_task.cancel()
+
+    async def _flush_after_timeout(self) -> None:
+        """Flush pending work after the configured batching delay."""
+        try:
+            await asyncio.sleep(self._flush_timeout)
+            await self._flush()
+        finally:
+            with self._lock:
+                if self._flush_task is asyncio.current_task():
+                    self._flush_task = None
 
     async def _flush(self) -> None:
         """Process current batch."""
@@ -115,6 +162,7 @@ class RequestBatcher(Generic[T, R]):
                 batch.append(self._queue.popleft())
 
             self._processing = True
+            self._cancel_timeout_flush_locked()
 
         # Process batch
         try:
@@ -148,6 +196,15 @@ class RequestBatcher(Generic[T, R]):
         finally:
             with self._lock:
                 self._processing = False
+                if self._queue:
+                    if len(self._queue) >= self._batch_size:
+                        # Submitters that arrived while this batch was running
+                        # may already have observed ``_processing`` and exited.
+                        # Keep a full remainder moving without waiting for a
+                        # timeout that was only intended for partial batches.
+                        asyncio.create_task(self._flush())
+                    else:
+                        self._schedule_timeout_flush_locked()
 
     async def flush(self) -> None:
         """Force flush pending requests."""
