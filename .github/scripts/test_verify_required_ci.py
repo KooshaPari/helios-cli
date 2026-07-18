@@ -22,9 +22,7 @@ class RequiredCiContractTest(unittest.TestCase):
         self.assertEqual([], verify_required_ci.contract_errors(self.workflow))
 
     def test_missing_rust_ci_token_permissions_are_rejected(self) -> None:
-        broken = self.workflow.replace(
-            "permissions:\n  contents: read\n\n", "", 1
-        )
+        broken = self.workflow.replace("permissions:\n  contents: read\n\n", "", 1)
         self.assertIn(
             "Rust CI token permissions must be exactly contents: read",
             verify_required_ci.contract_errors(broken),
@@ -36,18 +34,14 @@ class RequiredCiContractTest(unittest.TestCase):
             "permissions:\n  contents: read\n  actions: read",
         ):
             with self.subTest(replacement=replacement):
-                broken = self.workflow.replace(
-                    "permissions:\n  contents: read", replacement, 1
-                )
+                broken = self.workflow.replace("permissions:\n  contents: read", replacement, 1)
                 self.assertIn(
                     "Rust CI token permissions must be exactly contents: read",
                     verify_required_ci.contract_errors(broken),
                 )
 
     def test_rust_ci_least_privilege_is_documented(self) -> None:
-        threat_model = Path("docs/security/threat-model.md").read_text(
-            encoding="utf-8"
-        )
+        threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
         self.assertIn("permissions:\n  contents: read", self.workflow)
         self.assertIn(
             "`rust-ci.yml` limits mutable pull-request jobs to `contents: read`",
@@ -89,9 +83,7 @@ class RequiredCiContractTest(unittest.TestCase):
         )
 
     def test_missing_npm_token_permissions_are_rejected(self) -> None:
-        broken = self.npm_workflow.replace(
-            "permissions:\n    contents: read\n\n", "", 1
-        )
+        broken = self.npm_workflow.replace("permissions:\n    contents: read\n\n", "", 1)
         self.assertIn(
             "npm CI token permissions must be exactly contents: read",
             verify_required_ci.npm_contract_errors(broken),
@@ -111,18 +103,17 @@ class RequiredCiContractTest(unittest.TestCase):
                     verify_required_ci.npm_contract_errors(broken),
                 )
 
-    def test_npm_staging_proper_red_is_documented(self) -> None:
-        threat_model = Path("docs/security/threat-model.md").read_text(
-            encoding="utf-8"
-        )
+    def test_npm_staging_release_fallback_is_documented(self) -> None:
+        threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
         self.assertIn("CODEX_VERSION=0.115.0", self.npm_workflow)
         self.assertIn("GH_TOKEN: ${{ github.token }}", self.npm_workflow)
         self.assertIn("permissions:\n    contents: read", self.npm_workflow)
         self.assertIn("- [x] Staging failure propagation", threat_model)
-        self.assertIn("- [ ] Successful npm staging", threat_model)
-        self.assertNotIn("- [x] Successful npm staging", threat_model)
-        self.assertIn("pinned `0.115.0` upstream artifacts expired", threat_model)
-        self.assertIn("no upstream `Actions: read`\n  credential", threat_model)
+        self.assertIn("- [x] Successful npm staging", threat_model)
+        self.assertNotIn("- [ ] Successful npm staging", threat_model)
+        normalized_threat_model = " ".join(threat_model.split())
+        self.assertIn("exact seven public npm release assets", normalized_threat_model)
+        self.assertIn("embedded package identity", threat_model)
 
 
 if __name__ == "__main__":

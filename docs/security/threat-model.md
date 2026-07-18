@@ -93,27 +93,26 @@ S7-3 adds the 90-day CI gate.
 |--------|--------|------------------------|------------|-------|---------------|
 | **S — Spoofing** | med | Compromised third-party GitHub Action runs attacker code in CI | Critical actions in `.github/workflows/ci.yml` are commit-pinned; repository-wide pin coverage remains a review item rather than an assumed invariant | ci-ops | 2026-07-18 |
 | **T — Tampering** | high | A pull request changes staging or build code and abuses the workflow token | Pull-request staging executes the checked-out PR merge ref. Never expose an upstream PAT or GitHub App key directly to this mutable job; move authenticated staging behind a trusted workflow boundary first. `rust-ci.yml` limits mutable pull-request jobs to `contents: read` | ci-ops | 2026-07-18 |
-| **R — Repudiation** | low | Workflow authorship or the artifact source is ambiguous | Git commit and Actions run logs identify the executed revision; staging must additionally retain upstream run, artifact ID, and digest evidence | ci-ops | 2026-07-18 |
-| **I — Info disclosure** | high | Workflow logs or PR-controlled code leak a release credential | `.github/workflows/ci.yml` grants its repository-scoped `github.token` only `contents: read`; no upstream `Actions: read` credential is configured. This keeps the credential boundary closed but leaves staging proper red | security | 2026-07-18 |
+| **R — Repudiation** | low | Workflow authorship or the artifact source is ambiguous | Git commit and Actions run logs identify the executed revision; the pinned release fallback verifies GitHub's published SHA-256 digest and embedded package identity for every npm asset | ci-ops | 2026-07-18 |
+| **I — Info disclosure** | high | Workflow logs or PR-controlled code leak a release credential | `.github/workflows/ci.yml` grants its repository-scoped `github.token` only `contents: read`. Its release fallback downloads exact public URLs with no token or secret | security | 2026-07-18 |
 | **D — DoS** | med | PRs trigger expensive multi-platform jobs or downloads of stale artifacts | The npm workflow has a concurrency group and ten-minute timeout. Current CI also uses macOS and Windows runners, so runner cost is not Linux-only | infra | 2026-07-18 |
 | **E — Elevation** | high | A workflow inherits broad repository permissions or a compromised cross-repository token | Repository workflow permissions currently default to `write`; 7 of 26 workflow files now declare a top-level `permissions:` block, including `ci.yml` and `rust-ci.yml` with only `contents: read`. The built-in token remains limited to this repository and cannot authorize upstream artifact downloads | ci-ops | 2026-07-18 |
 
 ### npm staging boundary (PR #605)
 
-Evidence reviewed at PR head `2397e170` on 2026-07-18:
+Evidence reviewed on 2026-07-18:
 
 - [x] Staging failure propagation — `.github/workflows/ci.yml` does not swallow
   the staging exit status, and the required-CI contract rejects
   `continue-on-error: true`.
-- [ ] Successful npm staging — the pinned `0.115.0` upstream artifacts expired
-  on 2026-06-14, and this repository has no upstream `Actions: read`
-  credential. Hosted run `29636493522`, job `88059648853`, resolves the exact
-  upstream workflow and artifact inventory, then fails at archive download.
+- [x] Successful npm staging — when the pinned `0.115.0` workflow artifacts
+  report expired, staging falls back only to the exact seven public npm release
+  assets on `rust-v0.115.0`. Every asset requires a published SHA-256 digest,
+  matching size, exact filename and URL, and embedded package identity before use.
 
-Keep successful staging unchecked until a live immutable artifact set is
-selected, archive downloads use exact artifact IDs and verified SHA-256
-digests, and any cross-repository credential is delivered only through a
-trusted workflow boundary that pull-request code cannot modify.
+Missing, duplicate, or unexpected package assets, unavailable or mismatched
+digests, release identity drift, and package name/version drift remain explicit
+failures. No cross-repository credential is exposed to mutable pull-request code.
 
 ---
 
