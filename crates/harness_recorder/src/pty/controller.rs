@@ -51,12 +51,17 @@ mod tests {
     use crate::script::TerminalSettings;
 
     fn test_settings() -> TerminalSettings {
-        let mut settings = TerminalSettings::default();
         #[cfg(windows)]
         {
-            settings.shell = "cmd.exe".to_string();
+            TerminalSettings {
+                shell: "cmd.exe".to_string(),
+                ..Default::default()
+            }
         }
-        settings
+        #[cfg(not(windows))]
+        {
+            TerminalSettings::default()
+        }
     }
 
     #[tokio::test]
