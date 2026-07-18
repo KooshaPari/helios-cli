@@ -37,10 +37,8 @@ gif = "0.12"
 anyhow = "1.0"
 thiserror = "1.0"
 
-# Logging — env_logger bridges log:: macros; tracing-subscriber provides
-# structured spans via RUST_LOG (EnvFilter).
+# Logging via tracing-subscriber, including its bridge for log:: macros.
 log = "0.4"
-env_logger = "0.10"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
