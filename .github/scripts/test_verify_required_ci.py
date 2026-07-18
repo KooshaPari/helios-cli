@@ -32,6 +32,9 @@ class RequiredCiContractTest(unittest.TestCase):
         cls.v8_canary_workflow = Path(".github/workflows/v8-canary.yml").read_text(
             encoding="utf-8"
         )
+        cls.trufflehog_workflow = Path(".github/workflows/trufflehog.yml").read_text(
+            encoding="utf-8"
+        )
         cls.npm_workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
 
     def test_repository_workflow_satisfies_contract(self) -> None:
@@ -227,6 +230,62 @@ class RequiredCiContractTest(unittest.TestCase):
         self.assertIn("permissions:\n    contents: read", self.v8_canary_workflow)
         self.assertIn(
             "`v8-canary.yml` limits its repository token to `contents: read`",
+            threat_model,
+        )
+
+    def test_trufflehog_caller_satisfies_security_contract(self) -> None:
+        self.assertEqual(
+            [], verify_required_ci.trufflehog_contract_errors(self.trufflehog_workflow)
+        )
+
+    def test_missing_trufflehog_token_permissions_are_rejected(self) -> None:
+        broken = self.trufflehog_workflow.replace(
+            "permissions:\n    contents: read\n\n", "", 1
+        )
+        self.assertIn(
+            "Trufflehog token permissions must be exactly contents: read",
+            verify_required_ci.trufflehog_contract_errors(broken),
+        )
+
+    def test_broader_trufflehog_token_permissions_are_rejected(self) -> None:
+        broken = self.trufflehog_workflow.replace(
+            "permissions:\n    contents: read",
+            "permissions:\n    contents: read\n    actions: write",
+            1,
+        )
+        self.assertIn(
+            "Trufflehog token permissions must be exactly contents: read",
+            verify_required_ci.trufflehog_contract_errors(broken),
+        )
+
+    def test_non_commit_trufflehog_ref_is_rejected(self) -> None:
+        broken = self.trufflehog_workflow.replace(
+            verify_required_ci.TRUFFLEHOG_WORKFLOW_SHA, "main", 1
+        )
+        self.assertIn(
+            "Trufflehog reusable workflow ref must be a 40-hex commit SHA",
+            verify_required_ci.trufflehog_contract_errors(broken),
+        )
+
+    def test_mismatched_trufflehog_commit_ref_is_rejected(self) -> None:
+        broken = self.trufflehog_workflow.replace(
+            verify_required_ci.TRUFFLEHOG_WORKFLOW_SHA, "0" * 40, 1
+        )
+        self.assertIn(
+            "Trufflehog reusable workflow ref must match the verified commit SHA",
+            verify_required_ci.trufflehog_contract_errors(broken),
+        )
+
+    def test_trufflehog_caller_hardening_is_documented(self) -> None:
+        threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
+        self.assertIn("permissions:\n    contents: read", self.trufflehog_workflow)
+        self.assertIn(
+            "`trufflehog.yml` limits its repository token to `contents: read`",
+            threat_model,
+        )
+        self.assertIn(
+            "pins its reusable workflow caller to verified commit "
+            "`c43cc4af2cbcc2bb2df37f3e4ab78cc5d8c1b3ad`",
             threat_model,
         )
 

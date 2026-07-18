@@ -15,6 +15,7 @@ CONDITIONAL_JOBS = (
     "argument_comment_lint_package",
     "argument_comment_lint_prebuilt",
 )
+TRUFFLEHOG_WORKFLOW_SHA = "c43cc4af2cbcc2bb2df37f3e4ab78cc5d8c1b3ad"
 
 
 def _top_level_permissions(workflow: str) -> set[tuple[str, str]]:
@@ -137,6 +138,30 @@ def v8_canary_contract_errors(workflow: str) -> list[str]:
     return []
 
 
+def trufflehog_contract_errors(workflow: str) -> list[str]:
+    """Return violations of the Trufflehog caller security contract."""
+    errors: list[str] = []
+    if _top_level_permissions(workflow) != {("contents", "read")}:
+        errors.append("Trufflehog token permissions must be exactly contents: read")
+
+    uses_match = re.search(
+        r"(?m)^        uses: KooshaPari/phenotype-tooling/"
+        r"\.github/workflows/reusable/trufflehog\.yml@([^\s#]+)",
+        workflow,
+    )
+    if uses_match is None:
+        errors.append("Trufflehog reusable workflow reference is missing")
+    else:
+        ref = uses_match.group(1)
+        if not re.fullmatch(r"[0-9a-f]{40}", ref):
+            errors.append("Trufflehog reusable workflow ref must be a 40-hex commit SHA")
+        elif ref != TRUFFLEHOG_WORKFLOW_SHA:
+            errors.append(
+                "Trufflehog reusable workflow ref must match the verified commit SHA"
+            )
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -180,6 +205,11 @@ def main() -> int:
         type=Path,
         default=Path(".github/workflows/v8-canary.yml"),
     )
+    parser.add_argument(
+        "--trufflehog-workflow",
+        type=Path,
+        default=Path(".github/workflows/trufflehog.yml"),
+    )
     args = parser.parse_args()
     errors = contract_errors(args.workflow.read_text(encoding="utf-8"))
     errors.extend(npm_contract_errors(args.npm_workflow.read_text(encoding="utf-8")))
@@ -204,6 +234,11 @@ def main() -> int:
     )
     errors.extend(
         v8_canary_contract_errors(args.v8_canary_workflow.read_text(encoding="utf-8"))
+    )
+    errors.extend(
+        trufflehog_contract_errors(
+            args.trufflehog_workflow.read_text(encoding="utf-8")
+        )
     )
     if errors:
         for error in errors:
