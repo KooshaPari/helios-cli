@@ -51,7 +51,8 @@ class WorkerPool:
         self._running = False
         self._metrics = WorkerMetrics()
         self._lock = threading.Lock()
-        self._callbacks: dict[str, Callable] = {}
+        self._completion_condition = threading.Condition()
+        self._pending_enqueues = 0
 
     def start(self):
         """Start the worker pool."""
@@ -63,32 +64,39 @@ class WorkerPool:
 
     def _worker_loop(self):
         """Worker loop."""
-        while self._running:
+        while True:
             try:
                 task = self._task_queue.get(timeout=1)
-                if task is None:
-                    break
-
-                func, args, kwargs, task_id = task
-                start = time.time()
-
                 try:
-                    result = func(*args, **kwargs)
+                    if task is None:
+                        return
 
-                    # Callback on success
-                    if task_id in self._callbacks:
-                        self._callbacks[task_id](result)
+                    func, args, kwargs, result_future = task
+                    start = time.time()
 
-                    with self._lock:
-                        self._metrics.completed_tasks += 1
-                except Exception:
-                    with self._lock:
-                        self._metrics.failed_tasks += 1
-
-                elapsed = (time.time() - start) * 1000
-                with self._lock:
-                    n = self._metrics.completed_tasks + self._metrics.failed_tasks
-                    self._metrics.avg_latency_ms = (self._metrics.avg_latency_ms * (n - 1) + elapsed) / n
+                    try:
+                        result = func(*args, **kwargs)
+                    except BaseException as error:
+                        with self._lock:
+                            self._metrics.failed_tasks += 1
+                        result_future.set_exception(error)
+                    else:
+                        with self._lock:
+                            self._metrics.completed_tasks += 1
+                        result_future.set_result(result)
+                    finally:
+                        elapsed = (time.time() - start) * 1000
+                        with self._lock:
+                            n = self._metrics.completed_tasks + self._metrics.failed_tasks
+                            self._metrics.avg_latency_ms = (
+                                self._metrics.avg_latency_ms * (n - 1) + elapsed
+                            ) / n
+                finally:
+                    # Keep Queue.join()/wait_completion correct while a task is active
+                    # and when a task raises.
+                    self._task_queue.task_done()
+                    with self._completion_condition:
+                        self._completion_condition.notify_all()
 
             except Empty:
                 continue
@@ -97,22 +105,38 @@ class WorkerPool:
 
     def submit(self, func: Callable, *args, task_id: str | None = None, **kwargs) -> Future:
         """Submit a task to the pool."""
-        if not self._running:
-            raise RuntimeError("Pool not started")
-
         with self._lock:
+            if not self._running:
+                raise RuntimeError("Pool not started")
             self._metrics.total_tasks += 1
+        result_future = Future()
+        with self._completion_condition:
+            self._pending_enqueues += 1
 
-        return self._executor.submit(self._enqueue_task, func, args, kwargs, task_id)
+        try:
+            self._executor.submit(
+                self._enqueue_task, func, args, kwargs, result_future
+            )
+        except BaseException as error:
+            with self._completion_condition:
+                self._pending_enqueues -= 1
+                self._completion_condition.notify_all()
+            result_future.set_exception(error)
+        return result_future
 
-    def _enqueue_task(self, func, args, kwargs, task_id):
+    def _enqueue_task(self, func, args, kwargs, result_future):
         """Internal task wrapper."""
-        self._task_queue.put((func, args, kwargs, task_id))
+        try:
+            self._task_queue.put((func, args, kwargs, result_future))
+        except BaseException as error:
+            result_future.set_exception(error)
+        finally:
+            with self._completion_condition:
+                self._pending_enqueues -= 1
+                self._completion_condition.notify_all()
 
     def submit_callback(self, func: Callable, callback: Callable, *args, **kwargs) -> str:
         """Submit task with callback on completion."""
-        task_id = str(time.time())
-
         def wrapped_callback(fut):
             try:
                 result = fut.result()
@@ -120,6 +144,7 @@ class WorkerPool:
             except Exception as e:
                 callback(None, e)
 
+        task_id = str(time.time())
         future = self.submit(func, *args, task_id=task_id, **kwargs)
         future.add_done_callback(wrapped_callback)
 
@@ -129,11 +154,17 @@ class WorkerPool:
         """Shutdown the pool."""
         self._running = False
 
-        # Signal workers to stop
+        # With the default wait=True, finish submitting accepted work before
+        # placing the sentinels.  wait=False retains its non-blocking behavior.
+        self._executor.shutdown(wait=wait)
+
+        # Signal workers to stop after the queued work.
         for _ in range(self.num_workers):
             self._task_queue.put(None)
 
-        self._executor.shutdown(wait=wait)
+        if wait:
+            for worker in self._workers:
+                worker.join()
         self._workers.clear()
 
     def metrics(self) -> WorkerMetrics:
@@ -149,12 +180,17 @@ class WorkerPool:
 
     def wait_completion(self, timeout: float | None = None) -> bool:
         """Wait for all tasks to complete."""
-        start = time.time()
-        while self._task_queue.qsize() > 0:
-            if timeout and (time.time() - start) > timeout:
-                return False
-            time.sleep(0.1)
-        return True
+        deadline = None if timeout is None else time.monotonic() + timeout
+        with self._completion_condition:
+            while self._pending_enqueues or self._task_queue.unfinished_tasks:
+                if deadline is None:
+                    self._completion_condition.wait()
+                    continue
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    return False
+                self._completion_condition.wait(remaining)
+            return True
 
 
 # Global worker pool
