@@ -8,6 +8,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -24,8 +25,8 @@ class BufferEntry:
     path: Path
     size_bytes: int
     description: str
-    created_at: float = field(default_factory=os.path.getmtime)
-    accessed_at: float = field(default_factory=os.path.getmtime)
+    created_at: float = field(default_factory=time.time)
+    accessed_at: float = field(default_factory=time.time)
     metadata: dict = field(default_factory=dict)
 
 
