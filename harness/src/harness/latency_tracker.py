@@ -108,7 +108,9 @@ class LatencyTracker:
     def get_all_stats(self) -> dict[str, LatencyStats]:
         """Get stats for all endpoints."""
         with self._lock:
-            return {ep: self.get_stats(ep) for ep in self._snapshots.keys()}
+            endpoints = tuple(self._snapshots)
+
+        return {endpoint: self.get_stats(endpoint) for endpoint in endpoints}
 
     def reset(self, endpoint: str | None = None) -> None:
         """Reset latency data."""
