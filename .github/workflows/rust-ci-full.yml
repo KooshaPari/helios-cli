@@ -59,7 +59,7 @@ jobs:
     env:
       CARGO_DYLINT_VERSION: 5.0.0
       DYLINT_LINK_VERSION: 5.0.0
-      PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
+      PYTHONPYCACHEPREFIX: /tmp/argument-comment-lint-python-cache
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
