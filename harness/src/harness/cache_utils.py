@@ -67,6 +67,7 @@ class LRUCache:
 
         with self._lock:
             if key in self._cache:
+                self._cache[key] = value
                 self._cache.move_to_end(key)
             else:
                 if len(self._cache) >= self.max_size:
