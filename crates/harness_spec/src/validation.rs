@@ -320,22 +320,16 @@ mod tests {
     #[test]
     fn validate_verification_rules_reject_invalid_values() {
         let mut spec = Specification { spec: valid_spec_content() };
-        spec.spec.verification = vec![VerificationRule::Test {
-            name: String::new(),
-            timeout_seconds: 30,
-        }];
+        spec.spec.verification =
+            vec![VerificationRule::Test { name: String::new(), timeout_seconds: 30 }];
         assert!(validate(&spec).is_err());
 
-        spec.spec.verification = vec![VerificationRule::Test {
-            name: "unit".to_string(),
-            timeout_seconds: 0,
-        }];
+        spec.spec.verification =
+            vec![VerificationRule::Test { name: "unit".to_string(), timeout_seconds: 0 }];
         assert!(validate(&spec).is_err());
 
-        spec.spec.verification = vec![VerificationRule::Security {
-            scanner: String::new(),
-            critical_only: false,
-        }];
+        spec.spec.verification =
+            vec![VerificationRule::Security { scanner: String::new(), critical_only: false }];
         assert!(validate(&spec).is_err());
 
         spec.spec.verification = vec![VerificationRule::Performance {
@@ -344,10 +338,8 @@ mod tests {
         }];
         assert!(validate(&spec).is_err());
 
-        spec.spec.verification = vec![VerificationRule::Custom {
-            command: String::new(),
-            expected_exit_code: 0,
-        }];
+        spec.spec.verification =
+            vec![VerificationRule::Custom { command: String::new(), expected_exit_code: 0 }];
         assert!(validate(&spec).is_err());
     }
 

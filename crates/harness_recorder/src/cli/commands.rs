@@ -220,9 +220,7 @@ steps:
 "#;
         std::fs::write(&script_path, yaml).expect("write script");
         let output_dir = dir.path().join("out");
-        record_command(script_path, output_dir.clone(), "png".to_string())
-            .await
-            .expect("record");
+        record_command(script_path, output_dir.clone(), "png".to_string()).await.expect("record");
         assert!(output_dir.is_dir());
     }
 }

@@ -53,10 +53,7 @@ mod tests {
     fn test_settings() -> TerminalSettings {
         #[cfg(windows)]
         {
-            TerminalSettings {
-                shell: "cmd.exe".to_string(),
-                ..Default::default()
-            }
+            TerminalSettings { shell: "cmd.exe".to_string(), ..Default::default() }
         }
         #[cfg(not(windows))]
         {
@@ -77,10 +74,7 @@ mod tests {
     #[tokio::test]
     async fn controller_executes_command_and_exposes_output() {
         let mut controller = TerminalController::new(&test_settings()).expect("controller");
-        controller
-            .execute_command("echo kla-controller-smoke")
-            .await
-            .expect("execute");
+        controller.execute_command("echo kla-controller-smoke").await.expect("execute");
         let found = controller
             .wait_for_output("kla-controller-smoke", Duration::from_secs(10))
             .await

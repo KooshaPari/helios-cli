@@ -114,9 +114,7 @@ mod tests {
     #[test]
     fn registry_register_get_and_init_all() {
         let mut registry = PluginRegistry::new();
-        registry
-            .register(Box::new(DummyPlugin { name: "alpha".to_string() }))
-            .unwrap();
+        registry.register(Box::new(DummyPlugin { name: "alpha".to_string() })).unwrap();
         assert_eq!(registry.get("alpha").unwrap().version(), "1.0.0");
         assert_eq!(registry.names(), vec!["alpha".to_string()]);
         registry.init_all().unwrap();

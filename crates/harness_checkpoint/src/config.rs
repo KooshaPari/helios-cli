@@ -124,8 +124,8 @@ mod tests {
 
     #[test]
     fn snapshot_config_skips_missing_paths() {
-        let snapshot = snapshot_config(&["/nonexistent/helios-config-path"])
-            .expect("snapshot without files");
+        let snapshot =
+            snapshot_config(&["/nonexistent/helios-config-path"]).expect("snapshot without files");
         assert!(snapshot.files.is_empty());
     }
 

@@ -189,8 +189,7 @@ mod tests {
         let oid = index.write_tree().expect("write tree");
         let tree = repo.find_tree(oid).expect("find tree");
         let sig = Signature::now("test", "test@example.com").expect("signature");
-        repo.commit(Some("HEAD"), &sig, &sig, "init", &tree, &[])
-            .expect("initial commit");
+        repo.commit(Some("HEAD"), &sig, &sig, "init", &tree, &[]).expect("initial commit");
     }
 
     #[test]
@@ -238,10 +237,7 @@ mod tests {
         init_repo_with_commit(dir.path());
         fs::write(dir.path().join("a.txt"), "v1").expect("write v1");
 
-        let options = CheckpointOptions {
-            include_uncommitted: true,
-            ..Default::default()
-        };
+        let options = CheckpointOptions { include_uncommitted: true, ..Default::default() };
         let checkpoint =
             create_git_checkpoint(dir.path(), "spec-restore", &options).expect("checkpoint");
         fs::write(dir.path().join("a.txt"), "v2").expect("write v2");

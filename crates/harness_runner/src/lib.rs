@@ -284,10 +284,7 @@ mod tests {
         #[cfg(not(windows))]
         let cmd = ("sh", vec!["-c", "sleep 5"]);
 
-        let result = Runner::new()
-            .with_timeout(1)
-            .run(cmd.0, cmd.1.as_slice())
-            .await;
+        let result = Runner::new().with_timeout(1).run(cmd.0, cmd.1.as_slice()).await;
 
         assert!(matches!(result, Err(RunError::Timeout(1))));
     }

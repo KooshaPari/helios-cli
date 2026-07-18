@@ -110,10 +110,7 @@ mod tests {
     #[test]
     fn default_verification_rules_per_intent() {
         assert_eq!(Intent::Fix.default_verification(), vec!["test"]);
-        assert_eq!(
-            Intent::Feature.default_verification(),
-            vec!["test", "lint"]
-        );
+        assert_eq!(Intent::Feature.default_verification(), vec!["test", "lint"]);
         assert!(Intent::Research.default_verification().is_empty());
     }
 

@@ -81,10 +81,7 @@ mod tests {
 
     #[test]
     fn layer_from_path_and_allowed_dependencies() {
-        assert_eq!(
-            Layer::from_path(Path::new("src/adapters/repo.rs")),
-            Some(Layer::Adapters)
-        );
+        assert_eq!(Layer::from_path(Path::new("src/adapters/repo.rs")), Some(Layer::Adapters));
         assert_eq!(
             Layer::from_path(Path::new("src/application/service.rs")),
             Some(Layer::Application)

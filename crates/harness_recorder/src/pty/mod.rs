@@ -143,10 +143,7 @@ mod tests {
     fn test_settings() -> TerminalSettings {
         #[cfg(windows)]
         {
-            TerminalSettings {
-                shell: "cmd.exe".to_string(),
-                ..Default::default()
-            }
+            TerminalSettings { shell: "cmd.exe".to_string(), ..Default::default() }
         }
         #[cfg(not(windows))]
         {
@@ -158,10 +155,8 @@ mod tests {
     async fn terminal_executes_command_and_waits_for_output() {
         let mut terminal = Terminal::new(&test_settings()).expect("terminal");
         terminal.execute_command("echo pty-smoke").await.expect("execute");
-        let found = terminal
-            .wait_for_output("pty-smoke", Duration::from_secs(10))
-            .await
-            .expect("wait");
+        let found =
+            terminal.wait_for_output("pty-smoke", Duration::from_secs(10)).await.expect("wait");
         assert!(found, "output: {}", terminal.get_output());
         let (width, height) = terminal.get_size();
         assert!(width > 0 && height > 0);
@@ -172,10 +167,7 @@ mod tests {
     #[tokio::test]
     async fn terminal_type_text_sends_characters() {
         let mut terminal = Terminal::new(&test_settings()).expect("terminal");
-        terminal
-            .type_text("x", Duration::from_millis(1))
-            .await
-            .expect("type");
+        terminal.type_text("x", Duration::from_millis(1)).await.expect("type");
         terminal.send_input("\n").await.expect("newline");
         let _ = terminal.get_output();
     }

@@ -304,9 +304,11 @@ mod tests {
         };
         let optimize_spec = generator.generate(&optimize).expect("optimize spec");
         assert_eq!(optimize_spec.spec.success_criteria.len(), 1);
-        assert!(optimize_spec.spec.verification.iter().any(|rule| {
-            matches!(rule, VerificationRule::Performance { .. })
-        }));
+        assert!(optimize_spec
+            .spec
+            .verification
+            .iter()
+            .any(|rule| { matches!(rule, VerificationRule::Performance { .. }) }));
     }
 
     #[test]

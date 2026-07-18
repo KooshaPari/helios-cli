@@ -22,9 +22,7 @@ pub async fn run_cargo_test(spec_id: &str, timeout_secs: u64) -> Result<Verifica
     let output = tokio::time::timeout(
         std::time::Duration::from_secs(timeout_secs),
         tokio::task::spawn_blocking(move || {
-            Command::new("cargo")
-                .args(["test", "-p", &package, "--", "--nocapture"])
-                .output()
+            Command::new("cargo").args(["test", "-p", &package, "--", "--nocapture"]).output()
         }),
     )
     .await
@@ -189,11 +187,7 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out\n";
         #[cfg(not(windows))]
         let status = Command::new("false").output().unwrap().status;
 
-        let output = Output {
-            status,
-            stdout: Vec::new(),
-            stderr: b"1 failed".to_vec(),
-        };
+        let output = Output { status, stdout: Vec::new(), stderr: b"1 failed".to_vec() };
         let result = build_pytest_result("demo", &output, 5);
         assert!(matches!(result.status, VerificationStatus::Failed));
         assert_eq!(result.errors.len(), 1);
