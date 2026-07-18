@@ -122,6 +122,13 @@ def blob_size_policy_contract_errors(workflow: str) -> list[str]:
     return []
 
 
+def python_runtime_build_contract_errors(workflow: str) -> list[str]:
+    """Return violations of the Python runtime build token contract."""
+    if _top_level_permissions(workflow) != {("contents", "read")}:
+        return ["Python runtime build token permissions must be exactly contents: read"]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -155,6 +162,11 @@ def main() -> int:
         type=Path,
         default=Path(".github/workflows/blob-size-policy.yml"),
     )
+    parser.add_argument(
+        "--python-runtime-build-workflow",
+        type=Path,
+        default=Path(".github/workflows/python-runtime-build.yml"),
+    )
     args = parser.parse_args()
     errors = contract_errors(args.workflow.read_text(encoding="utf-8"))
     errors.extend(npm_contract_errors(args.npm_workflow.read_text(encoding="utf-8")))
@@ -170,6 +182,11 @@ def main() -> int:
     errors.extend(
         blob_size_policy_contract_errors(
             args.blob_size_policy_workflow.read_text(encoding="utf-8")
+        )
+    )
+    errors.extend(
+        python_runtime_build_contract_errors(
+            args.python_runtime_build_workflow.read_text(encoding="utf-8")
         )
     )
     if errors:

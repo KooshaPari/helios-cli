@@ -26,6 +26,9 @@ class RequiredCiContractTest(unittest.TestCase):
         cls.blob_size_policy_workflow = Path(
             ".github/workflows/blob-size-policy.yml"
         ).read_text(encoding="utf-8")
+        cls.python_runtime_build_workflow = Path(
+            ".github/workflows/python-runtime-build.yml"
+        ).read_text(encoding="utf-8")
         cls.npm_workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
 
     def test_repository_workflow_satisfies_contract(self) -> None:
@@ -156,6 +159,35 @@ class RequiredCiContractTest(unittest.TestCase):
         threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
         self.assertIn(
             "permissions:\n    contents: read", self.blob_size_policy_workflow
+        )
+
+    def test_python_runtime_build_permissions_are_least_privilege(self) -> None:
+        self.assertEqual(
+            [],
+            verify_required_ci.python_runtime_build_contract_errors(
+                self.python_runtime_build_workflow
+            ),
+        )
+
+    def test_python_runtime_build_broader_permissions_are_rejected(self) -> None:
+        broken = self.python_runtime_build_workflow.replace(
+            "permissions:\n    contents: read",
+            "permissions:\n    contents: read\n    actions: write",
+            1,
+        )
+        self.assertIn(
+            "Python runtime build token permissions must be exactly contents: read",
+            verify_required_ci.python_runtime_build_contract_errors(broken),
+        )
+
+    def test_python_runtime_build_least_privilege_is_documented(self) -> None:
+        threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "permissions:\n    contents: read", self.python_runtime_build_workflow
+        )
+        self.assertIn(
+            "`python-runtime-build.yml` limits its repository token to `contents: read`",
+            threat_model,
         )
         self.assertIn(
             "`blob-size-policy.yml` limits its repository token to `contents: read`",
