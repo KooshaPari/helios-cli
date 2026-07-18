@@ -6,6 +6,9 @@ on:
             - "**full-ci**"
     workflow_dispatch:
 
+permissions:
+    contents: read
+
 # CI builds in debug (dev) for faster signal.
 env:
     # Cargo's libgit2 transport has been flaky on macOS when fetching git
