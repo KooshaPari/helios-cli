@@ -57,6 +57,22 @@ def contract_errors(workflow: str) -> list[str]:
 def npm_contract_errors(workflow: str) -> list[str]:
     """Return violations that can hide an npm staging failure or lock drift."""
     errors: list[str] = []
+    permissions_match = re.search(
+        r"(?ms)^permissions:\s*\n((?:^[ \t]+.*\n?)+)", workflow
+    )
+    declared_permissions = (
+        set(
+            re.findall(
+                r"(?m)^\s+([a-z-]+):\s*(read|write|none)\s*(?:#.*)?$",
+                permissions_match.group(1),
+            )
+        )
+        if permissions_match is not None
+        else set()
+    )
+    if declared_permissions != {("contents", "read")}:
+        errors.append("npm CI token permissions must be exactly contents: read")
+
     if "pnpm install --frozen-lockfile" not in workflow:
         errors.append("npm CI does not enforce the committed lockfile")
 

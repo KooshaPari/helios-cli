@@ -55,12 +55,36 @@ class RequiredCiContractTest(unittest.TestCase):
             verify_required_ci.npm_contract_errors(broken),
         )
 
+    def test_missing_npm_token_permissions_are_rejected(self) -> None:
+        broken = self.npm_workflow.replace(
+            "permissions:\n    contents: read\n\n", "", 1
+        )
+        self.assertIn(
+            "npm CI token permissions must be exactly contents: read",
+            verify_required_ci.npm_contract_errors(broken),
+        )
+
+    def test_broader_npm_token_permissions_are_rejected(self) -> None:
+        for replacement in (
+            "permissions:\n    contents: write",
+            "permissions:\n    contents: read\n    actions: read",
+        ):
+            with self.subTest(replacement=replacement):
+                broken = self.npm_workflow.replace(
+                    "permissions:\n    contents: read", replacement, 1
+                )
+                self.assertIn(
+                    "npm CI token permissions must be exactly contents: read",
+                    verify_required_ci.npm_contract_errors(broken),
+                )
+
     def test_npm_staging_proper_red_is_documented(self) -> None:
         threat_model = Path("docs/security/threat-model.md").read_text(
             encoding="utf-8"
         )
         self.assertIn("CODEX_VERSION=0.115.0", self.npm_workflow)
         self.assertIn("GH_TOKEN: ${{ github.token }}", self.npm_workflow)
+        self.assertIn("permissions:\n    contents: read", self.npm_workflow)
         self.assertIn("- [x] Staging failure propagation", threat_model)
         self.assertIn("- [ ] Successful npm staging", threat_model)
         self.assertNotIn("- [x] Successful npm staging", threat_model)
