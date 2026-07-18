@@ -83,8 +83,7 @@ class SlidingWindowLimiter:
                 return 0.0
             oldest = self.requests[0]
             now = time.time()
-            elapsed = now - (oldest - self.window_seconds)
-            return max(0, elapsed)
+            return max(0.0, oldest + self.window_seconds - now)
 
 
 class RateLimiter:
