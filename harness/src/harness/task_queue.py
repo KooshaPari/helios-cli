@@ -7,7 +7,7 @@ import asyncio
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from heapq import heappop, heappush
+from heapq import heapify, heappop, heappush
 from typing import Any
 
 from .id_utils import new_id
@@ -40,12 +40,13 @@ class Task:
     retry_count: int = 0
     max_retries: int = 3
     metadata: dict = field(default_factory=dict)
+    queue_order: int = 0
 
     def __lt__(self, other: Task) -> bool:
         """Compare for heap ordering (lower priority number = higher priority)."""
         if self.priority != other.priority:
             return self.priority.value < other.priority.value
-        return self.created_at < other.created_at
+        return self.queue_order < other.queue_order
 
 
 class TaskQueue:
@@ -87,6 +88,7 @@ class TaskQueue:
 
         self._rate_timestamps: list[float] = []
         self._paused = False
+        self._next_queue_order = 0
 
     async def submit(
         self,
@@ -113,7 +115,9 @@ class TaskQueue:
                 priority=priority,
                 max_retries=max_retries,
                 metadata=metadata or {},
+                queue_order=self._next_queue_order,
             )
+            self._next_queue_order += 1
 
             heappush(self._heap, task)
             self._tasks[task.id] = task
@@ -137,23 +141,36 @@ class TaskQueue:
 
     async def get(self, timeout: float | None = None) -> Task | None:
         """Get next task from queue."""
-        start = time.time()
+        deadline = None if timeout is None else time.monotonic() + timeout
 
         while True:
             async with self._lock:
-                if self._heap:
+                if not self._paused and self._heap:
                     task = heappop(self._heap)
+                    self._tasks.pop(task.id, None)
                     task.started_at = time.time()
                     self._running[task.id] = task
                     return task
 
-                if timeout and (time.time() - start) >= timeout:
-                    return None
+                if deadline is not None:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        return None
+                else:
+                    remaining = None
 
-                # Wait for new tasks
+                # Clear only after inspecting state while holding the lock so a
+                # concurrent submit/resume cannot be missed between the check
+                # and the wait below.
                 self._event.clear()
 
-            await asyncio.wait_for(self._event.wait(), timeout=1.0)
+            try:
+                if remaining is None:
+                    await self._event.wait()
+                else:
+                    await asyncio.wait_for(self._event.wait(), timeout=remaining)
+            except asyncio.TimeoutError:
+                return None
 
     async def __aiter__(self):
         """Async iterator for queue."""
@@ -188,6 +205,7 @@ class TaskQueue:
             # Re-queue
             self._tasks[task.id] = task
             heappush(self._heap, task)
+            self._event.set()
         else:
             task.error = error
             task.completed_at = time.time()
@@ -202,6 +220,7 @@ class TaskQueue:
             del self._tasks[task_id]
             # Remove from heap
             self._heap = [t for t in self._heap if t.id != task_id]
+            heapify(self._heap)
             return True
 
         if task_id in self._running:
