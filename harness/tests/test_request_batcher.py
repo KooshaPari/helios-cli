@@ -1,10 +1,13 @@
-"""Regression tests for asynchronous request batching."""
+"""Regression tests for asynchronous and synchronous request batching."""
 
 import asyncio
+import concurrent.futures
+import threading
+import time
 
 import pytest
 
-from harness.request_batcher import RequestBatcher
+from harness.request_batcher import BatchError, RequestBatcher, SyncRequestBatcher
 
 
 def assert_no_background_tasks() -> None:
@@ -154,3 +157,106 @@ def test_full_remainder_submitted_while_processing_is_flushed_immediately() -> N
         assert_no_background_tasks()
 
     asyncio.run(scenario())
+
+
+def test_sync_below_size_batch_flushes_after_configured_timeout() -> None:
+    """A synchronous undersized request is released by its single timer."""
+    calls: list[list[int]] = []
+    batcher = SyncRequestBatcher(
+        lambda items: calls.append(items) or [item * 2 for item in items],
+        batch_size=2,
+        flush_timeout=0.02,
+    )
+
+    assert batcher.submit("one", 3) == 6
+    assert calls == [[3]]
+    assert batcher._flush_timer is None
+
+
+def test_sync_concurrent_full_batch_maps_each_result_to_its_submitter() -> None:
+    """Concurrent full batches are detached before processor execution."""
+    calls: list[list[int]] = []
+    barrier = threading.Barrier(3)
+    batcher = SyncRequestBatcher(
+        lambda items: calls.append(items) or [item * 10 for item in items],
+        batch_size=3,
+        flush_timeout=1,
+    )
+
+    def submit(item: int) -> tuple[int, int]:
+        barrier.wait()
+        return item, batcher.submit(str(item), item)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        results = dict(executor.map(submit, [1, 2, 3]))
+
+    assert results == {1: 10, 2: 20, 3: 30}
+    assert len(calls) == 1
+    assert sorted(calls[0]) == [1, 2, 3]
+    assert batcher._flush_timer is None
+
+
+def test_sync_processor_exception_does_not_strand_later_requests() -> None:
+    """A processor error is delivered and the next request can recover."""
+    attempts = 0
+
+    def processor(items: list[int]) -> list[int]:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise RuntimeError("expected processor failure")
+        return items
+
+    batcher = SyncRequestBatcher(processor, batch_size=1, flush_timeout=1)
+    with pytest.raises(RuntimeError, match="expected processor failure"):
+        batcher.submit("bad", 1)
+    assert batcher.submit("good", 2) == 2
+    assert batcher._flush_timer is None
+
+
+def test_sync_short_processor_results_raise_batch_error() -> None:
+    """Every request receives either its result or a deterministic BatchError."""
+    batcher = SyncRequestBatcher(
+        lambda items: items[:1], batch_size=2, flush_timeout=1
+    )
+    barrier = threading.Barrier(2)
+
+    def submit(item: int) -> int:
+        barrier.wait()
+        return batcher.submit(str(item), item)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(submit, item) for item in [1, 2]]
+        outcomes = []
+        for future in futures:
+            try:
+                outcomes.append(future.result())
+            except BatchError:
+                outcomes.append("batch-error")
+
+    assert outcomes.count("batch-error") == 1
+    assert len([outcome for outcome in outcomes if outcome != "batch-error"]) == 1
+
+
+def test_sync_timer_full_and_explicit_flush_do_not_duplicate_processing() -> None:
+    """A full batch cancels its timer; later explicit flush is a no-op."""
+    calls: list[list[int]] = []
+    batcher = SyncRequestBatcher(
+        lambda items: calls.append(items) or items,
+        batch_size=2,
+        flush_timeout=0.05,
+    )
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        pending = executor.submit(batcher.submit, "one", 1)
+        deadline = time.monotonic() + 0.5
+        while not batcher._queue and time.monotonic() < deadline:
+            time.sleep(0.001)
+        assert batcher._queue
+        assert batcher.submit("two", 2) == 2
+        assert pending.result(timeout=0.5) == 1
+
+    batcher.flush()
+    time.sleep(0.08)
+    assert calls == [[1, 2]]
+    assert batcher._flush_timer is None

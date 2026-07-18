@@ -234,6 +234,29 @@ class BatchError(Exception):
 
 
 # Synchronous version
+class _SyncBatchResult(Generic[R]):
+    """Thread-safe result carrier used by :class:`SyncRequestBatcher`."""
+
+    def __init__(self) -> None:
+        self._ready = threading.Event()
+        self._result: R | None = None
+        self._exception: Exception | None = None
+
+    def set_result(self, result: R) -> None:
+        self._result = result
+        self._ready.set()
+
+    def set_exception(self, exception: Exception) -> None:
+        self._exception = exception
+        self._ready.set()
+
+    def result(self) -> R:
+        self._ready.wait()
+        if self._exception is not None:
+            raise self._exception
+        return self._result  # type: ignore[return-value]
+
+
 class SyncRequestBatcher(Generic[T, R]):
     """Synchronous request batcher."""
 
@@ -248,12 +271,15 @@ class SyncRequestBatcher(Generic[T, R]):
         self._flush_timeout = flush_timeout
         self._queue: list[BatchRequest[T]] = []
         self._lock = threading.Lock()
-        self._last_flush = time.time()
+        self._processing = False
+        self._flush_timer: threading.Timer | None = None
+        self._timer_generation = 0
 
     def submit(self, request_id: str, item: T) -> R:
         """Submit a synchronous request."""
+        future: _SyncBatchResult[R] = _SyncBatchResult()
+        batch: list[BatchRequest[T]] | None = None
         with self._lock:
-            future = threading.Event()
             request = BatchRequest(
                 id=request_id,
                 args=(item,),
@@ -261,38 +287,106 @@ class SyncRequestBatcher(Generic[T, R]):
             )
             self._queue.append(request)
 
-            # Flush if needed
             if len(self._queue) >= self._batch_size:
-                self._flush_locked()
+                self._cancel_timeout_flush_locked()
+                batch = self._take_batch_locked()
+            elif not self._processing:
+                self._schedule_timeout_flush_locked()
 
-        # Wait for result
-        future.wait()
-        return future.result
+        if batch is not None:
+            self._process_batches(batch)
 
-    def _flush_locked(self) -> None:
-        """Flush queue (must hold lock)."""
-        if not self._queue:
+        return future.result()
+
+    def _schedule_timeout_flush_locked(self) -> None:
+        """Schedule the one timeout timer for a non-full pending queue."""
+        if self._flush_timer is not None or not self._queue:
             return
+
+        self._timer_generation += 1
+        generation = self._timer_generation
+        timer = threading.Timer(
+            self._flush_timeout, self._flush_after_timeout, args=(generation,)
+        )
+        timer.daemon = True
+        self._flush_timer = timer
+        timer.start()
+
+    def _cancel_timeout_flush_locked(self) -> None:
+        """Cancel the pending timeout without allowing an old callback to win."""
+        self._timer_generation += 1
+        timer = self._flush_timer
+        self._flush_timer = None
+        if timer is not None:
+            timer.cancel()
+
+    def _take_batch_locked(self) -> list[BatchRequest[T]] | None:
+        """Detach one batch while holding the mutex, ready for outside processing."""
+        if self._processing or not self._queue:
+            return None
 
         batch = self._queue[: self._batch_size]
         self._queue = self._queue[self._batch_size :]
+        self._processing = True
+        return batch
 
-        try:
-            items = [req.args[0] for req in batch]
-            results = self._processor(items)
+    def _flush_after_timeout(self, generation: int) -> None:
+        """Detach a timed-out partial batch and process it outside the mutex."""
+        with self._lock:
+            if generation != self._timer_generation:
+                return
+            self._flush_timer = None
+            batch = self._take_batch_locked()
 
-            for i, req in enumerate(batch):
-                if hasattr(req.future, "set_result"):
-                    req.future.set_result(results[i] if i < len(results) else None)
-        except Exception as e:
-            for req in batch:
-                if hasattr(req.future, "set_exception"):
-                    req.future.set_exception(e)
+        if batch is not None:
+            self._process_batches(batch)
+
+    def _process_batches(self, batch: list[BatchRequest[T]]) -> None:
+        """Process detached work without holding the queue mutex.
+
+        A full remainder is detached immediately after a batch completes so a
+        submitter that arrived during processing never depends on a stale
+        timeout callback.
+        """
+        while True:
+            try:
+                items = [req.args[0] for req in batch]
+                results = self._processor(items)
+
+                for index, request in enumerate(batch):
+                    future = request.future
+                    if isinstance(future, _SyncBatchResult):
+                        if index < len(results):
+                            future.set_result(results[index])
+                        else:
+                            future.set_exception(BatchError("No result"))
+            except Exception as error:
+                for request in batch:
+                    future = request.future
+                    if isinstance(future, _SyncBatchResult):
+                        future.set_exception(error)
+
+            with self._lock:
+                self._processing = False
+                if len(self._queue) >= self._batch_size:
+                    self._cancel_timeout_flush_locked()
+                    next_batch = self._take_batch_locked()
+                else:
+                    self._schedule_timeout_flush_locked()
+                    next_batch = None
+
+            if next_batch is None:
+                return
+            batch = next_batch
 
     def flush(self) -> None:
         """Force flush."""
         with self._lock:
-            self._flush_locked()
+            self._cancel_timeout_flush_locked()
+            batch = self._take_batch_locked()
+
+        if batch is not None:
+            self._process_batches(batch)
 
 
 def batch_requests(batch_size: int = 10, timeout: float = 0.1):
