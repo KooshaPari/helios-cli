@@ -60,5 +60,13 @@ mod tests {
     #[test]
     fn test_invariant() {
         assert!(invariants::check(&42, |v| *v > 0, "positive").is_ok());
+        assert!(invariants::check(&0i32, |v| *v > 0, "positive").is_err());
+    }
+
+    #[test]
+    fn property_test_new_sets_defaults() {
+        let test = PropertyTest::new("roundtrip");
+        assert_eq!(test.name, "roundtrip");
+        assert_eq!(test.iterations, 256);
     }
 }

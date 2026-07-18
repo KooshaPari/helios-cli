@@ -239,4 +239,56 @@ mod tests {
         assert_eq!(RunError::Timeout(7).to_string(), "Timeout after 7s");
         assert_eq!(RunError::NotFound.to_string(), "Command not found");
     }
+
+    #[tokio::test]
+    async fn run_executes_command_and_collects_stdout() {
+        #[cfg(windows)]
+        let result = Runner::new().run("cmd", &["/C", "echo hello-runner"]).await.unwrap();
+        #[cfg(not(windows))]
+        let result = Runner::new().run("sh", &["-c", "echo hello-runner"]).await.unwrap();
+
+        assert!(result.success);
+        assert!(result.output().contains("hello-runner"));
+        assert!(result.duration > Duration::ZERO || result.success);
+        assert!(!result.output_lines().is_empty());
+    }
+
+    #[tokio::test]
+    #[cfg(not(windows))]
+    async fn run_with_input_pipes_stdin() {
+        let result = Runner::new()
+            .run_with_input("sh", &["-c", "read OUT; echo $OUT"], "piped\n")
+            .await
+            .unwrap();
+
+        assert!(result.success);
+        assert!(result.stdout.contains("piped") || result.output().contains("piped"));
+    }
+
+    #[tokio::test]
+    #[cfg(windows)]
+    async fn run_with_input_pipes_stdin_on_windows() {
+        let result = Runner::new()
+            .run_with_input("cmd", &["/C", "findstr piped"], "piped\r\n")
+            .await
+            .unwrap();
+
+        assert!(result.success);
+        assert!(result.output().contains("piped"));
+    }
+
+    #[tokio::test]
+    async fn run_respects_timeout_configuration() {
+        #[cfg(windows)]
+        let cmd = ("cmd", vec!["/C", "ping", "-n", "6", "127.0.0.1"]);
+        #[cfg(not(windows))]
+        let cmd = ("sh", vec!["-c", "sleep 5"]);
+
+        let result = Runner::new()
+            .with_timeout(1)
+            .run(cmd.0, cmd.1.as_slice())
+            .await;
+
+        assert!(matches!(result, Err(RunError::Timeout(1))));
+    }
 }

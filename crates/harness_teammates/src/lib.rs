@@ -61,5 +61,15 @@ mod tests {
         let reg = TeammateRegistry::new();
         reg.register(Teammate::new("1", "test", "eng", "desc"));
         assert!(reg.get("1").is_some());
+        assert_eq!(reg.list().len(), 1);
+        assert_eq!(reg.find_by_role("eng").len(), 1);
+        assert!(reg.unregister("1"));
+        assert!(reg.get("1").is_none());
+    }
+
+    #[test]
+    fn default_registry_is_empty() {
+        let reg = TeammateRegistry::default();
+        assert!(reg.list().is_empty());
     }
 }

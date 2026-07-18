@@ -230,4 +230,36 @@ mod tests {
         let result = ch.send(3);
         assert!(matches!(result, Err(QueueError::Full)));
     }
+
+    #[test]
+    fn channel_send_recv_and_capacity_helpers() {
+        let ch: Channel<i32> = Channel::new(4);
+        ch.send(42).unwrap();
+        assert_eq!(ch.len(), 1);
+        assert!(!ch.is_empty());
+        assert!(!ch.is_full());
+        assert_eq!(ch.recv(), Some(42));
+        assert!(ch.is_empty());
+        assert!(ch.recv().is_none());
+    }
+
+    #[test]
+    fn ring_buffer_push_pop_and_capacity() {
+        let mut ring: RingBuffer<i32> = RingBuffer::new(2);
+        assert!(ring.push(1));
+        assert!(ring.push(2));
+        assert!(!ring.push(3));
+        assert_eq!(ring.len(), 2);
+        assert_eq!(ring.pop(), Some(1));
+        assert_eq!(ring.len(), 0);
+    }
+
+    #[test]
+    fn work_queue_local_push_pop() {
+        let queue: WorkQueue<i32> = WorkQueue::default();
+        queue.push(7);
+        assert_eq!(queue.pop(), Some(7));
+        assert!(queue.pop().is_none());
+        assert!(queue.steal().is_none());
+    }
 }

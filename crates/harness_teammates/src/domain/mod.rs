@@ -169,3 +169,30 @@ impl DelegationResult {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn priority_as_str_and_delegation_request_builder() {
+        assert_eq!(Priority::High.as_str(), "high");
+        let req = DelegationRequest::new("coder", "fix tests").with_priority(Priority::Critical);
+        assert_eq!(req.teammate_id, "coder");
+        assert_eq!(req.priority, Priority::Critical);
+    }
+
+    #[test]
+    fn teammate_builder_and_delegation_results() {
+        let teammate = Teammate::new("t1", "Coder", "code", "writes code")
+            .with_tools(vec!["pytest".to_string()])
+            .with_timeout(120);
+        assert_eq!(teammate.timeout_seconds, 120);
+        assert_eq!(teammate.tools, vec!["pytest".to_string()]);
+
+        let ok = DelegationResult::success("t1", "done".to_string());
+        assert_eq!(ok.status, DelegationStatus::Completed);
+        let err = DelegationResult::failure("t1", "boom".to_string());
+        assert_eq!(err.status, DelegationStatus::Failed);
+    }
+}

@@ -116,4 +116,16 @@ mod tests {
         assert!(matches!(result, Err(PluginError::DuplicateName(ref n)) if n == "echo"));
         assert_eq!(registry.names(), vec!["echo".to_string()]);
     }
+
+    #[test]
+    fn plugin_registry_loads_shared_object_stems() {
+        let dir = TempDir::new().unwrap();
+        std::fs::write(dir.path().join("sample.so"), b"fake").unwrap();
+
+        let mut registry = HeliosPluginRegistry::new();
+        registry.load_from_dir(dir.path()).unwrap();
+
+        assert_eq!(registry.names(), vec!["sample".to_string()]);
+        assert_eq!(registry.get("sample").unwrap().version(), "0.1.0");
+    }
 }

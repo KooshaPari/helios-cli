@@ -1,0 +1,36 @@
+{
+  "tool": "cargo llvm-cov --workspace --summary-only --jobs 1",
+  "before": {
+    "line_coverage_pct": 57.30,
+    "rust_tests": 148,
+    "traceability_tests": "5/5",
+    "branch_coverage_pct": null,
+    "note": "Baseline from campaign starting state (PR #604)"
+  },
+  "after_measured": {
+    "line_coverage_pct": 68.06,
+    "region_coverage_pct": 67.86,
+    "function_coverage_pct": 62.61,
+    "lines_total": 3907,
+    "lines_missed": 1248,
+    "rust_tests": 215,
+    "traceability_tests": "5/5",
+    "python_root_tests": "11/11",
+    "measured_at": "2026-07-18T06:24:00Z",
+    "evidence_file": "artifacts/coverage/after-summary.txt"
+  },
+  "target_line_coverage_pct": 85.0,
+  "gate_status": {
+    "line_coverage_ge_85": "FAIL",
+    "workspace_tests": "PASS",
+    "traceability": "PASS",
+    "kla_help_smoke": "PASS",
+    "npm_staging_0.115.0": "BLOCKED"
+  },
+  "blockers": [
+    "Final llvm-cov re-run failed: rustc-LLVM ERROR no space on device (C:\\temp\\wt-proto-mcp-target)",
+    "npm staging: Unable to find rust-release workflow for version 0.115.0",
+    "Branch coverage instrumented as 0 branches on Windows LLVM report",
+    "18 default-branch Dependabot alerts unchanged (out of scope this tick)"
+  ]
+}

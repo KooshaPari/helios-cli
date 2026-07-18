@@ -42,7 +42,7 @@ pub struct Checkpoint {
 }
 
 /// Checkpoint status
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CheckpointStatus {
     #[default]
@@ -125,5 +125,45 @@ impl Default for CheckpointOptions {
             include_uncommitted: true,
             message: None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn checkpoint_options_default_flags_enabled() {
+        let options = CheckpointOptions::default();
+        assert!(options.git_checkpoint);
+        assert!(options.config_snapshot);
+        assert!(options.include_uncommitted);
+    }
+
+    #[test]
+    fn checkpoint_status_roundtrip_serialization() {
+        let checkpoint = Checkpoint {
+            id: Uuid::new_v4(),
+            spec_id: "spec".to_string(),
+            git_sha: Some("abc".to_string()),
+            git_message: None,
+            config_snapshot: None,
+            db_snapshot_id: None,
+            metrics_baseline: Some(MetricsBaseline {
+                timestamp: Utc::now(),
+                cpu_percent: None,
+                memory_mb: Some(128),
+                latency_ms: None,
+                error_rate: None,
+            }),
+            created_at: Utc::now(),
+            status: CheckpointStatus::Complete,
+            metadata: std::collections::HashMap::new(),
+        };
+
+        let json = serde_json::to_string(&checkpoint).expect("serialize");
+        let decoded: Checkpoint = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(decoded.spec_id, "spec");
+        assert_eq!(decoded.status, CheckpointStatus::Complete);
     }
 }

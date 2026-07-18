@@ -649,4 +649,54 @@ runner:
 
         let _ = std::fs::remove_file(&path);
     }
+
+    #[test]
+    fn test_config_from_toml_file() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("helios_test_config.toml");
+        let toml_content = r#"
+[cache]
+max_capacity = 4242
+[runner]
+timeout_secs = 99
+"#;
+        std::fs::write(&path, toml_content).expect("write test config");
+
+        let config = HeliosConfig::from_file(&path).expect("load from toml");
+        assert_eq!(config.cache.max_capacity, 4242);
+        assert_eq!(config.runner.timeout_secs, 99);
+
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_load_from_explicit_path_overrides_defaults() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("helios_load_from_test.yaml");
+        let yaml_content = r#"
+cache:
+  max_capacity: 1111
+"#;
+        std::fs::write(&path, yaml_content).expect("write test config");
+
+        let config = HeliosConfig::load_from(Some(&path));
+        assert_eq!(config.cache.max_capacity, 1111);
+
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_env_overrides_apply_on_load() {
+        let key = "HELIOS_CACHE_MAX_CAPACITY";
+        let prior = env::var(key).ok();
+        env::set_var(key, "9090");
+
+        let config = HeliosConfig::load();
+        assert_eq!(config.cache.max_capacity, 9090);
+
+        match prior {
+            Some(value) => env::set_var(key, value),
+            None => env::remove_var(key),
+        }
+    }
 }

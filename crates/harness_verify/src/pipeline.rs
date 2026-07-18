@@ -186,3 +186,127 @@ pub struct GateConfig {
     pub criteria: String,
     pub threshold: Option<f64>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::result::{VerificationResult, VerificationStatus, VerificationType};
+    use chrono::Utc;
+    use uuid::Uuid;
+
+    fn sample_result(status: VerificationStatus) -> VerificationResult {
+        VerificationResult {
+            id: Uuid::new_v4(),
+            spec_id: "demo-spec".to_string(),
+            verification_type: VerificationType::Test,
+            status,
+            started_at: Utc::now(),
+            completed_at: Some(Utc::now()),
+            duration_ms: 1,
+            output: "ok".to_string(),
+            errors: vec![],
+            metrics: Default::default(),
+        }
+    }
+
+    #[test]
+    fn run_gates_all_passed_requires_every_result_passed() {
+        let pipeline = VerificationPipeline::new();
+        let results = vec![
+            sample_result(VerificationStatus::Passed),
+            sample_result(VerificationStatus::Passed),
+        ];
+        let gates = vec![GateConfig {
+            name: "all".to_string(),
+            criteria: "all_passed".to_string(),
+            threshold: None,
+        }];
+
+        let gate_results = pipeline.run_gates(&results, &gates);
+        assert_eq!(gate_results.len(), 1);
+        assert!(gate_results[0].passed);
+    }
+
+    #[test]
+    fn run_gates_no_failures_allows_skipped() {
+        let pipeline = VerificationPipeline::new();
+        let results = vec![
+            sample_result(VerificationStatus::Passed),
+            sample_result(VerificationStatus::Skipped),
+        ];
+        let gates = vec![GateConfig {
+            name: "no_failures".to_string(),
+            criteria: "no_failures".to_string(),
+            threshold: None,
+        }];
+
+        let gate_results = pipeline.run_gates(&results, &gates);
+        assert!(gate_results[0].passed);
+    }
+
+    #[test]
+    fn run_gates_unknown_criteria_fails() {
+        let pipeline = VerificationPipeline::new();
+        let results = vec![sample_result(VerificationStatus::Passed)];
+        let gates = vec![GateConfig {
+            name: "unknown".to_string(),
+            criteria: "unsupported".to_string(),
+            threshold: None,
+        }];
+
+        let gate_results = pipeline.run_gates(&results, &gates);
+        assert!(!gate_results[0].passed);
+    }
+
+    #[tokio::test]
+    async fn security_rule_is_skipped_with_message() {
+        let pipeline = VerificationPipeline::new();
+        let spec = harness_spec::models::Specification {
+            spec: harness_spec::models::SpecContent {
+                name: "security-demo".to_string(),
+                version: "1.0.0".to_string(),
+                owner: String::new(),
+                verification: vec![harness_spec::models::VerificationRule::Security {
+                    scanner: "trivy".to_string(),
+                    critical_only: true,
+                }],
+                rollback: Default::default(),
+                success_criteria: vec![],
+                behavior: None,
+                resources: None,
+                metadata: Default::default(),
+            },
+        };
+
+        let results = pipeline.verify(&spec).await.unwrap();
+        assert_eq!(results.len(), 1);
+        assert!(matches!(results[0].status, VerificationStatus::Skipped));
+        assert!(results[0].output.contains("trivy"));
+    }
+
+    #[tokio::test]
+    async fn performance_rule_is_skipped_with_message() {
+        let pipeline = VerificationPipeline::new();
+        let spec = harness_spec::models::Specification {
+            spec: harness_spec::models::SpecContent {
+                name: "perf-demo".to_string(),
+                version: "1.0.0".to_string(),
+                owner: String::new(),
+                verification: vec![harness_spec::models::VerificationRule::Performance {
+                    metric: "p95_latency".to_string(),
+                    threshold: "250ms".to_string(),
+                }],
+                rollback: Default::default(),
+                success_criteria: vec![],
+                behavior: None,
+                resources: None,
+                metadata: Default::default(),
+            },
+        };
+
+        let results = pipeline.verify(&spec).await.unwrap();
+        assert_eq!(results.len(), 1);
+        assert!(matches!(results[0].status, VerificationStatus::Skipped));
+        assert!(results[0].output.contains("p95_latency"));
+    }
+}

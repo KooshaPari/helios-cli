@@ -283,4 +283,36 @@ mod tests {
 
         assert!(spec.spec.behavior.is_some());
     }
+
+    #[test]
+    fn generate_specs_for_additional_intents() {
+        let generator = SpecGenerator::new();
+        let deploy = ClassifiedIntent {
+            intent: Intent::Deploy,
+            confidence: 0.9,
+            entities: vec![],
+            original_input: "Deploy release".to_string(),
+        };
+        let deploy_spec = generator.generate(&deploy).expect("deploy spec");
+        assert!(deploy_spec.spec.name.starts_with("deploy-"));
+
+        let optimize = ClassifiedIntent {
+            intent: Intent::Optimize,
+            confidence: 0.9,
+            entities: vec![],
+            original_input: "Optimize latency".to_string(),
+        };
+        let optimize_spec = generator.generate(&optimize).expect("optimize spec");
+        assert_eq!(optimize_spec.spec.success_criteria.len(), 1);
+        assert!(optimize_spec.spec.verification.iter().any(|rule| {
+            matches!(rule, VerificationRule::Performance { .. })
+        }));
+    }
+
+    #[test]
+    fn classify_without_generating_spec() {
+        let handler = ElicitationHandler::new();
+        let intent = handler.classify("Refactor auth module").expect("classify");
+        assert_eq!(intent.intent, Intent::Refactor);
+    }
 }

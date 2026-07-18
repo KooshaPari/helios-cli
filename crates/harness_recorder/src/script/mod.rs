@@ -185,3 +185,22 @@ fn parse_duration(s: &str) -> Result<Duration> {
         Err(anyhow::anyhow!("Duration must end with 'ms' or 's'"))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_duration_accepts_ms_and_seconds() {
+        assert_eq!(parse_duration("250ms").unwrap(), Duration::from_millis(250));
+        assert_eq!(parse_duration("2s").unwrap(), Duration::from_secs(2));
+        assert!(parse_duration("bad").is_err());
+    }
+
+    #[test]
+    fn single_command_script_uses_defaults() {
+        let script = Script::single_command("echo hi").unwrap();
+        assert_eq!(script.steps.len(), 1);
+        assert_eq!(script.settings.width, 120);
+    }
+}

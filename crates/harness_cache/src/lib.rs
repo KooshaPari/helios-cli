@@ -198,4 +198,36 @@ mod tests {
         let err: CacheError = io_err.into();
         assert!(err.to_string().contains("disk full"));
     }
+
+    #[test]
+    fn cache_expires_entries_after_ttl() {
+        let cache = Cache::new(&CacheConfig { max_capacity: 10, ttl_secs: 0, name: "ttl".into() });
+        cache.set("expiring".to_string(), b"value".to_vec());
+        std::thread::sleep(std::time::Duration::from_millis(1));
+        assert!(cache.get("expiring").is_none());
+    }
+
+    #[test]
+    fn cache_len_and_contains_track_entries() {
+        let cache = Cache::with_defaults();
+        cache.set("a".to_string(), b"1".to_vec());
+        cache.set("b".to_string(), b"2".to_vec());
+        assert_eq!(cache.len(), 2);
+        assert!(cache.contains("a"));
+        cache.remove("a");
+        assert!(!cache.contains("a"));
+    }
+
+    #[test]
+    fn cache_clear_and_stats_helpers() {
+        let cache = Cache::with_defaults();
+        cache.set("key".to_string(), b"v".to_vec());
+        assert!(!cache.is_empty());
+        cache.clear();
+        assert!(cache.is_empty());
+
+        let stats = CacheStats { hits: 3, misses: 1, ..Default::default() };
+        assert_eq!(stats.hit_rate(), 0.75);
+        assert_eq!(CacheStats::default().hit_rate(), 0.0);
+    }
 }

@@ -98,3 +98,47 @@ fn get_memory_usage() -> u64 {
 fn get_cpu_usage() -> Option<f64> {
     None // Would require platform-specific implementation
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn snapshot_config_reads_existing_file_and_filters_secrets() {
+        let file = NamedTempFile::new().unwrap();
+        std::fs::write(file.path(), "cache:\n  ttl: 5").unwrap();
+        let path = file.path().to_str().unwrap();
+
+        let snapshot = snapshot_config(&[path]).expect("snapshot");
+        assert_eq!(snapshot.files.len(), 1);
+        assert_eq!(snapshot.files[0].path, path);
+        assert!(!snapshot.files[0].content_hash.is_empty());
+    }
+
+    #[test]
+    fn capture_metrics_baseline_has_timestamp() {
+        let baseline = capture_metrics_baseline();
+        assert!(baseline.timestamp <= chrono::Utc::now());
+    }
+
+    #[test]
+    fn snapshot_config_skips_missing_paths() {
+        let snapshot = snapshot_config(&["/nonexistent/helios-config-path"])
+            .expect("snapshot without files");
+        assert!(snapshot.files.is_empty());
+    }
+
+    #[test]
+    fn snapshot_config_filters_sensitive_env_vars() {
+        let key = "HELIOS_TEST_SECRET_TOKEN";
+        let prior = std::env::var(key).ok();
+        std::env::set_var(key, "hidden");
+        let snapshot = snapshot_config(&[]).expect("snapshot env");
+        assert!(!snapshot.env_vars.contains_key(key));
+        match prior {
+            Some(value) => std::env::set_var(key, value),
+            None => std::env::remove_var(key),
+        }
+    }
+}

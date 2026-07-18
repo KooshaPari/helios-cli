@@ -1,0 +1,479 @@
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+    Blocking waiting for file lock on package cache
+   Compiling harness_spec v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_spec)
+   Compiling arch_test v0.1.0 (C:\Users\koosh\helios-cli\crates\arch_test)
+   Compiling kla v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_recorder)
+   Compiling pheno-plugin v0.1.0 (C:\Users\koosh\helios-cli\crates\pheno-plugin)
+   Compiling harness_utils v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_utils)
+   Compiling harness_queue v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_queue)
+   Compiling harness_normalizer v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_normalizer)
+   Compiling harness_teammates v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_teammates)
+   Compiling harness_schema v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_schema)
+   Compiling helios_config v0.2.1 (C:\Users\koosh\helios-cli\crates\helios_config)
+   Compiling harness_cache v0.3.0 (C:\Users\koosh\helios-cli\crates\harness_cache)
+   Compiling harness_runner v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_runner)
+   Compiling harness_checkpoint v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_checkpoint)
+   Compiling harness_verify v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_verify)
+   Compiling plugin-arch v0.1.0 (C:\Users\koosh\helios-cli\crates\plugin-arch)
+   Compiling harness_interfaces v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_interfaces)
+   Compiling harness_discoverer v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_discoverer)
+   Compiling harness_scaling v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_scaling)
+   Compiling harness_rollback v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_rollback)
+   Compiling harness_elicitation v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_elicitation)
+   Compiling harness_orchestrator v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_orchestrator)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 54.70s
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\arch_test-949246ffd9a962be.exe)
+
+running 6 tests
+test proptest_patterns::tests::property_test_new_sets_defaults ... ok
+test proptest_patterns::tests::test_invariant ... ok
+test boundary::tests::layer_from_path_and_allowed_dependencies ... ok
+test boundary::tests::test_boundary_clean ... ok
+test boundary::tests::test_domain_layer ... ok
+test tdd::tests::test_cycle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+     Running tests\boundary_tests.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\boundary_tests-920b65dc9adf5faa.exe)
+
+running 4 tests
+test hexagonal_structure_followed ... ok
+test no_cyclic_dependencies ... ok
+test adapters_only_depend_on_domain ... ok
+test domain_has_no_external_dependencies ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests\property_tests.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\property_tests-0ff4987e57e3d751.exe)
+
+running 15 tests
+test test_checked_div_safe ... ok
+test test_result_ok_is_ok ... ok
+test test_slice_reverse_is_involutive ... ok
+test test_option_some_contains_value ... ok
+test test_binary_search_finds_sorted_target ... ok
+test test_sort_is_monotonic ... ok
+test test_max_is_greater_than_or_equal_all ... ok
+test test_hashmap_insert_retrieve ... ok
+test test_vec_push_increments_length ... ok
+test test_min_is_less_than_or_equal_all ... ok
+test test_hashmap_remove ... ok
+test test_int_mul_distributes_over_add ... ok
+test test_sort_preserves_length ... ok
+test test_string_concat_associative ... ok
+test test_int_add_commutative ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+
+     Running tests\tdd_tests.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\tdd_tests-915afb5bab1c50c7.exe)
+
+running 9 tests
+test test_stack_push_pop ... ok
+test test_stack_underflow_returns_none ... ok
+test test_insert_and_get ... ok
+test test_remove_value ... ok
+test test_contains_key ... ok
+test test_user_registration_valid ... ok
+test test_user_registration_weak_password ... ok
+test test_update_existing_value ... ok
+test test_user_registration_invalid_email ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_cache-d2172c94a9747164.exe)
+
+running 9 tests
+test tests::cache_clear_and_stats_helpers ... ok
+test tests::test_cache_set_get ... ok
+test tests::test_cache_str ... ok
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::io_error_display_includes_message ... ok
+test tests::cache_len_and_contains_track_entries ... ok
+test tests::cache_expires_entries_after_ttl ... ok
+test tests::test_cache_miss ... ok
+test tests::test_cache_remove ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_checkpoint-fea3be05a7c9cf52.exe)
+
+running 14 tests
+test checkpoint::tests::checkpoint_options_default_flags_enabled ... ok
+test checkpoint::tests::checkpoint_status_roundtrip_serialization ... ok
+test config::tests::capture_metrics_baseline_has_timestamp ... ok
+test config::tests::snapshot_config_filters_sensitive_env_vars ... ok
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test error::tests::io_error_display_includes_message ... ok
+test config::tests::snapshot_config_skips_missing_paths ... ok
+test store::tests::test_store ... ok
+test config::tests::snapshot_config_reads_existing_file_and_filters_secrets ... ok
+test git::tests::get_git_status_reports_untracked_files ... ok
+test git::tests::restore_git_checkpoint_rejects_invalid_sha ... ok
+test git::tests::get_current_sha_returns_head_commit ... ok
+test git::tests::create_git_checkpoint_stages_uncommitted_changes ... ok
+test git::tests::restore_git_checkpoint_reverts_worktree ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.37s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_discoverer-f2820d890694614d.exe)
+
+running 5 tests
+test tests::set_healthy_updates_existing_only ... ok
+test tests::unregister_reports_removal ... ok
+test tests::list_and_healthy_filter ... ok
+test tests::register_then_get_returns_service ... ok
+test tests::default_registry_starts_empty ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_elicitation-899402a1306b8c70.exe)
+
+running 14 tests
+test intent::tests::classified_intent_roundtrip_serialization ... ok
+test generator::tests::generate_specs_for_additional_intents ... ok
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test error::tests::io_error_display_includes_message ... ok
+test intent::tests::default_verification_rules_per_intent ... ok
+test generator::tests::classify_without_generating_spec ... ok
+test classifier::tests::test_extract_entities ... ok
+test classifier::tests::test_classify_feature ... ok
+test generator::tests::test_behavior_generation ... ok
+test classifier::tests::test_classify_refactor ... ok
+test generator::tests::test_generate_fix_spec ... ok
+test generator::tests::test_generate_feature_spec ... ok
+test classifier::tests::test_classify_deploy_and_test_intents ... ok
+test classifier::tests::test_classify_fix ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_interfaces-33a082e2bd838860.exe)
+
+running 6 tests
+test tests::publisher_trait_reports_errors ... ok
+test tests::request_builder_sets_fields_and_unique_ids ... ok
+test tests::event_new_preserves_topic_and_payload ... ok
+test tests::handler_trait_processes_request ... ok
+test tests::response_builder_sets_header_and_body ... ok
+test tests::response_constructors_carry_expected_status ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_normalizer-aea2613d373da7f5.exe)
+
+running 6 tests
+test tests::test_normalize_json_unbalanced_returns_err ... ok
+test tests::test_normalize_json_strips_whitespace ... ok
+test tests::test_normalize_json_empty_returns_err ... ok
+test tests::test_basic_normalization ... ok
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::test_url_normalization ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_orchestrator-a5a89904b50ac464.exe)
+
+running 7 tests
+test tests::agent_assign_and_release ... ok
+test id::tests::new_id_is_unique ... ok
+test id::tests::short_id_respects_namespace_and_length ... ok
+test tests::execute_runs_ready_tasks_with_idle_agent ... ok
+test tests::test_register ... ok
+test tests::task_dependency_and_lifecycle ... ok
+test tests::test_decompose ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_queue-2e1d48d04a12a8d1.exe)
+
+running 7 tests
+test tests::ring_buffer_push_pop_and_capacity ... ok
+test tests::io_error_display_includes_message ... ok
+test tests::channel_send_recv_and_capacity_helpers ... ok
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::work_queue_local_push_pop ... ok
+test tests::send_after_close_returns_closed ... ok
+test tests::send_at_capacity_returns_full ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_rollback-05a4225e1c39efec.exe)
+
+running 2 tests
+test tests::rollback_record_partial_when_failures_present ... ok
+test tests::test_rollback ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_runner-51bfa07e91ce9ab7.exe)
+
+running 6 tests
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::timeout_and_not_found_display ... ok
+test tests::io_error_display_includes_message ... ok
+test tests::run_with_input_pipes_stdin_on_windows ... ok
+test tests::run_executes_command_and_collects_stdout ... ok
+test tests::run_respects_timeout_configuration ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.19s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_scaling-dc01a9b5b6b1b11b.exe)
+
+running 8 tests
+test tests::calculate_replicas_scales_up_down_and_clamps ... ok
+test tests::resource_sampler_evicts_and_computes_stats ... ok
+test tests::circuit_breaker_can_attempt_only_when_not_open ... ok
+test tests::scaling_config_default_is_within_bounds ... ok
+test tests::circuit_breaker_opens_after_threshold ... ok
+test tests::token_bucket_drains_and_rejects_when_empty ... ok
+test tests::predictive_scaler_extrapolates_linear_trend ... ok
+test tests::predictive_scaler_needs_two_samples ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_schema-73f4e7ba2f6e5dff.exe)
+
+running 7 tests
+test tests::test_command_count ... ok
+test tests::test_find_command ... ok
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::test_schema_validation_valid ... ok
+test tests::test_schema_validation_empty_name ... ok
+test tests::test_schema_validation_empty_command_name ... ok
+test tests::test_schema_validation_empty_command_string ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_spec-81b1246f9b0b2d2d.exe)
+
+running 17 tests
+test error::tests::io_error_display_includes_message ... ok
+test parser::tests::test_auto_detect_json ... ok
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test validation::tests::validate_verification_rules_reject_invalid_values ... ok
+test validation::tests::test_validate_missing_name ... ok
+test parser::tests::test_parse_json ... ok
+test parser::tests::test_parse_file_missing_yields_io ... ok
+test validation::tests::test_validate_valid_spec ... ok
+test validation::tests::validate_rollback_and_success_bounds ... ok
+test parser::tests::test_parse_valid_yaml ... ok
+test validation::tests::test_validate_invalid_version ... ok
+test validation::tests::validate_with_options_strict_accepts_complete_spec ... ok
+test validation::tests::test_validate_rejects_empty_success_metric ... ok
+test validation::tests::test_validate_strict_mode_requires_owner_and_verification ... ok
+test parser::tests::test_auto_detect_yaml ... ok
+test parser::tests::test_parse_file_yaml_default ... ok
+test parser::tests::test_parse_file_json ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_teammates-0b2f43f704884f32.exe)
+
+running 7 tests
+test adapters::tests::in_memory_registry_roundtrip ... ok
+test adapters::tests::health_check_adapter_lists_registry_teammates ... ok
+test domain::tests::priority_as_str_and_delegation_request_builder ... ok
+test domain::tests::teammate_builder_and_delegation_results ... ok
+test tests::test_reg ... ok
+test adapters::tests::simple_delegation_adapter_completes_request ... ok
+test tests::default_registry_is_empty ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_utils-4f16181b55bb759d.exe)
+
+running 12 tests
+test tests::test_hash ... ok
+test tests::test_palindrome ... ok
+test tests::test_parse_tags_with_spaces ... ok
+test tests::utils_error_from_io ... ok
+test tests::test_parse_tags ... ok
+test tests::test_parse_tags_empty ... ok
+test tests::read_text_file_missing_yields_io ... ok
+test tests::test_parse_kv_invalid ... ok
+test tests::test_parse_kv_with_spaces ... ok
+test tests::read_text_file_round_trip ... ok
+test tests::test_palindrome_single_char ... ok
+test tests::test_parse_kv ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\harness_verify-73f040820eea9b4f.exe)
+
+running 12 tests
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test pipeline::tests::run_gates_unknown_criteria_fails ... ok
+test runners::tests::parse_cargo_test_counts_reads_stderr_lines ... ok
+test runners::tests::parse_cargo_test_counts_sums_multiple_crates ... ok
+test pipeline::tests::security_rule_is_skipped_with_message ... ok
+test pipeline::tests::performance_rule_is_skipped_with_message ... ok
+test error::tests::io_error_display_includes_message ... ok
+test pipeline::tests::run_gates_no_failures_allows_skipped ... ok
+test pipeline::tests::run_gates_all_passed_requires_every_result_passed ... ok
+test runners::tests::build_cargo_test_result_populates_metrics ... ok
+test runners::tests::build_pytest_result_surfaces_stderr_on_failure ... ok
+test runners::tests::run_cargo_test_executes_package_scoped_command ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.95s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\helios_config-13d1324327aed79c.exe)
+
+running 7 tests
+test tests::test_config_partial_overlay ... ok
+test tests::test_config_roundtrip_yaml ... ok
+test tests::test_config_from_toml_file ... ok
+test tests::test_load_from_explicit_path_overrides_defaults ... ok
+test tests::test_config_from_yaml_file ... ok
+test tests::test_default_config_values ... ok
+test tests::test_env_overrides_apply_on_load ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\kla-2fe852aac5e95987.exe)
+
+running 22 tests
+test cli::tests::execute_command_dispatches_convert ... ok
++- kla record ---------------------+
+| Recording complete               |
+| steps    : 2                     |
+| output   : artifacts/test-output |
+| artifacts:                       |
+|   demo.png                       |
++----------------------------------+
+test pty::capture::tests::test_formatted_contents ... ok
+test cli::commands::tests::convert_command_is_noop_success ... ok
+test pty::capture::tests::test_terminal_capture ... ok
+test script::loader::tests::test_load_simple_script ... ok
+test script::loader::tests::test_roundtrip_serialization ... ok
+test media::recorder::tests::test_output_path_generation ... ok
+test cli::commands::tests::print_recording_summary_writes_ascii_when_not_tty ... ok
+test media::recorder::tests::test_media_recorder_creation ... ok
+test script::tests::parse_duration_accepts_ms_and_seconds ... ok
+test tests::output_format_parses_known_values ... ok
+test tests::terminal_settings_default_has_expected_dimensions_and_theme ... ok
+test script::tests::single_command_script_uses_defaults ... ok
+test tests::test_kla_builder ... ok
+test tests::test_single_command_script ... ok
+test pty::controller::tests::controller_initializes_and_exposes_terminal_api ... ok
+test pty::tests::terminal_type_text_sends_characters ... ok
+test media::screenshot::tests::test_screenshot_generation ... ok
++- kla record ------------------------------------------------+
+| Recording complete                                          |
+| steps    : 1                                                |
+| output   : C:\Users\koosh\AppData\Local\Temp\.tmpPkRRzC\out |
+| artifacts: (none)                                           |
++-------------------------------------------------------------+
+test cli::commands::tests::record_command_runs_minimal_script ... ok
+test pty::controller::tests::controller_executes_command_and_exposes_output ... ok
+test pty::tests::terminal_executes_command_and_waits_for_output ... ok
+test media::gif::tests::test_gif_recorder ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.76s
+
+     Running unittests src\main.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\kla-8a3779b28baedb98.exe)
+
+running 18 tests
++- kla record ---------------------+
+| Recording complete               |
+| steps    : 2                     |
+| output   : artifacts/test-output |
+| artifacts:                       |
+|   demo.png                       |
++----------------------------------+
+test cli::tests::execute_command_dispatches_convert ... ok
+test pty::capture::tests::test_terminal_capture ... ok
+test cli::commands::tests::print_recording_summary_writes_ascii_when_not_tty ... ok
+test pty::capture::tests::test_formatted_contents ... ok
+test script::loader::tests::test_roundtrip_serialization ... ok
+test cli::commands::tests::convert_command_is_noop_success ... ok
+test script::loader::tests::test_load_simple_script ... ok
+test media::recorder::tests::test_output_path_generation ... ok
+test script::tests::single_command_script_uses_defaults ... ok
+test script::tests::parse_duration_accepts_ms_and_seconds ... ok
+test media::recorder::tests::test_media_recorder_creation ... ok
+test pty::controller::tests::controller_initializes_and_exposes_terminal_api ... ok
+test pty::tests::terminal_type_text_sends_characters ... ok
+test media::screenshot::tests::test_screenshot_generation ... ok
+test pty::controller::tests::controller_executes_command_and_exposes_output ... ok
++- kla record ------------------------------------------------+
+| Recording complete                                          |
+| steps    : 1                                                |
+| output   : C:\Users\koosh\AppData\Local\Temp\.tmpiC0iUO\out |
+| artifacts: (none)                                           |
++-------------------------------------------------------------+
+test cli::commands::tests::record_command_runs_minimal_script ... ok
+test pty::tests::terminal_executes_command_and_waits_for_output ... ok
+test media::gif::tests::test_gif_recorder ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.93s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\pheno_plugin-56d745672720795a.exe)
+
+running 2 tests
+test tests::from_io_error ... ok
+test tests::registry_register_get_and_init_all ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (C:\temp\helios-cov-clean\llvm-cov-target\debug\deps\plugin_arch-77de0ee197398cc3.exe)
+
+running 3 tests
+test tests::plugin_registry_rejects_duplicate_plugins ... ok
+test tests::plugin_registry_loads_from_empty_dir ... ok
+test tests::plugin_registry_loads_shared_object_stems ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+Filename                                     Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+arch_test\src\boundary.rs                         73                13    82.19%           8                 1    87.50%          47                 8    82.98%           0                 0         -
+arch_test\src\proptest_patterns.rs                42                15    64.29%          11                 5    54.55%          32                14    56.25%           0                 0         -
+arch_test\src\tdd.rs                              44                 3    93.18%           6                 1    83.33%          30                 3    90.00%           0                 0         -
+harness_cache\src\lib.rs                         246                14    94.31%          26                 2    92.31%         121                 7    94.21%           0                 0         -
+harness_checkpoint\src\checkpoint.rs              42                 0   100.00%           3                 0   100.00%          39                 0   100.00%           0                 0         -
+harness_checkpoint\src\config.rs                 151                10    93.38%          12                 2    83.33%          78                 3    96.15%           0                 0         -
+harness_checkpoint\src\error.rs                   21                 1    95.24%           2                 0   100.00%          10                 0   100.00%           0                 0         -
+harness_checkpoint\src\git.rs                    440                73    83.41%          33                20    39.39%         186                23    87.63%           0                 0         -
+harness_checkpoint\src\store.rs                  109                10    90.83%          22                 3    86.36%          65                 9    86.15%           0                 0         -
+harness_discoverer\src\lib.rs                    176                 0   100.00%          25                 0   100.00%          93                 0   100.00%           0                 0         -
+harness_elicitation\src\classifier.rs            420                18    95.71%          24                 2    91.67%         168                12    92.86%           0                 0         -
+harness_elicitation\src\error.rs                  21                 1    95.24%           2                 0   100.00%          10                 0   100.00%           0                 0         -
+harness_elicitation\src\generator.rs             287                22    92.33%          22                 2    90.91%         218                26    88.07%           0                 0         -
+harness_elicitation\src\intent.rs                 58                12    79.31%           3                 0   100.00%          32                 6    81.25%           0                 0         -
+harness_interfaces\src\lib.rs                    165                 0   100.00%          17                 0   100.00%          86                 0   100.00%           0                 0         -
+harness_normalizer\src\lib.rs                    181                37    79.56%          21                 5    76.19%          96                17    82.29%           0                 0         -
+harness_orchestrator\src\id.rs                    40                 4    90.00%           4                 0   100.00%          20                 1    95.00%           0                 0         -
+harness_orchestrator\src\lib.rs                  227                15    93.39%          32                 3    90.62%         152                13    91.45%           0                 0         -
+harness_queue\src\lib.rs                         258                26    89.92%          26                 3    88.46%         151                11    92.72%           0                 0         -
+harness_recorder\src\cli\commands.rs             298               139    53.36%          18                 6    66.67%         151                55    63.58%           0                 0         -
+harness_recorder\src\cli\mod.rs                   34                17    50.00%           4                 0   100.00%          25                 5    80.00%           0                 0         -
+harness_recorder\src\lib.rs                      170                99    41.76%          20                10    50.00%         109                53    51.38%           0                 0         -
+harness_recorder\src\main.rs                      19                19     0.00%           3                 3     0.00%          22                22     0.00%           0                 0         -
+harness_recorder\src\media\gif.rs                194                87    55.15%          11                 6    45.45%          97                54    44.33%           0                 0         -
+harness_recorder\src\media\mod.rs                 76                33    56.58%           6                 2    66.67%          83                34    59.04%           0                 0         -
+harness_recorder\src\media\recorder.rs           130                84    35.38%          15                11    26.67%          72                48    33.33%           0                 0         -
+harness_recorder\src\media\screenshot.rs         128                12    90.62%           7                 2    71.43%          85                 4    95.29%           0                 0         -
+harness_recorder\src\pty\capture.rs               72                13    81.94%          10                 3    70.00%          39                10    74.36%           0                 0         -
+harness_recorder\src\pty\controller.rs            97                11    88.66%          16                 2    87.50%          61                 5    91.80%           0                 0         -
+harness_recorder\src\pty\mod.rs                  210                17    91.90%          20                 0   100.00%         121                 4    96.69%           0                 0         -
+harness_recorder\src\script\loader.rs             83                26    68.67%           8                 4    50.00%          69                11    84.06%           0                 0         -
+harness_recorder\src\script\mod.rs               135                34    74.81%          17                 4    76.47%          93                21    77.42%           0                 0         -
+harness_rollback\src\lib.rs                      128                13    89.84%          14                 3    78.57%          76                11    85.53%           0                 0         -
+harness_runner\src\lib.rs                        141                29    79.43%          24                 5    79.17%          94                19    79.79%           0                 0         -
+harness_scaling\src\lib.rs                       315                19    93.97%          30                 2    93.33%         219                24    89.04%           0                 0         -
+harness_schema\src\lib.rs                        120                 5    95.83%          12                 0   100.00%          61                 1    98.36%           0                 0         -
+harness_spec\src\error.rs                         27                 2    92.59%           2                 0   100.00%          13                 1    92.31%           0                 0         -
+harness_spec\src\models.rs                        16                 3    81.25%           5                 1    80.00%          19                 3    84.21%           0                 0         -
+harness_spec\src\parser.rs                       144                14    90.28%          15                 3    80.00%          92                 7    92.39%           0                 0         -
+harness_spec\src\validation.rs                   322                18    94.41%          16                 1    93.75%         285                17    94.04%           0                 0         -
+harness_teammates\src\adapters\mod.rs            155                14    90.97%          21                 3    85.71%          85                 7    91.76%           0                 0         -
+harness_teammates\src\domain\mod.rs              105                 9    91.43%          12                 2    83.33%          85                 9    89.41%           0                 0         -
+harness_teammates\src\lib.rs                      94                 2    97.87%          13                 0   100.00%          44                 0   100.00%           0                 0         -
+harness_utils\src\lib.rs                         191                 4    97.91%          21                 0   100.00%          90                 0   100.00%           0                 0         -
+harness_verify\src\error.rs                       21                 1    95.24%           2                 0   100.00%          10                 0   100.00%           0                 0         -
+harness_verify\src\pipeline.rs                   212                 8    96.23%          20                 2    90.00%         165                 6    96.36%           0                 0         -
+harness_verify\src\runners.rs                    224                26    88.39%          21                 7    66.67%         137                10    92.70%           0                 0         -
+helios_config\src\lib.rs                         343                54    84.26%          32                 6    81.25%         263                28    89.35%           0                 0         -
+pheno-plugin\src\lib.rs                           98                 4    95.92%          13                 1    92.31%          55                 3    94.55%           0                 0         -
+plugin-arch\src\lib.rs                           138                10    92.75%          13                 1    92.31%          66                 7    89.39%           0                 0         -
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                           7441              1100    85.22%         740               139    81.22%        4520               632    86.02%           0                 0         -

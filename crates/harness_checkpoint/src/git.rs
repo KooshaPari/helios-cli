@@ -171,3 +171,93 @@ pub fn get_current_sha(repo_path: &Path) -> Result<String> {
 
     Ok(oid.id().to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::checkpoint::{CheckpointOptions, CheckpointStatus};
+    use std::fs;
+    use tempfile::TempDir;
+
+    fn init_repo_with_commit(dir: &Path) {
+        let repo = Repository::init(dir).expect("init repo");
+        let file_path = dir.join("README.md");
+        fs::write(&file_path, "init").expect("write readme");
+        let mut index = repo.index().expect("index");
+        index.add_path(Path::new("README.md")).expect("add readme");
+        index.write().expect("write index");
+        let oid = index.write_tree().expect("write tree");
+        let tree = repo.find_tree(oid).expect("find tree");
+        let sig = Signature::now("test", "test@example.com").expect("signature");
+        repo.commit(Some("HEAD"), &sig, &sig, "init", &tree, &[])
+            .expect("initial commit");
+    }
+
+    #[test]
+    fn create_git_checkpoint_stages_uncommitted_changes() {
+        let dir = TempDir::new().expect("tempdir");
+        init_repo_with_commit(dir.path());
+        fs::write(dir.path().join("change.txt"), "hello").expect("write change");
+
+        let options = CheckpointOptions {
+            include_uncommitted: true,
+            message: Some("test checkpoint".to_string()),
+            ..Default::default()
+        };
+        let checkpoint =
+            create_git_checkpoint(dir.path(), "spec-1", &options).expect("create checkpoint");
+
+        assert_eq!(checkpoint.status, CheckpointStatus::Complete);
+        assert!(checkpoint.git_sha.is_some());
+        assert!(checkpoint.git_message.is_some());
+    }
+
+    #[test]
+    fn get_git_status_reports_untracked_files() {
+        let dir = TempDir::new().expect("tempdir");
+        init_repo_with_commit(dir.path());
+        fs::write(dir.path().join("new.txt"), "x").expect("write untracked");
+
+        let status = get_git_status(dir.path()).expect("git status");
+        assert!(!status.is_clean);
+        assert!(!status.untracked.is_empty());
+    }
+
+    #[test]
+    fn get_current_sha_returns_head_commit() {
+        let dir = TempDir::new().expect("tempdir");
+        init_repo_with_commit(dir.path());
+
+        let sha = get_current_sha(dir.path()).expect("current sha");
+        assert_eq!(sha.len(), 40);
+    }
+
+    #[test]
+    fn restore_git_checkpoint_reverts_worktree() {
+        let dir = TempDir::new().expect("tempdir");
+        init_repo_with_commit(dir.path());
+        fs::write(dir.path().join("a.txt"), "v1").expect("write v1");
+
+        let options = CheckpointOptions {
+            include_uncommitted: true,
+            ..Default::default()
+        };
+        let checkpoint =
+            create_git_checkpoint(dir.path(), "spec-restore", &options).expect("checkpoint");
+        fs::write(dir.path().join("a.txt"), "v2").expect("write v2");
+
+        restore_git_checkpoint(dir.path(), checkpoint.git_sha.as_ref().unwrap())
+            .expect("restore checkpoint");
+        let content = fs::read_to_string(dir.path().join("a.txt")).expect("read restored");
+        assert_eq!(content, "v1");
+    }
+
+    #[test]
+    fn restore_git_checkpoint_rejects_invalid_sha() {
+        let dir = TempDir::new().expect("tempdir");
+        init_repo_with_commit(dir.path());
+
+        let err = restore_git_checkpoint(dir.path(), "not-a-sha").unwrap_err();
+        assert!(matches!(err, CheckpointError::GitError(_)));
+    }
+}

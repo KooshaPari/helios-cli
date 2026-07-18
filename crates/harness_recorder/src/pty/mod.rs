@@ -135,3 +135,43 @@ impl Drop for Terminal {
         let _ = self.child.wait();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_settings() -> TerminalSettings {
+        let mut settings = TerminalSettings::default();
+        #[cfg(windows)]
+        {
+            settings.shell = "cmd.exe".to_string();
+        }
+        settings
+    }
+
+    #[tokio::test]
+    async fn terminal_executes_command_and_waits_for_output() {
+        let mut terminal = Terminal::new(&test_settings()).expect("terminal");
+        terminal.execute_command("echo pty-smoke").await.expect("execute");
+        let found = terminal
+            .wait_for_output("pty-smoke", Duration::from_secs(10))
+            .await
+            .expect("wait");
+        assert!(found, "output: {}", terminal.get_output());
+        let (width, height) = terminal.get_size();
+        assert!(width > 0 && height > 0);
+        terminal.clear_buffer();
+        assert!(terminal.get_output().is_empty());
+    }
+
+    #[tokio::test]
+    async fn terminal_type_text_sends_characters() {
+        let mut terminal = Terminal::new(&test_settings()).expect("terminal");
+        terminal
+            .type_text("x", Duration::from_millis(1))
+            .await
+            .expect("type");
+        terminal.send_input("\n").await.expect("newline");
+        let _ = terminal.get_output();
+    }
+}

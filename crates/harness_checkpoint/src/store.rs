@@ -131,5 +131,15 @@ mod tests {
 
         let by_spec = store.get_by_spec("test-spec").await.expect("get_by_spec failed");
         assert_eq!(by_spec.len(), 1);
+
+        let latest = store.get_latest("test-spec").await.expect("latest");
+        assert_eq!(latest.id, checkpoint.id);
+
+        assert_eq!(store.count().await, 1);
+        assert_eq!(store.list().await.len(), 1);
+
+        store.delete(&checkpoint.id.to_string()).await.expect("delete");
+        assert_eq!(store.count().await, 0);
+        assert!(store.get(&checkpoint.id.to_string()).await.is_err());
     }
 }

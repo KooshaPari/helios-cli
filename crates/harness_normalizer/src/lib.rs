@@ -178,5 +178,6 @@ mod tests {
         let io_err = std::io::Error::other("normalizer read failed");
         let err: NormalizerError = io_err.into();
         assert!(matches!(err, NormalizerError::Io(_)));
+        assert!(err.to_string().contains("normalizer read failed"));
     }
 }
