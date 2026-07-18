@@ -39,10 +39,9 @@ HeliosCLI is a Rust CLI fork of OpenAI Codex. The audited components are:
    `unknown-git = "deny"`, crates.io-only registry) and the
    `rustsec/audit-check@v2` weekly cargo-audit job in
    `.github/workflows/cargo-audit.yml`.
-4. **CI/CD + release pipeline** — 52 workflows under `.github/workflows/`
-   (SHA-pinned, S9=3), tag-driven release in
-   `.github/workflows/helios-cli-release.yml` (matrix builds for
-   x86_64/aarch64 Linux + macOS, musl + gnu).
+4. **CI/CD + release pipeline** — 26 workflows under `.github/workflows/`,
+   including tag-driven release in `.github/workflows/rust-release.yml` and
+   pull-request npm staging in `.github/workflows/ci.yml`.
 
 Out of scope for S7-2 (deferred to S7-3 or future waves): TUI
 (`codex-rs/tui/`), non-interactive exec (`codex-rs/exec/`), apply-patch
@@ -92,12 +91,29 @@ S7-3 adds the 90-day CI gate.
 
 | Threat | Rating | Specific attack vector | Mitigation | Owner | Last reviewed |
 |--------|--------|------------------------|------------|-------|---------------|
-| **S — Spoofing** | med | Compromised third-party GitHub Action runs attacker code in CI | All 52 workflows SHA-pinned (S9=3 verified 2026-06-15): e.g. `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683`, `dtolnay/rust-toolchain@29eef336...` | ci-ops | 2026-06-16 |
-| **T — Tampering** | med | Malicious workflow change lands via a PR that bypasses CODEOWNERS | `CODEOWNERS` + required 1-reviewer branch protection; `workflow-maintenance.yml` alerts on unsigned edits; `permissions:` block on every workflow | ci-ops | 2026-06-16 |
-| **R — Repudiation** | low | Workflow authorship ambiguous | GitHub commit log + CODEOWNERS entry; `helios-cli-release.yml` includes the tag SHAs in the release notes | ci-ops | 2026-06-16 |
-| **I — Info disclosure** | med | Workflow logs leak the `OPENAI_API_KEY` passed for live integration tests | All secrets in GitHub Actions secrets (encrypted at rest); `permissions: contents: read` is the default; only `helios-cli-release.yml` upgrades to `contents: write` for tag-pushes | security | 2026-06-16 |
-| **D — DoS** | med | Attacker spams PRs to exhaust the (constrained) Actions budget | Concurrency groups on all long-running workflows; `pr-babysit-watch.yml` closes stale PRs; standard Linux runners only (no macOS/Windows) per global CI billing policy | infra | 2026-06-16 |
-| **E — Elevation** | med | A workflow gains write access via a compromised PAT or `GITHUB_TOKEN` | `permissions: contents: read` is the default across all workflows; only `helios-cli-release.yml` requests `contents: write` and only on the tag-push path; `pages.yml` uses a deploy key | ci-ops | 2026-06-16 |
+| **S — Spoofing** | med | Compromised third-party GitHub Action runs attacker code in CI | Critical actions in `.github/workflows/ci.yml` are commit-pinned; repository-wide pin coverage remains a review item rather than an assumed invariant | ci-ops | 2026-07-18 |
+| **T — Tampering** | high | A pull request changes staging code and exfiltrates a cross-repository release credential | Pull-request staging executes the checked-out PR merge ref. Never expose an upstream PAT or GitHub App key directly to this mutable job; move authenticated staging behind a trusted workflow boundary first | ci-ops | 2026-07-18 |
+| **R — Repudiation** | low | Workflow authorship or the artifact source is ambiguous | Git commit and Actions run logs identify the executed revision; staging must additionally retain upstream run, artifact ID, and digest evidence | ci-ops | 2026-07-18 |
+| **I — Info disclosure** | high | Workflow logs or PR-controlled code leak a release credential | `.github/workflows/ci.yml` currently uses only the repository-scoped `github.token`; no upstream `Actions: read` credential is configured. This keeps the credential boundary closed but leaves staging proper red | security | 2026-07-18 |
+| **D — DoS** | med | PRs trigger expensive multi-platform jobs or downloads of stale artifacts | The npm workflow has a concurrency group and ten-minute timeout. Current CI also uses macOS and Windows runners, so runner cost is not Linux-only | infra | 2026-07-18 |
+| **E — Elevation** | high | A workflow inherits broad repository permissions or a compromised cross-repository token | Repository workflow permissions currently default to `write`; only 5 of 26 workflow files declare a top-level `permissions:` block, and `ci.yml` does not. The built-in token remains limited to this repository and cannot authorize upstream artifact downloads | ci-ops | 2026-07-18 |
+
+### npm staging boundary (PR #605)
+
+Evidence reviewed at PR head `2397e170` on 2026-07-18:
+
+- [x] Staging failure propagation — `.github/workflows/ci.yml` does not swallow
+  the staging exit status, and the required-CI contract rejects
+  `continue-on-error: true`.
+- [ ] Successful npm staging — the pinned `0.115.0` upstream artifacts expired
+  on 2026-06-14, and this repository has no upstream `Actions: read`
+  credential. Hosted run `29636493522`, job `88059648853`, resolves the exact
+  upstream workflow and artifact inventory, then fails at archive download.
+
+Keep successful staging unchecked until a live immutable artifact set is
+selected, archive downloads use exact artifact IDs and verified SHA-256
+digests, and any cross-repository credential is delivered only through a
+trusted workflow boundary that pull-request code cannot modify.
 
 ---
 

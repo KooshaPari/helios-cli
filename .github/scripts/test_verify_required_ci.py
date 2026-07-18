@@ -55,6 +55,18 @@ class RequiredCiContractTest(unittest.TestCase):
             verify_required_ci.npm_contract_errors(broken),
         )
 
+    def test_npm_staging_proper_red_is_documented(self) -> None:
+        threat_model = Path("docs/security/threat-model.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("CODEX_VERSION=0.115.0", self.npm_workflow)
+        self.assertIn("GH_TOKEN: ${{ github.token }}", self.npm_workflow)
+        self.assertIn("- [x] Staging failure propagation", threat_model)
+        self.assertIn("- [ ] Successful npm staging", threat_model)
+        self.assertNotIn("- [x] Successful npm staging", threat_model)
+        self.assertIn("pinned `0.115.0` upstream artifacts expired", threat_model)
+        self.assertIn("no upstream `Actions: read`\n  credential", threat_model)
+
 
 if __name__ == "__main__":
     unittest.main()
