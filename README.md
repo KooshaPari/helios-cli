@@ -20,7 +20,7 @@ Rust-based CLI for managing Helios CLI applications with multi-backend support a
 > `helios-cli` is the canonical codex fork in the Phenotype fleet.
 
 <p align="center">
-  <strong>helios</strong> — run AI coding agents locally with full control over execution, sandboxing, and model backends.
+  <strong>helios</strong> -- run AI coding agents locally with full control over execution, sandboxing, and model backends.
 </p>
 
 ## Architecture Overview
@@ -35,15 +35,15 @@ resilience for autonomous agent operations.
 
 ```
 crates/
-├── harness_queue/          # Task queue management
-├── harness_rollback/       # Rollback and undo support
-├── harness_runner/         # Task execution runner
-├── harness_scaling/        # Dynamic scaling logic
-├── harness_schema/         # Schema definitions
-├── harness_spec/           # Specification parsing
-├── harness_teammates/      # Multi-agent coordination
-├── harness_utils/          # Shared utilities
-└── harness_verify/         # Verification and validation
+|-- harness_queue/          # Task queue management
+|-- harness_rollback/       # Rollback and undo support
+|-- harness_runner/         # Task execution runner
+|-- harness_scaling/        # Dynamic scaling logic
+|-- harness_schema/         # Schema definitions
+|-- harness_spec/           # Specification parsing
+|-- harness_teammates/      # Multi-agent coordination
+|-- harness_utils/          # Shared utilities
+`-- harness_verify/         # Verification and validation
 ```
 
 **Note:** Additional crates in `crates/` (harness_cache, harness_checkpoint, harness_discoverer, harness_elicitation, harness_interfaces, harness_normalizer, harness_orchestrator, harness_pyo3, harness_mojo, harness_zig, thegent-*, adrs, api, arch_test, changes, governance) are utility, documentation, or test crates not included in the root workspace members list.
@@ -55,22 +55,22 @@ interactive agent experience:
 
 ```
 codex-rs/
-├── cli/                    # Rust CLI entry point
-├── core/                   # Core agent logic and config
-├── tui/                    # Terminal UI
-├── exec/                   # Non-interactive execution mode
-├── protocol/               # Wire protocol types
-├── config/                 # Configuration loading
-├── execpolicy/             # Execution policy engine
-├── mcp-server/             # MCP server implementation
-├── login/                  # Authentication (OAuth, API key)
-├── secrets/                # Secure credential storage
-├── hooks/                  # Pre/post execution hooks
-├── state/                  # Session state management
-├── file-search/            # Codebase search
-├── apply-patch/            # Diff application
-├── feedback/               # User feedback collection
-└── utils/                  # Shared utilities
+|-- cli/                    # Rust CLI entry point
+|-- core/                   # Core agent logic and config
+|-- tui/                    # Terminal UI
+|-- exec/                   # Non-interactive execution mode
+|-- protocol/               # Wire protocol types
+|-- config/                 # Configuration loading
+|-- execpolicy/             # Execution policy engine
+|-- mcp-server/             # MCP server implementation
+|-- login/                  # Authentication (OAuth, API key)
+|-- secrets/                # Secure credential storage
+|-- hooks/                  # Pre/post execution hooks
+|-- state/                  # Session state management
+|-- file-search/            # Codebase search
+|-- apply-patch/            # Diff application
+|-- feedback/               # User feedback collection
+`-- utils/                  # Shared utilities
 ```
 
 ### Key Crates and Responsibilities
@@ -303,20 +303,20 @@ helios -c model=gpt-4o -c approval_policy=auto-edit
 
 ```
 heliosCLI/
-├── Cargo.toml              # Root workspace (harness crates)
-├── Cargo.lock
-├── codex-rs/               # Main Rust workspace
-│   ├── Cargo.toml
-│   └── cli/src/main.rs     # CLI entry point
-├── codex-cli/              # TypeScript CLI workspace
-├── crates/                 # Harness + thegent utility crates
-├── docs/                   # Documentation (VitePress site)
-│   ├── adrs/               # Architecture decision records
-│   ├── specs/              # Feature specifications
-│   └── reference/          # Architecture guides
-├── .github/workflows/      # CI/CD pipelines
-├── AGENTS.md               # Agent operating instructions
-└── justfile                # Build/dev task runner
+|-- Cargo.toml              # Root workspace (harness crates)
+|-- Cargo.lock
+|-- codex-rs/               # Main Rust workspace
+|   |-- Cargo.toml
+|   `-- cli/src/main.rs     # CLI entry point
+|-- codex-cli/              # TypeScript CLI workspace
+|-- crates/                 # Harness + thegent utility crates
+|-- docs/                   # Documentation (VitePress site)
+|   |-- adrs/               # Architecture decision records
+|   |-- specs/              # Feature specifications
+|   `-- reference/          # Architecture guides
+|-- .github/workflows/      # CI/CD pipelines
+|-- AGENTS.md               # Agent operating instructions
+`-- justfile                # Build/dev task runner
 ```
 
 ## Performance Branches
@@ -335,6 +335,5 @@ This repository is licensed under the [Apache-2.0 License](LICENSE).
 
 This repository includes the following cross-cutting documents:
 
-- [`AGENTS.md`](AGENTS.md) — operating instructions for AI agents and human contributors
-- [`docs/`](docs/) — design notes, ADRs, and supporting documentation (see [`docs/index.md`](docs/index.md))
-
+- [`AGENTS.md`](AGENTS.md) -- operating instructions for AI agents and human contributors
+- [`docs/`](docs/) -- design notes, ADRs, and supporting documentation (see [`docs/index.md`](docs/index.md))
