@@ -23,6 +23,9 @@ class RequiredCiContractTest(unittest.TestCase):
             ".github/workflows/rust-ci-full-nextest-platform.yml"
         ).read_text(encoding="utf-8")
         cls.sdk_workflow = Path(".github/workflows/sdk.yml").read_text(encoding="utf-8")
+        cls.blob_size_policy_workflow = Path(
+            ".github/workflows/blob-size-policy.yml"
+        ).read_text(encoding="utf-8")
         cls.npm_workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
 
     def test_repository_workflow_satisfies_contract(self) -> None:
@@ -128,6 +131,35 @@ class RequiredCiContractTest(unittest.TestCase):
         self.assertIn("permissions:\n    contents: read", self.sdk_workflow)
         self.assertIn(
             "`sdk.yml` limits its repository token to `contents: read`", threat_model
+        )
+
+    def test_blob_size_policy_permissions_are_least_privilege(self) -> None:
+        self.assertEqual(
+            [],
+            verify_required_ci.blob_size_policy_contract_errors(
+                self.blob_size_policy_workflow
+            ),
+        )
+
+    def test_blob_size_policy_broader_permissions_are_rejected(self) -> None:
+        broken = self.blob_size_policy_workflow.replace(
+            "permissions:\n    contents: read",
+            "permissions:\n    contents: read\n    actions: write",
+            1,
+        )
+        self.assertIn(
+            "Blob size policy token permissions must be exactly contents: read",
+            verify_required_ci.blob_size_policy_contract_errors(broken),
+        )
+
+    def test_blob_size_policy_least_privilege_is_documented(self) -> None:
+        threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "permissions:\n    contents: read", self.blob_size_policy_workflow
+        )
+        self.assertIn(
+            "`blob-size-policy.yml` limits its repository token to `contents: read`",
+            threat_model,
         )
 
     def test_missing_mandatory_dependency_is_rejected(self) -> None:

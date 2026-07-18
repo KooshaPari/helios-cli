@@ -115,6 +115,13 @@ def sdk_contract_errors(workflow: str) -> list[str]:
     return []
 
 
+def blob_size_policy_contract_errors(workflow: str) -> list[str]:
+    """Return violations of the blob-size policy token contract."""
+    if _top_level_permissions(workflow) != {("contents", "read")}:
+        return ["Blob size policy token permissions must be exactly contents: read"]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -143,6 +150,11 @@ def main() -> int:
         type=Path,
         default=Path(".github/workflows/sdk.yml"),
     )
+    parser.add_argument(
+        "--blob-size-policy-workflow",
+        type=Path,
+        default=Path(".github/workflows/blob-size-policy.yml"),
+    )
     args = parser.parse_args()
     errors = contract_errors(args.workflow.read_text(encoding="utf-8"))
     errors.extend(npm_contract_errors(args.npm_workflow.read_text(encoding="utf-8")))
@@ -155,6 +167,11 @@ def main() -> int:
         )
     )
     errors.extend(sdk_contract_errors(args.sdk_workflow.read_text(encoding="utf-8")))
+    errors.extend(
+        blob_size_policy_contract_errors(
+            args.blob_size_policy_workflow.read_text(encoding="utf-8")
+        )
+    )
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
