@@ -69,6 +69,7 @@ class BoundedCache(Generic[T]):
         policy: EvictionPolicy = EvictionPolicy.LRU,
         on_evict: Callable[[str, T], None] | None = None,
     ):
+        self._validate_max_size(max_size)
         self._max_size = max_size
         self._ttl = ttl
         self._policy = policy
@@ -86,9 +87,18 @@ class BoundedCache(Generic[T]):
     @max_size.setter
     def max_size(self, value: int) -> None:
         """Set max cache size (triggers eviction if needed)."""
+        self._validate_max_size(value)
         with self._lock:
             self._max_size = value
             self._evict_if_needed()
+
+    @staticmethod
+    def _validate_max_size(value: int) -> None:
+        """Reject capacities that cannot represent a bounded cache."""
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise TypeError("max_size must be an integer")
+        if value <= 0:
+            raise ValueError("max_size must be greater than zero")
 
     def set(self, key: str, value: T, ttl: float | None = None) -> None:
         """Set a cache entry."""
