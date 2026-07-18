@@ -108,6 +108,13 @@ def full_rust_nextest_platform_contract_errors(workflow: str) -> list[str]:
     return []
 
 
+def sdk_contract_errors(workflow: str) -> list[str]:
+    """Return violations of the SDK CI least-privilege token contract."""
+    if _top_level_permissions(workflow) != {("contents", "read")}:
+        return ["SDK CI token permissions must be exactly contents: read"]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -131,6 +138,11 @@ def main() -> int:
         type=Path,
         default=Path(".github/workflows/rust-ci-full-nextest-platform.yml"),
     )
+    parser.add_argument(
+        "--sdk-workflow",
+        type=Path,
+        default=Path(".github/workflows/sdk.yml"),
+    )
     args = parser.parse_args()
     errors = contract_errors(args.workflow.read_text(encoding="utf-8"))
     errors.extend(npm_contract_errors(args.npm_workflow.read_text(encoding="utf-8")))
@@ -142,6 +154,7 @@ def main() -> int:
             args.full_rust_nextest_platform_workflow.read_text(encoding="utf-8")
         )
     )
+    errors.extend(sdk_contract_errors(args.sdk_workflow.read_text(encoding="utf-8")))
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
