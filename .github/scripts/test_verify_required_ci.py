@@ -29,6 +29,9 @@ class RequiredCiContractTest(unittest.TestCase):
         cls.python_runtime_build_workflow = Path(
             ".github/workflows/python-runtime-build.yml"
         ).read_text(encoding="utf-8")
+        cls.v8_canary_workflow = Path(".github/workflows/v8-canary.yml").read_text(
+            encoding="utf-8"
+        )
         cls.npm_workflow = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
 
     def test_repository_workflow_satisfies_contract(self) -> None:
@@ -191,6 +194,39 @@ class RequiredCiContractTest(unittest.TestCase):
         )
         self.assertIn(
             "`blob-size-policy.yml` limits its repository token to `contents: read`",
+            threat_model,
+        )
+
+    def test_v8_canary_permissions_are_least_privilege(self) -> None:
+        self.assertEqual(
+            [], verify_required_ci.v8_canary_contract_errors(self.v8_canary_workflow)
+        )
+
+    def test_missing_v8_canary_token_permissions_are_rejected(self) -> None:
+        broken = self.v8_canary_workflow.replace(
+            "permissions:\n    contents: read\n\n", "", 1
+        )
+        self.assertIn(
+            "V8 canary token permissions must be exactly contents: read",
+            verify_required_ci.v8_canary_contract_errors(broken),
+        )
+
+    def test_broader_v8_canary_token_permissions_are_rejected(self) -> None:
+        broken = self.v8_canary_workflow.replace(
+            "permissions:\n    contents: read",
+            "permissions:\n    contents: read\n    actions: write",
+            1,
+        )
+        self.assertIn(
+            "V8 canary token permissions must be exactly contents: read",
+            verify_required_ci.v8_canary_contract_errors(broken),
+        )
+
+    def test_v8_canary_least_privilege_is_documented(self) -> None:
+        threat_model = Path("docs/security/threat-model.md").read_text(encoding="utf-8")
+        self.assertIn("permissions:\n    contents: read", self.v8_canary_workflow)
+        self.assertIn(
+            "`v8-canary.yml` limits its repository token to `contents: read`",
             threat_model,
         )
 
