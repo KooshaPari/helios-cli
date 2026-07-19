@@ -16,6 +16,10 @@ concurrency:
     group: concurrency-group::${{ github.workflow }}::${{ github.event.pull_request.number > 0 && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}${{ github.ref_name == 'main' && format('::{0}', github.run_id) || ''}}
     cancel-in-progress: ${{ github.ref_name != 'main' }}
 
+# Bazel CI only reads the repository and uploads non-fatal build diagnostics.
+permissions:
+    contents: read
+
 jobs:
     test:
         # PRs use the sharded Windows cross-compiled test jobs below. Post-merge

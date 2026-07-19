@@ -26,6 +26,9 @@ class RequiredCiContractTest(unittest.TestCase):
         cls.blob_size_policy_workflow = Path(
             ".github/workflows/blob-size-policy.yml"
         ).read_text(encoding="utf-8")
+        cls.bazel_workflow = Path(".github/workflows/bazel.yml").read_text(
+            encoding="utf-8"
+        )
         cls.python_runtime_build_workflow = Path(
             ".github/workflows/python-runtime-build.yml"
         ).read_text(encoding="utf-8")
@@ -159,6 +162,38 @@ class RequiredCiContractTest(unittest.TestCase):
         self.assertIn(
             "Blob size policy token permissions must be exactly contents: read",
             verify_required_ci.blob_size_policy_contract_errors(broken),
+        )
+
+    def test_bazel_permissions_are_least_privilege(self) -> None:
+        self.assertEqual([], verify_required_ci.bazel_contract_errors(self.bazel_workflow))
+
+    def test_missing_bazel_token_permissions_are_rejected(self) -> None:
+        broken = self.bazel_workflow.replace(
+            "permissions:\n    contents: read\n\n", "", 1
+        )
+        self.assertIn(
+            "Bazel CI token permissions must be exactly contents: read",
+            verify_required_ci.bazel_contract_errors(broken),
+        )
+
+    def test_broader_bazel_token_permissions_are_rejected(self) -> None:
+        broken = self.bazel_workflow.replace(
+            "permissions:\n    contents: read",
+            "permissions:\n    contents: read\n    actions: write",
+            1,
+        )
+        self.assertIn(
+            "Bazel CI token permissions must be exactly contents: read",
+            verify_required_ci.bazel_contract_errors(broken),
+        )
+
+    def test_nested_bazel_token_permissions_are_rejected(self) -> None:
+        broken = self.bazel_workflow.replace(
+            "permissions:\n    contents: read\n\n", "", 1
+        ).replace("    test:\n", "    test:\n        permissions:\n            contents: read\n", 1)
+        self.assertIn(
+            "Bazel CI token permissions must be exactly contents: read",
+            verify_required_ci.bazel_contract_errors(broken),
         )
 
     def test_blob_size_policy_least_privilege_is_documented(self) -> None:

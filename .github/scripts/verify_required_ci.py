@@ -124,6 +124,13 @@ def blob_size_policy_contract_errors(workflow: str) -> list[str]:
     return []
 
 
+def bazel_contract_errors(workflow: str) -> list[str]:
+    """Return violations of the Bazel CI least-privilege token contract."""
+    if _top_level_permissions(workflow) != {("contents", "read")}:
+        return ["Bazel CI token permissions must be exactly contents: read"]
+    return []
+
+
 def python_runtime_build_contract_errors(workflow: str) -> list[str]:
     """Return violations of the Python runtime build token contract."""
     if _top_level_permissions(workflow) != {("contents", "read")}:
@@ -196,6 +203,11 @@ def main() -> int:
         default=Path(".github/workflows/blob-size-policy.yml"),
     )
     parser.add_argument(
+        "--bazel-workflow",
+        type=Path,
+        default=Path(".github/workflows/bazel.yml"),
+    )
+    parser.add_argument(
         "--python-runtime-build-workflow",
         type=Path,
         default=Path(".github/workflows/python-runtime-build.yml"),
@@ -227,6 +239,7 @@ def main() -> int:
             args.blob_size_policy_workflow.read_text(encoding="utf-8")
         )
     )
+    errors.extend(bazel_contract_errors(args.bazel_workflow.read_text(encoding="utf-8")))
     errors.extend(
         python_runtime_build_contract_errors(
             args.python_runtime_build_workflow.read_text(encoding="utf-8")
