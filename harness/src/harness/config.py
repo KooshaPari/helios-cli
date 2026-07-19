@@ -100,7 +100,8 @@ class ConfigManager:
             raise ValueError(f"Unsupported file format: {source}")
 
         self._config.update(data)
-        self._sources[path] = ConfigSource.FILE
+        for key in data:
+            self._sources[key] = ConfigSource.FILE
 
         return self
 
