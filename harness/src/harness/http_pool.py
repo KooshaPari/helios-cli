@@ -77,6 +77,7 @@ class HTTPConnectionPool:
                         timeout=httpx.Timeout(
                             connect=self._config.connect_timeout,
                             read=self._config.read_timeout,
+                            write=self._config.timeout,
                             pool=self._config.pool_timeout,
                         ),
                         http2=True,  # Enable HTTP/2 for better multiplexing
@@ -98,6 +99,7 @@ class HTTPConnectionPool:
                         timeout=httpx.Timeout(
                             connect=self._config.connect_timeout,
                             read=self._config.read_timeout,
+                            write=self._config.timeout,
                             pool=self._config.pool_timeout,
                         ),
                         http2=True,
