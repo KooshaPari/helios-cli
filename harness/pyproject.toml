@@ -13,7 +13,7 @@ build-backend = "hatchling.build"
 helios-harness = "harness.scripts.run_harness:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["harness.src.harness"]
+packages = ["src/harness"]
 
 # M1/Apple Silicon build settings
 [tool.hatch.envs.default]

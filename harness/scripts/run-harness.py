@@ -10,8 +10,6 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from jsonschema import validate
-
 ROOT = Path(__file__).resolve().parents[1] / "src"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -174,6 +172,8 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
 
     if args.dry_run:
         result["result_code"] = "WARN" if not commands else "PASS"
+        from harness.benchmark_envelope import add_envelope
+        result = add_envelope(result, repo=repo, profile=profile, plan_hash=command_hash)
         Path(out).write_text(json.dumps(result, indent=2))
         return
 
@@ -195,6 +195,8 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     payload["reproducibility"] = _reproducibility_metadata(profile, args)
     payload["created_at"] = datetime.now(tz=UTC).isoformat()
     payload["command_count"] = len(commands)
+    from harness.benchmark_envelope import add_envelope
+    payload = add_envelope(payload, repo=repo, profile=profile, plan_hash=command_hash)
 
     if args.replay:
         replay_path = Path(args.replay)
@@ -277,6 +279,8 @@ def normalize_run(input_file: str, out: str) -> None:
 
 
 def validate_artifacts(schema: str, file: str) -> None:
+    from jsonschema import validate
+
     payload = json.loads(Path(file).read_text())
     schema_json = json.loads(Path(schema).read_text())
     validate(instance=payload, schema=schema_json)
