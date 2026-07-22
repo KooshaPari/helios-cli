@@ -30,6 +30,8 @@ members = [
     "lmstudio",
     "login",
     "mcp-server",
+    "model-provider",
+    "model-provider-info",
     "network-proxy",
     "ollama",
     "process-hardening",
@@ -110,6 +112,8 @@ codex-linux-sandbox = { path = "linux-sandbox" }
 codex-lmstudio = { path = "lmstudio" }
 codex-login = { path = "login" }
 codex-mcp-server = { path = "mcp-server" }
+codex-model-provider = { path = "model-provider" }
+codex-model-provider-info = { path = "model-provider-info" }
 codex-network-proxy = { path = "network-proxy" }
 codex-ollama = { path = "ollama" }
 codex-otel = { path = "otel" }
