@@ -102,3 +102,39 @@ impl HealthCheckPort for HealthCheckAdapter {
         self.registry.read().ok().map(|t| t.values().cloned().collect()).unwrap_or_default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn in_memory_registry_roundtrip() {
+        let registry = InMemoryTeammateRegistry::new();
+        let teammate = Teammate::new("t1", "Coder", "code", "writes code");
+        registry.register(teammate.clone());
+        assert_eq!(registry.get("t1").unwrap().name, "Coder");
+        assert_eq!(registry.find_by_role("code").len(), 1);
+        assert!(registry.unregister("t1"));
+    }
+
+    #[test]
+    fn simple_delegation_adapter_completes_request() {
+        let adapter = SimpleDelegationAdapter;
+        let result = adapter.submit(DelegationRequest::new("t1", "run tests"));
+        assert_eq!(result.status, crate::domain::DelegationStatus::Completed);
+        assert!(adapter.status("missing").is_none());
+        assert!(!adapter.cancel("missing"));
+    }
+
+    #[test]
+    fn health_check_adapter_lists_registry_teammates() {
+        let registry = Arc::new(RwLock::new(HashMap::new()));
+        registry
+            .write()
+            .unwrap()
+            .insert("t1".to_string(), Teammate::new("t1", "Coder", "code", "writes code"));
+        let adapter = HealthCheckAdapter::new(registry);
+        assert_eq!(adapter.check_health("t1"), HealthStatus::Healthy);
+        assert_eq!(adapter.healthy_teammates().len(), 1);
+    }
+}

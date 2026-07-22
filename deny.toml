@@ -1,3 +1,4 @@
+# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
 [licenses]
 version = 2
 allow = [
@@ -25,6 +26,20 @@ allow = [
 [sources]
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 unknown-git = "deny"
+# kla (harness_recorder) pins phenotype rich-cli-kit for the recording summary panel.
+allow-git = ["https://github.com/KooshaPari/rich-cli-kit"]
 
 [advisories]
-ignore = []
+version = 2
+# Hard-fork harness path: transitive via kla / harness_checkpoint.
+# git2 bump needs coordinated workspace resolve; paste/serial have no safe upgrades.
+ignore = [
+    { id = "RUSTSEC-2026-0183", reason = "git2 0.20 via harness_checkpoint; upgrade to 0.21 pending workspace resolve" },
+    { id = "RUSTSEC-2026-0184", reason = "git2 0.20 via harness_checkpoint; upgrade to 0.21 pending workspace resolve" },
+    { id = "RUSTSEC-2024-0436", reason = "paste via pulp/exr/image/kla; no safe upgrade in-tree" },
+    { id = "RUSTSEC-2017-0008", reason = "serial via portable-pty/kla; no safe upgrade in-tree" },
+]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "warn"

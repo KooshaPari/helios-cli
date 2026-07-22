@@ -1,0 +1,779 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.46
+   Compiling cfg-if v1.0.4
+   Compiling windows-link v0.2.1
+   Compiling pin-project-lite v0.2.17
+   Compiling once_cell v1.21.4
+   Compiling serde_core v1.0.228
+   Compiling smallvec v1.15.2
+   Compiling autocfg v1.5.1
+   Compiling serde v1.0.228
+   Compiling memchr v2.8.3
+   Compiling getrandom v0.4.3
+   Compiling parking_lot_core v0.9.12
+   Compiling scopeguard v1.2.0
+   Compiling regex-syntax v0.8.11
+   Compiling windows-sys v0.61.2
+   Compiling tracing-core v0.1.36
+   Compiling lock_api v0.4.14
+   Compiling bytes v1.12.1
+   Compiling aho-corasick v1.1.4
+   Compiling itoa v1.0.18
+   Compiling num-traits v0.2.19
+   Compiling equivalent v1.0.2
+   Compiling thiserror v1.0.69
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.150
+   Compiling bitflags v2.13.1
+   Compiling hashbrown v0.17.1
+   Compiling regex-automata v0.4.16
+   Compiling futures-core v0.3.32
+   Compiling mio v1.2.2
+   Compiling socket2 v0.6.5
+   Compiling libc v0.2.186
+   Compiling parking_lot v0.12.5
+   Compiling thiserror v2.0.18
+   Compiling indexmap v2.14.0
+   Compiling ryu v1.0.23
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling jobserver v0.1.35
+   Compiling unsafe-libyaml v0.2.11
+   Compiling arrayvec v0.7.8
+   Compiling crossbeam-utils v0.8.22
+   Compiling fastrand v2.4.1
+   Compiling zerocopy v0.8.54
+   Compiling uuid v1.24.0
+   Compiling tempfile v3.27.0
+   Compiling stable_deref_trait v1.2.1
+   Compiling rust_decimal v1.42.1
+   Compiling pkg-config v0.3.33
+   Compiling crossbeam-epoch v0.9.20
+   Compiling log v0.4.33
+   Compiling vcpkg v0.2.15
+   Compiling syn v2.0.119
+   Compiling cc v1.2.67
+   Compiling litemap v0.8.2
+   Compiling winapi v0.3.9
+   Compiling writeable v0.6.3
+   Compiling icu_normalizer_data v2.2.0
+   Compiling icu_properties_data v2.2.0
+   Compiling utf8_iter v1.0.4
+   Compiling regex v1.13.1
+   Compiling crossbeam-deque v0.8.7
+   Compiling futures-sink v0.3.32
+   Compiling simd-adler32 v0.3.10
+   Compiling futures-task v0.3.32
+   Compiling slab v0.4.12
+   Compiling futures-io v0.3.32
+   Compiling futures-channel v0.3.32
+   Compiling rayon-core v1.13.0
+   Compiling utf8parse v0.2.2
+   Compiling getrandom v0.3.4
+   Compiling crc32fast v1.5.0
+   Compiling adler2 v2.0.1
+   Compiling either v1.16.0
+   Compiling percent-encoding v2.3.2
+   Compiling winapi-util v0.1.11
+   Compiling anstyle v1.0.14
+   Compiling miniz_oxide v0.8.9
+   Compiling bytemuck v1.25.1
+   Compiling libz-sys v1.1.29
+   Compiling libssh2-sys v0.3.2
+   Compiling synstructure v0.13.2
+   Compiling libgit2-sys v0.18.5+1.9.4
+   Compiling form_urlencoded v1.2.2
+   Compiling once_cell_polyfill v1.70.2
+   Compiling anstyle-wincon v3.0.11
+   Compiling same-file v1.0.6
+   Compiling anstyle-parse v1.0.0
+   Compiling anstyle-query v1.1.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling colorchoice v1.0.5
+   Compiling walkdir v2.5.0
+   Compiling fdeflate v0.3.7
+   Compiling rayon v1.12.0
+   Compiling libm v0.2.16
+   Compiling version_check v0.9.5
+   Compiling rand_core v0.9.5
+   Compiling heck v0.5.0
+   Compiling flate2 v1.1.9
+   Compiling anstream v1.0.0
+   Compiling strsim v0.11.1
+   Compiling paste v1.0.15
+   Compiling clap_lex v1.1.0
+   Compiling memoffset v0.6.5
+   Compiling wait-timeout v0.2.1
+   Compiling bit-vec v0.8.0
+   Compiling lazy_static v1.5.0
+   Compiling anyhow v1.0.103
+   Compiling pulp v0.22.3
+   Compiling serde_derive v1.0.228
+   Compiling tracing-attributes v0.1.31
+   Compiling tokio-macros v2.7.1
+   Compiling thiserror-impl v1.0.69
+   Compiling thiserror-impl v2.0.18
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling zerocopy-derive v0.8.54
+   Compiling zerovec-derive v0.11.3
+   Compiling displaydoc v0.2.6
+   Compiling async-trait v0.1.89
+   Compiling futures-macro v0.3.32
+   Compiling clap_derive v4.6.1
+   Compiling clap_builder v4.6.2
+   Compiling weezl v0.1.12
+   Compiling tokio v1.53.0
+   Compiling tracing v0.1.44
+   Compiling bitflags v1.3.2
+   Compiling futures-util v0.3.32
+   Compiling quick-error v1.2.3
+   Compiling zerofrom v0.1.8
+   Compiling fnv v1.0.7
+   Compiling rusty-fork v0.3.1
+   Compiling yoke v0.8.3
+   Compiling clap v4.6.2
+   Compiling bit-set v0.8.0
+   Compiling rand v0.9.5
+   Compiling rand_xorshift v0.4.0
+   Compiling crossterm_winapi v0.9.1
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling zerovec v0.11.6
+   Compiling chrono v0.4.45
+   Compiling zerotrie v0.2.4
+   Compiling num-complex v0.4.6
+   Compiling concurrent-queue v2.5.0
+   Compiling futures-executor v0.3.32
+   Compiling serial-core v0.4.0
+   Compiling raw-cpuid v11.6.0
+   Compiling tinystr v0.8.3
+   Compiling potential_utf v0.1.5
+   Compiling reborrow v0.5.5
+   Compiling futures v0.3.32
+   Compiling pulp-wasm-simd-flag v0.1.1
+   Compiling winreg v0.10.1
+   Compiling pxfm v0.1.30
+   Compiling tokio-stream v0.1.18
+   Compiling unarray v0.1.4
+   Compiling icu_locale_core v2.2.0
+   Compiling icu_collections v2.2.0
+   Compiling color_quant v1.1.0
+   Compiling harness_spec v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_spec)
+   Compiling half v2.7.1
+   Compiling tokio-test v0.4.5
+   Compiling ppv-lite86 v0.2.21
+   Compiling parking v2.2.1
+   Compiling zune-core v0.5.1
+   Compiling semver v1.0.28
+   Compiling event-listener v5.4.1
+   Compiling serial-windows v0.4.0
+   Compiling zune-jpeg v0.5.15
+   Compiling jpeg-decoder v0.3.2
+   Compiling rand_chacha v0.9.0
+   Compiling png v0.18.1
+   Compiling rustc_version v0.4.1
+   Compiling zune-inflate v0.2.54
+   Compiling vte_generate_state_changes v0.1.2
+   Compiling icu_provider v2.2.0
+   Compiling moxcms v0.8.1
+   Compiling proptest v1.11.0
+   Compiling pin-utils v0.1.0
+   Compiling lebe v0.5.3
+   Compiling byteorder-lite v0.1.0
+   Compiling bit_field v0.10.3
+   Compiling portable-atomic v1.14.0
+   Compiling icu_normalizer v2.2.0
+   Compiling icu_properties v2.2.0
+   Compiling vte v0.11.1
+   Compiling nix v0.25.1
+   Compiling tiff v0.9.1
+   Compiling rstest_macros v0.18.2
+   Compiling event-listener-strategy v0.5.4
+   Compiling serial v0.4.0
+   Compiling gif v0.13.3
+   Compiling crossterm v0.28.1
+   Compiling toml_datetime v0.6.11
+   Compiling serde_spanned v0.6.9
+   Compiling filedescriptor v0.8.3
+   Compiling png v0.17.16
+   Compiling sharded-slab v0.1.7
+   Compiling idna_adapter v1.2.2
+   Compiling shared_library v0.1.9
+   Compiling qoi v0.4.1
+   Compiling alloca v0.4.0
+   Compiling matchers v0.2.0
+   Compiling idna v1.1.0
+   Compiling exr v1.74.2
+   Compiling tracing-log v0.2.0
+   Compiling nu-ansi-term v0.50.3
+   Compiling thread_local v1.1.10
+   Compiling byteorder v1.5.0
+   Compiling shell-words v1.1.1
+   Compiling downcast-rs v1.2.1
+   Compiling winnow v0.7.15
+   Compiling unicode-width v0.1.14
+   Compiling url v2.5.8
+   Compiling image v0.25.10
+   Compiling unicode-width v0.2.2
+   Compiling ciborium-io v0.2.2
+   Compiling unicode-segmentation v1.13.3
+   Compiling toml_write v0.1.2
+   Compiling base64 v0.22.1
+   Compiling plotters-backend v0.3.7
+   Compiling vt100 v0.15.2
+   Compiling ciborium-ll v0.2.2
+   Compiling plotters-svg v0.3.7
+   Compiling tracing-subscriber v0.3.23
+   Compiling portable-pty v0.8.1
+   Compiling arch_test v0.1.0 (C:\Users\koosh\helios-cli\crates\arch_test)
+   Compiling async-lock v3.4.2
+   Compiling harness_verify v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_verify)
+   Compiling toml_edit v0.22.27
+   Compiling gif v0.12.0
+   Compiling image v0.24.9
+   Compiling crossterm v0.27.0
+   Compiling pheno-plugin v0.1.0 (C:\Users\koosh\helios-cli\crates\pheno-plugin)
+   Compiling itertools v0.13.0
+   Compiling crossbeam-channel v0.5.16
+   Compiling relative-path v1.9.3
+   Compiling cast v0.3.0
+   Compiling glob v0.3.3
+   Compiling rck-core v0.1.0 (https://github.com/KooshaPari/rich-cli-kit?rev=4db13bcd7ab1ed1c8113cf755178da418ae6a519#4db13bcd)
+   Compiling tagptr v0.2.0
+   Compiling plotters v0.3.7
+   Compiling toml v0.8.23
+   Compiling moka v0.12.15
+   Compiling ciborium v0.2.2
+   Compiling criterion-plot v0.8.2
+   Compiling tinytemplate v1.2.1
+   Compiling page_size v0.6.0
+   Compiling anes v0.1.6
+   Compiling oorandom v11.1.5
+   Compiling futures-timer v3.0.4
+   Compiling helios_config v0.2.1 (C:\Users\koosh\helios-cli\crates\helios_config)
+   Compiling harness_cache v0.3.0 (C:\Users\koosh\helios-cli\crates\harness_cache)
+   Compiling plugin-arch v0.1.0 (C:\Users\koosh\helios-cli\crates\plugin-arch)
+   Compiling criterion v0.8.2
+   Compiling harness_elicitation v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_elicitation)
+   Compiling harness_teammates v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_teammates)
+   Compiling harness_runner v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_runner)
+   Compiling harness_discoverer v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_discoverer)
+   Compiling harness_schema v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_schema)
+   Compiling harness_utils v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_utils)
+   Compiling kla v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_recorder)
+   Compiling harness_normalizer v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_normalizer)
+   Compiling harness_queue v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_queue)
+   Compiling harness_interfaces v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_interfaces)
+   Compiling harness_scaling v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_scaling)
+   Compiling rstest v0.18.2
+   Compiling git2 v0.20.4
+   Compiling harness_checkpoint v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_checkpoint)
+   Compiling harness_rollback v0.2.1 (C:\Users\koosh\helios-cli\crates\harness_rollback)
+   Compiling harness_orchestrator v0.1.0 (C:\Users\koosh\helios-cli\crates\harness_orchestrator)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6m 17s
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\arch_test-9b0acc118b8f57b3.exe)
+
+running 6 tests
+test proptest_patterns::tests::property_test_new_sets_defaults ... ok
+test proptest_patterns::tests::test_invariant ... ok
+test boundary::tests::layer_from_path_and_allowed_dependencies ... ok
+test boundary::tests::test_boundary_clean ... ok
+test boundary::tests::test_domain_layer ... ok
+test tdd::tests::test_cycle ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests\boundary_tests.rs (C:\temp\helios-ws-test-target\debug\deps\boundary_tests-bb8026fe252e3255.exe)
+
+running 4 tests
+test hexagonal_structure_followed ... ok
+test domain_has_no_external_dependencies ... ok
+test no_cyclic_dependencies ... ok
+test adapters_only_depend_on_domain ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests\property_tests.rs (C:\temp\helios-ws-test-target\debug\deps\property_tests-5d6ffa25ef19e20d.exe)
+
+running 15 tests
+test test_checked_div_safe ... ok
+test test_vec_push_increments_length ... ok
+test test_option_some_contains_value ... ok
+test test_binary_search_finds_sorted_target ... ok
+test test_int_add_commutative ... ok
+test test_min_is_less_than_or_equal_all ... ok
+test test_int_mul_distributes_over_add ... ok
+test test_result_ok_is_ok ... ok
+test test_sort_is_monotonic ... ok
+test test_slice_reverse_is_involutive ... ok
+test test_sort_preserves_length ... ok
+test test_max_is_greater_than_or_equal_all ... ok
+test test_hashmap_remove ... ok
+test test_hashmap_insert_retrieve ... ok
+test test_string_concat_associative ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests\tdd_tests.rs (C:\temp\helios-ws-test-target\debug\deps\tdd_tests-3c522ae98ef36c76.exe)
+
+running 9 tests
+test test_user_registration_invalid_email ... ok
+test test_user_registration_valid ... ok
+test test_contains_key ... ok
+test test_insert_and_get ... ok
+test test_user_registration_weak_password ... ok
+test test_remove_value ... ok
+test test_stack_push_pop ... ok
+test test_stack_underflow_returns_none ... ok
+test test_update_existing_value ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_cache-01f98a400252bc1e.exe)
+
+running 6 tests
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::io_error_display_includes_message ... ok
+test tests::test_cache_miss ... ok
+test tests::test_cache_remove ... ok
+test tests::test_cache_str ... ok
+test tests::test_cache_set_get ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_checkpoint-c5f936c46f62e982.exe)
+
+running 14 tests
+test checkpoint::tests::checkpoint_status_roundtrip_serialization ... ok
+test config::tests::capture_metrics_baseline_has_timestamp ... ok
+test config::tests::snapshot_config_skips_missing_paths ... ok
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test checkpoint::tests::checkpoint_options_default_flags_enabled ... ok
+test error::tests::io_error_display_includes_message ... ok
+test store::tests::test_store ... ok
+test config::tests::snapshot_config_filters_sensitive_env_vars ... ok
+test config::tests::snapshot_config_reads_existing_file_and_filters_secrets ... ok
+test git::tests::get_git_status_reports_untracked_files ... ok
+test git::tests::get_current_sha_returns_head_commit ... ok
+test git::tests::restore_git_checkpoint_rejects_invalid_sha ... ok
+test git::tests::create_git_checkpoint_stages_uncommitted_changes ... ok
+test git::tests::restore_git_checkpoint_reverts_worktree ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.90s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_discoverer-5594bb4deb6f8992.exe)
+
+running 5 tests
+test tests::default_registry_starts_empty ... ok
+test tests::list_and_healthy_filter ... ok
+test tests::register_then_get_returns_service ... ok
+test tests::unregister_reports_removal ... ok
+test tests::set_healthy_updates_existing_only ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_elicitation-c0b96131debc8816.exe)
+
+running 11 tests
+test intent::tests::default_verification_rules_per_intent ... ok
+test error::tests::io_error_display_includes_message ... ok
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test classifier::tests::test_classify_feature ... ok
+test generator::tests::test_behavior_generation ... ok
+test classifier::tests::test_classify_deploy_and_test_intents ... ok
+test classifier::tests::test_extract_entities ... ok
+test classifier::tests::test_classify_refactor ... ok
+test classifier::tests::test_classify_fix ... ok
+test generator::tests::test_generate_fix_spec ... ok
+test generator::tests::test_generate_feature_spec ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_interfaces-a8cde6463d588e8a.exe)
+
+running 6 tests
+test tests::event_new_preserves_topic_and_payload ... ok
+test tests::handler_trait_processes_request ... ok
+test tests::publisher_trait_reports_errors ... ok
+test tests::request_builder_sets_fields_and_unique_ids ... ok
+test tests::response_constructors_carry_expected_status ... ok
+test tests::response_builder_sets_header_and_body ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_normalizer-ef46a3a9051c6fc0.exe)
+
+running 6 tests
+test tests::test_normalize_json_empty_returns_err ... ok
+test tests::test_normalize_json_strips_whitespace ... ok
+test tests::test_basic_normalization ... ok
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::test_normalize_json_unbalanced_returns_err ... ok
+test tests::test_url_normalization ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_orchestrator-bdf7f89d41a80e02.exe)
+
+running 7 tests
+test id::tests::new_id_is_unique ... ok
+test id::tests::short_id_respects_namespace_and_length ... ok
+test tests::agent_assign_and_release ... ok
+test tests::test_register ... ok
+test tests::execute_runs_ready_tasks_with_idle_agent ... ok
+test tests::task_dependency_and_lifecycle ... ok
+test tests::test_decompose ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_queue-f2ef0dd31cb2eb87.exe)
+
+running 7 tests
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::io_error_display_includes_message ... ok
+test tests::ring_buffer_push_pop_and_capacity ... ok
+test tests::channel_send_recv_and_capacity_helpers ... ok
+test tests::send_after_close_returns_closed ... ok
+test tests::send_at_capacity_returns_full ... ok
+test tests::work_queue_local_push_pop ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_rollback-d666cad57679a692.exe)
+
+running 2 tests
+test tests::rollback_record_partial_when_failures_present ... ok
+test tests::test_rollback ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_runner-01d2bc5fed117e42.exe)
+
+running 6 tests
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::io_error_display_includes_message ... ok
+test tests::timeout_and_not_found_display ... ok
+test tests::run_executes_command_and_collects_stdout ... ok
+test tests::run_with_input_pipes_stdin_on_windows ... ok
+test tests::run_respects_timeout_configuration ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.60s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_scaling-28e04acf7de3adad.exe)
+
+running 8 tests
+test tests::predictive_scaler_extrapolates_linear_trend ... ok
+test tests::calculate_replicas_scales_up_down_and_clamps ... ok
+test tests::circuit_breaker_can_attempt_only_when_not_open ... ok
+test tests::circuit_breaker_opens_after_threshold ... ok
+test tests::scaling_config_default_is_within_bounds ... ok
+test tests::token_bucket_drains_and_rejects_when_empty ... ok
+test tests::resource_sampler_evicts_and_computes_stats ... ok
+test tests::predictive_scaler_needs_two_samples ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_schema-6ab88e05f02df252.exe)
+
+running 7 tests
+test tests::from_io_error_maps_to_io_variant ... ok
+test tests::test_command_count ... ok
+test tests::test_find_command ... ok
+test tests::test_schema_validation_valid ... ok
+test tests::test_schema_validation_empty_command_name ... ok
+test tests::test_schema_validation_empty_command_string ... ok
+test tests::test_schema_validation_empty_name ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_spec-1f8d16363de97b33.exe)
+
+running 14 tests
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test parser::tests::test_parse_json ... ok
+test parser::tests::test_parse_file_missing_yields_io ... ok
+test parser::tests::test_parse_valid_yaml ... ok
+test validation::tests::test_validate_valid_spec ... ok
+test error::tests::io_error_display_includes_message ... ok
+test parser::tests::test_auto_detect_json ... ok
+test validation::tests::test_validate_invalid_version ... ok
+test validation::tests::test_validate_missing_name ... ok
+test parser::tests::test_parse_file_yaml_default ... ok
+test parser::tests::test_auto_detect_yaml ... ok
+test validation::tests::test_validate_strict_mode_requires_owner_and_verification ... ok
+test validation::tests::test_validate_rejects_empty_success_metric ... ok
+test parser::tests::test_parse_file_json ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_teammates-30f6a2d9b8be82c3.exe)
+
+running 7 tests
+test adapters::tests::simple_delegation_adapter_completes_request ... ok
+test adapters::tests::in_memory_registry_roundtrip ... ok
+test adapters::tests::health_check_adapter_lists_registry_teammates ... ok
+test tests::default_registry_is_empty ... ok
+test tests::test_reg ... ok
+test domain::tests::priority_as_str_and_delegation_request_builder ... ok
+test domain::tests::teammate_builder_and_delegation_results ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_utils-26069d239299f661.exe)
+
+running 12 tests
+test tests::read_text_file_missing_yields_io ... ok
+test tests::test_parse_kv_invalid ... ok
+test tests::test_parse_kv_with_spaces ... ok
+test tests::test_hash ... ok
+test tests::test_parse_tags ... ok
+test tests::test_palindrome ... ok
+test tests::test_parse_tags_empty ... ok
+test tests::test_parse_tags_with_spaces ... ok
+test tests::utils_error_from_io ... ok
+test tests::read_text_file_round_trip ... ok
+test tests::test_palindrome_single_char ... ok
+test tests::test_parse_kv ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\harness_verify-0a9d9c1ee68c28bf.exe)
+
+running 11 tests
+test pipeline::tests::security_rule_is_skipped_with_message ... ok
+test runners::tests::parse_cargo_test_counts_reads_stderr_lines ... ok
+test error::tests::from_io_error_maps_to_io_variant ... ok
+test pipeline::tests::run_gates_all_passed_requires_every_result_passed ... ok
+test pipeline::tests::performance_rule_is_skipped_with_message ... ok
+test error::tests::io_error_display_includes_message ... ok
+test runners::tests::parse_cargo_test_counts_sums_multiple_crates ... ok
+test pipeline::tests::run_gates_unknown_criteria_fails ... ok
+test pipeline::tests::run_gates_no_failures_allows_skipped ... ok
+test runners::tests::run_pytest_smoke_returns_result ... ok
+test runners::tests::run_cargo_test_smoke_parses_counts ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.48s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\helios_config-0bbbdb7f7379513f.exe)
+
+running 7 tests
+test tests::test_env_overrides_apply_on_load ... ok
+test tests::test_config_partial_overlay ... ok
+test tests::test_load_from_explicit_path_overrides_defaults ... ok
+test tests::test_config_from_yaml_file ... ok
+test tests::test_config_from_toml_file ... ok
+test tests::test_default_config_values ... ok
+test tests::test_config_roundtrip_yaml ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\kla-3b2a6dae39d091de.exe)
+
+running 21 tests
++- kla record ---------------------+
+| Recording complete               |
+| steps    : 2                     |
+| output   : artifacts/test-output |
+| artifacts:                       |
+|   demo.png                       |
++----------------------------------+
+test cli::commands::tests::print_recording_summary_writes_ascii_when_not_tty ... ok
+test media::recorder::tests::test_output_path_generation ... ok
+test script::loader::tests::test_load_simple_script ... ok
+test script::loader::tests::test_roundtrip_serialization ... ok
+test cli::tests::execute_command_dispatches_convert ... ok
+test cli::commands::tests::convert_command_is_noop_success ... ok
+test script::tests::parse_duration_accepts_ms_and_seconds ... ok
+test pty::capture::tests::test_formatted_contents ... ok
+test pty::capture::tests::test_terminal_capture ... ok
+test script::tests::single_command_script_uses_defaults ... ok
+test tests::output_format_parses_known_values ... ok
+test tests::terminal_settings_default_has_expected_dimensions_and_theme ... ok
+test media::recorder::tests::test_media_recorder_creation ... ok
+test tests::test_kla_builder ... ok
+test tests::test_single_command_script ... ok
+test media::screenshot::tests::test_screenshot_generation ... ok
+test pty::controller::tests::controller_initializes_and_exposes_terminal_api ... ok
+test pty::tests::terminal_type_text_sends_characters ... ok
+test pty::controller::tests::controller_executes_command_and_exposes_output ... ok
+test pty::tests::terminal_executes_command_and_waits_for_output ... ok
+test media::gif::tests::test_gif_recorder ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.45s
+
+     Running unittests src\main.rs (C:\temp\helios-ws-test-target\debug\deps\kla-8b8ab24ebfc42287.exe)
+
+running 17 tests
+test cli::tests::execute_command_dispatches_convert ... ok
++- kla record ---------------------+
+| Recording complete               |
+| steps    : 2                     |
+| output   : artifacts/test-output |
+| artifacts:                       |
+|   demo.png                       |
++----------------------------------+
+test cli::commands::tests::convert_command_is_noop_success ... ok
+test pty::capture::tests::test_terminal_capture ... ok
+test pty::capture::tests::test_formatted_contents ... ok
+test cli::commands::tests::print_recording_summary_writes_ascii_when_not_tty ... ok
+test media::recorder::tests::test_output_path_generation ... ok
+test script::loader::tests::test_load_simple_script ... ok
+test script::tests::parse_duration_accepts_ms_and_seconds ... ok
+test script::tests::single_command_script_uses_defaults ... ok
+test script::loader::tests::test_roundtrip_serialization ... ok
+test media::recorder::tests::test_media_recorder_creation ... ok
+test pty::controller::tests::controller_initializes_and_exposes_terminal_api ... ok
+test pty::tests::terminal_type_text_sends_characters ... ok
+test media::screenshot::tests::test_screenshot_generation ... ok
+test pty::tests::terminal_executes_command_and_waits_for_output ... ok
+test pty::controller::tests::controller_executes_command_and_exposes_output ... ok
+test media::gif::tests::test_gif_recorder ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.66s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\pheno_plugin-01c3c0894b39c50c.exe)
+
+running 2 tests
+test tests::from_io_error ... ok
+test tests::registry_register_get_and_init_all ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (C:\temp\helios-ws-test-target\debug\deps\plugin_arch-0043e27829f64ac1.exe)
+
+running 3 tests
+test tests::plugin_registry_rejects_duplicate_plugins ... ok
+test tests::plugin_registry_loads_from_empty_dir ... ok
+test tests::plugin_registry_loads_shared_object_stems ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+   Doc-tests arch_test
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_cache
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_checkpoint
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_discoverer
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_elicitation
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_interfaces
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_normalizer
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_orchestrator
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_queue
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_rollback
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_runner
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_scaling
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_schema
+
+running 1 test
+test crates\harness_schema\src\lib.rs - (line 10) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+   Doc-tests harness_spec
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_teammates
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_utils
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests harness_verify
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests helios_config
+
+running 1 test
+test crates\helios_config\src\lib.rs - (line 17) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.32s
+
+   Doc-tests kla
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests pheno_plugin
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests plugin_arch
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

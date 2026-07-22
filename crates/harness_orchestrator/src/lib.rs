@@ -285,4 +285,44 @@ mod tests {
         let tasks = manager.decompose("test-spec").await;
         assert_eq!(tasks.len(), 2);
     }
+
+    #[test]
+    fn task_dependency_and_lifecycle() {
+        let dep = Uuid::new_v4();
+        let mut task = Task::new("spec", "task", "desc");
+        task.depends_on(dep);
+        assert!(!task.is_ready(&[]));
+        assert!(task.is_ready(&[dep]));
+
+        let agent = Uuid::new_v4();
+        task.start(agent);
+        assert_eq!(task.status, TaskStatus::Running);
+        task.complete("done");
+        assert_eq!(task.status, TaskStatus::Completed);
+        assert_eq!(task.result.as_deref(), Some("done"));
+    }
+
+    #[test]
+    fn agent_assign_and_release() {
+        let mut agent = Agent::new("worker", vec![AgentCapability::Testing]);
+        let task_id = Uuid::new_v4();
+        assert!(agent.is_available());
+        agent.assign(task_id);
+        assert!(!agent.is_available());
+        agent.release(true);
+        assert!(agent.is_available());
+        assert_eq!(agent.tasks_completed, 1);
+    }
+
+    #[tokio::test]
+    async fn execute_runs_ready_tasks_with_idle_agent() {
+        let manager = RootManager::new();
+        manager.register_agent("worker", vec![AgentCapability::General]).await;
+        manager.decompose("exec-spec").await;
+
+        let results = manager.execute().await;
+        assert!(!results.is_empty());
+        let agents = manager.list_agents().await;
+        assert_eq!(agents[0].tasks_completed, 2);
+    }
 }

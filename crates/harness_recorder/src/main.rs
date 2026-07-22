@@ -24,14 +24,13 @@ struct Cli {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // Bootstrap structured tracing (RUST_LOG controls level; defaults to "warn").
-    // env_logger is retained for log:: macros emitted by transitive deps.
+    // tracing-subscriber installs the global logger bridge for log:: macros too.
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("warn")),
         )
         .init();
-    env_logger::init();
 
     let cli = Cli::parse();
 

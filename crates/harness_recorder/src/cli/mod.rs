@@ -66,3 +66,18 @@ pub async fn execute_command(command: Commands) -> anyhow::Result<()> {
         Commands::Convert { input, output } => commands::convert_command(input, output).await,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn execute_command_dispatches_convert() {
+        execute_command(Commands::Convert {
+            input: PathBuf::from("in.gif"),
+            output: PathBuf::from("out.mp4"),
+        })
+        .await
+        .expect("convert dispatch");
+    }
+}

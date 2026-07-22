@@ -123,4 +123,14 @@ mod tests {
         let record = result.expect("rollback returned a record");
         assert!(engine.verify(&record));
     }
+
+    #[test]
+    fn rollback_record_partial_when_failures_present() {
+        let mut record = RollbackRecord::new("chk-002", "spec");
+        record.start();
+        record.add_restored("file-a");
+        record.add_failed("file-b");
+        record.complete();
+        assert_eq!(record.status, RollbackStatus::Partial);
+    }
 }

@@ -1,12 +1,38 @@
 name: sdk
 
+# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
+# Helios hard-fork (2026-07-14): SDK jobs build vendored `codex` via Bazel on
+# self-hosted `*-runners` labels that are not available on this fork.
+# Jobs are gated with `if: false` so harness green is not blocked.
+# Do NOT mark sdk as a required branch-protection check. Flip `if:` / use
+# workflow_dispatch when exercising SDK + Bazel.
+
 on:
   push:
     branches: [main]
-  pull_request: {}
+    paths:
+      - "sdk/**"
+      - "codex-rs/**"
+      - "MODULE.bazel"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/sdk.yml"
+  pull_request:
+    paths:
+      - "sdk/**"
+      - "codex-rs/**"
+      - "MODULE.bazel"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/sdk.yml"
+  workflow_dispatch:
 
 jobs:
   python-sdk:
+    # Hard-fork: disabled (self-hosted *-runners labels unavailable).
+    if: false
     runs-on:
       group: ${{ github.event.repository.name }}-runners
       labels: ${{ github.event.repository.name }}-linux-x64
@@ -46,6 +72,8 @@ jobs:
         uses: ./.github/actions/check-clean-worktree
 
   sdks:
+    # Hard-fork: disabled (self-hosted runners + Bazel codex build unavailable).
+    if: false
     runs-on:
       group: ${{ github.event.repository.name }}-runners
       labels: ${{ github.event.repository.name }}-linux-x64

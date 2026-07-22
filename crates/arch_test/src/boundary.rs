@@ -78,4 +78,18 @@ mod tests {
     fn test_boundary_clean() {
         assert!(BoundaryEnforcer::new().is_clean());
     }
+
+    #[test]
+    fn layer_from_path_and_allowed_dependencies() {
+        assert_eq!(Layer::from_path(Path::new("src/adapters/repo.rs")), Some(Layer::Adapters));
+        assert_eq!(
+            Layer::from_path(Path::new("src/application/service.rs")),
+            Some(Layer::Application)
+        );
+        assert!(Layer::from_path(Path::new("src/lib.rs")).is_none());
+
+        let domain_allowed = Layer::Domain.allowed();
+        assert!(domain_allowed.is_empty());
+        assert!(Layer::Application.allowed().contains(&Layer::Domain));
+    }
 }

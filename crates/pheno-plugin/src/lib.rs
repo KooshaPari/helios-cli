@@ -96,4 +96,27 @@ mod tests {
             matches!(plugin_err, PluginError::InitFailed(ref s) if s.contains("file not found"))
         );
     }
+
+    struct DummyPlugin {
+        name: String,
+    }
+
+    impl Plugin for DummyPlugin {
+        fn name(&self) -> &str {
+            &self.name
+        }
+
+        fn version(&self) -> &str {
+            "1.0.0"
+        }
+    }
+
+    #[test]
+    fn registry_register_get_and_init_all() {
+        let mut registry = PluginRegistry::new();
+        registry.register(Box::new(DummyPlugin { name: "alpha".to_string() })).unwrap();
+        assert_eq!(registry.get("alpha").unwrap().version(), "1.0.0");
+        assert_eq!(registry.names(), vec!["alpha".to_string()]);
+        registry.init_all().unwrap();
+    }
 }

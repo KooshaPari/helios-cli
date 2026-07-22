@@ -169,3 +169,58 @@ pub async fn convert_command(input: PathBuf, output: PathBuf) -> Result<()> {
     println!("✅ Conversion complete!");
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn print_recording_summary_writes_ascii_when_not_tty() {
+        let dir = std::path::Path::new("artifacts/test-output");
+        print_recording_summary(dir, 2, &["demo.png".to_string()]);
+    }
+
+    #[tokio::test]
+    async fn convert_command_is_noop_success() {
+        convert_command(
+            std::path::PathBuf::from("input.gif"),
+            std::path::PathBuf::from("output.mp4"),
+        )
+        .await
+        .expect("convert");
+    }
+
+    #[tokio::test]
+    async fn record_command_runs_minimal_script() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let script_path = dir.path().join("smoke.kla.yaml");
+        #[cfg(windows)]
+        let yaml = r#"
+name: smoke
+settings:
+  width: 80
+  height: 24
+  shell: cmd.exe
+steps:
+  - type: command
+    text: echo record-smoke
+    wait: 500ms
+"#;
+        #[cfg(not(windows))]
+        let yaml = r#"
+name: smoke
+settings:
+  width: 80
+  height: 24
+  shell: sh
+steps:
+  - type: command
+    text: echo record-smoke
+    wait: 500ms
+"#;
+        std::fs::write(&script_path, yaml).expect("write script");
+        let output_dir = dir.path().join("out");
+        record_command(script_path, output_dir.clone(), "png".to_string()).await.expect("record");
+        assert!(output_dir.is_dir());
+    }
+}

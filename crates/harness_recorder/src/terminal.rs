@@ -237,3 +237,29 @@ impl Default for TerminalState {
         Self::new(TerminalSize::default())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn terminal_state_set_and_get_char() {
+        let mut state = TerminalState::new(TerminalSize::new(10, 5));
+        state.set_char(2, 1, TerminalChar::new('X'));
+        assert_eq!(state.get_char(2, 1).map(|c| c.ch), Some('X'));
+        assert!(state.get_char(20, 1).is_none());
+    }
+
+    #[test]
+    fn terminal_state_text_search_and_resize() {
+        let mut state = TerminalState::new(TerminalSize::new(12, 3));
+        state.set_char(0, 0, TerminalChar::new('h'));
+        state.set_char(1, 0, TerminalChar::new('i'));
+        assert!(state.contains_text("hi"));
+        assert_eq!(state.find_text("hi"), Some(CursorPosition::new(0, 0)));
+
+        state.resize(TerminalSize::new(20, 4));
+        assert_eq!(state.size.width, 20);
+        assert_eq!(state.get_char(0, 0).map(|c| c.ch), Some('h'));
+    }
+}

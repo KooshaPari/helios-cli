@@ -102,3 +102,28 @@ pub enum EntityType {
     /// Module
     Module,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_verification_rules_per_intent() {
+        assert_eq!(Intent::Fix.default_verification(), vec!["test"]);
+        assert_eq!(Intent::Feature.default_verification(), vec!["test", "lint"]);
+        assert!(Intent::Research.default_verification().is_empty());
+    }
+
+    #[test]
+    fn classified_intent_roundtrip_serialization() {
+        let intent = ClassifiedIntent {
+            intent: Intent::Document,
+            confidence: 0.8,
+            entities: vec![],
+            original_input: "Write docs".to_string(),
+        };
+        let json = serde_json::to_string(&intent).expect("serialize");
+        let decoded: ClassifiedIntent = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(decoded.intent, Intent::Document);
+    }
+}

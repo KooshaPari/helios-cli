@@ -242,4 +242,126 @@ mod tests {
 
         assert!(validate(&spec).is_err());
     }
+
+    #[test]
+    fn test_validate_strict_mode_requires_owner_and_verification() {
+        let spec = Specification {
+            spec: SpecContent {
+                name: "test".to_string(),
+                version: "1.0.0".to_string(),
+                owner: String::new(),
+                verification: vec![],
+                rollback: RollbackConfig::default(),
+                success_criteria: vec![SuccessCriterion {
+                    metric: "success_rate".to_string(),
+                    threshold: Some(">95%".to_string()),
+                    minimum: None,
+                    maximum: None,
+                }],
+                behavior: None,
+                resources: None,
+                metadata: std::collections::HashMap::new(),
+            },
+        };
+
+        let options = ParseOptions::strict();
+        assert!(validate_with_options(&spec, &options).is_err());
+    }
+
+    #[test]
+    fn test_validate_rejects_empty_success_metric() {
+        let spec = Specification {
+            spec: SpecContent {
+                name: "test".to_string(),
+                version: "1.0.0".to_string(),
+                owner: "team".to_string(),
+                verification: vec![VerificationRule::Test {
+                    name: "unit".to_string(),
+                    timeout_seconds: 30,
+                }],
+                rollback: RollbackConfig::default(),
+                success_criteria: vec![SuccessCriterion {
+                    metric: String::new(),
+                    threshold: Some(">1".to_string()),
+                    minimum: None,
+                    maximum: None,
+                }],
+                behavior: None,
+                resources: None,
+                metadata: std::collections::HashMap::new(),
+            },
+        };
+
+        assert!(validate(&spec).is_err());
+    }
+
+    fn valid_spec_content() -> SpecContent {
+        SpecContent {
+            name: "test".to_string(),
+            version: "1.0.0".to_string(),
+            owner: "team".to_string(),
+            verification: vec![VerificationRule::Test {
+                name: "unit".to_string(),
+                timeout_seconds: 30,
+            }],
+            rollback: RollbackConfig::default(),
+            success_criteria: vec![SuccessCriterion {
+                metric: "success_rate".to_string(),
+                threshold: Some(">95%".to_string()),
+                minimum: None,
+                maximum: None,
+            }],
+            behavior: None,
+            resources: None,
+            metadata: std::collections::HashMap::new(),
+        }
+    }
+
+    #[test]
+    fn validate_verification_rules_reject_invalid_values() {
+        let mut spec = Specification { spec: valid_spec_content() };
+        spec.spec.verification =
+            vec![VerificationRule::Test { name: String::new(), timeout_seconds: 30 }];
+        assert!(validate(&spec).is_err());
+
+        spec.spec.verification =
+            vec![VerificationRule::Test { name: "unit".to_string(), timeout_seconds: 0 }];
+        assert!(validate(&spec).is_err());
+
+        spec.spec.verification =
+            vec![VerificationRule::Security { scanner: String::new(), critical_only: false }];
+        assert!(validate(&spec).is_err());
+
+        spec.spec.verification = vec![VerificationRule::Performance {
+            metric: String::new(),
+            threshold: "100ms".to_string(),
+        }];
+        assert!(validate(&spec).is_err());
+
+        spec.spec.verification =
+            vec![VerificationRule::Custom { command: String::new(), expected_exit_code: 0 }];
+        assert!(validate(&spec).is_err());
+    }
+
+    #[test]
+    fn validate_rollback_and_success_bounds() {
+        let mut spec = Specification { spec: valid_spec_content() };
+        spec.spec.rollback.timeout_seconds = 0;
+        assert!(validate(&spec).is_err());
+
+        spec.spec.rollback = RollbackConfig::default();
+        spec.spec.success_criteria = vec![SuccessCriterion {
+            metric: "latency".to_string(),
+            threshold: None,
+            minimum: None,
+            maximum: None,
+        }];
+        assert!(validate(&spec).is_err());
+    }
+
+    #[test]
+    fn validate_with_options_strict_accepts_complete_spec() {
+        let spec = Specification { spec: valid_spec_content() };
+        assert!(validate_with_options(&spec, &ParseOptions::strict()).is_ok());
+    }
 }

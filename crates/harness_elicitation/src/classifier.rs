@@ -241,4 +241,13 @@ mod tests {
         let result = classifier.classify("Fix auth.rs").expect("classify failed");
         assert!(!result.entities.is_empty());
     }
+
+    #[test]
+    fn test_classify_deploy_and_test_intents() {
+        let classifier = IntentClassifier::new();
+        let deploy = classifier.classify("Deploy release to prod").expect("classify failed");
+        assert_eq!(deploy.intent, Intent::Deploy);
+        let test = classifier.classify("Run verify tests").expect("classify failed");
+        assert_eq!(test.intent, Intent::Test);
+    }
 }
