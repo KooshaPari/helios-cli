@@ -6,12 +6,10 @@ members = [
     "app-server",
     "app-server-protocol",
     "app-server-test-client",
-    "debug-client",
     "apply-patch",
     "arg0",
     "feedback",
     "codex-backend-openapi-models",
-    "cloud-requirements",
     "cloud-tasks",
     "cloud-tasks-client",
     "cli",
@@ -63,7 +61,6 @@ members = [
     "codex-api",
     "state",
     "codex-experimental-api-macros",
-    "test-macros",
 ]
 resolver = "2"
 
