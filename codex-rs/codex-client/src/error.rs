@@ -13,7 +13,7 @@ pub enum TransportError {
     #[error("HTTP {status}")]
     Http {
         status: StatusCode,
-        url: Option<url::Url>,
+        url: Option<String>,
         headers: Option<HeaderMap>,
         body: Option<String>,
     },
