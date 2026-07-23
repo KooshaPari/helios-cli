@@ -4,6 +4,13 @@
 //! Runner module - Optimized process execution
 //! Features: Timeout, streaming, environment isolation
 
+mod dual_harness;
+
+pub use dual_harness::{
+    default_shared_3task_path, load_fixture, run_helios_fixture, AdapterSpec, DualHarnessFixture,
+    FixtureError, FixtureTask, TaskOutcome,
+};
+
 use std::process::Stdio;
 use std::time::{Duration, Instant};
 use thiserror::Error;
