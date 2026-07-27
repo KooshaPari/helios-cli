@@ -33,3 +33,7 @@ AGENTS.override.md
 # Nix
 result
 Cargo.lock
+
+# Python bytecode
+__pycache__/
+**/__pycache__/
