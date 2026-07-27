@@ -12,10 +12,6 @@ from pathlib import Path
 
 from jsonschema import validate
 
-ROOT = Path(__file__).resolve().parents[1] / "src"
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 
 def _command_plan_hash(commands: list[dict]) -> str:
     payload = json.dumps(commands, sort_keys=True, separators=(",", ":"))

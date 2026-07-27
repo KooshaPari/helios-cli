@@ -28,7 +28,7 @@ ROOT_DIR=${HELIOS_HARNESS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 CLONES_DIR="$ROOT_DIR/clones"
 ARTIFACT_ROOT="$ROOT_DIR/artifacts/phase-2"
 LANE_D_DIR="$ARTIFACT_ROOT/lane-d"
-SCRIPT_PATH="$ROOT_DIR/harness/scripts/run-harness.py"
+HARNESS_COMMAND=${HELIOS_HARNESS_COMMAND:-helios-harness}
 TIMEOUT_SEC=${PHASE2_HARNESS_TIMEOUT:-20}
 MAX_PARALLEL=${PHASE2_HARNESS_MAX_PARALLEL:-1}
 SKIP_REPOS=${PHASE2_SKIP_REPOS:-}
@@ -39,6 +39,11 @@ echo "[phase-2-harness] root: $ROOT_DIR"
 echo "[phase-2-harness] clones: $CLONES_DIR"
 
 echo "[phase-2-harness] skip list: $SKIP_REPOS"
+
+if ! command -v "$HARNESS_COMMAND" >/dev/null 2>&1; then
+  echo "[phase-2-harness] ERROR: install helios-harness or set HELIOS_HARNESS_COMMAND" >&2
+  exit 2
+fi
 
 for repo_path in "$CLONES_DIR"/*; do
   [[ -d "$repo_path" ]] || continue
@@ -53,12 +58,12 @@ for repo_path in "$CLONES_DIR"/*; do
   run_out="$LANE_D_DIR/${repo_name}-run.json"
 
   echo "[phase-2-harness] discover $repo_name"
-  if ! python3 "$SCRIPT_PATH" discover --root "$repo_path" --out "$discovery_out"; then
+  if ! "$HARNESS_COMMAND" discover --root "$repo_path" --out "$discovery_out"; then
     echo "[phase-2-harness] WARN: discover failed for $repo_name"
   fi
 
   echo "[phase-2-harness] run $repo_name"
-  if ! python3 "$SCRIPT_PATH" run \
+  if ! "$HARNESS_COMMAND" run \
     --repo "$repo_path" \
     --out "$run_out" \
     --profile strict-full \

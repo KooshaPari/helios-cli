@@ -2,8 +2,8 @@
 
 from unittest.mock import patch
 
-from src.harness.interfaces import CanonicalCommand, EvidenceBucket
-from src.harness.runner import Runner, RunnerConfig, RunResult
+from harness.interfaces import CanonicalCommand, EvidenceBucket
+from harness.runner import Runner, RunnerConfig, RunResult
 
 
 class TestRunnerConfig:
@@ -113,7 +113,7 @@ class TestRunnerProfile:
 
         assert results == []
 
-    @patch("src.harness.runner.Popen")
+    @patch("harness.runner.Popen")
     def test_run_profile_budget_exhausted(self, mock_popen):
         """Test profile stops when budget is exhausted."""
         config = RunnerConfig(budget_seconds=0)

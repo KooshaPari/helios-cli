@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -29,6 +30,14 @@ def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
 
     env = os.environ.copy()
     env["HELIOS_HARNESS_ROOT"] = str(workspace)
+
+    venv = workspace / ".harness-venv"
+    subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True)
+    venv_python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    subprocess.run([str(venv_python), "-m", "pip", "install", str(workspace / "harness")], check=True)
+    harness_command = venv / ("Scripts/helios-harness.exe" if os.name == "nt" else "bin/helios-harness")
+    assert harness_command.exists()
+    env["HELIOS_HARNESS_COMMAND"] = str(harness_command)
 
     proc = subprocess.run(
         ["bash", "commands/execute-phase-2-harness.sh"],

@@ -1,22 +1,21 @@
 import json
-import subprocess
+import os
+import sys
 from pathlib import Path
+from unittest.mock import patch
 
-SCRIPT = Path("harness/scripts/run-harness.py").resolve()
-# Alternative path for running from harness directory
-if not SCRIPT.exists():
-    SCRIPT = Path("scripts/run-harness.py").resolve()
+from harness.run_harness import main
 
 
-def _run(cmd, cwd: Path) -> str:
-    proc = subprocess.run(
-        cmd,
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return proc.stdout
+def _run(args: list[str], cwd: Path) -> None:
+    """Exercise the installed public CLI module without source-path injection."""
+    previous_cwd = Path.cwd()
+    try:
+        os.chdir(cwd)
+        with patch.object(sys, "argv", ["helios-harness", *args]):
+            main()
+    finally:
+        os.chdir(previous_cwd)
 
 
 def test_harness_dry_run_and_plan_hash(tmp_path):
@@ -28,8 +27,6 @@ def test_harness_dry_run_and_plan_hash(tmp_path):
 
     _run(
         [
-            "python3",
-            str(SCRIPT),
             "discover",
             "--root",
             str(repo),
@@ -45,8 +42,6 @@ def test_harness_dry_run_and_plan_hash(tmp_path):
 
     _run(
         [
-            "python3",
-            str(SCRIPT),
             "run",
             "--repo",
             str(repo),
@@ -74,8 +69,6 @@ def test_harness_replay_and_validate(tmp_path):
 
     _run(
         [
-            "python3",
-            str(SCRIPT),
             "run",
             "--repo",
             str(repo),
@@ -90,8 +83,6 @@ def test_harness_replay_and_validate(tmp_path):
     first_payload = json.loads(out_first.read_text())
     _run(
         [
-            "python3",
-            str(SCRIPT),
             "run",
             "--repo",
             str(repo),
@@ -112,4 +103,4 @@ def test_harness_replay_and_validate(tmp_path):
     schema = Path("harness/schemas/harness-evidence.schema.json").resolve()
     if not schema.exists():
         schema = Path("schemas/harness-evidence.schema.json").resolve()
-    _run(["python3", str(SCRIPT), "validate", "--schema", str(schema), "--file", str(out_second)], cwd=tmp_path)
+    _run(["validate", "--schema", str(schema), "--file", str(out_second)], cwd=tmp_path)
