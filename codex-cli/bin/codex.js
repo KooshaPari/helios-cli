@@ -127,10 +127,7 @@ function detectPackageManager() {
     return "bun";
   }
 
-  if (
-    __dirname.includes(".bun/install/global") ||
-    __dirname.includes(".bun\\install\\global")
-  ) {
+  if (__dirname.includes(".bun/install/global") || __dirname.includes(".bun\\install\\global")) {
     return "bun";
   }
 
@@ -138,9 +135,7 @@ function detectPackageManager() {
 }
 
 const packageManagerEnvVar =
-  detectPackageManager() === "bun"
-    ? "CODEX_MANAGED_BY_BUN"
-    : "CODEX_MANAGED_BY_NPM";
+  detectPackageManager() === "bun" ? "CODEX_MANAGED_BY_BUN" : "CODEX_MANAGED_BY_NPM";
 const env = {
   ...process.env,
   [packageManagerEnvVar]: "1",

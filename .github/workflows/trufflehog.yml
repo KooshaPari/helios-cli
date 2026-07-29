@@ -1,4 +1,7 @@
 name: Trufflehog Secrets Scan
+permissions:
+    contents: read
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -10,4 +13,4 @@ on:
             - main
 jobs:
     trufflehog:
-        uses: KooshaPari/phenotype-tooling/.github/workflows/reusable/trufflehog.yml@main
+        uses: KooshaPari/phenotype-tooling/.github/workflows/reusable/trufflehog.yml@c43cc4af2cbcc2bb2df37f3e4ab78cc5d8c1b3ad

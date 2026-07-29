@@ -39,14 +39,14 @@ const nextTurn = await thread.run("Implement the fix");
 const { events } = await thread.runStreamed("Diagnose the test failure and propose a fix");
 
 for await (const event of events) {
-  switch (event.type) {
-    case "item.completed":
-      console.log("item", event.item);
-      break;
-    case "turn.completed":
-      console.log("usage", event.usage);
-      break;
-  }
+    switch (event.type) {
+        case "item.completed":
+            console.log("item", event.item);
+            break;
+        case "turn.completed":
+            console.log("usage", event.usage);
+            break;
+    }
 }
 ```
 
@@ -56,13 +56,13 @@ The Codex agent can produce a JSON response that conforms to a specified schema.
 
 ```typescript
 const schema = {
-  type: "object",
-  properties: {
-    summary: { type: "string" },
-    status: { type: "string", enum: ["ok", "action_required"] },
-  },
-  required: ["summary", "status"],
-  additionalProperties: false,
+    type: "object",
+    properties: {
+        summary: { type: "string" },
+        status: { type: "string", enum: ["ok", "action_required"] },
+    },
+    required: ["summary", "status"],
+    additionalProperties: false,
 } as const;
 
 const turn = await thread.run("Summarize repository status", { outputSchema: schema });
@@ -73,12 +73,12 @@ You can also create a JSON schema from a [Zod schema](https://github.com/colinha
 
 ```typescript
 const schema = z.object({
-  summary: z.string(),
-  status: z.enum(["ok", "action_required"]),
+    summary: z.string(),
+    status: z.enum(["ok", "action_required"]),
 });
 
 const turn = await thread.run("Summarize repository status", {
-  outputSchema: zodToJsonSchema(schema, { target: "openAi" }),
+    outputSchema: zodToJsonSchema(schema, { target: "openAi" }),
 });
 console.log(turn.finalResponse);
 ```
@@ -89,9 +89,9 @@ Provide structured input entries when you need to include images alongside text.
 
 ```typescript
 const turn = await thread.run([
-  { type: "text", text: "Describe these screenshots" },
-  { type: "local_image", path: "./ui.png" },
-  { type: "local_image", path: "./diagram.jpg" },
+    { type: "text", text: "Describe these screenshots" },
+    { type: "local_image", path: "./ui.png" },
+    { type: "local_image", path: "./diagram.jpg" },
 ]);
 ```
 
@@ -111,8 +111,8 @@ Codex runs in the current working directory by default. To avoid unrecoverable e
 
 ```typescript
 const thread = codex.startThread({
-  workingDirectory: "/path/to/project",
-  skipGitRepoCheck: true,
+    workingDirectory: "/path/to/project",
+    skipGitRepoCheck: true,
 });
 ```
 
@@ -123,9 +123,9 @@ By default, the Codex CLI inherits the Node.js process environment. Provide the 
 
 ```typescript
 const codex = new Codex({
-  env: {
-    PATH: "/usr/local/bin",
-  },
+    env: {
+        PATH: "/usr/local/bin",
+    },
 });
 ```
 
@@ -139,10 +139,10 @@ into dotted paths, and serializes values as TOML literals before passing them as
 
 ```typescript
 const codex = new Codex({
-  config: {
-    show_raw_agent_reasoning: true,
-    sandbox_workspace_write: { network_access: true },
-  },
+    config: {
+        show_raw_agent_reasoning: true,
+        sandbox_workspace_write: { network_access: true },
+    },
 });
 ```
 

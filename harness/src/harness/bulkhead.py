@@ -63,6 +63,9 @@ class ThreadPoolBulkhead:
         future = self._executor.submit(fn, *args, **kwargs)
 
         def callback(f: Future):
+            if f.cancelled() or f.exception() is not None:
+                return
+
             with self._lock:
                 self._metrics.successful_calls += 1
                 elapsed = time.time() - start_time

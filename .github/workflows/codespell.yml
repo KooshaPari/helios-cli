@@ -3,32 +3,33 @@
 name: Codespell
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  codespell:
-    name: Check for spelling errors
-    runs-on: ubuntu-latest
+    codespell:
+        name: Check for spelling errors
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-      - name: Annotate locations with typos
-        uses: codespell-project/codespell-problem-matcher@b80729f885d32f78a716c2f107b4db1025001c42 # v1.1.0
-      - name: Codespell
-        uses: codespell-project/actions-codespell@8f01853be192eb0f849a5c7d721450e7a467c579 # v2.2
-        with:
-          ignore_words_file: .codespellignore
+        steps:
+            - name: Checkout
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+              with:
+                  ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+                  persist-credentials: false
+            - name: Annotate locations with typos
+              uses: codespell-project/codespell-problem-matcher@b80729f885d32f78a716c2f107b4db1025001c42 # v1.1.0
+            - name: Codespell
+              uses: codespell-project/actions-codespell@8f01853be192eb0f849a5c7d721450e7a467c579 # v2.2
+              with:
+                  ignore_words_file: .codespellignore
+                  skip: .git*,*assets?chunks?*.js,*fragemented?commands?clone-playbook.html,*fragemented?commands?merged.html,*perf-results?attribution-hotspots-v2-20260223-031254?xctrace-traces?*
 
-      - name: Check for a clean worktree
-        if: always() && !cancelled()
-        uses: ./.github/actions/check-clean-worktree
+            - name: Check for a clean worktree
+              if: always() && !cancelled()
+              uses: ./.github/actions/check-clean-worktree

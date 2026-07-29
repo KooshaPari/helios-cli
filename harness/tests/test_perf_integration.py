@@ -136,15 +136,6 @@ class TestPlanning:
         assert stats["total_plans"] == 1
 
 
-class TestScratchpad:
-    """Test scratchpad module."""
-
-    @pytest.mark.skip(reason="scratchpad module has bugs in main")
-    def test_scratchpad_basic(self):
-        """Test scratchpad."""
-        pass
-
-
 class TestSessionStore:
     """Test session store."""
 

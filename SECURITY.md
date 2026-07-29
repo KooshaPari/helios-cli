@@ -26,11 +26,11 @@ decision within **10 business days**.
 
 ## Supported Versions
 
-| Version  | Status            | Security fixes |
-|----------|-------------------|----------------|
-| `main`   | Active development| Yes            |
-| Latest tagged release (`v*.*.*`) | Supported | Yes |
-| Older releases | Best effort | At maintainer's discretion |
+| Version                          | Status             | Security fixes             |
+| -------------------------------- | ------------------ | -------------------------- |
+| `main`                           | Active development | Yes                        |
+| Latest tagged release (`v*.*.*`) | Supported          | Yes                        |
+| Older releases                   | Best effort        | At maintainer's discretion |
 
 HeliosCLI is currently published from the `main` branch; we strongly recommend
 running the latest commit on `main` or the most recent tagged release.

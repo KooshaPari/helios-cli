@@ -331,11 +331,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
-<<<<<<< HEAD
- "windows-sys 0.59.0",
-=======
  "windows-sys 0.61.2",
->>>>>>> upstream/main
 ]
 
 [[package]]
@@ -971,11 +967,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
-<<<<<<< HEAD
- "windows-sys 0.59.0",
-=======
  "windows-sys 0.61.2",
->>>>>>> upstream/main
 ]
 
 [[package]]
@@ -1088,15 +1080,9 @@ dependencies = [
 
 [[package]]
 name = "tar"
-<<<<<<< HEAD
-version = "0.4.46"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f6221d9a6003c78398e3b239969f352578258df48c8eb051caadae0015bc840"
-=======
 version = "0.4.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d863878d212c87a19c1a610eb53bb01fe12951c0501cf5a0d65f724914a667a"
->>>>>>> upstream/main
 dependencies = [
  "filetime",
  "libc",
@@ -1113,11 +1099,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix",
-<<<<<<< HEAD
- "windows-sys 0.59.0",
-=======
  "windows-sys 0.61.2",
->>>>>>> upstream/main
 ]
 
 [[package]]

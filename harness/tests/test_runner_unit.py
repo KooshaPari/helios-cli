@@ -93,10 +93,12 @@ class TestRunner:
         """Test command slug generation."""
         runner = Runner()
 
-        # _slug returns a hash-based string
+        # Artifact slugs are the first 12 hex characters of the command's SHA-256.
         slug = runner._slug("echo hello")
-        assert slug.isdigit()  # Should be numeric
-        assert len(slug) > 0
+        assert slug == "584a331fd6b0"
+        assert len(slug) == 12
+        assert all(character in "0123456789abcdef" for character in slug)
+        assert runner._slug("echo hello") == slug
 
     # Note: Popen mocking tests removed due to subprocess complexity
     # Integration tests should be added at a higher level

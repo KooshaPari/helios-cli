@@ -3,6 +3,7 @@ import { statSync } from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 import { createRequire } from "node:module";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import type { CodexConfigObject, CodexConfigValue } from "./codexOptions";
 import { SandboxMode, ModelReasoningEffort, ApprovalMode, WebSearchMode } from "./threadOptions";
@@ -53,7 +54,34 @@ const PLATFORM_PACKAGE_BY_TARGET: Record<string, string> = {
   "aarch64-pc-windows-msvc": "@openai/codex-win32-arm64",
 };
 
-const moduleRequire = createRequire(import.meta.url);
+export function toModuleFileUrl(moduleLocation: string): URL {
+  try {
+    const moduleUrl = new URL(moduleLocation);
+    if (moduleUrl.protocol === "file:" && !/^[a-z]:$/i.test(moduleUrl.hostname)) {
+      try {
+        fileURLToPath(moduleUrl);
+      } catch {
+        // Keep a well-formed file URL for another platform unchanged.
+      }
+      return moduleUrl;
+    }
+  } catch {
+    // Fall through to normalize absolute paths and malformed file URLs.
+  }
+
+  const filePath = moduleLocation.startsWith("file://")
+    ? moduleLocation.slice("file://".length)
+    : moduleLocation;
+  if (path.win32.isAbsolute(filePath)) {
+    return new URL(`file:///${filePath.replaceAll("\\", "/")}`);
+  }
+  if (path.posix.isAbsolute(filePath)) {
+    return pathToFileURL(filePath);
+  }
+  throw new TypeError(`Expected an absolute module path or file URL, received: ${moduleLocation}`);
+}
+
+const moduleRequire = createRequire(toModuleFileUrl(import.meta.url));
 
 type CodexPathResolution = {
   executablePath: string;
@@ -233,12 +261,19 @@ export class CodexExec {
       }
     } finally {
       rl.close();
-      child.removeAllListeners();
       try {
         if (!child.killed) child.kill();
       } catch {
         // ignore
       }
+      // `killed` only means that a termination signal was sent. Wait for the
+      // process itself to exit before releasing ownership so callers can
+      // safely clean up resources such as an isolated CODEX_HOME.
+      // A failed spawn has no process (and therefore no exit event) to await.
+      if (child.pid !== undefined) {
+        await exitPromise;
+      }
+      child.removeAllListeners();
     }
   }
 }

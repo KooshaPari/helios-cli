@@ -6,11 +6,11 @@ Updated: 2026-04-02
 
 ## Current Lanes
 
-| Lane | Branch | Worktree | Status | Notes |
-| --- | --- | --- | --- | --- |
-| Governance PR prep | `chore/governance-pr-ready` | `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI/heliosCLI/.worktrees/governance-pr-ready` | Active | Clean prep lane for repo-local governance docs and ruleset baseline |
-| Governance migration side lane | `chore/governance-migration-hc` | `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI/.worktrees/chore-govern-pi` | Clean / parked | Existing side worktree, not currently carrying new diff |
-| Canonical checkout | `main` | `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI` | Mixed local state | Untracked nested `.worktrees/`, `docs/phenodocs/`, and accidental nested `heliosCLI/` path |
+| Lane                           | Branch                          | Worktree                                                                                            | Status            | Notes                                                                                      |
+| ------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------ |
+| Governance PR prep             | `chore/governance-pr-ready`     | `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI/heliosCLI/.worktrees/governance-pr-ready` | Active            | Clean prep lane for repo-local governance docs and ruleset baseline                        |
+| Governance migration side lane | `chore/governance-migration-hc` | `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI/.worktrees/chore-govern-pi`               | Clean / parked    | Existing side worktree, not currently carrying new diff                                    |
+| Canonical checkout             | `main`                          | `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI`                                          | Mixed local state | Untracked nested `.worktrees/`, `docs/phenodocs/`, and accidental nested `heliosCLI/` path |
 
 ## PR-Prep Assessment
 

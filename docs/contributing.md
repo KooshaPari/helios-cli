@@ -84,9 +84,9 @@ All contributors **must** accept the CLA. The process is lightweight:
 1. Open your pull request.
 2. Paste the following comment (or reply `recheck` if you've signed before):
 
-   ```text
-   I have read the CLA Document and I hereby sign the CLA
-   ```
+    ```text
+    I have read the CLA Document and I hereby sign the CLA
+    ```
 
 3. The CLA-Assistant bot records your signature in the repo and marks the status check as passed.
 

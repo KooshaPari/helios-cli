@@ -18,8 +18,8 @@ This document serves as the canonical reference for project decisions, architect
 
 ## Decisions
 
-| Date | Decision | Rationale | Status |
-|------|----------|-----------|--------|
+| Date       | Decision        | Rationale                             | Status |
+| ---------- | --------------- | ------------------------------------- | ------ |
 | 2026-06-13 | Initialize SSOT | Establish canonical project reference | Active |
 
 ## Open Questions

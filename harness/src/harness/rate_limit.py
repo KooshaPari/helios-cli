@@ -46,9 +46,11 @@ class TokenBucketLimiter:
     def wait_time(self, tokens: int = 1) -> float:
         """Get wait time until tokens are available."""
         with self.lock:
-            if self.tokens >= tokens:
+            elapsed = time.time() - self.last_update
+            available = min(self.burst, self.tokens + elapsed * self.rate)
+            if available >= tokens:
                 return 0.0
-            needed = tokens - self.tokens
+            needed = tokens - available
             return needed / self.rate
 
 
@@ -83,8 +85,7 @@ class SlidingWindowLimiter:
                 return 0.0
             oldest = self.requests[0]
             now = time.time()
-            elapsed = now - (oldest - self.window_seconds)
-            return max(0, elapsed)
+            return max(0.0, oldest + self.window_seconds - now)
 
 
 class RateLimiter:

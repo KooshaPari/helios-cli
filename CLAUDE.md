@@ -16,6 +16,7 @@ Extends thegent governance base. See `platforms/thegent/dotfiles/governance/CLAU
 ## AgilePlus Mandate
 
 All work MUST be tracked in AgilePlus:
+
 - Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
 - CLI: `cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus && agileplus <command>`
 
@@ -61,6 +62,7 @@ fn test_feature_name() {
 ```
 
 **Verification**:
+
 - Every FR in FUNCTIONAL_REQUIREMENTS.md MUST have >=1 test
 - Every test MUST reference >=1 FR
 - Run: `cargo test` to verify
@@ -125,18 +127,19 @@ cargo run -- <command>
 
 ### Design Principles
 
-| Principle | Description | Application |
-|-----------|-------------|-------------|
+| Principle | Description                                                                                          | Application                                                     |
+| --------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **SOLID** | Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion | Commands are single-purpose; backends implement trait interface |
-| **DRY** | Don't Repeat Yourself | Shared utilities in `src/utils/` |
-| **KISS** | Keep It Simple, Stupid | Clear command structure, minimal abstractions |
-| **YAGNI** | You Aren't Gonna Need It | Build features as needed |
+| **DRY**   | Don't Repeat Yourself                                                                                | Shared utilities in `src/utils/`                                |
+| **KISS**  | Keep It Simple, Stupid                                                                               | Clear command structure, minimal abstractions                   |
+| **YAGNI** | You Aren't Gonna Need It                                                                             | Build features as needed                                        |
 
 ---
 
 ## Governance Reference
 
 See thegent governance base for:
+
 - Complete CI completeness policy
 - Phenotype Git and Delivery Workflow Protocol
 - Phenotype Org Cross-Project Reuse Protocol

@@ -67,6 +67,7 @@ class LRUCache:
 
         with self._lock:
             if key in self._cache:
+                self._cache[key] = value
                 self._cache.move_to_end(key)
             else:
                 if len(self._cache) >= self.max_size:
@@ -79,6 +80,10 @@ class LRUCache:
 
             if ttl > 0:
                 self._expiry[key] = time.time() + ttl
+            else:
+                # A replacement with a non-expiring effective TTL must not
+                # inherit the previous value's expiry metadata.
+                self._expiry.pop(key, None)
 
     def delete(self, key: str):
         """Delete value from cache."""

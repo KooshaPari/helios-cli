@@ -54,7 +54,7 @@ For `CODEX_JS_REPL_NODE_MODULE_DIRS` and `js_repl_node_module_dirs`, module reso
 
 - `js_repl` is a freeform tool: send raw JavaScript source text.
 - Optional first-line pragma:
-  - `// codex-js-repl: timeout_ms=15000`
+    - `// codex-js-repl: timeout_ms=15000`
 - Top-level bindings persist across calls.
 - Top-level static import declarations (for example `import x from "pkg"`) are currently unsupported; use dynamic imports with `await import("pkg")`.
 - Use `js_repl_reset` to clear the kernel state.

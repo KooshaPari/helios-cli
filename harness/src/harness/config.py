@@ -99,8 +99,14 @@ class ConfigManager:
         else:
             raise ValueError(f"Unsupported file format: {source}")
 
+        if not isinstance(data, dict):
+            raise ValueError(
+                f"Configuration file must contain a top-level mapping: {full_path}"
+            )
+
         self._config.update(data)
-        self._sources[path] = ConfigSource.FILE
+        for key in data:
+            self._sources[key] = ConfigSource.FILE
 
         return self
 
