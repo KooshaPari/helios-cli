@@ -3,6 +3,7 @@ import tempfile
 from types import SimpleNamespace
 
 from harness.scripts.run_harness import run_runner
+from harness.benchmark_envelope import add_envelope
 
 
 def test_run_runner_emits_benchmark_envelope(tmp_path):
@@ -30,6 +31,23 @@ def test_run_runner_emits_benchmark_envelope(tmp_path):
     assert payload["provenance"]["collector"] == "helios-harness"
     assert payload["signature"]["algorithm"] == "placeholder"
     assert {event["type"] for event in payload["events"]} >= {"checkpoint", "compaction"}
+
+
+def test_real_runs_promote_populated_tasks_and_runs():
+    payload = add_envelope(
+        {
+            "commands": [{"command": "pytest -q", "bucket": "test", "required": True, "cwd": ".", "source": "Makefile"}],
+            "runs": [{"command": "pytest -q", "returncode": 0, "timed_out": False, "duration_ms": 12}],
+            "result_code": "PASS",
+        },
+        repo="triangle",
+        profile="strict-full",
+        plan_hash="a" * 64,
+    )
+    assert len(payload["tasks"]) == 1
+    assert len(payload["runs"]) == 1
+    assert payload["runs"][0]["task_id"] == payload["tasks"][0]["task_id"]
+    assert payload["runs"][0]["status"] == "passed"
 
 
 if __name__ == "__main__":
