@@ -173,7 +173,13 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     if args.dry_run:
         result["result_code"] = "WARN" if not commands else "PASS"
         from harness.benchmark_envelope import add_envelope
-        result = add_envelope(result, repo=repo, profile=profile, plan_hash=command_hash)
+        result = add_envelope(
+            result,
+            repo=repo,
+            profile=profile,
+            plan_hash=command_hash,
+            subject_commit=discovery.manifest.commit or "",
+        )
         Path(out).write_text(json.dumps(result, indent=2))
         return
 
@@ -196,7 +202,13 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     payload["created_at"] = datetime.now(tz=UTC).isoformat()
     payload["command_count"] = len(commands)
     from harness.benchmark_envelope import add_envelope
-    payload = add_envelope(payload, repo=repo, profile=profile, plan_hash=command_hash)
+    payload = add_envelope(
+        payload,
+        repo=repo,
+        profile=profile,
+        plan_hash=command_hash,
+        subject_commit=discovery.manifest.commit or "",
+    )
 
     if args.replay:
         replay_path = Path(args.replay)
