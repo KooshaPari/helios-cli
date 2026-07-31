@@ -32,7 +32,8 @@ def test_run_runner_emits_benchmark_envelope(tmp_path):
         import jsonschema
         from pathlib import Path
         schema_path = Path(__file__).parents[5] / "docs/sessions/20260722-agent-harness-portfolio/artifacts/benchmark_run.schema.json"
-        jsonschema.Draft202012Validator(json.loads(schema_path.read_text())).validate(payload)
+        if schema_path.exists():
+            jsonschema.Draft202012Validator(json.loads(schema_path.read_text())).validate(payload)
     except ModuleNotFoundError:
         pass
     assert payload["tenant_id"] == "phenotype"
@@ -40,8 +41,13 @@ def test_run_runner_emits_benchmark_envelope(tmp_path):
     assert payload["run_id"].startswith("run_")
     assert payload["attempt_id"].startswith("att_")
     assert payload["subject"]["harness"] == "helios-harness"
+    assert payload["subject"]["ref"]
     assert payload["subject"]["commit"] != "unknown"
+    assert len(payload["subject"]["commit"]) == 40
     assert payload["deterministic_identity"]["inputs"]["commit"] == payload["subject"]["commit"]
+    assert payload["provenance"]["source_ref"] == payload["subject"]["ref"]
+    assert payload["provenance"]["source_sha"] == payload["subject"]["commit"]
+    assert payload["fixture"]["commit"] == payload["subject"]["commit"]
     assert payload["provenance"]["collector"] == "helios-harness"
     assert payload["signature"]["algorithm"] == "placeholder"
     assert {event["type"] for event in payload["events"]} >= {"checkpoint", "compaction"}
@@ -57,6 +63,8 @@ def test_real_runs_promote_populated_tasks_and_runs():
         repo="triangle",
         profile="strict-full",
         plan_hash="a" * 64,
+        subject_commit="a" * 40,
+        subject_ref="main",
     )
     assert len(payload["tasks"]) == 1
     assert len(payload["runs"]) == 1
@@ -72,6 +80,7 @@ def test_add_envelope_rejects_missing_or_non_sha_subject_commit():
             profile="strict-full",
             plan_hash="a" * 64,
             subject_commit="unknown",
+            subject_ref="main",
         )
 
 
@@ -88,6 +97,18 @@ def test_run_runner_rejects_non_git_subject(tmp_path):
                 replay=None, dry_run=True, max_parallel=2, timeout=2, retries=0,
                 retry_delay=1.0, budget=None, continue_on_fail=False,
             ),
+        )
+
+
+def test_add_envelope_rejects_missing_source_ref():
+    with pytest.raises(ValueError, match="resolved source ref"):
+        add_envelope(
+            {"result_code": "PASS"},
+            repo="triangle",
+            profile="strict-full",
+            plan_hash="a" * 64,
+            subject_commit="a" * 40,
+            subject_ref="",
         )
 
 

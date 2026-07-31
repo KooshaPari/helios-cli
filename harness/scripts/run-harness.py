@@ -162,6 +162,13 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
         "plan": commands,
         "command_count": len(commands),
         "reproducibility": _reproducibility_metadata(profile, args),
+        "fixture": {
+            "kind": "discovered-repository",
+            "repo": repo,
+            "ref": discovery.manifest.branch or "HEAD",
+            "commit": discovery.manifest.commit,
+            "plan_sha256": command_hash,
+        },
     }
 
     if replay_payload is not None:
@@ -179,6 +186,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
             profile=profile,
             plan_hash=command_hash,
             subject_commit=discovery.manifest.commit or "",
+            subject_ref=discovery.manifest.branch or "HEAD",
         )
         Path(out).write_text(json.dumps(result, indent=2))
         return
@@ -201,15 +209,13 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     payload["reproducibility"] = _reproducibility_metadata(profile, args)
     payload["created_at"] = datetime.now(tz=UTC).isoformat()
     payload["command_count"] = len(commands)
-    from harness.benchmark_envelope import add_envelope
-    payload = add_envelope(
-        payload,
-        repo=repo,
-        profile=profile,
-        plan_hash=command_hash,
-        subject_commit=discovery.manifest.commit or "",
-    )
-
+    payload["fixture"] = {
+        "kind": "discovered-repository",
+        "repo": repo,
+        "ref": discovery.manifest.branch or "HEAD",
+        "commit": discovery.manifest.commit,
+        "plan_sha256": command_hash,
+    }
     if args.replay:
         replay_path = Path(args.replay)
         if replay_payload is None and replay_path.exists():
@@ -253,6 +259,16 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
                 "plan_hash": command_hash,
                 "plan_diff": plan_diff,
             }
+
+    from harness.benchmark_envelope import add_envelope
+    payload = add_envelope(
+        payload,
+        repo=repo,
+        profile=profile,
+        plan_hash=command_hash,
+        subject_commit=discovery.manifest.commit or "",
+        subject_ref=discovery.manifest.branch or "HEAD",
+    )
 
     Path(out).write_text(json.dumps(payload, indent=2))
 

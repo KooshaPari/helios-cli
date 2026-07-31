@@ -17,9 +17,15 @@ _GIT_SHA_PATTERN = re.compile(r"[0-9a-f]{7,64}")
 
 
 def _require_resolved_git_sha(subject_commit: str) -> str:
-    if not _GIT_SHA_PATTERN.fullmatch(subject_commit):
+    if not _GIT_SHA_PATTERN.fullmatch(subject_commit) or len(subject_commit) != 40:
         raise ValueError("benchmark envelope requires a resolved Git SHA for the subject commit")
     return subject_commit
+
+
+def _require_resolved_ref(subject_ref: str) -> str:
+    if not subject_ref or any(char.isspace() for char in subject_ref):
+        raise ValueError("benchmark envelope requires a resolved source ref")
+    return subject_ref
 
 
 def add_envelope(
@@ -29,9 +35,19 @@ def add_envelope(
     profile: str,
     plan_hash: str,
     subject_commit: str,
+    subject_ref: str,
 ) -> dict:
     subject_commit = _require_resolved_git_sha(subject_commit)
-    identity = {"repo": repo, "commit": subject_commit, "harness": "helios-harness", "model": "unknown", "task_id": f"plan:{plan_hash}", "hardware": "unknown"}
+    subject_ref = _require_resolved_ref(subject_ref)
+    identity = {
+        "repo": repo,
+        "ref": subject_ref,
+        "commit": subject_commit,
+        "harness": "helios-harness",
+        "model": "unknown",
+        "task_id": f"plan:{plan_hash}",
+        "hardware": "unknown",
+    }
     digest = _digest(identity)
     run_id = f"run_{digest}"
     session_id = f"ses_{_digest({'run_id': run_id, 'session': 'default'})}"
@@ -83,21 +99,31 @@ def add_envelope(
         for index, run in enumerate(raw_runs)
         if isinstance(run, dict)
     ]
-    return {
+    # Retain the legacy harness evidence fields (manifest, quality and
+    # artifact paths) while overlaying the canonical benchmark envelope.
+    envelope = {
+        **payload,
         "plan": plan_commands,
         "commands": plan_commands,
         "plan_hash": plan_hash,
         "schema_version": "1.0.0",
         "tenant_id": "phenotype", "session_id": session_id, "run_id": run_id, "attempt_id": attempt_id,
         "deterministic_identity": {"algorithm": "sha256(canonical-json(inputs))", "canonical_json_sha256": digest, "inputs": identity},
-        "subject": {"repo": repo, "commit": subject_commit, "harness": "helios-harness", "runtime": "python", "model": "unknown", "hardware": "unknown"},
+        "subject": {"repo": repo, "ref": subject_ref, "commit": subject_commit, "harness": "helios-harness", "runtime": "python", "model": "unknown", "hardware": "unknown"},
         "lease": {"lease_id": f"lease_{attempt_id[4:20]}", "owner": "helios-harness", "ttl_seconds": 120, "heartbeat_interval_seconds": 20},
         "task_manifest": {"task_id": f"plan:{plan_hash}", "input_sha256": plan_hash, "timeout_seconds": 1, "assertions": [{"id": "plan_discovered", "kind": "command_plan", "expected": True}], "judge": {"name": "helios-harness", "version": "0.1.0"}},
         "tasks": tasks,
         "runs": runs,
         "events": events,
         "result": {"status": "passed" if passed else "failed", "outcome_sha256": legacy_digest, "replay_hash": _digest(events), "failure_class": "none" if passed else "unknown", "artifacts": [{"kind": "report", "uri": f"urn:helios:legacy-evidence:{legacy_digest}", "sha256": legacy_digest}]},
-        "provenance": {"collector": "helios-harness", "collected_at": now, "source_hashes": {"plan": plan_hash}},
+        "provenance": {"collector": "helios-harness", "collected_at": now, "source_ref": subject_ref, "source_sha": subject_commit, "source_hashes": {"plan": plan_hash}},
         "signature": {"algorithm": "placeholder", "key_id": "unconfigured", "signature_b64": ""},
         "result_code": "PASS" if passed else "FAIL",
     }
+    fixture = payload.get("fixture")
+    if isinstance(fixture, dict):
+        envelope["fixture"] = fixture
+    replay = payload.get("replay")
+    if isinstance(replay, dict):
+        envelope["replay"] = replay
+    return envelope

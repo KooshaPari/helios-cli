@@ -68,7 +68,9 @@ class RepoManifest:
             remote = "(no-remote)"
         try:
             branch = git_output("branch", "--show-current")
-            commit = git_output("rev-parse", "--short", "HEAD")
+            # Persist the full object ID so downstream evidence cannot silently
+            # alias two source snapshots that share a short prefix.
+            commit = git_output("rev-parse", "--verify", "HEAD")
         except (CalledProcessError, TimeoutExpired):
             branch = "(no-git)"
             commit = ""

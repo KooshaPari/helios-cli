@@ -19,10 +19,19 @@ def _run(cmd, cwd: Path) -> str:
     return proc.stdout
 
 
+def _initialize_git_repo(repo: Path) -> None:
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    subprocess.run(["git", "-C", str(repo), "config", "user.email", "tests@example.invalid"], check=True)
+    subprocess.run(["git", "-C", str(repo), "config", "user.name", "Harness tests"], check=True)
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-qm", "test fixture"], check=True)
+
+
 def test_harness_dry_run_and_plan_hash(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
     (repo / "package.json").write_text('{"scripts":{"lint":"echo lint","test":"echo test","build":"echo build"}}')
+    _initialize_git_repo(repo)
     out_discover = tmp_path / "discover.json"
     out_run = tmp_path / "run.json"
 
@@ -69,6 +78,7 @@ def test_harness_replay_and_validate(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
     (repo / "Makefile").write_text("check:\n\t@echo check\n")
+    _initialize_git_repo(repo)
     out_first = tmp_path / "first.json"
     out_second = tmp_path / "second.json"
 
@@ -108,6 +118,8 @@ def test_harness_replay_and_validate(tmp_path):
     second_payload = json.loads(out_second.read_text())
     assert second_payload["replay"]["same_plan"] is True
     assert "prior_plan_hash" in second_payload["replay"]
+    assert second_payload["fixture"]["commit"] == second_payload["subject"]["commit"]
+    assert second_payload["provenance"]["source_ref"] == second_payload["subject"]["ref"]
 
     schema = Path("harness/schemas/harness-evidence.schema.json").resolve()
     if not schema.exists():
