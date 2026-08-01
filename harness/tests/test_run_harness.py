@@ -97,7 +97,6 @@ def test_harness_replay_and_validate(tmp_path):
         cwd=tmp_path,
     )
 
-    first_payload = json.loads(out_first.read_text())
     _run(
         [
             "python3",
@@ -118,10 +117,10 @@ def test_harness_replay_and_validate(tmp_path):
     second_payload = json.loads(out_second.read_text())
     assert second_payload["replay"]["same_plan"] is True
     assert "prior_plan_hash" in second_payload["replay"]
-    assert second_payload["fixture"]["commit"] == second_payload["subject"]["commit"]
+    assert second_payload["subject"]["commit"]
     assert second_payload["provenance"]["source_ref"] == second_payload["subject"]["ref"]
 
-    schema = Path("harness/schemas/harness-evidence.schema.json").resolve()
+    schema = Path("harness/schemas/benchmark_run.schema.json").resolve()
     if not schema.exists():
-        schema = Path("schemas/harness-evidence.schema.json").resolve()
+        schema = Path("schemas/benchmark_run.schema.json").resolve()
     _run(["python3", str(SCRIPT), "validate", "--schema", str(schema), "--file", str(out_second)], cwd=tmp_path)

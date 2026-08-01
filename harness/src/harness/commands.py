@@ -22,7 +22,13 @@ def cmd_teammates_list(agents_dir: str) -> None:
 def cmd_teammates_delegate(teammate_id: str, task: str, timeout: int, profile: str) -> None:
     import asyncio
 
-    from harness import CodexExecutor, DelegationProtocol, DelegationRequest, Priority, TeammateRegistry
+    from harness import (
+        CodexExecutor,
+        DelegationProtocol,
+        DelegationRequest,
+        Priority,
+        TeammateRegistry,
+    )
 
     async def run() -> None:
         registry = TeammateRegistry()

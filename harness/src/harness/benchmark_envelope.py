@@ -38,7 +38,9 @@ def _require_resolved_ref(subject_ref: str) -> str:
 
 
 def _result_status(result_code: str) -> str:
-    return {"PASS": "passed", "WARN": "warning", "FAIL": "failed"}.get(result_code, "failed")
+    # The shared contract has no warning status. Preserve WARN in result_code
+    # while representing the non-passing canonical outcome as failed.
+    return "passed" if result_code == "PASS" else "failed"
 
 
 def add_envelope(
@@ -54,7 +56,6 @@ def add_envelope(
     subject_ref = _require_resolved_ref(subject_ref)
     identity = {
         "repo": repo,
-        "ref": subject_ref,
         "commit": subject_commit,
         "harness": "helios-harness",
         "model": "unknown",
@@ -105,7 +106,6 @@ def add_envelope(
     ]
     runs = [
         {
-            **run,
             "run_id": f"taskrun_{_digest({'run': run, 'index': index})}",
             "task_id": tasks[index]["task_id"] if index < len(tasks) else f"task_{_digest({'plan': plan_hash, 'index': index})}",
             "command": run.get("command", ""),
@@ -116,10 +116,9 @@ def add_envelope(
         for index, run in enumerate(raw_runs)
         if isinstance(run, dict)
     ]
-    # Retain the legacy harness evidence fields (manifest, quality and
-    # artifact paths) while overlaying the canonical benchmark envelope.
+    # Emit only the strict benchmark_run contract. Legacy evidence remains
+    # content-addressed by result.outcome_sha256 and its report artifact.
     envelope = {
-        **payload,
         "plan": plan_commands,
         "commands": plan_commands,
         "plan_hash": plan_hash,
@@ -132,14 +131,11 @@ def add_envelope(
         "tasks": tasks,
         "runs": runs,
         "events": events,
-        "result": {"status": _result_status(result_code), "outcome_sha256": legacy_digest, "replay_hash": _replay_digest(events), "failure_class": "none" if passed else ("unknown" if result_code == "FAIL" else "incomplete"), "artifacts": [{"kind": "report", "uri": f"urn:helios:legacy-evidence:{legacy_digest}", "sha256": legacy_digest}]},
+        "result": {"status": _result_status(result_code), "outcome_sha256": legacy_digest, "replay_hash": _replay_digest(events), "failure_class": "none" if passed else "unknown", "artifacts": [{"kind": "report", "uri": f"urn:helios:legacy-evidence:{legacy_digest}", "sha256": legacy_digest}]},
         "provenance": {"collector": "helios-harness", "collected_at": now, "source_ref": subject_ref, "source_sha": subject_commit, "source_hashes": {"plan": plan_hash}},
         "signature": {"algorithm": "placeholder", "key_id": "unconfigured", "signature_b64": ""},
         "result_code": result_code,
     }
-    fixture = payload.get("fixture")
-    if isinstance(fixture, dict):
-        envelope["fixture"] = fixture
     replay = payload.get("replay")
     if isinstance(replay, dict):
         envelope["replay"] = replay

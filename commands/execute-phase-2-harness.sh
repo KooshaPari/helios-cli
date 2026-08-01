@@ -128,6 +128,7 @@ for repo_path in sorted(p for p in CLONES_DIR.iterdir() if p.is_dir()):
                 "blockers": len(quality.get("blockers", [])),
                 "warnings": len(quality.get("warnings", [])),
                 "quality": quality,
+                "provenance": run_payload.get("provenance", {}),
             }
         except Exception as e:  # noqa: BLE001
             run_entry = {

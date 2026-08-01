@@ -5,6 +5,9 @@
 # Target Python 3.10 minimum
 target-version = "py310"
 
+# Line length (should match .editorconfig)
+line-length = 100
+
 # Enable rule sections
 [lint]
 # pyflakes + pycodestyle
@@ -30,9 +33,6 @@ ignore = [
     "B008",   # do not perform function calls in argument defaults
     "SIM102", # Use a single if statement instead of nested if
 ]
-
-# Line length (should match .editorconfig)
-line-length = 100
 
 # Fixable rules (auto-fix on format)
 fixable = ["ALL"]

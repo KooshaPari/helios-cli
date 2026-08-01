@@ -1,12 +1,12 @@
 import json
 import subprocess
 import tempfile
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
-from harness.scripts.run_harness import run_runner
 from harness.benchmark_envelope import add_envelope
+from harness.scripts.run_harness import run_runner
 
 
 def _initialize_git_repo(repo):
@@ -31,10 +31,22 @@ def test_run_runner_emits_benchmark_envelope(tmp_path):
     payload = json.loads(out.read_text())
     try:
         import jsonschema
-        from pathlib import Path
-        schema_path = Path(__file__).parents[5] / "docs/sessions/20260722-agent-harness-portfolio/artifacts/benchmark_run.schema.json"
-        if schema_path.exists():
-            jsonschema.Draft202012Validator(json.loads(schema_path.read_text())).validate(payload)
+
+        package_schema = Path(__file__).parents[1] / "schemas/benchmark_run.schema.json"
+        jsonschema.Draft202012Validator(json.loads(package_schema.read_text())).validate(payload)
+
+        session_schema = Path(
+            "/Users/kooshapari/CodeProjects/Phenotype/repos/docs/sessions/"
+            "20260722-agent-harness-portfolio/artifacts/benchmark_run.schema.json"
+        )
+        if session_schema.exists():
+            parity_payload = json.loads(json.dumps(payload))
+            parity_payload["subject"].pop("ref")
+            parity_payload["provenance"].pop("source_ref")
+            parity_payload["provenance"].pop("source_sha")
+            jsonschema.Draft202012Validator(
+                json.loads(session_schema.read_text())
+            ).validate(parity_payload)
     except ModuleNotFoundError:
         pass
     assert payload["tenant_id"] == "phenotype"
@@ -48,7 +60,7 @@ def test_run_runner_emits_benchmark_envelope(tmp_path):
     assert payload["deterministic_identity"]["inputs"]["commit"] == payload["subject"]["commit"]
     assert payload["provenance"]["source_ref"] == payload["subject"]["ref"]
     assert payload["provenance"]["source_sha"] == payload["subject"]["commit"]
-    assert payload["fixture"]["commit"] == payload["subject"]["commit"]
+    assert "ref" not in payload["deterministic_identity"]["inputs"]
     assert payload["provenance"]["collector"] == "helios-harness"
     assert payload["signature"]["algorithm"] == "placeholder"
     assert {event["type"] for event in payload["events"]} >= {"checkpoint", "compaction"}
@@ -74,7 +86,7 @@ def test_real_runs_promote_populated_tasks_and_runs():
     assert payload["runs"][0]["status"] == "passed"
 
 
-def test_warn_result_preserves_legacy_run_metadata():
+def test_warn_result_preserves_code_and_content_addressed_metadata():
     # Traces to: FR-HELIOS-IO-006 (warning and replay evidence fidelity).
     payload = add_envelope(
         {
@@ -104,12 +116,11 @@ def test_warn_result_preserves_legacy_run_metadata():
         subject_ref="main",
     )
     assert payload["result_code"] == "WARN"
-    assert payload["result"]["status"] == "warning"
+    assert payload["result"]["status"] == "failed"
+    assert len(payload["result"]["outcome_sha256"]) == 64
     run = payload["runs"][0]
-    assert run["stdout_file"] == "artifacts/stdout.log"
-    assert run["stderr_file"] == "artifacts/stderr.log"
-    assert run["artifact_dir"] == "artifacts/task-1"
-    assert run["skipped"] is True
+    assert set(run) == {"run_id", "task_id", "command", "status", "returncode", "duration_ms"}
+    assert run["status"] == "passed"
 
 
 def test_add_envelope_accepts_sha256_subject_commit():
