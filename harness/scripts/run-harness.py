@@ -123,7 +123,7 @@ def _write_output(out: str, content: str) -> None:
         raise ValueError("output path must name a file inside the invoking workspace")
     # ``resolved`` is realpath-canonicalized and commonpath-checked; traversal
     # and symlink escapes are rejected before this write.
-    Path(resolved).write_text(content)  # NOSONAR
+    Path(resolved).write_text(content)  # NOSONAR(S8707)
 
 
 def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref: str) -> None:
