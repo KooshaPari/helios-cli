@@ -32,17 +32,18 @@ def _initialize_git_repo(repo: Path) -> None:
 
 def test_validated_output_path_rejects_workspace_escape(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    validated_output_path = _legacy_module()._validated_output_path
+    write_output = _legacy_module()._write_output
     nested = tmp_path / "artifacts"
     nested.mkdir()
 
-    assert validated_output_path("artifacts/run.json") == nested / "run.json"
+    write_output("artifacts/run.json", "{}")
+    assert (nested / "run.json").read_text() == "{}"
     with pytest.raises(ValueError, match="inside the invoking workspace"):
-        validated_output_path("../outside.json")
+        write_output("../outside.json", "{}")
 
     (tmp_path / "link").symlink_to(Path("/tmp"), target_is_directory=True)
     with pytest.raises(ValueError, match="inside the invoking workspace"):
-        validated_output_path("link/run.json")
+        write_output("link/run.json", "{}")
 
 
 def test_harness_dry_run_and_plan_hash(tmp_path):

@@ -97,8 +97,8 @@ def _subject_ref(discovery) -> str:
     return ""
 
 
-def _validated_output_path(out: str) -> Path:
-    """Resolve an output path and keep it inside the invoking workspace.
+def _write_output(out: str, content: str) -> None:
+    """Write output only after enforcing the invoking workspace boundary.
 
     Output paths come from CLI arguments and are therefore treated as
     untrusted.  Canonicalizing before the containment check also prevents a
@@ -115,7 +115,7 @@ def _validated_output_path(out: str) -> Path:
         ) from exc
     if resolved == workspace:
         raise ValueError("output path must name a file inside the invoking workspace")
-    return resolved
+    resolved.write_text(content)
 
 
 def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref: str) -> None:
@@ -133,17 +133,16 @@ def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref
         "status": "warning",
         "failure_class": "provenance_unresolved",
     }
-    _validated_output_path(out).write_text(json.dumps(payload, indent=2))
+    _write_output(out, json.dumps(payload, indent=2))
 
 
 def run_discovery(root: str, out: str, max_scan_depth: int) -> None:
     from harness.discoverer import Discoverer
     from harness.interfaces import DiscoverInput
 
-    out_path = _validated_output_path(out)
     discoverer = Discoverer()
     discovery = discoverer.discover(DiscoverInput(repo_root=root, max_scan_depth=max_scan_depth))
-    out_path.write_text(discovery.to_json())
+    _write_output(out, discovery.to_json())
 
 
 def run_runner(repo: str, profile: str, out: str, args) -> None:
@@ -240,7 +239,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
             subject_commit=discovery.manifest.commit or "",
             subject_ref=subject_ref,
         )
-        _validated_output_path(out).write_text(json.dumps(result, indent=2))
+        _write_output(out, json.dumps(result, indent=2))
         return
 
     runner = Runner(
@@ -325,7 +324,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
         subject_ref=subject_ref,
     )
 
-    _validated_output_path(out).write_text(json.dumps(payload, indent=2))
+    _write_output(out, json.dumps(payload, indent=2))
 
 
 def normalize_run(input_file: str, out: str) -> None:
@@ -358,7 +357,8 @@ def normalize_run(input_file: str, out: str) -> None:
 
     discovered_commands = payload.get("commands", [])
     result = QualityNormalizer().normalize(runs, discovered_commands)
-    _validated_output_path(out).write_text(
+    _write_output(
+        out,
         json.dumps({"quality": result.__dict__, "source": str(input_file)}, indent=2)
     )
 
