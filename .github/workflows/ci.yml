@@ -132,10 +132,20 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install harness test dependencies
-        run: python -m pip install --disable-pip-version-check --quiet -e harness 'pytest==8.4.1'
+        run: >-
+          python -m pip install --disable-pip-version-check --quiet
+          'pytest==8.4.1'
+          'fastjsonschema==2.22.1'
+          'jsonschema==4.26.0'
+          'attrs==26.1.0'
+          'jsonschema-specifications==2025.9.1'
+          'referencing==0.37.0'
+          'rpds-py==2026.6.3'
+          'typing-extensions==4.16.0'
       - name: Harness envelope and replay contracts
         env:
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+          PYTHONPATH: harness/src
         run: >-
           python -m pytest -q
           harness/tests/test_run_harness.py
