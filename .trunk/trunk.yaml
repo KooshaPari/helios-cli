@@ -1,76 +1,12 @@
-# Trunk.io plugin and tool configuration.
-# https://docs.trunk.io/check/reference
-
+# Trunk launcher and plugin source configuration.
+# Linter and formatter policy is auto-detected by the hosted Trunk action.
 version: 0.1
+
 cli:
   version: 1.22.2
 
 plugins:
   sources:
     - id: trunk
-      ref: v1.2.2
-    - id: community
-      ref: main
-
-linters:
-  - name: actionlint
-    enabled: true
-    direct_configs:
-      - .github/workflows/*.yml
-
-  - name: black
-    enabled: true
-    direct_configs:
-      - pyproject.toml
-      - ruff.toml
-
-  - name: clippy
-    enabled: true
-
-  - name: eslint
-    enabled: true
-    direct_configs:
-      - .eslintrc.*
-      - eslint.config.*
-
-  - name: golangci-lint
-    enabled: true
-    direct_configs:
-      - .golangci.yml
-      - .golangci.yaml
-
-  - name: mypy
-    enabled: true
-    direct_configs:
-      - pyproject.toml
-
-  - name: ruff
-    enabled: true
-    direct_configs:
-      - pyproject.toml
-      - ruff.toml
-
-  - name: shellcheck
-    enabled: true
-
-  - name: taplo
-    enabled: true
-
-  - name: yamllint
-    enabled: true
-
-formatters:
-  - name: black
-    enabled: true
-    direct_configs:
-      - pyproject.toml
-      - ruff.toml
-
-  - name: prettier
-    enabled: true
-    direct_configs:
-      - .prettierrc
-      - prettier.config.*
-
-  - name: rustfmt
-    enabled: true
+      ref: v1.10.2
+      uri: https://github.com/trunk-io/plugins
