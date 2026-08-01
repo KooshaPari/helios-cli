@@ -88,6 +88,33 @@ def _reproducibility_metadata(profile: str, args) -> dict:
     }
 
 
+def _subject_ref(discovery) -> str:
+    """Return a stable ref for a Git checkout, including detached HEADs."""
+    if discovery.manifest.branch:
+        return discovery.manifest.branch
+    if discovery.manifest.commit:
+        return f"detached:{discovery.manifest.commit}"
+    return ""
+
+
+def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref: str) -> None:
+    """Emit an explicit warning instead of fabricating an envelope for non-Git input."""
+    payload["result_code"] = "WARN"
+    payload["provenance"] = {
+        "status": "unresolved",
+        "reason": "non_git_repository",
+        "collector": "helios-harness",
+        "source_ref": subject_ref or None,
+        "source_sha": None,
+        "repo": repo,
+    }
+    payload["result"] = {
+        "status": "warning",
+        "failure_class": "provenance_unresolved",
+    }
+    Path(out).write_text(json.dumps(payload, indent=2))
+
+
 def run_discovery(root: str, out: str, max_scan_depth: int) -> None:
     from harness.discoverer import Discoverer
     from harness.interfaces import DiscoverInput
@@ -165,11 +192,16 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
         "fixture": {
             "kind": "discovered-repository",
             "repo": repo,
-            "ref": discovery.manifest.branch or "HEAD",
+            "ref": _subject_ref(discovery) or None,
             "commit": discovery.manifest.commit,
             "plan_sha256": command_hash,
         },
     }
+
+    subject_ref = _subject_ref(discovery)
+    if not discovery.manifest.commit or not subject_ref:
+        _write_unresolved_provenance(result, out, repo, subject_ref)
+        return
 
     if replay_payload is not None:
         result["replay"] = {
@@ -186,7 +218,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
             profile=profile,
             plan_hash=command_hash,
             subject_commit=discovery.manifest.commit or "",
-            subject_ref=discovery.manifest.branch or "HEAD",
+            subject_ref=subject_ref,
         )
         Path(out).write_text(json.dumps(result, indent=2))
         return
@@ -212,7 +244,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     payload["fixture"] = {
         "kind": "discovered-repository",
         "repo": repo,
-        "ref": discovery.manifest.branch or "HEAD",
+        "ref": subject_ref or None,
         "commit": discovery.manifest.commit,
         "plan_sha256": command_hash,
     }
@@ -260,6 +292,10 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
                 "plan_diff": plan_diff,
             }
 
+    if not discovery.manifest.commit or not subject_ref:
+        _write_unresolved_provenance(payload, out, repo, subject_ref)
+        return
+
     from harness.benchmark_envelope import add_envelope
     payload = add_envelope(
         payload,
@@ -267,7 +303,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
         profile=profile,
         plan_hash=command_hash,
         subject_commit=discovery.manifest.commit or "",
-        subject_ref=discovery.manifest.branch or "HEAD",
+        subject_ref=subject_ref,
     )
 
     Path(out).write_text(json.dumps(payload, indent=2))
@@ -315,130 +351,16 @@ def validate_artifacts(schema: str, file: str) -> None:
     print("VALID")
 
 
-# =============================================================================
-# Teammates CLI
-# =============================================================================
-
-
-def cmd_teammates_list(agents_dir: str) -> None:
-    from harness import TeammateRegistry
-
-    registry = TeammateRegistry(agents_dir=Path(agents_dir))
-    teammates = registry.discover()
-
-    if not teammates:
-        print("No teammates found")
-        return
-
-    print(f"Found {len(teammates)} teammates:\n")
-    for t in teammates.values():
-        print(f"  {t.id}: {t.name} ({t.role})")
-        print(f"    {t.description[:60]}...")
-
-
-def cmd_teammates_delegate(teammate_id: str, task: str, timeout: int, profile: str) -> None:
-    import asyncio
-
-    from harness import CodexExecutor, DelegationProtocol, DelegationRequest, Priority, TeammateRegistry
-
-    async def run():
-        registry = TeammateRegistry()
-        registry.discover()
-
-        teammate = registry.get(teammate_id)
-        if not teammate:
-            print(f"Teammate not found: {teammate_id}")
-            return
-
-        protocol = DelegationProtocol()
-        executor = CodexExecutor(profile=profile)
-
-        request = DelegationRequest(
-            teammate_id=teammate_id, task_description=task, priority=Priority.NORMAL, timeout_seconds=timeout
-        )
-
-        result = await protocol.delegate(request, executor)
-
-        print(f"Delegation: {result.delegation_id}")
-        print(f"Status: {result.status}")
-        print(f"Duration: {result.duration_ms}ms")
-        if result.result:
-            print(f"Result: {result.result[:200]}...")
-        if result.error:
-            print(f"Error: {result.error}")
-
-    asyncio.run(run())
-
-
-def cmd_teammates_status(delegation_id: str) -> None:
-    from harness import DelegationProtocol
-
-    protocol = DelegationProtocol()
-    result = protocol.get_status(delegation_id)
-
-    if result:
-        print(f"Delegation: {result.delegation_id}")
-        print(f"Status: {result.status}")
-        print(f"Duration: {result.duration_ms}ms")
-    else:
-        print(f"Delegation not found: {delegation_id}")
-
-
-# =============================================================================
-# Scaling CLI
-# =============================================================================
-
-
-def cmd_scaling_status() -> None:
-    from harness import DynamicLimitController, ResourceSampler
-
-    sampler = ResourceSampler()
-    controller = DynamicLimitController()
-
-    snapshot = sampler.sample()
-
-    print("Resource Status:")
-    print(f"  CPU: {snapshot.cpu_percent:.1f}%")
-    print(f"  Memory: {snapshot.memory_percent:.1f}% ({snapshot.memory_available_mb:.0f}MB available)")
-    print(f"  FDs: {snapshot.fd_count}/{snapshot.fd_limit}")
-    print(f"  Load: {snapshot.load_avg:.2f}")
-    print(f"\nDynamic Limit: {controller.current_limit}")
-    print(f"State: {controller._state}")
-
-
-# =============================================================================
-# Cache CLI
-# =============================================================================
-
-
-def cmd_cache_stats() -> None:
-    from harness import L1Cache
-
-    cache = L1Cache()
-    stats = cache.stats
-
-    print("L1 Cache Stats:")
-    print(f"  Hits: {stats.hits}")
-    print(f"  Misses: {stats.misses}")
-    print(f"  Hit Rate: {stats.hit_rate:.1%}")
-
-
-def cmd_cache_clear() -> None:
-    from harness import L1Cache, L2Cache
-
-    l1 = L1Cache()
-    l2 = L2Cache()
-
-    # Clear L1 (recreate)
-    l1._cache.clear()
-    print("L1 cache cleared")
-
-    # Clear L2
-    l2.clear()
-    print("L2 cache cleared")
-
-
 def main() -> None:
+    from harness.commands import (
+        cmd_cache_clear,
+        cmd_cache_stats,
+        cmd_scaling_status,
+        cmd_teammates_delegate,
+        cmd_teammates_list,
+        cmd_teammates_status,
+    )
+
     p = argparse.ArgumentParser()
     sp = p.add_subparsers(dest="cmd", required=True)
 

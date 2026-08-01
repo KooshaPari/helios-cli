@@ -3,7 +3,10 @@ name = "helios-harness"
 version = "0.1.0"
 description = "Reusable CLI/API/SDK quality harness for phase-2 evidence generation"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastjsonschema>=2.21,<3",
+    "jsonschema>=4.23,<5",
+]
 
 [build-system]
 requires = ["hatchling"]

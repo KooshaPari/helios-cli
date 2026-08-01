@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
+    # Traces to: FR-HELIOS-IO-006 (explicit non-Git provenance handling).
     source_root = Path(__file__).resolve().parents[1]
     workspace = tmp_path / "phase2-harness-workspace"
     workspace.mkdir()
@@ -43,7 +44,8 @@ def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
     targets = evidence["targets"]
     assert any(t["repo_name"] == "toyrepo" for t in targets)
     toy_target = next(t for t in targets if t["repo_name"] == "toyrepo")
-    assert toy_target["run"]["result_code"] == "PASS"
+    assert toy_target["run"]["result_code"] == "WARN"
+    assert toy_target["run"]["provenance"]["reason"] == "non_git_repository"
 
     matrix_text = (workspace / "artifacts" / "phase-2" / "lane-d" / "integration-matrix.md").read_text()
     assert "toyrepo" in matrix_text

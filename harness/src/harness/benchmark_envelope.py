@@ -13,11 +13,20 @@ def _digest(value: object) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _replay_digest(events: list[dict]) -> str:
+    """Hash replay-relevant event content without collection-time timestamps."""
+    normalized = [
+        {key: value for key, value in event.items() if key != "ts"}
+        for event in events
+    ]
+    return _digest(normalized)
+
+
 _GIT_SHA_PATTERN = re.compile(r"[0-9a-f]{7,64}")
 
 
 def _require_resolved_git_sha(subject_commit: str) -> str:
-    if not _GIT_SHA_PATTERN.fullmatch(subject_commit) or len(subject_commit) != 40:
+    if not _GIT_SHA_PATTERN.fullmatch(subject_commit) or len(subject_commit) not in (40, 64):
         raise ValueError("benchmark envelope requires a resolved Git SHA for the subject commit")
     return subject_commit
 
@@ -26,6 +35,10 @@ def _require_resolved_ref(subject_ref: str) -> str:
     if not subject_ref or any(char.isspace() for char in subject_ref):
         raise ValueError("benchmark envelope requires a resolved source ref")
     return subject_ref
+
+
+def _result_status(result_code: str) -> str:
+    return {"PASS": "passed", "WARN": "warning", "FAIL": "failed"}.get(result_code, "failed")
 
 
 def add_envelope(
@@ -63,7 +76,10 @@ def add_envelope(
         if event_type == "compaction":
             event["details"] = {"tokens_before": 0, "tokens_after": 0, "retained_event_ids": [], "dropped_event_ids": []}
         events.append(event)
-    passed = payload.get("result_code") == "PASS"
+    result_code = payload.get("result_code", "WARN")
+    if result_code not in {"PASS", "WARN", "FAIL"}:
+        raise ValueError(f"unsupported benchmark result code: {result_code}")
+    passed = result_code == "PASS"
     legacy_digest = _digest(payload)
     commands = payload.get("commands", payload.get("plan", []))
     raw_runs = payload.get("runs", [])
@@ -89,6 +105,7 @@ def add_envelope(
     ]
     runs = [
         {
+            **run,
             "run_id": f"taskrun_{_digest({'run': run, 'index': index})}",
             "task_id": tasks[index]["task_id"] if index < len(tasks) else f"task_{_digest({'plan': plan_hash, 'index': index})}",
             "command": run.get("command", ""),
@@ -115,10 +132,10 @@ def add_envelope(
         "tasks": tasks,
         "runs": runs,
         "events": events,
-        "result": {"status": "passed" if passed else "failed", "outcome_sha256": legacy_digest, "replay_hash": _digest(events), "failure_class": "none" if passed else "unknown", "artifacts": [{"kind": "report", "uri": f"urn:helios:legacy-evidence:{legacy_digest}", "sha256": legacy_digest}]},
+        "result": {"status": _result_status(result_code), "outcome_sha256": legacy_digest, "replay_hash": _replay_digest(events), "failure_class": "none" if passed else ("unknown" if result_code == "FAIL" else "incomplete"), "artifacts": [{"kind": "report", "uri": f"urn:helios:legacy-evidence:{legacy_digest}", "sha256": legacy_digest}]},
         "provenance": {"collector": "helios-harness", "collected_at": now, "source_ref": subject_ref, "source_sha": subject_commit, "source_hashes": {"plan": plan_hash}},
         "signature": {"algorithm": "placeholder", "key_id": "unconfigured", "signature_b64": ""},
-        "result_code": "PASS" if passed else "FAIL",
+        "result_code": result_code,
     }
     fixture = payload.get("fixture")
     if isinstance(fixture, dict):
