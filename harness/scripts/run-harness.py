@@ -107,12 +107,10 @@ def _write_output(out: str, content: str) -> None:
     workspace = Path.cwd().resolve()
     candidate = Path(out).expanduser()
     resolved = candidate.resolve() if candidate.is_absolute() else (workspace / candidate).resolve()
-    try:
-        resolved.relative_to(workspace)
-    except ValueError as exc:
+    if not resolved.is_relative_to(workspace):
         raise ValueError(
             f"output path must remain inside the invoking workspace: {out!r}"
-        ) from exc
+        )
     if resolved == workspace:
         raise ValueError("output path must name a file inside the invoking workspace")
     resolved.write_text(content)
