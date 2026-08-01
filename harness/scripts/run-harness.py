@@ -104,16 +104,24 @@ def _write_output(out: str, content: str) -> None:
     untrusted.  Canonicalizing before the containment check also prevents a
     symlink in the requested path from escaping the workspace boundary.
     """
-    workspace = Path.cwd().resolve()
-    candidate = Path(out).expanduser()
-    resolved = candidate.resolve() if candidate.is_absolute() else (workspace / candidate).resolve()
-    if not resolved.is_relative_to(workspace):
+    workspace = os.path.realpath(os.getcwd())
+    candidate = os.path.expanduser(out)
+    resolved = os.path.realpath(
+        candidate if os.path.isabs(candidate) else os.path.join(workspace, candidate)
+    )
+    try:
+        common_root = os.path.commonpath((workspace, resolved))
+    except ValueError as exc:
+        raise ValueError(
+            f"output path must remain inside the invoking workspace: {out!r}"
+        ) from exc
+    if common_root != workspace:
         raise ValueError(
             f"output path must remain inside the invoking workspace: {out!r}"
         )
     if resolved == workspace:
         raise ValueError("output path must name a file inside the invoking workspace")
-    resolved.write_text(content)
+    Path(resolved).write_text(content)
 
 
 def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref: str) -> None:
