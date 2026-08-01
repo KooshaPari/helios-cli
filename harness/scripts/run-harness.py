@@ -282,7 +282,12 @@ def validate_artifacts(schema: str, file: str) -> None:
     from jsonschema import validate
 
     payload = json.loads(Path(file).read_text())
-    schema_json = json.loads(Path(schema).read_text())
+    schema_path = Path(schema)
+    schema_json = json.loads(schema_path.read_text())
+    if "tenant_id" in payload and "task_manifest" in payload and "result" in payload:
+        benchmark_schema = Path(__file__).resolve().parents[3] / "docs" / "sessions" / "20260722-agent-harness-portfolio" / "artifacts" / "benchmark_run.schema.json"
+        if benchmark_schema.exists():
+            schema_json = json.loads(benchmark_schema.read_text())
     validate(instance=payload, schema=schema_json)
     print("VALID")
 

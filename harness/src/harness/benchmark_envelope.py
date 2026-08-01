@@ -45,6 +45,14 @@ def add_envelope(payload: dict, *, repo: str, profile: str, plan_hash: str) -> d
         for index, command in enumerate(commands)
         if isinstance(command, dict)
     ]
+    plan_commands = [
+        {
+            **command,
+            "task_id": tasks[index]["task_id"] if index < len(tasks) else f"task_{_digest({'plan': plan_hash, 'index': index, 'command': command.get('command', '')})}",
+        }
+        for index, command in enumerate(commands)
+        if isinstance(command, dict)
+    ]
     runs = [
         {
             "run_id": f"taskrun_{_digest({'run': run, 'index': index})}",
@@ -57,7 +65,11 @@ def add_envelope(payload: dict, *, repo: str, profile: str, plan_hash: str) -> d
         for index, run in enumerate(raw_runs)
         if isinstance(run, dict)
     ]
-    return {
+    replay = payload.get("replay")
+    envelope = {
+        "plan": plan_commands,
+        "commands": plan_commands,
+        "plan_hash": plan_hash,
         "schema_version": "1.0.0",
         "tenant_id": "phenotype", "session_id": session_id, "run_id": run_id, "attempt_id": attempt_id,
         "deterministic_identity": {"algorithm": "sha256(canonical-json(inputs))", "canonical_json_sha256": digest, "inputs": identity},
@@ -70,4 +82,8 @@ def add_envelope(payload: dict, *, repo: str, profile: str, plan_hash: str) -> d
         "result": {"status": "passed" if passed else "failed", "outcome_sha256": legacy_digest, "replay_hash": _digest(events), "failure_class": "none" if passed else "unknown", "artifacts": [{"kind": "report", "uri": f"urn:helios:legacy-evidence:{legacy_digest}", "sha256": legacy_digest}]},
         "provenance": {"collector": "helios-harness", "collected_at": now, "source_hashes": {"plan": plan_hash}},
         "signature": {"algorithm": "placeholder", "key_id": "unconfigured", "signature_b64": ""},
+        "result_code": "PASS" if passed else "FAIL",
     }
+    if replay is not None:
+        envelope["replay"] = replay
+    return envelope
