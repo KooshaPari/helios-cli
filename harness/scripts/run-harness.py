@@ -121,6 +121,8 @@ def _write_output(out: str, content: str) -> None:
         )
     if resolved == workspace:
         raise ValueError("output path must name a file inside the invoking workspace")
+    # NOSONAR: ``resolved`` is realpath-canonicalized and commonpath-checked;
+    # traversal and symlink escapes are rejected before this write.
     Path(resolved).write_text(content)
 
 
