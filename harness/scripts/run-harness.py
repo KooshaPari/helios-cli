@@ -97,6 +97,27 @@ def _subject_ref(discovery) -> str:
     return ""
 
 
+def _validated_output_path(out: str) -> Path:
+    """Resolve an output path and keep it inside the invoking workspace.
+
+    Output paths come from CLI arguments and are therefore treated as
+    untrusted.  Canonicalizing before the containment check also prevents a
+    symlink in the requested path from escaping the workspace boundary.
+    """
+    workspace = Path.cwd().resolve()
+    candidate = Path(out).expanduser()
+    resolved = candidate.resolve() if candidate.is_absolute() else (workspace / candidate).resolve()
+    try:
+        resolved.relative_to(workspace)
+    except ValueError as exc:
+        raise ValueError(
+            f"output path must remain inside the invoking workspace: {out!r}"
+        ) from exc
+    if resolved == workspace:
+        raise ValueError("output path must name a file inside the invoking workspace")
+    return resolved
+
+
 def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref: str) -> None:
     """Emit an explicit warning instead of fabricating an envelope for non-Git input."""
     payload["result_code"] = "WARN"
@@ -112,14 +133,14 @@ def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref
         "status": "warning",
         "failure_class": "provenance_unresolved",
     }
-    Path(out).write_text(json.dumps(payload, indent=2))
+    _validated_output_path(out).write_text(json.dumps(payload, indent=2))
 
 
 def run_discovery(root: str, out: str, max_scan_depth: int) -> None:
     from harness.discoverer import Discoverer
     from harness.interfaces import DiscoverInput
 
-    out_path = Path(out)
+    out_path = _validated_output_path(out)
     discoverer = Discoverer()
     discovery = discoverer.discover(DiscoverInput(repo_root=root, max_scan_depth=max_scan_depth))
     out_path.write_text(discovery.to_json())
@@ -215,12 +236,11 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
         result = add_envelope(
             result,
             repo=repo,
-            profile=profile,
             plan_hash=command_hash,
             subject_commit=discovery.manifest.commit or "",
             subject_ref=subject_ref,
         )
-        Path(out).write_text(json.dumps(result, indent=2))
+        _validated_output_path(out).write_text(json.dumps(result, indent=2))
         return
 
     runner = Runner(
@@ -300,13 +320,12 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     payload = add_envelope(
         payload,
         repo=repo,
-        profile=profile,
         plan_hash=command_hash,
         subject_commit=discovery.manifest.commit or "",
         subject_ref=subject_ref,
     )
 
-    Path(out).write_text(json.dumps(payload, indent=2))
+    _validated_output_path(out).write_text(json.dumps(payload, indent=2))
 
 
 def normalize_run(input_file: str, out: str) -> None:
@@ -339,7 +358,9 @@ def normalize_run(input_file: str, out: str) -> None:
 
     discovered_commands = payload.get("commands", [])
     result = QualityNormalizer().normalize(runs, discovered_commands)
-    Path(out).write_text(json.dumps({"quality": result.__dict__, "source": str(input_file)}, indent=2))
+    _validated_output_path(out).write_text(
+        json.dumps({"quality": result.__dict__, "source": str(input_file)}, indent=2)
+    )
 
 
 def validate_artifacts(schema: str, file: str) -> None:

@@ -47,7 +47,6 @@ def add_envelope(
     payload: dict,
     *,
     repo: str,
-    profile: str,
     plan_hash: str,
     subject_commit: str,
     subject_ref: str,

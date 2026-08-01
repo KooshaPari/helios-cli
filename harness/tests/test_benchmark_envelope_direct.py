@@ -17,8 +17,9 @@ def _initialize_git_repo(repo):
     subprocess.run(["git", "-C", str(repo), "commit", "-qm", "test fixture"], check=True)
 
 
-def test_run_runner_emits_benchmark_envelope(tmp_path):
+def test_run_runner_emits_benchmark_envelope(tmp_path, monkeypatch):
     # Traces to: FR-HELIOS-IO-006 (resolved source provenance).
+    monkeypatch.chdir(tmp_path)
     repo = tmp_path / "repo"
     repo.mkdir()
     (repo / "Makefile").write_text("check:\n\t@echo check\n")
@@ -75,7 +76,6 @@ def test_real_runs_promote_populated_tasks_and_runs():
             "result_code": "PASS",
         },
         repo="triangle",
-        profile="strict-full",
         plan_hash="a" * 64,
         subject_commit="a" * 40,
         subject_ref="main",
@@ -110,7 +110,6 @@ def test_warn_result_preserves_code_and_content_addressed_metadata():
             "result_code": "WARN",
         },
         repo="triangle",
-        profile="strict-full",
         plan_hash="a" * 64,
         subject_commit="a" * 40,
         subject_ref="main",
@@ -128,7 +127,6 @@ def test_add_envelope_accepts_sha256_subject_commit():
     payload = add_envelope(
         {"result_code": "PASS"},
         repo="triangle",
-        profile="strict-full",
         plan_hash="a" * 64,
         subject_commit="a" * 64,
         subject_ref="main",
@@ -141,15 +139,15 @@ def test_add_envelope_rejects_missing_or_non_sha_subject_commit():
         add_envelope(
             {"result_code": "PASS"},
             repo="triangle",
-            profile="strict-full",
             plan_hash="a" * 64,
             subject_commit="unknown",
             subject_ref="main",
         )
 
 
-def test_run_runner_rejects_non_git_subject(tmp_path):
+def test_run_runner_rejects_non_git_subject(tmp_path, monkeypatch):
     # Traces to: FR-HELIOS-IO-006 (explicit unresolved provenance).
+    monkeypatch.chdir(tmp_path)
     repo = tmp_path / "repo"
     repo.mkdir()
     (repo / "Makefile").write_text("check:\n\t@echo check\n")
@@ -174,7 +172,6 @@ def test_add_envelope_rejects_missing_source_ref():
         add_envelope(
             {"result_code": "PASS"},
             repo="triangle",
-            profile="strict-full",
             plan_hash="a" * 64,
             subject_commit="a" * 40,
             subject_ref="",
@@ -184,7 +181,6 @@ def test_add_envelope_rejects_missing_source_ref():
 def test_replay_hash_is_stable_across_collection_timestamps():
     kwargs = {
         "repo": "triangle",
-        "profile": "strict-full",
         "plan_hash": "a" * 64,
         "subject_commit": "a" * 40,
         "subject_ref": "main",

@@ -2,6 +2,9 @@ import json
 import subprocess
 from pathlib import Path
 
+import pytest
+from harness.scripts.run_harness import _legacy_module
+
 SCRIPT = Path("harness/scripts/run-harness.py").resolve()
 # Alternative path for running from harness directory
 if not SCRIPT.exists():
@@ -25,6 +28,21 @@ def _initialize_git_repo(repo: Path) -> None:
     subprocess.run(["git", "-C", str(repo), "config", "user.name", "Harness tests"], check=True)
     subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
     subprocess.run(["git", "-C", str(repo), "commit", "-qm", "test fixture"], check=True)
+
+
+def test_validated_output_path_rejects_workspace_escape(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    validated_output_path = _legacy_module()._validated_output_path
+    nested = tmp_path / "artifacts"
+    nested.mkdir()
+
+    assert validated_output_path("artifacts/run.json") == nested / "run.json"
+    with pytest.raises(ValueError, match="inside the invoking workspace"):
+        validated_output_path("../outside.json")
+
+    (tmp_path / "link").symlink_to(Path("/tmp"), target_is_directory=True)
+    with pytest.raises(ValueError, match="inside the invoking workspace"):
+        validated_output_path("link/run.json")
 
 
 def test_harness_dry_run_and_plan_hash(tmp_path):
