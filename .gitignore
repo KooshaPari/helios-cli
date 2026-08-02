@@ -33,3 +33,20 @@ AGENTS.override.md
 # Nix
 result
 Cargo.lock
+
+# Session scratch files (recurring patterns; quarantined 2026-08-01)
+/build-*.txt
+/codex-build-*.txt
+/*.bat
+/*.cmd
+/*.vbs
+/*.log
+/restore-*.py
+/audit_scorecard.json
+/NONE
+/_c.txt
+/hello.exe
+/hello.nim
+/test.nim
+__pycache__/
+*.pyc

@@ -1,125 +1,97 @@
 # SLSA Build Attestation
 
-This repository publishes build provenance for release artifacts in
-accordance with [SLSA (Supply-chain Levels for Software Artifacts)][slsa]
-Build specifications. SLSA provenance allows downstream consumers to
-verify that an artifact was built from the expected source repository,
-at the expected commit, by the expected build platform.
+This document describes the *actual* build-provenance state of this
+repository. It was rewritten on 2026-08-02 because the previous version
+claimed "SLSA Build L2 (achieved today)" backed by a
+`.github/workflows/release-attestation.yml` that **never existed** in git
+history, and referenced a `slsa-framework/slsa-github-generator/attest-build-provenance`
+action that **does not exist** in any release of that project. This page now
+states only what is wired in-tree, and what is not.
 
-## Target Level
+## What IS wired
 
-**Current target: SLSA Build L2 (achieved today)**
+A dedicated `attest` job (name: `attest-build-provenance`) was added to the
+real release pipeline [`.github/workflows/rust-release.yml`](../.github/workflows/rust-release.yml):
 
-The release pipeline is hosted on GitHub Actions, an isolated build
-platform that is owned and administered by GitHub. Provenance is
-generated automatically for every published release using
-[`slsa-framework/slsa-github-generator`][slsa-gh-gen] and the
-`attest-build-provenance` action. Provenance is signed by a GitHub-
-hosted OIDC token and stored in the [GitHub Artifact Attestations][ghaa]
-log alongside the artifact.
+- Triggered on every tag push matching `rust-v*.*.*` (the workflow trigger),
+  running after the `release` job in the same workflow run.
+- Downloads the same artifact set the `release` job publishes (the
+  `{aarch64,x86_64}-{apple-darwin{,-app-server},unknown-linux-musl{,-app-server},pc-windows-msvc}`
+  and `{*-symbols,argument-comment-lint-*,python-runtime-wheel-*}` action artifacts).
+- Runs `actions/attest-build-provenance@v2.1.0` (exact version pinned) over
+  those artifacts (`subject-path: "${{ github.workspace }}/dist/**"`).
+- Requires `id-token: write` + `contents: read` job permissions, so provenance
+  is signed with the GitHub-hosted OIDC token and stored in the
+  [GitHub Artifact Attestations][ghaa] log alongside the release.
 
-| Requirement                                 | Status       |
-| ------------------------------------------- | ------------ |
-| Provenance generated automatically          | ✅ L2        |
-| Provenance distributed alongside artifact   | ✅ L2        |
-| Build platform hosted and isolated          | ✅ L2        |
-| Provenance authenticity (OIDC-signed)       | ✅ L2        |
-| Build platform isolated from build request | ⏭ L3 target |
-| Hardened build platform                     | ⏭ L3 target |
-| Provenance non-forgeable (sigstore/cosign)  | ⏭ L3 target |
+> Correction: the attestation action is **`actions/attest-build-provenance`**
+> (maintained by GitHub in the `actions` org), not
+> `slsa-framework/slsa-github-generator/...attest-build-provenance`, which
+> does not exist. `slsa-github-generator` only ships builder/generator
+> reusable workflows (e.g. `generator_generic_slsa3.yml`), not this action.
 
-## Workflow
+## What is NOT wired
 
-The CI workflow lives at
-[`.github/workflows/release-attestation.yml`](../.github/workflows/release-attestation.yml)
-and is triggered:
+- **First-run validation** — the `attest` job has not yet executed on a real
+  release tag; until the next `rust-v*.*.*` release runs green through it, the
+  provenance path is *implemented, not proven*.
+- **SLSA Build L3** — no isolated/ephemeral builder
+  (`generator_container_slsa3.yml` or a delegated builder), no sigstore/KMS
+  re-signing of provenance, no transparency-log publication.
+- **SBOM** — no CycloneDX/SPDX SBOM is emitted in any workflow.
+- **Reproducible builds** — no `SOURCE_DATE_EPOCH`, no repro-check CI, and
+  `CARGO_NET_OFFLINE` is not enforced in `rust-ci.yml`/`rust-release.yml`.
+- **Attestation scope** — subjects are the build-job artifacts only. Files
+  generated inside the `release` job (`codex-package_SHA256SUMS`,
+  `config-schema.json`, `install.sh`/`install.ps1`) are not attested.
 
-- Automatically on every `release: published` event.
-- Manually via `workflow_dispatch` for ad-hoc provenance generation.
+## Status table
 
-### Build Steps
-
-1. **Checkout** — full history (`fetch-depth: 0`) so the git revision
-   can be embedded in provenance.
-2. **Toolchain** — pinned `stable` Rust via
-   [`dtolnay/rust-toolchain`][rust-toolchain].
-3. **Cache** — cargo registry, git index, and `target/` via
-   [`Swatinem/rust-cache`][rust-cache].
-4. **Build** — `cargo build --release --locked --workspace --all-targets`.
-5. **Stage** — collect built executables, source tarball, and a build
-   manifest into `release-artifacts/`.
-6. **Upload** — publish `release-artifacts` as a GitHub Actions artifact
-   (90 day retention).
-7. **Attest** — generate SLSA Build L2 provenance with
-   `slsa-framework/slsa-github-generator/attest-build-provenance@v1`.
+| Requirement                                 | Status                    |
+| ------------------------------------------- | ------------------------- |
+| Provenance generated automatically          | ⚠ wired, unvalidated     |
+| Provenance distributed alongside artifact   | ⚠ via GHAA log, in-run   |
+| Build platform hosted and isolated          | ✅ GitHub Actions runners |
+| Provenance authenticity (OIDC-signed)       | ✅ id-token: write        |
+| Isolated builder (L3)                       | ❌ not started            |
+| Provenance non-forgeable (sigstore/KMS)     | ❌ not started            |
+| Transparency log publication (L3)           | ❌ not started            |
+| SBOM emission                               | ❌ not started            |
 
 ## Verification
 
-Consumers can verify a release artifact's provenance using the
+Once the first attested release exists, consumers verify with the
 [GitHub CLI][gh-cli]:
 
 ```bash
 gh attestation verify <artifact> --owner <org>
 ```
 
-Or with [`cosign`][cosign]:
-
-```bash
-cosign verify-attestation \
-  --certificate-identity-regexp 'https://github.com/slsa-framework/slsa-github-generator' \
-  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  <artifact>
-```
-
-The in-toto provenance attestation (`slsa-github-generator/actions/attest-build-provenance`)
-contains:
-
-- `builder.id` — `https://github.com/actions/runner`
-- `invocation.config.source.uri` — repository URL
-- `invocation.config.source.entryPoint` — build workflow path
-- `invocation.config.source.digest.sha1` — git commit SHA
-- `invocation.config.source.ref` — git ref (tag / branch)
-- `metadata.buildInvocationID` — workflow run ID
-- `metadata.completeness.parameters` — whether all inputs are hashed
-- `metadata.completeness.environment` — whether environment is fully captured
+or with [`slsa-verifier`][slsa-verifier] for the downloaded provenance bundle.
 
 ## Path to SLSA Build L3
 
-The current pipeline satisfies L2. To graduate to L3, the following
-additions are required:
-
-1. **Isolated build environment** — move from a hosted runner to
-   ephemeral, single-tenant builders (e.g.
-   `slsa-framework/slsa-github-generator`'s `generator_containerized_slsa3.yml`
-   reusable workflow, or a self-hosted runner with a hardened image).
-2. **Provenance non-forgeability** — the generator workflow re-signs
-   provenance with a build-platform-held signing key (sigstore / KMS)
-   rather than relying on the GitHub OIDC token alone.
-3. **Provenance transparency log** — the generator publishes
-   provenance to a transparency log (e.g. Rekor) so forgery is
-   detectable by the wider community.
-
-To upgrade, switch the `attest-build-provenance` step to invoke the
-`slsa-framework/slsa-github-generator/.github/workflows/generator_containerized_slsa3.yml@v2`
-reusable workflow with a build image pinned by digest. The reusable
-workflow handles ephemeral runners, hardened isolation, and
-non-forgeable provenance signing transparently.
+1. Switch the `attest` step to the
+   `slsa-framework/slsa-github-generator/.github/workflows/generator_containerized_slsa3.yml`
+   (or `generator_generic_slsa3.yml`) reusable workflow pinned to an exact
+   version, so builds run on ephemeral isolated builders and provenance is
+   re-signed with the builder's key.
+2. Emit an SBOM (CycloneDX) in the `build` job and attest it alongside the
+   binaries.
+3. Enforce `CARGO_NET_OFFLINE` / vendored deps and `--locked` builds, and add a
+   repro-check job.
 
 ## References
 
 - [SLSA Framework][slsa]
-- [`slsa-framework/slsa-github-generator`][slsa-gh-gen]
 - [GitHub Artifact Attestations][ghaa]
+- [`actions/attest-build-provenance`][abp]
 - [GitHub Actions security hardening][ghas]
-- [`dtolnay/rust-toolchain`][rust-toolchain]
-- [`Swatinem/rust-cache`][rust-cache]
-- [`cosign`][cosign]
+- [`slsa-verifier`][slsa-verifier]
 
 [slsa]: https://slsa.dev
-[slsa-gh-gen]: https://github.com/slsa-framework/slsa-github-generator
 [ghaa]: https://docs.github.com/en/security/supply-chain-security/artifact-attestations
+[abp]: https://github.com/actions/attest-build-provenance
 [ghas]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
 [gh-cli]: https://cli.github.com
-[cosign]: https://github.com/sigstore/cosign
-[rust-toolchain]: https://github.com/dtolnay/rust-toolchain
-[rust-cache]: https://github.com/Swatinem/rust-cache
+[slsa-verifier]: https://github.com/slsa-framework/slsa-verifier

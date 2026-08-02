@@ -1,27 +1,37 @@
-<!-- Base: platforms/thegent/governance/AGENTS.base.md -->
-<!-- Last synced: 2026-03-29 -->
+<!-- Base: platforms/thegent/governance/AGENTS.base.md (external repo; not vendored here) -->
+<!-- Last synced: 2026-08-02 -->
 
-# AGENTS.md — heliosCLI
+# AGENTS.md — helios-cli
 
-Extends thegent governance base. See `platforms/thegent/governance/AGENTS.base.md` for canonical definitions of agent expectations, testing requirements, research patterns, and standard operating procedures.
+Working tree of `KooshaPari/helios-cli`, a hard fork of `openai/codex`.
+Read `CLAUDE.md` (in-repo) for governance and branch discipline, and
+`ARCHITECTURE.md` for the hard-fork/dual-workspace model.
 
 ## Project Identity & Work Management
 
 ### Project Overview
 
-- **Name**: heliosCLI
-- **Description**: Rust-based CLI for managing Helios CLI applications with multi-backend support and sandboxing.
-- **Location**: `/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI`
-- **Language Stack**: Rust (edition 2021)
-- **Published**: Internal
+- **Name**: helios-cli
+- **Description**: Phenotype harness + Codex-derived CLI. Dual workspace:
+  a root Rust workspace of ~21 harness crates (`crates/`), plus vendored
+  upstream trees `codex-rs/` (120+ crates, separate workspace root, excluded
+  from the root `Cargo.toml`) and `helios-rs/`, an npm package `codex-cli/`,
+  a Python harness (`harness/`), and a Python router UI (`src/helios_router_ui/`).
+- **Location**: repo-relative — this checkout. No machine-specific absolute
+  paths (do not introduce any; use `./` or `$HOME/...`).
+- **Language Stack**: Rust (root edition 2021; codex-rs edition 2024),
+  Python (harness, router UI), TypeScript (codex-cli).
+- **Published**: internal hard fork.
 
 ### AgilePlus Integration
 
 All work MUST be tracked in AgilePlus:
-- Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
-- CLI: `cd AgilePlus && agileplus <command>`
-- Specs: `AgilePlus/kitty-specs/<feature-id>/`
-- Worklog: `AgilePlus/.work-audit/worklog.md`
+
+- Reference: a sibling checkout of the AgilePlus repo (e.g. `$HOME/AgilePlus`
+  or a sibling directory — never a machine-specific path)
+- CLI: `cd <agileplus-checkout> && agileplus <command>`
+- Specs: `<agileplus-checkout>/kitty-specs/<feature-id>/`
+- Worklog: `<agileplus-checkout>/.work-audit/worklog.md`
 
 **Requirements**:
 1. Check for AgilePlus spec before implementing
@@ -36,50 +46,121 @@ All work MUST be tracked in AgilePlus:
 ### Project Structure
 
 ```
-src/
-  main.rs               # CLI entrypoint using clap
-  commands/             # Command handlers by domain
-    mod.rs              # Command registry
-    app.rs              # App management commands
-    config.rs           # Configuration commands
-    execution.rs        # Execution backend commands
-  config/               # Configuration loading and parsing
-    mod.rs              # Config loader
-  execution/            # Backend executors
-    mod.rs              # Executor trait
-    docker.rs           # Docker executor
-    kubernetes.rs       # Kubernetes executor
-    local.rs            # Local executor
-    sandbox.rs          # Sandbox executor
-  app/                  # Core application logic
-  models/               # Data models (App, Config, etc.)
-  utils/                # Shared utilities
-  errors.rs             # Error types using thiserror
-
-tests/                  # Integration tests
-docs/
-  adr/                  # Architecture decision records
-  sessions/             # Session-based work documentation
-  reference/            # Architecture docs and quick references
+Cargo.toml            # root harness workspace (members under crates/; excludes codex-rs/, helios-rs/, crates/harness_pyo3)
+justfile              # task runner: check / build / test / lint / fmt-check / audit
+crates/               # harness crates: harness_queue, harness_runner, harness_scaling,
+                      #   harness_schema, harness_spec, harness_checkpoint, harness_verify,
+                      #   harness_utils, harness_cache, harness_discoverer, harness_elicitation,
+                      #   harness_interfaces, harness_normalizer, harness_orchestrator,
+                      #   harness_rollback, harness_teammates, harness_recorder, arch_test,
+                      #   helios_config, pheno-plugin, plugin-arch
+codex-rs/             # VENDORED openai/codex Rust workspace (120+ crates) — separate root, EXCLUDED from root workspace
+codex-cli/            # VENDORED npm package tree (TypeScript)
+helios-rs/            # VENDORED helios-rs workspace — EXCLUDED from root workspace
+harness/              # Python harness (src/harness/, tests/, benchmarks/)
+src/helios_router_ui/ # Python router UI (Streamlit)
+docs/                 # functional-requirements/ (FR-*), adrs/, security/threat-model.md, slsa.md, index.md
+.github/              # workflows/ (rust-ci.yml, ci.yml, rust-release.yml, cargo-deny.yml, ...),
+                      #   ISSUE_TEMPLATE/, pull_request_template.md, CODEOWNERS
+tests/                # root integration tests (e2e_smoke.rs)
 ```
+
+### Build Model (IMPORTANT)
+
+- The root workspace is small and fast: `cargo check --workspace` /
+  `cargo test --workspace` are the primary loops. The required CI gate is the
+  `workspace` job in `.github/workflows/rust-ci.yml`.
+- `codex-rs/` is a separate 120+ crate workspace: **never** run full
+  `cargo build`/`cargo test`/`cargo clippy` there locally — it takes hours.
+  Work on it only via `cargo check -p <specific-crate>` when strictly needed.
+- `crates/harness_pyo3` is excluded from the root workspace (broken path dep
+  `phenotype-shared`); leave it excluded.
 
 ### Style Constraints
 
 - **Line length**: 100 characters (Rust convention)
 - **Formatter**: `cargo fmt` (mandatory)
 - **Type checker**: Rust compiler (strict)
-- **Linter**: `cargo clippy` with `-- -D warnings` (zero warnings)
+- **Linter**: `cargo clippy --workspace --all-targets -- -D warnings` (zero warnings)
 - **File size target**: ≤350 lines per source file, hard limit ≤500 lines
 - **Typing**: Full type annotations required; no `impl Trait` in public APIs
 
 ### Key Constraints
 
-- All CLI commands must use `clap` for argument parsing
-- All backends must implement a common executor trait
+- All CLI commands use `clap` for argument parsing
 - Error handling via `thiserror` with clear error types
 - Async code uses `tokio` runtime
 - No global state; dependency injection for configuration
 - Tests verify both happy path and error conditions
+- Do NOT add `continue-on-error: true` or `|| echo "::warning::"` swallows to
+  CI gates — failing checks must fail the workflow
+
+---
+
+## Build / Test / Lint
+
+Prefer the justfile recipes (they wrap the root workspace):
+
+```bash
+just check       # cargo check --workspace --all-targets
+just build       # cargo build --workspace
+just test        # cargo test --workspace
+just lint        # cargo clippy --workspace --all-targets -- -D warnings
+just fmt-check   # cargo fmt --all -- --check
+just audit       # verify-governance + verify-codeowners
+```
+
+Plain cargo equivalents work from the repo root:
+
+```bash
+cargo check --workspace --all-targets
+cargo test --workspace
+cargo fmt --all -- --check
+```
+
+## Key Files
+
+- `Cargo.toml` — root workspace manifest (members + excludes)
+- `justfile` — canonical task commands
+- `ARCHITECTURE.md`, `ADR.md` — architecture and decisions
+- `docs/functional-requirements/` — FR-* specs (SHALL statements); tests must
+  trace to them
+- `docs/security/threat-model.md`, `docs/slsa.md` — security posture and
+  supply-chain claims (keep truthful: `docs/slsa.md` must match what
+  `.github/workflows/rust-release.yml` actually wires)
+- `.github/workflows/rust-ci.yml` — required CI gate (workspace/deny/aggregator)
+- `.github/workflows/ci.yml` — generic lint/test gates (fail-hard by design)
+- `.github/workflows/rust-release.yml` — release pipeline incl. `attest`
+  (SLSA build provenance) job
+- `deny.toml`, `renovate.json` — dependency/license policy
+
+## Forbidden Ops
+
+1. **Never** run a full build/test/clippy of the vendored `codex-rs/` workspace locally.
+2. **Never** commit scratch files: `build-*.txt`, `codex-build-*.txt`, `*.bat`/
+   `*.vbs`/`*.cmd` scratch scripts at root, `__pycache__/`, `*.exe` at root,
+   `NONE`, `_c.txt`, `*.log` leftovers.
+3. **Never** weaken CI: no `continue-on-error`, no `|| echo ::warning::`
+   swallows, no tag-pin→`@main` downgrades on security actions.
+4. **Never** force-push to `main` or shared branches; no direct pushes to
+   `main` — work in a branch/worktree and open a PR (Mergify requires 1
+   approval + green checks).
+5. **Never** commit secrets — `auth.json`, tokens, AKV credentials, `.env`
+   files. CI runs trufflehog + gitleaks and will fail.
+6. Do not edit vendored code in `codex-rs/` without an upstream-tracked
+   rationale (see `docs/upstream-research/`).
+
+---
+
+## Worktree & Parallel-Agent Discipline
+
+- Do work in a dedicated branch or worktree (`git worktree add`), one topic
+  per branch; never run two agents mutating the same worktree.
+- Before starting, check `git status -sb` is clean of scratch files; run
+  `git pull --ff-only` / rebase on `main` before pushing.
+- Tests are hermetic (temp paths; smoke tests spawn their own manifest) — run
+  them in parallel freely, but do not share `target/` between concurrent
+  `cargo` processes of different toolchains.
 
 ---
 
@@ -109,8 +190,8 @@ docs/sessions/<session-id>/
 
 ### Code Quality Mandate
 
-- **All linters must pass**: `cargo clippy --all-targets -- -D warnings`
-- **All tests must pass**: `cargo test --all`
+- **All linters must pass**: `cargo clippy --workspace --all-targets -- -D warnings`
+- **All tests must pass**: `cargo test --workspace`
 - **No AI slop**: Avoid placeholder TODOs, lorem ipsum, generic comments
 - **Backwards incompatibility**: No shims, full migrations, clean breaks
 
@@ -122,7 +203,8 @@ docs/sessions/<session-id>/
 
 ### FR Traceability
 
-All tests MUST reference a Functional Requirement (FR):
+All tests MUST reference a Functional Requirement (FR) from
+`docs/functional-requirements/`:
 
 ```rust
 // Traces to: FR-HELIOS-NNN
@@ -134,44 +216,25 @@ fn test_feature_name() {
 
 ---
 
-## Governance Reference
-
-See thegent governance base for complete guidance on:
-
-1. **Core Agent Expectations** — Autonomous operation, when to ask vs. decide
-2. **Standard Operating Loop (SWE Autopilot)** — Review, Research, Plan, Execute, Size-Check, Test, Review & Polish, Repeat
-3. **File Size & Modularity Mandate** — ≤500 line hard limit, decomposition patterns
-4. **Research-First Development** — Codebase research, web research, documentation
-5. **Branch Discipline** — Worktree usage, PR workflow, git best practices
-6. **Child-Agent and Delegation Policy** — When to spawn subagents, parallel vs. sequential
-7. **Tool Usage & CLI Priority** — CLI as primary interface, read-only tools first
-8. **Naming Conventions** — Session naming, file naming, branch naming
-
-Location: `platforms/thegent/governance/AGENTS.base.md`
-
----
-
 ## Quick Reference Commands
 
 ```bash
-# Run all quality checks
-cargo test --all
-cargo clippy --all-targets -- -D warnings
-cargo fmt --check
-
-# Auto-format code
-cargo fmt
+# Run all quality checks (root workspace only)
+just check
+just lint
+just fmt-check
+just test
 
 # Run specific test
-cargo test <test_name>
+cargo test -p <crate> <test_name>
 
-# Build and run
-cargo build
-./target/debug/helios-cli --help
+# Check a single crate (fast)
+cargo check -p <crate>
 
-# Build release
-cargo build --release
+# List tasks / repo meta
+just
+just meta
 
-# View documentation
-cargo doc --open
+# Governance audit (requires .github/pull_request_template.md etc.)
+just audit
 ```
