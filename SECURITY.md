@@ -56,18 +56,20 @@ The following tooling runs on every push and pull request:
 - `cargo check --workspace` and `cargo clippy --all-targets -- -D warnings`
 - `cargo test --all`
 - `cargo fmt --all -- --check`
-- `cargo-audit` (RustSec advisory database) — see `.github/workflows/audit.yml`
+- `cargo-audit` (RustSec advisory database) — see
+  `codex-rs/.github/workflows/cargo-audit.yml`
 - `cargo-deny` (licenses, advisories, bans, sources) — see `deny.toml`
-- CodeQL static analysis (Rust) — see `.github/workflows/audit.yml`
-- OpenSSF Scorecard — see `.github/workflows/scorecard.yml`
+- OpenSSF Scorecard (SARIF results uploaded via the CodeQL action) — see
+  `.github/workflows/scorecard.yml`
 
 Supply-chain hardening:
 
 - All third-party GitHub Actions are pinned by SHA.
-- Release artifacts are attested with SLSA Build L2 provenance
-  (`.github/workflows/release-attestation.yml`).
-- Dependabot is enabled for Cargo, npm, GitHub Actions, Docker, and
-  rust-toolchain — see `.github/dependabot.yml`.
+- Release artifacts are attested with SLSA Build provenance by the `attest`
+  job in `.github/workflows/rust-release.yml`
+  (`actions/attest-build-provenance@v2.1.0` over the release artifacts).
+- Dependency updates run through Renovate (grouped, automerged, vulnerability
+  alerts) — see `renovate.json`. There is no `.github/dependabot.yml`.
 
 ## Out of Scope
 

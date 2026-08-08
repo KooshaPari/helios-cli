@@ -20,7 +20,7 @@ verify-codeowners:
 # Verify required governance files exist
 verify-governance:
     @test -f .github/CODEOWNERS           && echo "✓ .github/CODEOWNERS"            || (echo "✗ missing .github/CODEOWNERS"            && exit 1)
-    @test -f .github/PULL_REQUEST_TEMPLATE.md && echo "✓ .github/PULL_REQUEST_TEMPLATE.md" || (echo "✗ missing .github/PULL_REQUEST_TEMPLATE.md" && exit 1)
+    @test -f .github/pull_request_template.md && echo "✓ .github/pull_request_template.md" || (echo "✗ missing .github/pull_request_template.md" && exit 1)
     @test -d .github/ISSUE_TEMPLATE       && echo "✓ .github/ISSUE_TEMPLATE/"      || (echo "✗ missing .github/ISSUE_TEMPLATE/"       && exit 1)
     @test -f justfile                     && echo "✓ justfile"                     || (echo "✗ missing justfile"                     && exit 1)
     @test -f CHANGELOG.md                 && echo "✓ CHANGELOG.md"                 || (echo "✗ missing CHANGELOG.md"                 && exit 1)
