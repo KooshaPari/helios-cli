@@ -14,6 +14,7 @@ from functools import wraps
 
 class BulkheadState(Enum):
     """Bulkhead states."""
+
     HEALTHY = "healthy"
     LOADED = "loaded"
     REJECTED = "rejected"
@@ -22,6 +23,7 @@ class BulkheadState(Enum):
 @dataclass
 class BulkheadMetrics:
     """Bulkhead metrics."""
+
     total_calls: int = 0
     successful_calls: int = 0
     rejected_calls: int = 0
@@ -67,9 +69,8 @@ class ThreadPoolBulkhead:
                 self._metrics.successful_calls += 1
                 elapsed = time.time() - start_time
                 self._metrics.avg_wait_time = (
-                    (self._metrics.avg_wait_time * (self._metrics.successful_calls - 1) + elapsed)
-                    / self._metrics.successful_calls
-                )
+                    self._metrics.avg_wait_time * (self._metrics.successful_calls - 1) + elapsed
+                ) / self._metrics.successful_calls
 
         future.add_done_callback(callback)
         return future
@@ -87,12 +88,13 @@ class ThreadPoolBulkhead:
                 rejected_calls=self._metrics.rejected_calls,
                 queued_calls=self._executor._work_queue.qsize(),
                 avg_wait_time=self._metrics.avg_wait_time,
-                state=self._metrics.state
+                state=self._metrics.state,
             )
 
 
 class BulkheadRejected(Exception):
     """Exception raised when bulkhead rejects a call."""
+
     pass
 
 
@@ -142,13 +144,13 @@ class SemaphoreBulkhead:
                 successful_calls=self._metrics.successful_calls,
                 rejected_calls=self._metrics.rejected_calls,
                 queued_calls=self.max_concurrent - self._semaphore._value,
-                state=self._metrics.state
+                state=self._metrics.state,
             )
 
 
 def bulkhead(max_workers: int = 10, max_queue: int = 100):
     """Decorator to apply bulkhead pattern to a function.
-    
+
     Usage:
         @bulkhead(max_workers=5, max_queue=10)
         def my_function():

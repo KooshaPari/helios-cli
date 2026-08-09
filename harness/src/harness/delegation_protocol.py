@@ -81,11 +81,15 @@ class DelegationProtocol:
         self._lock = threading.Lock()
         self._callbacks: dict[str, list[Callable]] = {}  # state -> callbacks
 
-    def register_handler(self, agent_type: str, handler: Callable[[DelegationRequest], Any]) -> None:
+    def register_handler(
+        self, agent_type: str, handler: Callable[[DelegationRequest], Any]
+    ) -> None:
         """Register a handler for an agent type."""
         self._handlers[agent_type] = handler
 
-    def register_callback(self, state: DelegationState, callback: Callable[[DelegationResult], None]) -> None:
+    def register_callback(
+        self, state: DelegationState, callback: Callable[[DelegationResult], None]
+    ) -> None:
         """Register callback for state changes."""
         if state.value not in self._callbacks:
             self._callbacks[state.value] = []

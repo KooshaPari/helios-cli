@@ -14,7 +14,6 @@ from urllib.request import urlopen
 
 from .targets import TargetSpec
 
-
 DOWNLOAD_TIMEOUT_SECS = 60
 
 

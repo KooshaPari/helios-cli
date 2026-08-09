@@ -42,9 +42,13 @@ def render_sidebar_controls() -> dict[str, Any]:
     }
 
 
-def render_data_editor(df: pd.DataFrame, key: str, column_config: dict[str, Any] = None) -> pd.DataFrame:
+def render_data_editor(
+    df: pd.DataFrame, key: str, column_config: dict[str, Any] = None
+) -> pd.DataFrame:
     """Render editable dataframe with config."""
-    return st.data_editor(df, num_rows="dynamic", use_container_width=True, key=key, column_config=column_config or {})
+    return st.data_editor(
+        df, num_rows="dynamic", use_container_width=True, key=key, column_config=column_config or {}
+    )
 
 
 def render_weight_sliders(weights: dict[str, float], key_prefix: str = "") -> dict[str, float]:
@@ -52,7 +56,9 @@ def render_weight_sliders(weights: dict[str, float], key_prefix: str = "") -> di
     new_weights = {}
     for name, value in weights.items():
         label = name.replace("_", " ").title()
-        new_weights[name] = st.slider(label, 0.0, 1.0, float(value), 0.01, key=f"{key_prefix}_{name}")
+        new_weights[name] = st.slider(
+            label, 0.0, 1.0, float(value), 0.01, key=f"{key_prefix}_{name}"
+        )
     return new_weights
 
 
@@ -61,7 +67,9 @@ def render_pareto_table(df: pd.DataFrame) -> None:
     col1, col2 = st.columns([3, 1])
     with col1:
         st.dataframe(
-            df.sort_values(["on_pareto", "quality"], ascending=[False, False]), use_container_width=True, height=300
+            df.sort_values(["on_pareto", "quality"], ascending=[False, False]),
+            use_container_width=True,
+            height=300,
         )
     with col2:
         count = df["on_pareto"].sum() if "on_pareto" in df.columns else 0

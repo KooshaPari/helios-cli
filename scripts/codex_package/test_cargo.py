@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from codex_package.cargo import build_source_binaries
-from codex_package.cargo import source_binaries_for_target
-from codex_package.targets import PACKAGE_VARIANTS
-from codex_package.targets import TARGET_SPECS
+from codex_package.cargo import build_source_binaries, source_binaries_for_target
+from codex_package.targets import PACKAGE_VARIANTS, TARGET_SPECS
 
 
 class SourceBinariesForTargetTest(unittest.TestCase):

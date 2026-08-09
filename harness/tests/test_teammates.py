@@ -41,7 +41,10 @@ class TestDelegationRequest:
 
     def test_delegation_request_custom(self):
         req = DelegationRequest(
-            teammate_id="agent-1", task_description="Do something", priority=Priority.HIGH, timeout_seconds=600
+            teammate_id="agent-1",
+            task_description="Do something",
+            priority=Priority.HIGH,
+            timeout_seconds=600,
         )
         assert req.priority == Priority.HIGH
         assert req.timeout_seconds == 600

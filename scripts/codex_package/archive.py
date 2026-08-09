@@ -10,15 +10,12 @@ from pathlib import Path
 
 from .targets import REPO_ROOT
 
-
 ZSTD_DOTSLASH = REPO_ROOT / ".github" / "workflows" / "zstd"
 
 
 def write_archive(package_dir: Path, archive_path: Path, *, force: bool) -> None:
     if is_relative_to(archive_path, package_dir):
-        raise RuntimeError(
-            f"Archive output must be outside the package directory: {archive_path}"
-        )
+        raise RuntimeError(f"Archive output must be outside the package directory: {archive_path}")
 
     archive_path.parent.mkdir(parents=True, exist_ok=True)
     if archive_path.exists():
@@ -99,9 +96,7 @@ def resolve_zstd_command(
 
 
 def write_zip_archive(package_dir: Path, archive_path: Path) -> None:
-    with zipfile.ZipFile(
-        archive_path, "w", compression=zipfile.ZIP_DEFLATED
-    ) as archive:
+    with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in package_entries(package_dir):
             relative_path = path.relative_to(package_dir)
             if path.is_dir():

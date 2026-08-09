@@ -45,5 +45,7 @@ def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
     toy_target = next(t for t in targets if t["repo_name"] == "toyrepo")
     assert toy_target["run"]["result_code"] == "PASS"
 
-    matrix_text = (workspace / "artifacts" / "phase-2" / "lane-d" / "integration-matrix.md").read_text()
+    matrix_text = (
+        workspace / "artifacts" / "phase-2" / "lane-d" / "integration-matrix.md"
+    ).read_text()
     assert "toyrepo" in matrix_text

@@ -3,7 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .interfaces import CanonicalCommand, DiscoverInput, DiscoverOutput, EvidenceBucket, RepoManifest
+from .interfaces import (
+    CanonicalCommand,
+    DiscoverInput,
+    DiscoverOutput,
+    EvidenceBucket,
+    RepoManifest,
+)
 
 
 class Discoverer:
@@ -58,9 +64,15 @@ class Discoverer:
         for fname in ["Makefile", "Justfile", "Taskfile", "Taskfile.yaml", "justfile"]:
             path = root / fname
             if path.exists():
-                script_hits.append({"name": fname, "command": f"{fname}:custom", "source": str(path)})
-        for fname in [f for f in root.glob("Makefile*") if f.is_file() and f.name.lower() != "makefile"]:
-            script_hits.append({"name": fname.name, "command": f"make -f {fname.name} -n", "source": str(fname)})
+                script_hits.append(
+                    {"name": fname, "command": f"{fname}:custom", "source": str(path)}
+                )
+        for fname in [
+            f for f in root.glob("Makefile*") if f.is_file() and f.name.lower() != "makefile"
+        ]:
+            script_hits.append(
+                {"name": fname.name, "command": f"make -f {fname.name} -n", "source": str(fname)}
+            )
 
         if (root / "go.mod").exists():
             script_hits.extend(
@@ -153,7 +165,10 @@ class Discoverer:
         return buckets
 
     def _bucket_for_command_name(self, cmd_name: str) -> EvidenceBucket:
-        if any(k in cmd_name for k in ("lint", "fmt", "format", "typecheck", "clippy", "ruff", "eslint", "check")):
+        if any(
+            k in cmd_name
+            for k in ("lint", "fmt", "format", "typecheck", "clippy", "ruff", "eslint", "check")
+        ):
             return EvidenceBucket.STATIC
         if any(k in cmd_name for k in ("test", "unit", "integration")):
             return EvidenceBucket.TEST

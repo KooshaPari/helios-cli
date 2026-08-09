@@ -275,7 +275,9 @@ Respond with JSON:
             data = json.loads(response)
             return self._executor.create_plan(goal, data.get("steps", []))
         except:
-            return self._executor.create_plan(goal, [{"id": "default", "description": "Complete task"}])
+            return self._executor.create_plan(
+                goal, [{"id": "default", "description": "Complete task"}]
+            )
 
     async def update_plan(
         self,

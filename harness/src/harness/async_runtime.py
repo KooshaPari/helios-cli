@@ -122,7 +122,9 @@ class AsyncRuntime:
         except RuntimeError:
             # No running loop, use our shared one
             if self._loop and self._running:
-                return asyncio.run_coroutine_threadsafe(coro, self._loop).result(timeout=self._config.loop_timeout)
+                return asyncio.run_coroutine_threadsafe(coro, self._loop).result(
+                    timeout=self._config.loop_timeout
+                )
             else:
                 # Fallback to new loop
                 return asyncio.run(coro)

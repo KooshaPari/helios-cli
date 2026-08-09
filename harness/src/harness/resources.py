@@ -189,7 +189,7 @@ def _get_fd_count(pid: int) -> int:
     """Get file descriptor count for process."""
     try:
         return len(os.listdir(f"/proc/{pid}/fd"))
-    except FileNotFoundError, PermissionError, OSError:
+    except (FileNotFoundError, PermissionError, OSError):
         # Not on Linux or no access
         return 0
 

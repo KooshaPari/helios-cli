@@ -111,7 +111,9 @@ class RateLimiter:
                 self._sliding_limiters[key] = SlidingWindowLimiter(max_requests, window_seconds)
             return self._sliding_limiters[key]
 
-    def check_rate_limit(self, key: str, strategy: str = "token_bucket", **kwargs) -> tuple[bool, float]:
+    def check_rate_limit(
+        self, key: str, strategy: str = "token_bucket", **kwargs
+    ) -> tuple[bool, float]:
         """Check if request is allowed.
 
         Returns:
@@ -124,7 +126,9 @@ class RateLimiter:
             return allowed, wait_time
 
         elif strategy == "sliding_window":
-            limiter = self.get_sliding_window(key, kwargs.get("max_requests", 100), kwargs.get("window_seconds", 60.0))
+            limiter = self.get_sliding_window(
+                key, kwargs.get("max_requests", 100), kwargs.get("window_seconds", 60.0)
+            )
             allowed = limiter.is_allowed()
             wait_time = limiter.wait_time() if not allowed else 0
             return allowed, wait_time

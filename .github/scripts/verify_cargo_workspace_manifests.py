@@ -12,9 +12,9 @@ Checks:
 from __future__ import annotations
 
 import sys
-import tomllib
 from pathlib import Path
 
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 CARGO_RS_ROOT = ROOT / "codex-rs"
@@ -79,10 +79,7 @@ def main() -> int:
     print("[lints]")
     print("workspace = true")
     print()
-    print(
-        "Without that opt-in, `cargo clippy` can miss violations that Bazel clippy "
-        "catches."
-    )
+    print("Without that opt-in, `cargo clippy` can miss violations that Bazel clippy catches.")
     print()
     print(
         "Package-name checks apply to `codex-rs/<crate>/Cargo.toml` and "
@@ -128,9 +125,7 @@ def manifest_errors(
         if expected_name is not None:
             actual_name = package.get("name")
             if actual_name != expected_name:
-                errors.append(
-                    f"set `[package].name` to `{expected_name}` (found `{actual_name}`)"
-                )
+                errors.append(f"set `[package].name` to `{expected_name}` (found `{actual_name}`)")
 
     path_key = manifest_key(path)
     features = manifest.get("features")
@@ -138,9 +133,7 @@ def manifest_errors(
         normalized_features = normalize_feature_mapping(features)
         expected_features = MANIFEST_FEATURE_EXCEPTIONS.get(path_key)
         if expected_features is None:
-            errors.append(
-                "remove `[features]`; new workspace crate features are not allowed"
-            )
+            errors.append("remove `[features]`; new workspace crate features are not allowed")
         else:
             used_manifest_feature_exceptions.add(path_key)
             if normalized_features != expected_features:
@@ -167,17 +160,17 @@ def manifest_errors(
                         "create crate features"
                     )
 
-            if not is_internal_dependency(path, dependency_name, dependency, internal_package_names):
+            if not is_internal_dependency(
+                path, dependency_name, dependency, internal_package_names
+            ):
                 continue
 
             dependency_features = dependency.get("features")
             if dependency_features is not None:
-                normalized_dependency_features = normalize_string_list(
-                    dependency_features
-                )
+                normalized_dependency_features = normalize_string_list(dependency_features)
                 exception_key = (path_key, section_name, dependency_name)
-                expected_dependency_features = (
-                    INTERNAL_DEPENDENCY_FEATURE_EXCEPTIONS.get(exception_key)
+                expected_dependency_features = INTERNAL_DEPENDENCY_FEATURE_EXCEPTIONS.get(
+                    exception_key
                 )
                 if expected_dependency_features is None:
                     errors.append(
@@ -250,9 +243,7 @@ def normalize_string_list(value: object) -> tuple[str, ...] | None:
 
 
 def render_feature_mapping(features: dict[str, tuple[str, ...]]) -> str:
-    entries = [
-        f"{name} = {render_string_list(items)}" for name, items in features.items()
-    ]
+    entries = [f"{name} = {render_string_list(items)}" for name, items in features.items()]
     return ", ".join(entries)
 
 
@@ -320,14 +311,11 @@ def add_unused_exception_errors(
     used_optional_dependency_exceptions: set[tuple[str, str, str]],
     used_internal_dependency_feature_exceptions: set[tuple[str, str, str]],
 ) -> None:
-    for path_key in sorted(
-        set(MANIFEST_FEATURE_EXCEPTIONS) - used_manifest_feature_exceptions
-    ):
+    for path_key in sorted(set(MANIFEST_FEATURE_EXCEPTIONS) - used_manifest_feature_exceptions):
         add_failure(
             failures_by_path,
             path_key,
-            "remove the stale `[features]` exception from "
-            "`MANIFEST_FEATURE_EXCEPTIONS`",
+            "remove the stale `[features]` exception from `MANIFEST_FEATURE_EXCEPTIONS`",
         )
 
     for path_key, section_name, dependency_name in sorted(
@@ -342,8 +330,7 @@ def add_unused_exception_errors(
         )
 
     for path_key, section_name, dependency_name in sorted(
-        set(INTERNAL_DEPENDENCY_FEATURE_EXCEPTIONS)
-        - used_internal_dependency_feature_exceptions
+        set(INTERNAL_DEPENDENCY_FEATURE_EXCEPTIONS) - used_internal_dependency_feature_exceptions
     ):
         add_failure(
             failures_by_path,
@@ -377,9 +364,7 @@ def load_manifest(path: Path) -> dict:
 
 def cargo_manifests() -> list[Path]:
     return sorted(
-        path
-        for path in CARGO_RS_ROOT.rglob("Cargo.toml")
-        if path != CARGO_RS_ROOT / "Cargo.toml"
+        path for path in CARGO_RS_ROOT.rglob("Cargo.toml") if path != CARGO_RS_ROOT / "Cargo.toml"
     )
 
 

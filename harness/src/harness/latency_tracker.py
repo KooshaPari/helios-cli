@@ -182,11 +182,14 @@ class NetworkMetrics:
             return {
                 "total_requests": self._requests_total,
                 "failed_requests": self._requests_failed,
-                "success_rate": (self._requests_total - self._requests_failed) / max(1, self._requests_total),
+                "success_rate": (self._requests_total - self._requests_failed)
+                / max(1, self._requests_total),
                 "bytes_sent_mb": self._bytes_sent / 1024 / 1024,
                 "bytes_recv_mb": self._bytes_recv / 1024 / 1024,
                 "avg_latency_ms": statistics.mean(all_latencies) if all_latencies else 0,
-                "p95_latency_ms": sorted(all_latencies)[int(len(all_latencies) * 0.95)] if all_latencies else 0,
+                "p95_latency_ms": sorted(all_latencies)[int(len(all_latencies) * 0.95)]
+                if all_latencies
+                else 0,
                 "endpoints": list(all_stats.keys()),
             }
 

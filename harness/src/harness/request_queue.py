@@ -56,7 +56,9 @@ class RequestQueue:
         self, payload: Any, priority: Priority = Priority.NORMAL, callback: Callable | None = None
     ) -> str:
         """Enqueue a request."""
-        request = QueuedRequest(priority=priority.value, timestamp=time.time(), payload=payload, callback=callback)
+        request = QueuedRequest(
+            priority=priority.value, timestamp=time.time(), payload=payload, callback=callback
+        )
 
         try:
             self._queue.put_nowait(request)

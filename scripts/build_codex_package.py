@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Build a canonical Codex package directory and optional archive."""
 
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 # Some developer environments set PYTHONSAFEPATH=1, which prevents Python from
 # adding the script directory to sys.path. Add it explicitly so the local helper

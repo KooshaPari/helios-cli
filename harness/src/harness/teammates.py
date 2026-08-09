@@ -195,7 +195,9 @@ class DelegationProtocol:
 
         try:
             # Execute with timeout
-            result = await asyncio.wait_for(executor.execute(request), timeout=request.timeout_seconds)
+            result = await asyncio.wait_for(
+                executor.execute(request), timeout=request.timeout_seconds
+            )
 
             # Store result
             delegation_result = DelegationResult(

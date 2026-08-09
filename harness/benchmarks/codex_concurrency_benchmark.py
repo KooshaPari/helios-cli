@@ -210,7 +210,9 @@ def _find_codex_binary() -> tuple[str | None, str]:
     return None, "none"
 
 
-def _run_codex_task(binary: str, prompt: str, work_dir: Path, model: str = "minimax-m2.5-highspeed") -> AgentMetrics:
+def _run_codex_task(
+    binary: str, prompt: str, work_dir: Path, model: str = "minimax-m2.5-highspeed"
+) -> AgentMetrics:
     """Run a single codex task and collect detailed metrics."""
     start = time.perf_counter()
     metrics = AgentMetrics()
@@ -262,7 +264,9 @@ async def _run_concurrent_agents(
 
     # Initialize git repo (required by codex)
     subprocess.run(["git", "init"], cwd=work_dir, capture_output=True)
-    subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=work_dir, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@test.com"], cwd=work_dir, capture_output=True
+    )
     subprocess.run(["git", "config", "user.name", "Test"], cwd=work_dir, capture_output=True)
 
     for i in range(agent_count):
@@ -271,13 +275,17 @@ async def _run_concurrent_agents(
 
         # Init git per agent
         subprocess.run(["git", "init"], cwd=agent_dir, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=agent_dir, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@test.com"], cwd=agent_dir, capture_output=True
+        )
         subprocess.run(["git", "config", "user.name", "Test"], cwd=agent_dir, capture_output=True)
 
         # Task file
         (agent_dir / "task.txt").write_text(f"Agent {i}: {prompt}")
 
-        task = asyncio.create_task(asyncio.to_thread(_run_codex_task, binary, prompt, agent_dir, model))
+        task = asyncio.create_task(
+            asyncio.to_thread(_run_codex_task, binary, prompt, agent_dir, model)
+        )
         tasks.append(task)
 
     # Run all concurrently
@@ -303,7 +311,9 @@ async def _run_concurrent_agents(
         avg_turns=float(sum(m.num_turns for m in agent_metrics)) / n if n else 0,
         avg_thinking_time=float(sum(m.thinking_time for m in agent_metrics)) / n if n else 0,
         avg_tool_calls=float(sum(m.num_tool_calls for m in agent_metrics)) / n if n else 0,
-        avg_tool_call_time=float(sum(m.tool_call_total_time for m in agent_metrics)) / n if n else 0,
+        avg_tool_call_time=float(sum(m.tool_call_total_time for m in agent_metrics)) / n
+        if n
+        else 0,
         avg_file_writes=float(sum(m.num_file_writes for m in agent_metrics)) / n if n else 0,
         p50_time=times[n // 2] if n > 0 else 0,
         p95_time=times[int(n * 0.95)] if n > 0 else 0,
@@ -427,7 +437,7 @@ def _call_cliproxy(prompt: str, model: str = "MiniMax-M2.5-highspeed") -> AgentM
                     metrics.total_tokens = usage.get("total_tokens", 0)
 
                 # Count content
-                if "choices" in data and data["choices"]:
+                if data.get("choices"):
                     content = data["choices"][0].get("message", {}).get("content", "")
                     metrics.num_turns = 1
                     # Estimate token count from response
@@ -478,7 +488,9 @@ async def _run_concurrent_minimax(
         avg_turns=float(sum(m.num_turns for m in agent_metrics)) / n if n else 0,
         avg_thinking_time=float(sum(m.thinking_time for m in agent_metrics)) / n if n else 0,
         avg_tool_calls=float(sum(m.num_tool_calls for m in agent_metrics)) / n if n else 0,
-        avg_tool_call_time=float(sum(m.tool_call_total_time for m in agent_metrics)) / n if n else 0,
+        avg_tool_call_time=float(sum(m.tool_call_total_time for m in agent_metrics)) / n
+        if n
+        else 0,
         avg_file_writes=float(sum(m.num_file_writes for m in agent_metrics)) / n if n else 0,
         p50_time=times[n // 2] if n > 0 else 0,
         p95_time=times[int(n * 0.95)] if n > 0 else 0,
@@ -539,7 +551,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Codex/Minimax Granular Concurrency Benchmark")
     parser.add_argument("--agents", "-n", type=int, default=6, help="Number of concurrent agents")
     parser.add_argument("--prompt", "-p", type=str, help="Prompt for agents")
-    parser.add_argument("--model", "-m", type=str, default="MiniMax-M2.5-highspeed", help="Model to use")
+    parser.add_argument(
+        "--model", "-m", type=str, default="MiniMax-M2.5-highspeed", help="Model to use"
+    )
     parser.add_argument("--compare", "-c", action="store_true", help="Compare versions")
     parser.add_argument("--binary", "-b", type=str, help="Specific codex binary")
     parser.add_argument("--minimax", "-x", action="store_true", help="Run minimax via cliproxy")
@@ -549,7 +563,9 @@ if __name__ == "__main__":
 
     if args.minimax:
         # Run minimax via cliproxy
-        result = run_minimax_benchmark(args.agents, args.prompt or "Say hello and be brief", args.model)
+        result = run_minimax_benchmark(
+            args.agents, args.prompt or "Say hello and be brief", args.model
+        )
         if args.json:
             print(json.dumps(asdict(result), indent=2))
         else:
@@ -562,7 +578,9 @@ if __name__ == "__main__":
             else:
                 print_granular_report(result, name.upper())
     elif args.binary:
-        result = run_swarm_benchmark(args.binary, args.agents, args.prompt or "Create hello.txt", args.model)
+        result = run_swarm_benchmark(
+            args.binary, args.agents, args.prompt or "Create hello.txt", args.model
+        )
         if args.json:
             print(json.dumps(asdict(result), indent=2))
         else:
@@ -571,7 +589,9 @@ if __name__ == "__main__":
         binary, status = _find_codex_binary()
         if binary:
             print(f"Found {status} codex: {binary}")
-            result = run_swarm_benchmark(binary, args.agents, args.prompt or "Create hello.txt", args.model)
+            result = run_swarm_benchmark(
+                binary, args.agents, args.prompt or "Create hello.txt", args.model
+            )
             if args.json:
                 print(json.dumps(asdict(result), indent=2))
             else:

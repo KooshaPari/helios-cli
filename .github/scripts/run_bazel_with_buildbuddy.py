@@ -4,10 +4,8 @@ import json
 import os
 import subprocess
 import sys
-from collections.abc import Mapping
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-
 
 OPENAI_REPOSITORY = "openai/codex"
 # Remote configurations select cache/BES/download endpoints. Their -rbe forms
@@ -52,8 +50,7 @@ def startup_args(args: Sequence[str], env: Mapping[str, str]) -> list[str]:
         injected_args.append(f"--output_user_root={output_user_root}")
 
     if env.get("GITHUB_ACTIONS") == "true" and not any(
-        arg in REMOTE_REPO_CONTENTS_CACHE_STARTUP_OPTIONS
-        for arg in configured_startup_args
+        arg in REMOTE_REPO_CONTENTS_CACHE_STARTUP_OPTIONS for arg in configured_startup_args
     ):
         # Work around Bazel 9 overlay materialization failures seen in CI. This
         # disables only the startup-level repo contents cache; keyed runs still
@@ -69,10 +66,7 @@ def startup_args(args: Sequence[str], env: Mapping[str, str]) -> list[str]:
 def is_trusted_upstream_run(env: Mapping[str, str]) -> bool:
     # `GITHUB_REPOSITORY` is easy to set locally. Requiring GitHub's workflow
     # marker prevents a local command from opting itself into the OpenAI host.
-    if (
-        env.get("GITHUB_ACTIONS") != "true"
-        or env.get("GITHUB_REPOSITORY") != OPENAI_REPOSITORY
-    ):
+    if env.get("GITHUB_ACTIONS") != "true" or env.get("GITHUB_REPOSITORY") != OPENAI_REPOSITORY:
         return False
     # Non-PR workflow runs in `openai/codex` execute upstream refs, so they are
     # trusted. Fork code reaches these workflows only through pull requests.
@@ -128,9 +122,7 @@ def bazel_args_without_remote_execution(args: Sequence[str]) -> list[str]:
     ]
 
 
-def bazel_args_with_remote_config(
-    args: Sequence[str], env: Mapping[str, str]
-) -> list[str]:
+def bazel_args_with_remote_config(args: Sequence[str], env: Mapping[str, str]) -> list[str]:
     config = remote_config(args, env)
     if config is None:
         return bazel_args_without_remote_execution(args)
@@ -166,9 +158,7 @@ def main() -> None:
             file=sys.stderr,
         )
     else:
-        host_description = (
-            "OpenAI tenant" if uses_openai_host(os.environ) else "generic"
-        )
+        host_description = "OpenAI tenant" if uses_openai_host(os.environ) else "generic"
         print(
             f"Using {host_description} BuildBuddy configuration: {config}.",
             file=sys.stderr,

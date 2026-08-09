@@ -74,7 +74,11 @@ def check_cliproxy_llm(timeout: float = 30.0) -> bool:
     try:
         resp = requests.post(
             f"{CLIPROXY_URL}/v1/chat/completions",
-            json={"model": "MiniMax-M2.5", "messages": [{"role": "user", "content": "hi"}], "max_tokens": 5},
+            json={
+                "model": "MiniMax-M2.5",
+                "messages": [{"role": "user", "content": "hi"}],
+                "max_tokens": 5,
+            },
             timeout=timeout,
         )
         return resp.status_code == 200
@@ -505,40 +509,63 @@ def compare_results(results: dict[str, ExtendedBenchmarkResult]) -> None:
     print("EXTENDED BENCHMARK COMPARISON")
     print(f"{'=' * 80}")
 
-    print(f"\n{'Metric':<25} | " + " | ".join(f"{name:>15}" for name in results.keys()))
+    print(f"\n{'Metric':<25} | " + " | ".join(f"{name:>15}" for name in results))
     print("-" * 80)
 
     # Quality
     row = "Resolution Rate (%)"
-    print(f"{row:<25} | " + " | ".join(f"{r.quality.resolution_rate:>14.1f}%" for r in results.values()))
+    print(
+        f"{row:<25} | "
+        + " | ".join(f"{r.quality.resolution_rate:>14.1f}%" for r in results.values())
+    )
 
     # Speed
     row = "Total Latency (s)"
-    print(f"{row:<25} | " + " | ".join(f"{r.speed.total_latency:>14.2f}s" for r in results.values()))
+    print(
+        f"{row:<25} | " + " | ".join(f"{r.speed.total_latency:>14.2f}s" for r in results.values())
+    )
 
     row = "TTFT (s)"
     print(f"{row:<25} | " + " | ".join(f"{r.speed.ttft:>14.2f}s" for r in results.values()))
 
     row = "Tokens/sec"
-    print(f"{row:<25} | " + " | ".join(f"{r.speed.tokens_per_second:>14.1f}" for r in results.values()))
+    print(
+        f"{row:<25} | "
+        + " | ".join(f"{r.speed.tokens_per_second:>14.1f}" for r in results.values())
+    )
 
     # Swarm
     row = "Parallel Eff (%)"
-    print(f"{row:<25} | " + " | ".join(f"{r.swarm.parallel_efficiency * 100:>14.1f}%" for r in results.values()))
+    print(
+        f"{row:<25} | "
+        + " | ".join(f"{r.swarm.parallel_efficiency * 100:>14.1f}%" for r in results.values())
+    )
 
     # Conciseness
     row = "Tokens/Task"
-    print(f"{row:<25} | " + " | ".join(f"{r.conciseness.tokens_per_task:>14.1f}" for r in results.values()))
+    print(
+        f"{row:<25} | "
+        + " | ".join(f"{r.conciseness.tokens_per_task:>14.1f}" for r in results.values())
+    )
 
     row = "Efficiency Score"
-    print(f"{row:<25} | " + " | ".join(f"{r.conciseness.efficiency_score:>14.2f}" for r in results.values()))
+    print(
+        f"{row:<25} | "
+        + " | ".join(f"{r.conciseness.efficiency_score:>14.2f}" for r in results.values())
+    )
 
     # System
     row = "CPU Avg (%)"
-    print(f"{row:<25} | " + " | ".join(f"{r.system.cpu_percent_avg:>14.1f}%" for r in results.values()))
+    print(
+        f"{row:<25} | "
+        + " | ".join(f"{r.system.cpu_percent_avg:>14.1f}%" for r in results.values())
+    )
 
     row = "Memory Peak (MB)"
-    print(f"{row:<25} | " + " | ".join(f"{r.system.memory_mb_peak:>14.1f}MB" for r in results.values()))
+    print(
+        f"{row:<25} | "
+        + " | ".join(f"{r.system.memory_mb_peak:>14.1f}MB" for r in results.values())
+    )
 
     print(f"{'=' * 80}")
 
@@ -557,7 +584,9 @@ if __name__ == "__main__":
     parser.add_argument("--swarm", action="store_true", help="Enable swarm mode")
     parser.add_argument("--compare", action="store_true", help="Compare multiple configs")
     parser.add_argument("--json", "-j", action="store_true", help="JSON output")
-    parser.add_argument("--direct-minimax", action="store_true", help="Bypass cliproxy, use direct minimax API")
+    parser.add_argument(
+        "--direct-minimax", action="store_true", help="Bypass cliproxy, use direct minimax API"
+    )
     parser.add_argument("--skip-preflight", action="store_true", help="Skip preflight checks")
 
     args = parser.parse_args()
@@ -576,12 +605,16 @@ if __name__ == "__main__":
 
         # Single agent baseline
         results["single"] = asyncio.run(
-            run_extended_benchmark(args.model, num_agents=1, num_trials=args.trials, use_direct=args.direct_minimax)
+            run_extended_benchmark(
+                args.model, num_agents=1, num_trials=args.trials, use_direct=args.direct_minimax
+            )
         )
 
         # Multi-agent
         results["multi-6"] = asyncio.run(
-            run_extended_benchmark(args.model, num_agents=6, num_trials=args.trials, use_direct=args.direct_minimax)
+            run_extended_benchmark(
+                args.model, num_agents=6, num_trials=args.trials, use_direct=args.direct_minimax
+            )
         )
 
         if args.json:

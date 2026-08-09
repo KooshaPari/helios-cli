@@ -313,7 +313,9 @@ def run_codex_benchmark(
 
         # Init git
         subprocess.run(["git", "init"], cwd=work_dir, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=work_dir, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@test.com"], cwd=work_dir, capture_output=True
+        )
         subprocess.run(["git", "config", "user.name", "Test"], cwd=work_dir, capture_output=True)
 
         procs = []
@@ -321,8 +323,12 @@ def run_codex_benchmark(
             agent_dir = work_dir / f"agent_{i}"
             agent_dir.mkdir(exist_ok=True)
             subprocess.run(["git", "init"], cwd=agent_dir, capture_output=True)
-            subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=agent_dir, capture_output=True)
-            subprocess.run(["git", "config", "user.name", "Test"], cwd=agent_dir, capture_output=True)
+            subprocess.run(
+                ["git", "config", "user.email", "test@test.com"], cwd=agent_dir, capture_output=True
+            )
+            subprocess.run(
+                ["git", "config", "user.name", "Test"], cwd=agent_dir, capture_output=True
+            )
             (agent_dir / "task.txt").write_text(f"Agent {i}: {prompt}")
 
             cmd = binary.split() if "node" not in binary else ["node", binary.split()[-1]]
@@ -397,13 +403,17 @@ def compare_harnesses(
 
     # 1. Minimax via cliproxy (baseline)
     print(">>> Testing: minimax-via-cliproxy")
-    results["minimax-cliproxy"] = asyncio.run(run_minimax_benchmark("cliproxy", model, agent_count, prompt))
+    results["minimax-cliproxy"] = asyncio.run(
+        run_minimax_benchmark("cliproxy", model, agent_count, prompt)
+    )
 
     # 2. Homebrew codex-cli (if available)
     codex_path = shutil.which("codex")
     if codex_path:
         print(f">>> Testing: codex-cli (homebrew) @ {codex_path}")
-        results["codex-homebrew"] = run_codex_benchmark("codex-homebrew", codex_path, model, agent_count, prompt)
+        results["codex-homebrew"] = run_codex_benchmark(
+            "codex-homebrew", codex_path, model, agent_count, prompt
+        )
 
     # 3. Built codex (if exists)
     built_paths = [
@@ -413,7 +423,9 @@ def compare_harnesses(
     for path in built_paths:
         if os.path.isfile(path) and os.access(path, os.X_OK):
             print(f">>> Testing: codex-built @ {path}")
-            results["codex-built"] = run_codex_benchmark("codex-built", path, model, agent_count, prompt)
+            results["codex-built"] = run_codex_benchmark(
+                "codex-built", path, model, agent_count, prompt
+            )
             break
 
     return results

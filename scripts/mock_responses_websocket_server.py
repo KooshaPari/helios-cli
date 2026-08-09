@@ -49,9 +49,7 @@ def _event_response_completed(response_id: str) -> dict[str, Any]:
     }
 
 
-def _event_function_call(
-    call_id: str, name: str, arguments_json: str
-) -> dict[str, Any]:
+def _event_function_call(call_id: str, name: str, arguments_json: str) -> dict[str, Any]:
     return {
         "type": "response.output_item.done",
         "item": {

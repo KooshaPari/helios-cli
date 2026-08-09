@@ -1,9 +1,8 @@
 """Executable traceability checks for AgilePlus feature 003 / WP02."""
 
-from pathlib import Path
 import re
 import unittest
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FEATURE = "agileplus/003-helios-portage-completion/spec.md (WP02)"

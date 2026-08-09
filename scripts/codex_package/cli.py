@@ -6,17 +6,17 @@ from pathlib import Path
 
 from .archive import write_archive
 from .cargo import build_source_binaries
-from .layout import build_package_dir
-from .layout import prepare_package_dir
-from .layout import validate_package_dir
+from .layout import build_package_dir, prepare_package_dir, validate_package_dir
 from .ripgrep import resolve_rg_bin
-from .targets import PACKAGE_VARIANTS
-from .targets import TARGET_SPECS
-from .targets import PackageInputs
-from .targets import default_target
-from .targets import resolve_input_path
-from .zsh import resolve_zsh_bin
+from .targets import (
+    PACKAGE_VARIANTS,
+    TARGET_SPECS,
+    PackageInputs,
+    default_target,
+    resolve_input_path,
+)
 from .version import read_workspace_version
+from .zsh import resolve_zsh_bin
 
 
 def parse_args() -> argparse.Namespace:
@@ -175,9 +175,7 @@ def main() -> int:
     )
     prepare_package_dir(package_dir, force=args.force)
     build_package_dir(package_dir, version, variant, spec, inputs)
-    validate_package_dir(
-        package_dir, variant, spec, include_zsh=inputs.zsh_bin is not None
-    )
+    validate_package_dir(package_dir, variant, spec, include_zsh=inputs.zsh_bin is not None)
 
     for archive_output in args.archive_output:
         archive_path = archive_output.resolve()

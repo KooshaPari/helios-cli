@@ -22,12 +22,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Check and optionally fix the README.md Table of Contents."
     )
-    parser.add_argument(
-        "file", nargs="?", default="README.md", help="Markdown file to process"
-    )
-    parser.add_argument(
-        "--fix", action="store_true", help="Rewrite file with updated ToC"
-    )
+    parser.add_argument("file", nargs="?", default="README.md", help="Markdown file to process")
+    parser.add_argument("--fix", action="store_true", help="Rewrite file with updated ToC")
     args = parser.parse_args()
     path = Path(args.file)
     return check_or_fix(path, args.fix)
@@ -92,9 +88,7 @@ def check_or_fix(readme_path: Path, fix: bool) -> int:
     if current == expected:
         return 0
     if not fix:
-        print(
-            "ERROR: README ToC is out of date. Diff between existing and generated ToC:"
-        )
+        print("ERROR: README ToC is out of date. Diff between existing and generated ToC:")
         # Show full unified diff of current vs expected
         diff = difflib.unified_diff(
             current,

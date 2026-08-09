@@ -6,7 +6,9 @@ from typing import Any
 from .interfaces import DiscoverOutput, QualityNormalization, RunResult
 
 
-def evidence_payload(manifest: DiscoverOutput, runs: list[RunResult], quality: QualityNormalization) -> dict[str, Any]:
+def evidence_payload(
+    manifest: DiscoverOutput, runs: list[RunResult], quality: QualityNormalization
+) -> dict[str, Any]:
     return {
         "repo_id": manifest.manifest.repo_id,
         "manifest": asdict(manifest.manifest),

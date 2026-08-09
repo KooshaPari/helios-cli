@@ -4,7 +4,9 @@ from harness.runner import Runner, RunnerConfig
 
 def test_runner_writes_logs(tmp_path):
     command = CanonicalCommand(command="echo hi", bucket=EvidenceBucket.RUNTIME, cwd=".")
-    r = Runner(RunnerConfig(timeout_seconds=2, continue_on_fail=True)).run_profile([command], str(tmp_path))
+    r = Runner(RunnerConfig(timeout_seconds=2, continue_on_fail=True)).run_profile(
+        [command], str(tmp_path)
+    )
     assert len(r) == 1
     assert r[0].stdout_file
 

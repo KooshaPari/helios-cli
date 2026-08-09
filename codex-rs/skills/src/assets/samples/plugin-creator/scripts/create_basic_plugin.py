@@ -9,7 +9,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-
 MAX_PLUGIN_NAME_LENGTH = 64
 DEFAULT_INSTALL_POLICY = "AVAILABLE"
 DEFAULT_AUTH_POLICY = "ON_INSTALL"

@@ -58,7 +58,7 @@ class PerfProfiler:
                 timeout=5,
             )
             return result.returncode == 0
-        except FileNotFoundError, subprocess.TimeoutExpired:
+        except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
 
     def start(self, pid: int | None = None) -> bool:

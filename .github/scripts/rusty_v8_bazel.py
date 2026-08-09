@@ -9,9 +9,9 @@ import re
 import shutil
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
 
+import tomllib
 from run_bazel_with_buildbuddy import bazel_command
 from rusty_v8_module_bazel import (
     RustyV8ChecksumError,
@@ -19,7 +19,6 @@ from rusty_v8_module_bazel import (
     rusty_v8_http_file_versions,
     update_module_bazel,
 )
-
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE_BAZEL = ROOT / "MODULE.bazel"
@@ -74,9 +73,7 @@ def bazel_output_files(
         cwd=ROOT,
         text=True,
     )
-    return [
-        bazel_output_path(line.strip()) for line in output.splitlines() if line.strip()
-    ]
+    return [bazel_output_path(line.strip()) for line in output.splitlines() if line.strip()]
 
 
 def bazel_build(
@@ -142,11 +139,7 @@ def release_pair_label(target: str, sandbox: bool = False) -> str:
 def resolved_v8_crate_version() -> str:
     cargo_lock = tomllib.loads((ROOT / "codex-rs" / "Cargo.lock").read_text())
     versions = sorted(
-        {
-            package["version"]
-            for package in cargo_lock["package"]
-            if package["name"] == "v8"
-        }
+        {package["version"] for package in cargo_lock["package"] if package["name"] == "v8"}
     )
     if len(versions) == 1:
         return versions[0]
@@ -164,8 +157,7 @@ def resolved_v8_crate_version() -> str:
     )
     if len(matches) != 1:
         raise SystemExit(
-            "expected exactly one pinned v8 crate version in MODULE.bazel, "
-            f"found: {matches}"
+            f"expected exactly one pinned v8 crate version in MODULE.bazel, found: {matches}"
         )
     return matches[0]
 
@@ -219,28 +211,27 @@ def stage_artifacts(
     output_dir: Path,
     sandbox: bool,
 ) -> None:
-    missing_paths = [
-        str(path) for path in [lib_path, binding_path] if not path.exists()
-    ]
+    missing_paths = [str(path) for path in [lib_path, binding_path] if not path.exists()]
     if missing_paths:
         raise SystemExit(f"missing release outputs for {target}: {missing_paths}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     artifact_profile = SANDBOX_ARTIFACT_PROFILE if sandbox else RELEASE_ARTIFACT_PROFILE
-    staged_library = output_dir / staged_archive_name(
-        target, lib_path, artifact_profile
-    )
+    staged_library = output_dir / staged_archive_name(target, lib_path, artifact_profile)
     staged_binding = output_dir / staged_binding_name(target, artifact_profile)
 
-    with lib_path.open("rb") as src, staged_library.open("wb") as dst:
-        with gzip.GzipFile(
+    with (
+        lib_path.open("rb") as src,
+        staged_library.open("wb") as dst,
+        gzip.GzipFile(
             filename="",
             mode="wb",
             fileobj=dst,
             compresslevel=6,
             mtime=0,
-        ) as gz:
-            shutil.copyfileobj(src, gz)
+        ) as gz,
+    ):
+        shutil.copyfileobj(src, gz)
 
     shutil.copyfile(binding_path, staged_binding)
 
@@ -259,9 +250,7 @@ def stage_artifacts(
 
 
 def upstream_release_pair_paths(source_root: Path, target: str) -> tuple[Path, Path]:
-    lib_name = (
-        "rusty_v8.lib" if target.endswith("-pc-windows-msvc") else "librusty_v8.a"
-    )
+    lib_name = "rusty_v8.lib" if target.endswith("-pc-windows-msvc") else "librusty_v8.a"
     gn_out = source_root / "target" / target / "release" / "gn_out"
     return gn_out / "obj" / lib_name, gn_out / "src_binding.rs"
 
@@ -326,12 +315,8 @@ def parse_args() -> argparse.Namespace:
         choices=["fastbuild", "opt", "dbg"],
     )
 
-    stage_upstream_release_pair_parser = subparsers.add_parser(
-        "stage-upstream-release-pair"
-    )
-    stage_upstream_release_pair_parser.add_argument(
-        "--source-root", type=Path, required=True
-    )
+    stage_upstream_release_pair_parser = subparsers.add_parser("stage-upstream-release-pair")
+    stage_upstream_release_pair_parser.add_argument("--source-root", type=Path, required=True)
     stage_upstream_release_pair_parser.add_argument("--target", required=True)
     stage_upstream_release_pair_parser.add_argument("--output-dir", required=True)
     stage_upstream_release_pair_parser.add_argument("--sandbox", action="store_true")

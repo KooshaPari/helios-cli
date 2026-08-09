@@ -89,7 +89,14 @@ class BenchmarkSuite:
         elif sla_type == "availability":
             passed = value >= threshold
         self.sla_metrics.append(
-            SLAMetric(name=name, value=value, unit=unit, threshold=threshold, sla_type=sla_type, passed=passed)
+            SLAMetric(
+                name=name,
+                value=value,
+                unit=unit,
+                threshold=threshold,
+                sla_type=sla_type,
+                passed=passed,
+            )
         )
 
     def to_json(self) -> dict[str, Any]:

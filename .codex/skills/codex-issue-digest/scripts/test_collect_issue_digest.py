@@ -2,11 +2,8 @@ import importlib.util
 from datetime import timezone
 from pathlib import Path
 
-
 MODULE_PATH = Path(__file__).with_name("collect_issue_digest.py")
-MODULE_SPEC = importlib.util.spec_from_file_location(
-    "collect_issue_digest", MODULE_PATH
-)
+MODULE_SPEC = importlib.util.spec_from_file_location("collect_issue_digest", MODULE_PATH)
 collect_issue_digest = importlib.util.module_from_spec(MODULE_SPEC)
 assert MODULE_SPEC.loader is not None
 MODULE_SPEC.loader.exec_module(collect_issue_digest)
@@ -15,9 +12,7 @@ MODULE_SPEC.loader.exec_module(collect_issue_digest)
 def test_build_search_queries_uses_each_owner_and_kind_label():
     since = collect_issue_digest.parse_timestamp("2026-04-25T12:34:56Z", "--since")
 
-    queries = collect_issue_digest.build_search_queries(
-        "openai/codex", ["tui", "exec"], since
-    )
+    queries = collect_issue_digest.build_search_queries("openai/codex", ["tui", "exec"], since)
 
     assert queries == [
         "repo:openai/codex is:issue updated:>=2026-04-25 label:tui label:bug",
@@ -30,9 +25,7 @@ def test_build_search_queries_uses_each_owner_and_kind_label():
 def test_build_search_queries_can_scan_all_labels():
     since = collect_issue_digest.parse_timestamp("2026-04-25T12:34:56Z", "--since")
 
-    queries = collect_issue_digest.build_search_queries(
-        "openai/codex", [], since, all_labels=True
-    )
+    queries = collect_issue_digest.build_search_queries("openai/codex", [], since, all_labels=True)
 
     assert queries == [
         "repo:openai/codex is:issue updated:>=2026-04-25 label:bug",
@@ -75,16 +68,8 @@ def test_search_issue_numbers_applies_limit_per_query(monkeypatch):
 
     def fake_gh_json(args):
         calls.append(args)
-        query = next(
-            value.removeprefix("q=") for value in args if value.startswith("q=")
-        )
-        page = int(
-            next(
-                value.removeprefix("page=")
-                for value in args
-                if value.startswith("page=")
-            )
-        )
+        query = next(value.removeprefix("q=") for value in args if value.startswith("q="))
+        page = int(next(value.removeprefix("page=") for value in args if value.startswith("page=")))
         base = 10_000 if query == "first" else 20_000
         offset = (page - 1) * 100
         return {
@@ -103,14 +88,8 @@ def test_search_issue_numbers_applies_limit_per_query(monkeypatch):
 
     queried_pages = [
         (
-            next(
-                value.removeprefix("q=") for value in args if value.startswith("q=")
-            ),
-            next(
-                value.removeprefix("page=")
-                for value in args
-                if value.startswith("page=")
-            ),
+            next(value.removeprefix("q=") for value in args if value.startswith("q=")),
+            next(value.removeprefix("page=") for value in args if value.startswith("page=")),
         )
         for args in calls
     ]
@@ -323,9 +302,7 @@ def test_fetch_comments_uses_since_filter_and_page_cap(monkeypatch):
     monkeypatch.setattr(collect_issue_digest, "gh_json", fake_gh_json)
     since = collect_issue_digest.parse_timestamp("2026-04-25T00:00:00Z", "--since")
 
-    payload = collect_issue_digest.fetch_comments(
-        "openai/codex", 123, since=since, max_pages=1
-    )
+    payload = collect_issue_digest.fetch_comments("openai/codex", 123, since=since, max_pages=1)
 
     assert len(payload["items"]) == 100
     assert payload["truncated"] is True

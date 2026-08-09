@@ -164,11 +164,7 @@ def resolve_pr(pr_spec, repo_override=None):
         raise GhCommandError("Unexpected PR payload from `gh pr view`")
 
     pr_url = str(data.get("url") or "")
-    repo = (
-        repo_override
-        or extract_repo_from_pr_url(pr_url)
-        or extract_repo_from_pr_view(data)
-    )
+    repo = repo_override or extract_repo_from_pr_url(pr_url) or extract_repo_from_pr_view(data)
     if not repo:
         raise GhCommandError("Unable to determine OWNER/REPO for the PR")
 
@@ -210,6 +206,8 @@ def extract_repo_from_pr_view(data):
     if owner and name:
         return f"{owner}/{name}"
     return None
+
+
 def extract_repo_from_pr_url(pr_url):
     parsed = urlparse(pr_url)
     parts = [p for p in parsed.path.split("/") if p]
@@ -334,7 +332,9 @@ def failed_runs_from_workflow_runs(runs, head_sha):
                 "html_url": str(run.get("html_url") or ""),
             }
         )
-    failed_runs.sort(key=lambda item: (str(item.get("workflow_name") or ""), str(item.get("run_id") or "")))
+    failed_runs.sort(
+        key=lambda item: (str(item.get("workflow_name") or ""), str(item.get("run_id") or ""))
+    )
     return failed_runs
 
 
@@ -598,7 +598,13 @@ def fetch_new_review_items(pr, state, fresh_state, authenticated_login=None):
         elif kind == "review":
             seen_review.add(item_id)
 
-    new_items.sort(key=lambda item: (item.get("created_at") or "", item.get("kind") or "", item.get("id") or ""))
+    new_items.sort(
+        key=lambda item: (
+            item.get("created_at") or "",
+            item.get("kind") or "",
+            item.get("id") or "",
+        )
+    )
     state["seen_issue_comment_ids"] = sorted(seen_issue)
     state["seen_review_comment_ids"] = sorted(seen_review_comment)
     state["seen_review_ids"] = sorted(seen_review)
@@ -650,7 +656,9 @@ def is_pr_ready_to_merge(pr, checks_summary, new_review_items):
     return True
 
 
-def recommend_actions(pr, checks_summary, failed_runs, failed_jobs, new_review_items, retries_used, max_retries):
+def recommend_actions(
+    pr, checks_summary, failed_runs, failed_jobs, new_review_items, retries_used, max_retries
+):
     actions = []
     if pr["closed"] or pr["merged"]:
         if new_review_items:
@@ -845,10 +853,7 @@ def run_watch(args):
             },
         )
         actions = set(snapshot.get("actions") or [])
-        if (
-            "stop_pr_closed" in actions
-            or "stop_exhausted_retries" in actions
-        ):
+        if "stop_pr_closed" in actions or "stop_exhausted_retries" in actions:
             print_event("stop", {"actions": snapshot.get("actions"), "pr": snapshot.get("pr")})
             return 0
 
@@ -858,9 +863,7 @@ def run_watch(args):
         pr = snapshot.get("pr") or {}
         pr_open = not bool(pr.get("closed")) and not bool(pr.get("merged"))
 
-        if not green or pr_open:
-            poll_seconds = args.poll_seconds
-        elif changed or last_change_key is None:
+        if not green or pr_open or changed or last_change_key is None:
             poll_seconds = args.poll_seconds
 
         last_change_key = current_change_key

@@ -4,7 +4,6 @@ import re
 
 from .targets import REPO_ROOT
 
-
 WORKSPACE_VERSION_PATTERN = re.compile(r'^version\s*=\s*"([^"]+)"')
 
 

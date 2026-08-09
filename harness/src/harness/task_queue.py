@@ -222,7 +222,9 @@ class TaskQueue:
 
     def get_task(self, task_id: str) -> Task | None:
         """Get task by ID."""
-        return self._tasks.get(task_id) or self._running.get(task_id) or self._completed.get(task_id)
+        return (
+            self._tasks.get(task_id) or self._running.get(task_id) or self._completed.get(task_id)
+        )
 
     def pause(self) -> None:
         """Pause queue processing."""
