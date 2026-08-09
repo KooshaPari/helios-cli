@@ -313,6 +313,10 @@ http_archive(
     sha256 = "6422a58a5c29b7f4fda224cfdc07842be8a208a61301bbba7a219116e3351809",
     strip_prefix = "libcxx-21.1.8.src",
     urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/libcxx-21.1.8.src.tar.xz"],
+    patch_args = ["-p1"],
+    patches = [
+        "//patches:rusty_v8_libcxx_include_next.patch",
+    ],
 )
 
 http_archive(
