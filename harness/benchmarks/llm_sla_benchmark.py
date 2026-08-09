@@ -157,7 +157,7 @@ def detect_harness() -> str:
         sock.close()
         if result == 0:
             return "cliproxy"
-    except:
+    except Exception:
         pass
     return "unknown"
 
@@ -208,18 +208,9 @@ async def _call_llm_async(
     metrics = LLMMetrics()
     start = time.perf_counter()
 
-    # Estimate network RTT (ping to cliproxy)
-    rtt_start = time.perf_counter()
-    try:
-        await client.get(f"{CLIPROXY_URL}/health", timeout=5.0)
-        rtt_estimate = (time.perf_counter() - rtt_start) * 1000  # ms
-    except:
-        rtt_estimate = 0
-
     try:
         # Stream request to measure TTFT
         first_token_time = None
-        tokens_received = 0
 
         async with client.stream(
             "POST",
@@ -248,7 +239,7 @@ async def _call_llm_async(
                                     first_token_time = time.perf_counter() - start
                                 content_parts.append(delta["content"])
                                 token_count += 1
-                    except:
+                    except Exception:
                         pass
 
             total_time = time.perf_counter() - start
@@ -414,7 +405,7 @@ def _run_codex_benchmark(
 
             cmd = binary.split() if "node" not in binary else ["node", binary.split()[-1]]
             with safe_popen(
-                cmd + ["exec", "-m", model, prompt],
+                [*cmd, "exec", "-m", model, prompt],
                 cwd=agent_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -556,7 +547,7 @@ if __name__ == "__main__":
 
     if args.compare:
         results = compare_models(args.agents, prompt)
-        for name, result in results.items():
+        for _, result in results.items():
             print_sla_report(result)
 
         # Comparison summary

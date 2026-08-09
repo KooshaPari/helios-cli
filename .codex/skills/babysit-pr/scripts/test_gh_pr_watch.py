@@ -212,17 +212,17 @@ def test_run_watch_keeps_polling_open_ready_to_merge_pr(monkeypatch):
         lambda event, payload: events.append((event, payload)),
     )
 
-    class StopWatch(Exception):
+    class StopWatchError(Exception):
         pass
 
     def fake_sleep(seconds):
         sleeps.append(seconds)
         if len(sleeps) >= 2:
-            raise StopWatch
+            raise StopWatchError
 
     monkeypatch.setattr(gh_pr_watch.time, "sleep", fake_sleep)
 
-    with pytest.raises(StopWatch):
+    with pytest.raises(StopWatchError):
         gh_pr_watch.run_watch(argparse.Namespace(poll_seconds=30))
 
     assert sleeps == [30, 30]

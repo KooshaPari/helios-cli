@@ -4,6 +4,8 @@ Provides a shared httpx.Client with connection pooling that can be reused
 across all HTTP requests to reduce latency and connection overhead.
 """
 
+from __future__ import annotations
+
 import threading
 from dataclasses import dataclass
 from typing import Any

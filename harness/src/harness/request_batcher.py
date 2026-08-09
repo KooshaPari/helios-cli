@@ -71,6 +71,7 @@ class RequestBatcher(Generic[T, R]):
         self._lock = threading.Lock()
         self._processing = False
         self._flush_event = asyncio.Event()
+        self._flush_task: asyncio.Task | None = None
 
         # Metrics
         self._total_requests = 0
@@ -94,9 +95,9 @@ class RequestBatcher(Generic[T, R]):
             self._queue.append(request)
             self._total_requests += 1
 
-        # Trigger flush if batch is full
+        # Trigger flush if batch is full (keep a reference to the task)
         if len(self._queue) >= self._batch_size:
-            asyncio.create_task(self._flush())
+            self._flush_task = asyncio.create_task(self._flush())
 
         return await future
 
@@ -118,9 +119,6 @@ class RequestBatcher(Generic[T, R]):
 
         # Process batch
         try:
-            args_list = [req.args for req in batch]
-            kwargs_list = [req.kwargs for req in batch]
-
             # Call processor with all args
             # Simplified: assume processor takes list of first args
             first_args = [req.args[0] if req.args else None for req in batch]

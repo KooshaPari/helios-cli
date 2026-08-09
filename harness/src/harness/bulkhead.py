@@ -54,7 +54,7 @@ class ThreadPoolBulkhead:
             if qsize >= self.max_queue_size:
                 self._metrics.rejected_calls += 1
                 self._metrics.state = BulkheadState.REJECTED
-                raise BulkheadRejected("Bulkhead at capacity")
+                raise BulkheadRejectedError("Bulkhead at capacity")
 
             if qsize > self.max_workers * 2:
                 self._metrics.state = BulkheadState.LOADED
@@ -92,7 +92,7 @@ class ThreadPoolBulkhead:
             )
 
 
-class BulkheadRejected(Exception):
+class BulkheadRejectedError(Exception):
     """Exception raised when bulkhead rejects a call."""
 
     pass
@@ -129,7 +129,7 @@ class SemaphoreBulkhead:
     def __enter__(self):
         """Context manager entry."""
         if not self.acquire(timeout=0):
-            raise BulkheadRejected("Bulkhead at capacity")
+            raise BulkheadRejectedError("Bulkhead at capacity")
         return self
 
     def __exit__(self, *args):
@@ -197,7 +197,7 @@ if __name__ == "__main__":
             f = bh.submit(slow_task, i)
             futures.append(f)
             print(f"Submitted task {i}")
-        except BulkheadRejected as e:
+        except BulkheadRejectedError as e:
             print(f"Rejected task {i}: {e}")
 
     # Wait for completion

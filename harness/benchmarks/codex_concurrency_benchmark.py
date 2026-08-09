@@ -221,7 +221,7 @@ def _run_codex_task(
 
     try:
         result = subprocess.run(
-            cmd + ["exec", "-m", model, prompt],
+            [*cmd, "exec", "-m", model, prompt],
             cwd=work_dir,
             capture_output=True,
             text=True,
@@ -401,7 +401,7 @@ def detect_harness() -> str:
         sock.close()
         if result == 0:
             return "cliproxy"
-    except:
+    except Exception:
         pass
     return "unknown"
 
@@ -503,7 +503,7 @@ def run_minimax_benchmark(
     agent_count: int = 6,
     prompt: str = "Say hello and briefly explain what you can do",
     model: str = "MiniMax-M2.5-highspeed",
-    use_direct: bool = None,
+    use_direct: bool | None = None,
 ) -> BenchmarkResult:
     """Run minimax concurrency benchmark via cliproxy."""
     # Auto-detect harness if not specified

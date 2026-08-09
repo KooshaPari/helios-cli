@@ -154,9 +154,11 @@ def download_file(url: str, dest: Path) -> None:
     temp_path = dest.with_suffix(f"{dest.suffix}.tmp")
     temp_path.unlink(missing_ok=True)
     try:
-        with urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECS) as response:
-            with temp_path.open("wb") as output:
-                shutil.copyfileobj(response, output)
+        with (
+            urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECS) as response,
+            temp_path.open("wb") as output,
+        ):
+            shutil.copyfileobj(response, output)
         temp_path.replace(dest)
     finally:
         temp_path.unlink(missing_ok=True)

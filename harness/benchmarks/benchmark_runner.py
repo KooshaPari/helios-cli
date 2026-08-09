@@ -1,6 +1,6 @@
 """Standardized Codex/Harness Benchmark Runner.
 
-Matrix: 2x models × Nx harnesses for consistent comparisons.
+Matrix: 2x models x Nx harnesses for consistent comparisons.
 
 Models:
   - MiniMax-M2.5
@@ -146,7 +146,7 @@ async def run_cliproxy(
                                 if first_token is None:
                                     first_token = time.perf_counter() - start
                                 content_parts.append(delta["content"])
-                        except:
+                        except Exception:
                             pass
 
             return first_token, "".join(content_parts)
@@ -287,7 +287,7 @@ def run_droid(
     # Run single prompt for baseline
     start = time.perf_counter()
 
-    with ResourceMonitor() as monitor:
+    with ResourceMonitor():
         try:
             with safe_popen(
                 [droid_path, "exec", prompt],
@@ -325,7 +325,7 @@ def run_claude(
 
     start = time.perf_counter()
 
-    with ResourceMonitor() as monitor:
+    with ResourceMonitor():
         try:
             with safe_popen(
                 [claude_path, "-p", prompt],
@@ -368,7 +368,7 @@ async def run_benchmark_matrix(
     )
 
     print(f"\n{'=' * 70}")
-    print(f"BENCHMARK MATRIX: {len(models)} models × {len(harnesses)} harnesses")
+    print(f"BENCHMARK MATRIX: {len(models)} models x {len(harnesses)} harnesses")
     print(f"Agents: {agent_count} | Prompt: {prompt[:30]}...")
     print(f"{'=' * 70}\n")
 
@@ -478,10 +478,7 @@ if __name__ == "__main__":
         harness_list = [harness_input]
 
     # Determine models
-    if args.models:
-        model_list = [m.strip() for m in args.models.split(",")]
-    else:
-        model_list = list(MODELS.keys())
+    model_list = [m.strip() for m in args.models.split(",")] if args.models else list(MODELS.keys())
 
     # Run matrix
     matrix = asyncio.run(

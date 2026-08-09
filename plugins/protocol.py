@@ -78,7 +78,7 @@ class Plugin(Protocol):
 class PluginLoader:
     """Loads and manages plugins."""
 
-    def __init__(self, plugin_dir: Path = None):
+    def __init__(self, plugin_dir: Path | None = None):
         self.plugin_dir = plugin_dir or Path("plugins")
         self._plugins: dict[str, Plugin] = {}
         self._metadata: dict[str, PluginMetadata] = {}
@@ -91,7 +91,7 @@ class PluginLoader:
             return discovered
 
         for plugin_path in self.plugin_dir.rglob("plugin.yaml"):
-            with open(plugin_path) as f:
+            with open(plugin_path):
                 # Parse YAML and create metadata
                 pass
 

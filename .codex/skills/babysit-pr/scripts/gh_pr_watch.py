@@ -2,6 +2,7 @@
 """Watch GitHub PR CI and review activity for Codex PR babysitting workflows."""
 
 import argparse
+import contextlib
 import json
 import os
 import re
@@ -247,10 +248,8 @@ def save_state(path, state):
             tmp_file.write(payload)
         os.replace(tmp_path, path)
     except Exception:
-        try:
+        with contextlib.suppress(OSError):
             tmp_path.unlink(missing_ok=True)
-        except OSError:
-            pass
         raise
 
 
@@ -639,21 +638,17 @@ def unique_actions(actions):
 
 
 def is_pr_ready_to_merge(pr, checks_summary, new_review_items):
-    if pr["closed"] or pr["merged"]:
-        return False
-    if not checks_summary["all_terminal"]:
-        return False
-    if checks_summary["failed_count"] > 0 or checks_summary["pending_count"] > 0:
-        return False
-    if new_review_items:
-        return False
-    if str(pr.get("mergeable") or "") != "MERGEABLE":
-        return False
-    if str(pr.get("merge_state_status") or "") in MERGE_CONFLICT_OR_BLOCKING_STATES:
-        return False
-    if str(pr.get("review_decision") or "") in MERGE_BLOCKING_REVIEW_DECISIONS:
-        return False
-    return True
+    return not (
+        pr["closed"]
+        or pr["merged"]
+        or not checks_summary["all_terminal"]
+        or checks_summary["failed_count"] > 0
+        or checks_summary["pending_count"] > 0
+        or new_review_items
+        or str(pr.get("mergeable") or "") != "MERGEABLE"
+        or str(pr.get("merge_state_status") or "") in MERGE_CONFLICT_OR_BLOCKING_STATES
+        or str(pr.get("review_decision") or "") in MERGE_BLOCKING_REVIEW_DECISIONS
+    )
 
 
 def recommend_actions(

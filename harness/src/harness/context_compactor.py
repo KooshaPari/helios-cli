@@ -142,7 +142,6 @@ class ContextCompactor:
         """Keep recent and add summary of old."""
         # Keep recent messages
         recent = self._messages[-self._config.preserve_recent :]
-        recent_tokens = sum(m.token_count for m in recent)
 
         # Create summary of older messages
         old = self._messages[: -self._config.preserve_recent]
@@ -153,7 +152,7 @@ class ContextCompactor:
                 content=f"[Previous {len(old)} messages summarized - {sum(m.token_count for m in old)} tokens]",
                 priority=10,
             )
-            return self._to_dict_list([summary_msg] + recent)
+            return self._to_dict_list([summary_msg, *recent])
 
         return self._to_dict_list(recent)
 

@@ -12,6 +12,7 @@ import tempfile
 from collections.abc import MutableMapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Never
 
 STRICT_LINTS = [
     "argument-comment-mismatch",

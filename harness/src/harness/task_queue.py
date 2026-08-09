@@ -3,6 +3,8 @@
 Provides priority queue with backpressure, persistence, and rate limiting.
 """
 
+from __future__ import annotations
+
 import asyncio
 import time
 from dataclasses import dataclass, field

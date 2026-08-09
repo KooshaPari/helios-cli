@@ -8,6 +8,15 @@ target-version = "py310"
 # Line length (should match .editorconfig)
 line-length = 100
 
+# Vendored upstream trees (see AGENTS.md / ARCHITECTURE.md) are retained as
+# read-only reference material and are not linted or formatted by CI.
+# Top-level extend-exclude (not [lint] per-file-ignores) so that both
+# `ruff check` and `ruff format` skip them.
+extend-exclude = [
+    "codex-rs",
+    "codex-cli",
+]
+
 # Enable rule sections
 [lint]
 # pyflakes + pycodestyle

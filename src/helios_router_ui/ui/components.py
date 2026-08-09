@@ -43,7 +43,7 @@ def render_sidebar_controls() -> dict[str, Any]:
 
 
 def render_data_editor(
-    df: pd.DataFrame, key: str, column_config: dict[str, Any] = None
+    df: pd.DataFrame, key: str, column_config: dict[str, Any] | None = None
 ) -> pd.DataFrame:
     """Render editable dataframe with config."""
     return st.data_editor(

@@ -4,7 +4,10 @@ Provides a singleton event loop that can be reused across operations to reduce
 overhead from creating new event loops.
 """
 
+from __future__ import annotations
+
 import asyncio
+import contextlib
 import threading
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
@@ -116,7 +119,6 @@ class AsyncRuntime:
 
         # If we're already in the right thread, we can use the loop directly
         try:
-            loop = asyncio.get_running_loop()
             # We're in an async context, just await
             return asyncio.create_task(coro)
         except RuntimeError:
@@ -218,7 +220,7 @@ async def run_with_timeout(
     try:
         return await asyncio.wait_for(coro, timeout=timeout)
     except TimeoutError:
-        raise TimeoutError(f"Operation timed out after {timeout}s")
+        raise TimeoutError(f"Operation timed out after {timeout}s") from None
 
 
 class AsyncBatch:
@@ -274,7 +276,5 @@ class AsyncBatch:
         self._running = False
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass

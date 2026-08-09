@@ -166,9 +166,8 @@ def download_archive(url: str, archive_path: Path) -> None:
     temp_path = archive_path.with_suffix(f"{archive_path.suffix}.tmp")
     temp_path.unlink(missing_ok=True)
     try:
-        with urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECS) as response:
-            with open(temp_path, "wb") as out:
-                shutil.copyfileobj(response, out)
+        with urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECS) as response, open(temp_path, "wb") as out:
+            shutil.copyfileobj(response, out)
         temp_path.replace(archive_path)
     finally:
         temp_path.unlink(missing_ok=True)
@@ -205,9 +204,8 @@ def extract_archive_member(
     if artifact.archive_format == "zip":
         with zipfile.ZipFile(archive_path) as archive:
             try:
-                with archive.open(artifact.archive_member) as extracted:
-                    with open(dest, "wb") as out:
-                        shutil.copyfileobj(extracted, out)
+                with archive.open(artifact.archive_member) as extracted, open(dest, "wb") as out:
+                    shutil.copyfileobj(extracted, out)
             except KeyError as exc:
                 raise RuntimeError(
                     f"{artifact_label} archive {archive_path} is missing "

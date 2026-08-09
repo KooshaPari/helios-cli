@@ -126,7 +126,7 @@ class ResourceSampler:
             try:
                 import resource
 
-                soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+                soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
                 fd_limit = soft
             except Exception:
                 fd_limit = 1024

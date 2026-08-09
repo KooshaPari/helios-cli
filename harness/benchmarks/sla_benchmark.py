@@ -26,13 +26,6 @@ from typing import Any
 
 # Optional imports
 try:
-    import httpx
-
-    HAS_HTTPX = True
-except ImportError:
-    HAS_HTTPX = False
-
-try:
     import psutil
 
     HAS_PSUTIL = True

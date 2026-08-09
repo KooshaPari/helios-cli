@@ -56,7 +56,7 @@ class WorkerPool:
     def start(self):
         """Start the worker pool."""
         self._running = True
-        for i in range(self.num_workers):
+        for _ in range(self.num_workers):
             t = threading.Thread(target=self._worker_loop, daemon=True)
             t.start()
             self._workers.append(t)

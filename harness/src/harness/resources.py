@@ -4,6 +4,8 @@ This module provides safe wrappers around subprocess.Popen and other
 resource-intensive operations to prevent leaks.
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 import threading
@@ -71,7 +73,7 @@ class SubprocessManager:
     def cleanup_all(self) -> int:
         """Cleanup all tracked processes. Returns count cleaned."""
         count = 0
-        for pid, proc in list(self._processes.items()):
+        for _, proc in list(self._processes.items()):
             try:
                 if proc.poll() is None:
                     proc.terminate()

@@ -158,7 +158,7 @@ def rate_limit(key: str = "default", strategy: str = "token_bucket", **kwargs):
             allowed, wait_time = limiter.check_rate_limit(key, strategy, **kwargs)
 
             if not allowed:
-                raise RateLimitExceeded(wait_time)
+                raise RateLimitExceededError(wait_time)
 
             return func(*args, **kwargs)
 
@@ -167,7 +167,7 @@ def rate_limit(key: str = "default", strategy: str = "token_bucket", **kwargs):
     return decorator
 
 
-class RateLimitExceeded(Exception):
+class RateLimitExceededError(Exception):
     """Exception raised when rate limit is exceeded."""
 
     def __init__(self, retry_after: float = 0):

@@ -66,7 +66,7 @@ class RequestQueue:
             return request.request_id
         except asyncio.QueueFull:
             self._metrics["rejected"] += 1
-            raise QueueFull(f"Queue at capacity ({self.max_size})")
+            raise QueueFullError(f"Queue at capacity ({self.max_size})") from None
 
     async def dequeue(self, timeout: float | None = None) -> QueuedRequest | None:
         """Dequeue a request."""
@@ -96,7 +96,7 @@ class RequestQueue:
         return self._metrics.copy()
 
 
-class QueueFull(Exception):
+class QueueFullError(Exception):
     """Exception raised when queue is full."""
 
     pass

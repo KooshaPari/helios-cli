@@ -3,6 +3,8 @@
 Provides utilities to track network latency, throughput, and performance metrics.
 """
 
+from __future__ import annotations
+
 import statistics
 import threading
 import time
@@ -108,7 +110,7 @@ class LatencyTracker:
     def get_all_stats(self) -> dict[str, LatencyStats]:
         """Get stats for all endpoints."""
         with self._lock:
-            return {ep: self.get_stats(ep) for ep in self._snapshots.keys()}
+            return {ep: self.get_stats(ep) for ep in self._snapshots}
 
     def reset(self, endpoint: str | None = None) -> None:
         """Reset latency data."""

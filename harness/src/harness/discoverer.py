@@ -28,7 +28,6 @@ class Discoverer:
         )
 
     def _collect_files(self, root: Path, max_depth: int):
-        max_parts = root.parts
         for path in root.rglob("*"):
             if path.is_file():
                 depth = len(path.relative_to(root).parts)

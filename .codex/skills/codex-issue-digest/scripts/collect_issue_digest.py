@@ -588,7 +588,6 @@ def summarize_issue(
     all_comment_reaction_total = sum(reaction_summary(comment)["total"] for comment in comments)
     new_comment_reaction_total = sum(comment["reaction_total"] for comment in new_comments)
     new_issue_user_key = human_login_key(issue.get("user")) if new_issue else ""
-    new_issue_user_interaction = bool(new_issue_user_key)
     new_comment_user_interactions = sum(
         1 for comment in new_comments if comment["human_user_interaction"]
     )

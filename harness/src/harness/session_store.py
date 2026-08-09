@@ -219,7 +219,7 @@ class SessionStore:
 
                 if status is None or session.status == status:
                     sessions.append(session)
-            except:
+            except Exception:
                 pass
 
         # Add cached sessions
@@ -260,7 +260,7 @@ class SessionStore:
 
         try:
             return json.loads(checkpoint_file.read_text())
-        except:
+        except Exception:
             return None
 
     def get_stats(self) -> dict:

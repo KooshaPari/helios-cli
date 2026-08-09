@@ -89,7 +89,6 @@ def test_harness_replay_and_validate(tmp_path):
         cwd=tmp_path,
     )
 
-    first_payload = json.loads(out_first.read_text())
     _run(
         [
             "python3",

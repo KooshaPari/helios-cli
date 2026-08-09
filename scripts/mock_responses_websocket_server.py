@@ -108,10 +108,7 @@ async def _handle_connection(
 
     async def recv_json(label: str) -> Any:
         msg = await websocket.recv()
-        if isinstance(msg, bytes):
-            payload = json.loads(msg.decode("utf-8"))
-        else:
-            payload = json.loads(msg)
+        payload = json.loads(msg.decode("utf-8")) if isinstance(msg, bytes) else json.loads(msg)
         _print_request(f"[{label}] recv", payload)
         return payload
 

@@ -475,14 +475,14 @@ def main() -> None:
     s = sp.add_parser("scaling")
     s_sp = s.add_subparsers(dest="scaling_cmd")
 
-    s_status = s_sp.add_parser("status")
+    s_sp.add_parser("status")
 
     # Cache commands
     c = sp.add_parser("cache")
     c_sp = c.add_subparsers(dest="cache_cmd")
 
-    c_stats = c_sp.add_parser("stats")
-    c_clear = c_sp.add_parser("clear")
+    c_sp.add_parser("stats")
+    c_sp.add_parser("clear")
 
     args = p.parse_args()
 

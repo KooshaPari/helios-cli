@@ -48,7 +48,7 @@ def detect_harness() -> str:
         sock.close()
         if result == 0:
             return "cliproxy"
-    except:
+    except Exception:
         pass
     return "unknown"
 
@@ -86,7 +86,7 @@ def load_config() -> dict:
     return {}
 
 
-def find_model(models: list, suffix: str = None) -> dict:
+def find_model(models: list, suffix: str | None = None) -> dict:
     for m in models:
         name = m.get("model_display_name", m.get("model", ""))
         if suffix and suffix in name:

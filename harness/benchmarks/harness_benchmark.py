@@ -111,7 +111,7 @@ def detect_harness() -> str:
         sock.close()
         if result == 0:
             return "cliproxy"
-    except:
+    except Exception:
         pass
     return "unknown"
 
@@ -165,7 +165,7 @@ async def _call_llm_async(
                                 if first_token_time is None:
                                     first_token_time = time.perf_counter() - start
                                 content_parts.append(delta["content"])
-                    except:
+                    except Exception:
                         pass
 
             total_time = time.perf_counter() - start
@@ -333,7 +333,7 @@ def run_codex_benchmark(
 
             cmd = binary.split() if "node" not in binary else ["node", binary.split()[-1]]
             with safe_popen(
-                cmd + ["exec", "-m", model, prompt],
+                [*cmd, "exec", "-m", model, prompt],
                 cwd=agent_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -346,7 +346,7 @@ def run_codex_benchmark(
             try:
                 cpu_samples.append(proc.cpu_percent())
                 mem_samples.append(proc.memory_info().rss / 1024 / 1024)
-            except:
+            except Exception:
                 pass
 
         # Wait
@@ -379,7 +379,6 @@ def run_codex_benchmark(
     result.sla_p99 = times[int(n * 0.99)] if n > 0 else 0
 
     # Estimate breakdown (codex overhead is everything beyond LLM time)
-    avg_time = sum(times) / n if n > 0 else 1
     result.overhead_percent = 40  # Rough estimate
     result.generation_percent = 30
     result.ttft_percent = 30
