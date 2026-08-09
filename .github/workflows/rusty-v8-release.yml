@@ -198,7 +198,7 @@ jobs:
             build
             -c
             opt
-            "--platforms=@llvm//platforms:${PLATFORM}"
+            "--platforms=@toolchains_llvm_bootstrapped//platforms:${PLATFORM}"
             --config=rusty-v8-upstream-libcxx
             "--config=v8-target-${V8_CPU}"
             "${pair_target}"
