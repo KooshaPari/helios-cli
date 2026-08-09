@@ -32,7 +32,7 @@ index bbe1495..6673518 100644
  
  def v8_string(name, default = ""):
      _create_option_string(name = name, build_setting_default = default)
-@@ -97,7 +109,13 @@ v8_config = rule(
+@@ -97,7 +109,25 @@ v8_config = rule(
  
  def _default_args():
      return struct(
@@ -41,6 +41,18 @@ index bbe1495..6673518 100644
 +            "@v8//:is_v8_use_rusty_v8_custom_libcxx": [
 +                "@@//third_party/v8:rusty_v8_custom_libcxx_headers",
 +                "@@//third_party/v8:rusty_v8_custom_libcxx_runtime",
++            ],
++            "//conditions:default": [],
++        }) + select({
++            # V8 targets compile against the hermetic C library headers via
++            # libc++'s include_next; without them the C wrappers dead-end on
++            # the toolchain's own libc++ copy and C symbols (e.g. ::memcpy)
++            # never resolve. Mirror the libcxx overlays' platform select.
++            "@toolchains_llvm_bootstrapped//platforms/config:gnu": [
++                "@@toolchains_llvm_bootstrapped++glibc+glibc//:gnu_libc_headers",
++            ],
++            "@toolchains_llvm_bootstrapped//platforms/config:musl": [
++                "@@toolchains_llvm_bootstrapped++musl+musl_libc//:musl_libc_headers",
 +            ],
 +            "//conditions:default": [],
 +        }),

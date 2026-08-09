@@ -244,6 +244,7 @@ jobs:
             --config=rusty-v8-upstream-libcxx
             "--config=v8-target-${V8_CPU}"
             "${pair_target}"
+            --verbose_failures
             --build_metadata=COMMIT_SHA=$(git rev-parse HEAD)
           )
           if [[ "${SANDBOX}" != "true" ]]; then
