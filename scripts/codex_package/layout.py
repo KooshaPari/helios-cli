@@ -5,11 +5,8 @@ import shutil
 import stat
 from pathlib import Path
 
-from .targets import PackageInputs
-from .targets import PackageVariant
-from .targets import TargetSpec
+from .targets import PackageInputs, PackageVariant, TargetSpec
 from .zsh import ZSH_RESOURCE_PATH
-
 
 LAYOUT_VERSION = 1
 
@@ -17,9 +14,7 @@ LAYOUT_VERSION = 1
 def prepare_package_dir(package_dir: Path, *, force: bool) -> None:
     if package_dir.exists():
         if not package_dir.is_dir():
-            raise RuntimeError(
-                f"Package output exists and is not a directory: {package_dir}"
-            )
+            raise RuntimeError(f"Package output exists and is not a directory: {package_dir}")
         if any(package_dir.iterdir()):
             if not force:
                 raise RuntimeError(

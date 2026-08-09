@@ -28,9 +28,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Collect recent GitHub issue activity for a Codex owner digest."
     )
-    parser.add_argument(
-        "--repo", default="openai/codex", help="OWNER/REPO, default openai/codex"
-    )
+    parser.add_argument("--repo", default="openai/codex", help="OWNER/REPO, default openai/codex")
     parser.add_argument(
         "--labels",
         nargs="+",
@@ -46,12 +44,8 @@ def parse_args():
         "--window",
         help='Lookback duration such as "24h", "7d", "1w", or "past week"',
     )
-    parser.add_argument(
-        "--window-hours", type=float, default=24.0, help="Lookback window"
-    )
-    parser.add_argument(
-        "--since", help="UTC ISO timestamp override for the window start"
-    )
+    parser.add_argument("--window-hours", type=float, default=24.0, help="Lookback window")
+    parser.add_argument("--since", help="UTC ISO timestamp override for the window start")
     parser.add_argument("--until", help="UTC ISO timestamp override for the window end")
     parser.add_argument(
         "--limit-issues",
@@ -59,12 +53,8 @@ def parse_args():
         default=200,
         help="Maximum candidate issues to hydrate after search",
     )
-    parser.add_argument(
-        "--body-chars", type=int, default=1200, help="Issue body excerpt length"
-    )
-    parser.add_argument(
-        "--comment-chars", type=int, default=900, help="Comment excerpt length"
-    )
+    parser.add_argument("--body-chars", type=int, default=1200, help="Issue body excerpt length")
+    parser.add_argument("--comment-chars", type=int, default=900, help="Comment excerpt length")
     parser.add_argument(
         "--max-comment-pages",
         type=int,
@@ -100,12 +90,7 @@ def parse_timestamp(value, arg_name):
 
 
 def format_timestamp(value):
-    return (
-        value.astimezone(timezone.utc)
-        .replace(microsecond=0)
-        .isoformat()
-        .replace("+00:00", "Z")
-    )
+    return value.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def resolve_window(args):
@@ -166,9 +151,7 @@ def normalize_requested_labels(labels, all_labels=False):
     if all_labels or phrase in ALL_LABEL_PHRASES:
         return [], True
     if not out:
-        raise ValueError(
-            "At least one feature-area label is required, or use --all-labels"
-        )
+        raise ValueError("At least one feature-area label is required, or use --all-labels")
     return out, False
 
 
@@ -238,9 +221,7 @@ def gh_json(args):
     try:
         return json.loads(raw)
     except json.JSONDecodeError as err:
-        raise GhCommandError(
-            f"Failed to parse JSON from gh output for {' '.join(args)}"
-        ) from err
+        raise GhCommandError(f"Failed to parse JSON from gh output for {' '.join(args)}") from err
 
 
 def gh_text(args):
@@ -340,9 +321,7 @@ def search_issue_numbers(queries, limit):
             if len(items) < 100 or seen_for_query >= limit:
                 break
             page += 1
-    ordered = sorted(
-        numbers, key=lambda number: (numbers[number], number), reverse=True
-    )
+    ordered = sorted(numbers, key=lambda number: (numbers[number], number), reverse=True)
     return ordered[:limit]
 
 
@@ -377,9 +356,7 @@ def fetch_comment_reactions(repo, comments):
         if comment_id in (None, ""):
             continue
         endpoint = f"repos/{repo}/issues/comments/{comment_id}/reactions"
-        reactions_by_comment_id[comment_id] = fetch_reactions_for_item(
-            endpoint, comment
-        )
+        reactions_by_comment_id[comment_id] = fetch_reactions_for_item(endpoint, comment)
     return reactions_by_comment_id
 
 
@@ -428,9 +405,7 @@ def attention_thresholds_for_window(window_hours):
     window_hours = round(window_hours, 6)
     scale = window_hours / BASE_ATTENTION_WINDOW_HOURS
     elevated = max(1, math.ceil(ONE_ATTENTION_INTERACTION_THRESHOLD * scale))
-    very_high = max(
-        elevated + 1, math.ceil(TWO_ATTENTION_INTERACTION_THRESHOLD * scale)
-    )
+    very_high = max(elevated + 1, math.ceil(TWO_ATTENTION_INTERACTION_THRESHOLD * scale))
     return {
         "base_window_hours": BASE_ATTENTION_WINDOW_HOURS,
         "window_hours": round(window_hours, 3),
@@ -529,9 +504,7 @@ def is_in_window(timestamp, since, until):
     return since <= parsed < until
 
 
-def summarize_comment(
-    comment, comment_chars, reaction_events=None, since=None, until=None
-):
+def summarize_comment(comment, comment_chars, reaction_events=None, since=None, until=None):
     reactions = reaction_summary(comment)
     new_reactions = (
         reaction_event_summary(reaction_events, since, until)
@@ -572,9 +545,7 @@ def summarize_issue(
 ):
     labels = label_names(issue)
     labels_by_key = {label.casefold() for label in labels}
-    kind_labels = [
-        label for label in QUALIFYING_KIND_LABELS if label.casefold() in labels_by_key
-    ]
+    kind_labels = [label for label in QUALIFYING_KIND_LABELS if label.casefold() in labels_by_key]
     if all_labels:
         owner_labels = area_labels(labels) or ["unlabeled"]
     else:
@@ -602,34 +573,21 @@ def summarize_issue(
     new_comments.sort(key=lambda item: (item["created_at"], str(item["id"])))
 
     issue_reactions = reaction_summary(issue)
-    issue_reaction_events_summary = reaction_event_summary(
-        issue_reaction_events, since, until
-    )
+    issue_reaction_events_summary = reaction_event_summary(issue_reaction_events, since, until)
     comment_reaction_events_summary = reaction_event_summary(
-        [
-            reaction
-            for reactions in comment_reactions_by_id.values()
-            for reaction in reactions
-        ],
+        [reaction for reactions in comment_reactions_by_id.values() for reaction in reactions],
         since,
         until,
     )
     new_reactions = (
-        issue_reaction_events_summary["total"]
-        + comment_reaction_events_summary["total"]
+        issue_reaction_events_summary["total"] + comment_reaction_events_summary["total"]
     )
     new_upvotes = (
-        issue_reaction_events_summary["upvotes"]
-        + comment_reaction_events_summary["upvotes"]
+        issue_reaction_events_summary["upvotes"] + comment_reaction_events_summary["upvotes"]
     )
-    all_comment_reaction_total = sum(
-        reaction_summary(comment)["total"] for comment in comments
-    )
-    new_comment_reaction_total = sum(
-        comment["reaction_total"] for comment in new_comments
-    )
+    all_comment_reaction_total = sum(reaction_summary(comment)["total"] for comment in comments)
+    new_comment_reaction_total = sum(comment["reaction_total"] for comment in new_comments)
     new_issue_user_key = human_login_key(issue.get("user")) if new_issue else ""
-    new_issue_user_interaction = bool(new_issue_user_key)
     new_comment_user_interactions = sum(
         1 for comment in new_comments if comment["human_user_interaction"]
     )
@@ -645,9 +603,7 @@ def summarize_issue(
     user_interactions = len(interaction_user_keys)
     attention_level = attention_level_for(user_interactions, attention_thresholds)
     attention_marker = attention_marker_for(user_interactions, attention_thresholds)
-    updated_without_visible_new_post = (
-        not new_issue and not new_comments and new_reactions == 0
-    )
+    updated_without_visible_new_post = not new_issue and not new_comments and new_reactions == 0
 
     engagement_score = (
         len(new_comments) * 3
@@ -712,12 +668,8 @@ def count_by_label(issues, labels):
         matching = [issue for issue in issues if label in issue["owner_labels"]]
         out[label] = {
             "issues": len(matching),
-            "new_issues": sum(
-                1 for issue in matching if issue["activity"]["new_issue"]
-            ),
-            "new_comments": sum(
-                issue["activity"]["new_comments"] for issue in matching
-            ),
+            "new_issues": sum(1 for issue in matching if issue["activity"]["new_issue"]),
+            "new_comments": sum(issue["activity"]["new_comments"] for issue in matching),
         }
     return out
 
@@ -728,12 +680,8 @@ def count_by_kind(issues):
         matching = [issue for issue in issues if kind in issue["kind_labels"]]
         out[kind] = {
             "issues": len(matching),
-            "new_issues": sum(
-                1 for issue in matching if issue["activity"]["new_issue"]
-            ),
-            "new_comments": sum(
-                issue["activity"]["new_comments"] for issue in matching
-            ),
+            "new_issues": sum(1 for issue in matching if issue["activity"]["new_issue"]),
+            "new_comments": sum(issue["activity"]["new_comments"] for issue in matching),
         }
     return out
 
@@ -767,8 +715,7 @@ def hot_items(issues, limit=8):
             "new_upvotes": issue["new_upvotes"],
             "engagement_score": issue["engagement_score"],
             "new_comments": issue["activity"]["new_comments"],
-            "reaction_total": issue["issue_reaction_total"]
-            + issue["comment_reaction_total"],
+            "reaction_total": issue["issue_reaction_total"] + issue["comment_reaction_total"],
         }
         for issue in ranked[:limit]
         if issue["engagement_score"] > 0
@@ -863,9 +810,7 @@ def collect_digest(args):
     requested_labels, all_labels = normalize_requested_labels(
         args.labels, all_labels=args.all_labels
     )
-    queries = build_search_queries(
-        args.repo, requested_labels, since, all_labels=all_labels
-    )
+    queries = build_search_queries(args.repo, requested_labels, since, all_labels=all_labels)
     numbers = search_issue_numbers(queries, args.limit_issues)
     gh_version_output = gh_text(["--version"])
 
@@ -910,9 +855,7 @@ def collect_digest(args):
         if summary is not None:
             issues.append(summary)
 
-    issues.sort(
-        key=lambda issue: (issue["updated_at"], int(issue["number"] or 0)), reverse=True
-    )
+    issues.sort(key=lambda issue: (issue["updated_at"], int(issue["number"] or 0)), reverse=True)
     totals = {
         "candidate_issues": len(numbers),
         "included_issues": len(issues),
@@ -921,23 +864,15 @@ def collect_digest(args):
             1 for issue in issues if issue["activity"]["new_comments"] > 0
         ),
         "new_comments": sum(issue["activity"]["new_comments"] for issue in issues),
-        "comments_fetched": sum(
-            issue["comments_hydration"]["fetched"] for issue in issues
-        ),
+        "comments_fetched": sum(issue["comments_hydration"]["fetched"] for issue in issues),
         "issues_with_truncated_comment_hydration": sum(
             1 for issue in issues if issue["comments_hydration"]["truncated"]
         ),
         "updated_without_visible_new_post": sum(
-            1
-            for issue in issues
-            if issue["activity"]["updated_without_visible_new_post"]
+            1 for issue in issues if issue["activity"]["updated_without_visible_new_post"]
         ),
-        "issue_reactions_current_total": sum(
-            issue["issue_reaction_total"] for issue in issues
-        ),
-        "comment_reactions_current_total": sum(
-            issue["comment_reaction_total"] for issue in issues
-        ),
+        "issue_reactions_current_total": sum(issue["issue_reaction_total"] for issue in issues),
+        "comment_reactions_current_total": sum(issue["comment_reaction_total"] for issue in issues),
         "new_reactions": sum(issue["new_reactions"] for issue in issues),
         "new_upvotes": sum(issue["new_upvotes"] for issue in issues),
         "user_interactions": sum(issue["user_interactions"] for issue in issues),
@@ -954,9 +889,7 @@ def collect_digest(args):
             "collector": skill_relative_path(),
             "script_version": SCRIPT_VERSION,
             "git_head": git_head(),
-            "gh_version": gh_version_output.splitlines()[0]
-            if gh_version_output
-            else None,
+            "gh_version": gh_version_output.splitlines()[0] if gh_version_output else None,
         },
         "window": {
             "since": format_timestamp(since),

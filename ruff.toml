@@ -5,6 +5,22 @@
 # Target Python 3.10 minimum
 target-version = "py310"
 
+# Line length (should match .editorconfig)
+line-length = 100
+
+# Vendored upstream trees (see AGENTS.md / ARCHITECTURE.md) are retained as
+# read-only reference material and are not linted or formatted by CI.
+# Top-level extend-exclude (not [lint] per-file-ignores) so that both
+# `ruff check` and `ruff format` skip them.
+extend-exclude = [
+    "codex-rs",
+    "codex-cli",
+    # Ruff 0.16+ also formats Python code fences inside Markdown, which
+    # churns research/consolidated docs on every formatter upgrade. Scope
+    # the formatter to Python source files only.
+    "*.md",
+]
+
 # Enable rule sections
 [lint]
 # pyflakes + pycodestyle
@@ -30,9 +46,6 @@ ignore = [
     "B008",   # do not perform function calls in argument defaults
     "SIM102", # Use a single if statement instead of nested if
 ]
-
-# Line length (should match .editorconfig)
-line-length = 100
 
 # Fixable rules (auto-fix on format)
 fixable = ["ALL"]

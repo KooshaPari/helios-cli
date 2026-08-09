@@ -5,11 +5,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from .targets import REPO_ROOT
-from .targets import PackageVariant
-from .targets import TargetSpec
+from .targets import REPO_ROOT, PackageVariant, TargetSpec
 from .v8 import resolve_codex_v8_cargo_env
-
 
 CODEX_RS_ROOT = REPO_ROOT / "codex-rs"
 
@@ -128,18 +125,14 @@ def validate_prebuilt_resource_inputs(
     if bwrap_bin is not None and not spec.is_linux:
         raise RuntimeError("--bwrap-bin is only supported for Linux targets.")
     if codex_command_runner_bin is not None and not spec.is_windows:
-        raise RuntimeError(
-            "--codex-command-runner-bin is only supported for Windows targets."
-        )
+        raise RuntimeError("--codex-command-runner-bin is only supported for Windows targets.")
     if codex_windows_sandbox_setup_bin is not None and not spec.is_windows:
         raise RuntimeError(
             "--codex-windows-sandbox-setup-bin is only supported for Windows targets."
         )
 
 
-def resolve_output_path(
-    explicit_path: Path | None, default_path: Path | None
-) -> Path | None:
+def resolve_output_path(explicit_path: Path | None, default_path: Path | None) -> Path | None:
     if explicit_path is not None:
         return explicit_path.resolve()
 

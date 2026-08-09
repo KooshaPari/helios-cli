@@ -15,9 +15,7 @@ import rusty_v8_module_bazel
 
 class RustyV8BazelTest(unittest.TestCase):
     def test_consumer_selectors_track_resolved_crate_version(self) -> None:
-        build_bazel = (
-            rusty_v8_bazel.ROOT / "third_party" / "v8" / "BUILD.bazel"
-        ).read_text()
+        build_bazel = (rusty_v8_bazel.ROOT / "third_party" / "v8" / "BUILD.bazel").read_text()
         version_suffix = rusty_v8_bazel.resolved_v8_crate_version().replace(".", "_")
 
         for selector in [
@@ -128,9 +126,7 @@ class RustyV8BazelTest(unittest.TestCase):
         )
         self.assertEqual(
             "//third_party/v8:rusty_v8_sandbox_release_pair_x86_64_unknown_linux_musl",
-            rusty_v8_bazel.release_pair_label(
-                "x86_64-unknown-linux-musl", sandbox=True
-            ),
+            rusty_v8_bazel.release_pair_label("x86_64-unknown-linux-musl", sandbox=True),
         )
         self.assertEqual(
             "//third_party/v8:rusty_v8_sandbox_release_pair_x86_64_apple_darwin",
@@ -195,14 +191,8 @@ class RustyV8BazelTest(unittest.TestCase):
     def test_upstream_release_pair_paths(self) -> None:
         self.assertEqual(
             (
-                Path(
-                    "/tmp/rusty_v8/target/x86_64-apple-darwin/release/gn_out/obj/"
-                    "librusty_v8.a"
-                ),
-                Path(
-                    "/tmp/rusty_v8/target/x86_64-apple-darwin/release/gn_out/"
-                    "src_binding.rs"
-                ),
+                Path("/tmp/rusty_v8/target/x86_64-apple-darwin/release/gn_out/obj/librusty_v8.a"),
+                Path("/tmp/rusty_v8/target/x86_64-apple-darwin/release/gn_out/src_binding.rs"),
             ),
             rusty_v8_bazel.upstream_release_pair_paths(
                 Path("/tmp/rusty_v8"),
@@ -211,14 +201,8 @@ class RustyV8BazelTest(unittest.TestCase):
         )
         self.assertEqual(
             (
-                Path(
-                    "/tmp/rusty_v8/target/x86_64-pc-windows-msvc/release/gn_out/"
-                    "obj/rusty_v8.lib"
-                ),
-                Path(
-                    "/tmp/rusty_v8/target/x86_64-pc-windows-msvc/release/gn_out/"
-                    "src_binding.rs"
-                ),
+                Path("/tmp/rusty_v8/target/x86_64-pc-windows-msvc/release/gn_out/obj/rusty_v8.lib"),
+                Path("/tmp/rusty_v8/target/x86_64-pc-windows-msvc/release/gn_out/src_binding.rs"),
             ),
             rusty_v8_bazel.upstream_release_pair_paths(
                 Path("/tmp/rusty_v8"),
@@ -229,9 +213,7 @@ class RustyV8BazelTest(unittest.TestCase):
     def test_stage_upstream_release_pair(self) -> None:
         with TemporaryDirectory() as source_dir, TemporaryDirectory() as output_dir:
             source_root = Path(source_dir)
-            gn_out = (
-                source_root / "target" / "x86_64-pc-windows-msvc" / "release" / "gn_out"
-            )
+            gn_out = source_root / "target" / "x86_64-pc-windows-msvc" / "release" / "gn_out"
             (gn_out / "obj").mkdir(parents=True)
             (gn_out / "obj" / "rusty_v8.lib").write_bytes(b"archive")
             (gn_out / "src_binding.rs").write_text("binding")
@@ -386,9 +368,7 @@ class RustyV8BazelTest(unittest.TestCase):
             "librusty_v8_release_x86_64-unknown-linux-gnu.a.gz": (
                 "1111111111111111111111111111111111111111111111111111111111111111"
             ),
-            "orphan.gz": (
-                "2222222222222222222222222222222222222222222222222222222222222222"
-            ),
+            "orphan.gz": ("2222222222222222222222222222222222222222222222222222222222222222"),
         }
 
         with self.assertRaisesRegex(

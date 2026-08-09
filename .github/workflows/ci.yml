@@ -105,7 +105,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: cargo-deny check
-        uses: EmbarkStudios/cargo-deny-action@v1
+        # v2 (SHA-pinned, same as rust-ci.yml/cargo-deny.yml): v1 bundles
+        # cargo-deny 0.14.21, which cannot parse the current RustSec advisory
+        # database (TOML parse error on RUSTSEC-2026-0109).
+        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2
         with:
           arguments: --all-features
 
@@ -150,20 +153,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
         with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: lint
         run: |
           if [ -f package.json ] && grep -q '"lint"' package.json; then
-            npm run lint
+            pnpm run lint
           fi
       - name: test
         run: |
           if [ -f package.json ] && grep -q '"test"' package.json; then
-            npm test
+            pnpm run test
           fi
 
   security:
@@ -173,6 +182,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # gitleaks-action scans the PR commit range on pull_request events;
+          # the default depth-1 checkout lacks the parent commit and makes the
+          # git log range fail ("stderr is not empty").
+          fetch-depth: 0
       - name: gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:

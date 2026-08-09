@@ -22,7 +22,9 @@ def _run(cmd, cwd: Path) -> str:
 def test_harness_dry_run_and_plan_hash(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "package.json").write_text('{"scripts":{"lint":"echo lint","test":"echo test","build":"echo build"}}')
+    (repo / "package.json").write_text(
+        '{"scripts":{"lint":"echo lint","test":"echo test","build":"echo build"}}'
+    )
     out_discover = tmp_path / "discover.json"
     out_run = tmp_path / "run.json"
 
@@ -87,7 +89,6 @@ def test_harness_replay_and_validate(tmp_path):
         cwd=tmp_path,
     )
 
-    first_payload = json.loads(out_first.read_text())
     _run(
         [
             "python3",
@@ -112,4 +113,7 @@ def test_harness_replay_and_validate(tmp_path):
     schema = Path("harness/schemas/harness-evidence.schema.json").resolve()
     if not schema.exists():
         schema = Path("schemas/harness-evidence.schema.json").resolve()
-    _run(["python3", str(SCRIPT), "validate", "--schema", str(schema), "--file", str(out_second)], cwd=tmp_path)
+    _run(
+        ["python3", str(SCRIPT), "validate", "--schema", str(schema), "--file", str(out_second)],
+        cwd=tmp_path,
+    )

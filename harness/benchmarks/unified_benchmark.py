@@ -48,7 +48,7 @@ def detect_harness() -> str:
         sock.close()
         if result == 0:
             return "cliproxy"
-    except:
+    except Exception:
         pass
     return "unknown"
 
@@ -86,7 +86,7 @@ def load_config() -> dict:
     return {}
 
 
-def find_model(models: list, suffix: str = None) -> dict:
+def find_model(models: list, suffix: str | None = None) -> dict:
     for m in models:
         name = m.get("model_display_name", m.get("model", ""))
         if suffix and suffix in name:
@@ -114,7 +114,11 @@ async def run_model(model_cfg: dict, prompt: str = "hi") -> Result:
         async with httpx.AsyncClient(timeout=30.0) as c:
             r = await c.post(
                 f"{CLIPROXY_URL}/v1/chat/completions",
-                json={"model": cliproxy_model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 20},
+                json={
+                    "model": cliproxy_model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 20,
+                },
             )
             if r.status_code == 200:
                 return Result(model, 100, True, "cliproxy")
@@ -131,11 +135,19 @@ async def run_model(model_cfg: dict, prompt: str = "hi") -> Result:
             r = await c.post(
                 f"{base_url}/v1/messages",
                 headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                json={"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 20},
+                json={
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 20,
+                },
             )
             lat = (time.perf_counter() - start) * 1000
             return Result(
-                model, lat, r.status_code == 200, "direct", str(r.status_code) if r.status_code != 200 else ""
+                model,
+                lat,
+                r.status_code == 200,
+                "direct",
+                str(r.status_code) if r.status_code != 200 else "",
             )
     except Exception as e:
         return Result(model, 0, False, "direct", str(e)[:50])

@@ -14,6 +14,7 @@ from functools import wraps
 
 class BulkheadState(Enum):
     """Bulkhead states."""
+
     HEALTHY = "healthy"
     LOADED = "loaded"
     REJECTED = "rejected"
@@ -22,6 +23,7 @@ class BulkheadState(Enum):
 @dataclass
 class BulkheadMetrics:
     """Bulkhead metrics."""
+
     total_calls: int = 0
     successful_calls: int = 0
     rejected_calls: int = 0
@@ -52,7 +54,7 @@ class ThreadPoolBulkhead:
             if qsize >= self.max_queue_size:
                 self._metrics.rejected_calls += 1
                 self._metrics.state = BulkheadState.REJECTED
-                raise BulkheadRejected("Bulkhead at capacity")
+                raise BulkheadRejectedError("Bulkhead at capacity")
 
             if qsize > self.max_workers * 2:
                 self._metrics.state = BulkheadState.LOADED
@@ -67,9 +69,8 @@ class ThreadPoolBulkhead:
                 self._metrics.successful_calls += 1
                 elapsed = time.time() - start_time
                 self._metrics.avg_wait_time = (
-                    (self._metrics.avg_wait_time * (self._metrics.successful_calls - 1) + elapsed)
-                    / self._metrics.successful_calls
-                )
+                    self._metrics.avg_wait_time * (self._metrics.successful_calls - 1) + elapsed
+                ) / self._metrics.successful_calls
 
         future.add_done_callback(callback)
         return future
@@ -87,12 +88,13 @@ class ThreadPoolBulkhead:
                 rejected_calls=self._metrics.rejected_calls,
                 queued_calls=self._executor._work_queue.qsize(),
                 avg_wait_time=self._metrics.avg_wait_time,
-                state=self._metrics.state
+                state=self._metrics.state,
             )
 
 
-class BulkheadRejected(Exception):
+class BulkheadRejectedError(Exception):
     """Exception raised when bulkhead rejects a call."""
+
     pass
 
 
@@ -127,7 +129,7 @@ class SemaphoreBulkhead:
     def __enter__(self):
         """Context manager entry."""
         if not self.acquire(timeout=0):
-            raise BulkheadRejected("Bulkhead at capacity")
+            raise BulkheadRejectedError("Bulkhead at capacity")
         return self
 
     def __exit__(self, *args):
@@ -142,13 +144,13 @@ class SemaphoreBulkhead:
                 successful_calls=self._metrics.successful_calls,
                 rejected_calls=self._metrics.rejected_calls,
                 queued_calls=self.max_concurrent - self._semaphore._value,
-                state=self._metrics.state
+                state=self._metrics.state,
             )
 
 
 def bulkhead(max_workers: int = 10, max_queue: int = 100):
     """Decorator to apply bulkhead pattern to a function.
-    
+
     Usage:
         @bulkhead(max_workers=5, max_queue=10)
         def my_function():
@@ -195,7 +197,7 @@ if __name__ == "__main__":
             f = bh.submit(slow_task, i)
             futures.append(f)
             print(f"Submitted task {i}")
-        except BulkheadRejected as e:
+        except BulkheadRejectedError as e:
             print(f"Rejected task {i}: {e}")
 
     # Wait for completion

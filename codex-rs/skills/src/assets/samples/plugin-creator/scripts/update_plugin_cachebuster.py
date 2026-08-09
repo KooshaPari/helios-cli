@@ -10,7 +10,6 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 CACHEBUSTER_PREFIX = "codex"
 
 
@@ -73,6 +72,6 @@ def with_cachebuster(version: str, cachebuster: str) -> str:
 if __name__ == "__main__":
     try:
         main()
-    except Exception as err:  # noqa: BLE001 - CLI should surface a single clear message.
+    except Exception as err:
         print(str(err), file=sys.stderr)
         raise SystemExit(1) from err

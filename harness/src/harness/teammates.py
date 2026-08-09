@@ -13,6 +13,11 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+import yaml
+from pydantic import BaseModel, ConfigDict
+
+from .id_utils import new_id
+
 # Lazy psutil - only load when needed for process monitoring
 _psutil = None
 
@@ -25,11 +30,6 @@ def _get_psutil():
         _psutil = psutil
     return _psutil
 
-
-import yaml
-from pydantic import BaseModel, ConfigDict
-
-from .id_utils import new_id
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +195,9 @@ class DelegationProtocol:
 
         try:
             # Execute with timeout
-            result = await asyncio.wait_for(executor.execute(request), timeout=request.timeout_seconds)
+            result = await asyncio.wait_for(
+                executor.execute(request), timeout=request.timeout_seconds
+            )
 
             # Store result
             delegation_result = DelegationResult(

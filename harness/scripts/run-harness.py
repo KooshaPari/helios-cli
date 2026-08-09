@@ -173,6 +173,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     if args.dry_run:
         result["result_code"] = "WARN" if not commands else "PASS"
         from harness.benchmark_envelope import add_envelope
+
         result = add_envelope(result, repo=repo, profile=profile, plan_hash=command_hash)
         Path(out).write_text(json.dumps(result, indent=2))
         return
@@ -196,6 +197,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
     payload["created_at"] = datetime.now(tz=UTC).isoformat()
     payload["command_count"] = len(commands)
     from harness.benchmark_envelope import add_envelope
+
     payload = add_envelope(payload, repo=repo, profile=profile, plan_hash=command_hash)
 
     if args.replay:
@@ -275,7 +277,9 @@ def normalize_run(input_file: str, out: str) -> None:
 
     discovered_commands = payload.get("commands", [])
     result = QualityNormalizer().normalize(runs, discovered_commands)
-    Path(out).write_text(json.dumps({"quality": result.__dict__, "source": str(input_file)}, indent=2))
+    Path(out).write_text(
+        json.dumps({"quality": result.__dict__, "source": str(input_file)}, indent=2)
+    )
 
 
 def validate_artifacts(schema: str, file: str) -> None:
@@ -311,7 +315,13 @@ def cmd_teammates_list(agents_dir: str) -> None:
 def cmd_teammates_delegate(teammate_id: str, task: str, timeout: int, profile: str) -> None:
     import asyncio
 
-    from harness import CodexExecutor, DelegationProtocol, DelegationRequest, Priority, TeammateRegistry
+    from harness import (
+        CodexExecutor,
+        DelegationProtocol,
+        DelegationRequest,
+        Priority,
+        TeammateRegistry,
+    )
 
     async def run():
         registry = TeammateRegistry()
@@ -326,7 +336,10 @@ def cmd_teammates_delegate(teammate_id: str, task: str, timeout: int, profile: s
         executor = CodexExecutor(profile=profile)
 
         request = DelegationRequest(
-            teammate_id=teammate_id, task_description=task, priority=Priority.NORMAL, timeout_seconds=timeout
+            teammate_id=teammate_id,
+            task_description=task,
+            priority=Priority.NORMAL,
+            timeout_seconds=timeout,
         )
 
         result = await protocol.delegate(request, executor)
@@ -371,7 +384,9 @@ def cmd_scaling_status() -> None:
 
     print("Resource Status:")
     print(f"  CPU: {snapshot.cpu_percent:.1f}%")
-    print(f"  Memory: {snapshot.memory_percent:.1f}% ({snapshot.memory_available_mb:.0f}MB available)")
+    print(
+        f"  Memory: {snapshot.memory_percent:.1f}% ({snapshot.memory_available_mb:.0f}MB available)"
+    )
     print(f"  FDs: {snapshot.fd_count}/{snapshot.fd_limit}")
     print(f"  Load: {snapshot.load_avg:.2f}")
     print(f"\nDynamic Limit: {controller.current_limit}")
@@ -460,14 +475,14 @@ def main() -> None:
     s = sp.add_parser("scaling")
     s_sp = s.add_subparsers(dest="scaling_cmd")
 
-    s_status = s_sp.add_parser("status")
+    s_sp.add_parser("status")
 
     # Cache commands
     c = sp.add_parser("cache")
     c_sp = c.add_subparsers(dest="cache_cmd")
 
-    c_stats = c_sp.add_parser("stats")
-    c_clear = c_sp.add_parser("clear")
+    c_sp.add_parser("stats")
+    c_sp.add_parser("clear")
 
     args = p.parse_args()
 

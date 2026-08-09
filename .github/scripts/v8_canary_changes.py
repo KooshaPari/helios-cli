@@ -2,9 +2,9 @@
 
 import argparse
 import subprocess
-import tomllib
 from pathlib import Path
 
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 WINDOWS_SOURCE_BUILD_PATHS = {
@@ -48,9 +48,7 @@ def git_output(*args: str, root: Path = ROOT) -> bytes:
 
 
 def v8_version_at_revision(revision: str, *, root: Path = ROOT) -> str:
-    return resolved_v8_version(
-        git_output("show", f"{revision}:codex-rs/Cargo.lock", root=root)
-    )
+    return resolved_v8_version(git_output("show", f"{revision}:codex-rs/Cargo.lock", root=root))
 
 
 def merge_base(base: str, head: str, *, root: Path = ROOT) -> str:
@@ -92,9 +90,7 @@ def main() -> None:
             reason = f"v8 version changed from {base_version} to {head_version}"
         else:
             matched_paths = sorted(files & WINDOWS_SOURCE_BUILD_PATHS)
-            reason = (
-                ", ".join(matched_paths) if matched_paths else "no relevant changes"
-            )
+            reason = ", ".join(matched_paths) if matched_paths else "no relevant changes"
 
     print(f"windows_source_required={str(required).lower()}")
     print(f"windows_source_reason={reason}")

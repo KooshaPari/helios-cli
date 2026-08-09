@@ -2,11 +2,11 @@
 
 import hashlib
 import json
-from pathlib import Path
 import sys
 import tarfile
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -33,9 +33,7 @@ class ResolveZshBinTest(unittest.TestCase):
                             "linux-x86_64": {
                                 "size": archive.stat().st_size,
                                 "hash": "sha256",
-                                "digest": hashlib.sha256(
-                                    archive.read_bytes()
-                                ).hexdigest(),
+                                "digest": hashlib.sha256(archive.read_bytes()).hexdigest(),
                                 "format": "tar.gz",
                                 "path": "codex-zsh/bin/zsh",
                                 "providers": [{"url": archive.as_uri()}],
@@ -50,9 +48,7 @@ class ResolveZshBinTest(unittest.TestCase):
                 "codex_package.dotslash.default_cache_root",
                 return_value=root / "cache",
             ):
-                zsh_bin = resolve_zsh_bin(
-                    TARGET_SPECS["x86_64-unknown-linux-musl"], manifest
-                )
+                zsh_bin = resolve_zsh_bin(TARGET_SPECS["x86_64-unknown-linux-musl"], manifest)
 
             self.assertIsNotNone(zsh_bin)
             assert zsh_bin is not None

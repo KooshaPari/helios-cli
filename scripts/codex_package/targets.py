@@ -5,7 +5,6 @@ import stat
 from dataclasses import dataclass
 from pathlib import Path
 
-
 SCRIPT_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = SCRIPT_DIR.parent
 

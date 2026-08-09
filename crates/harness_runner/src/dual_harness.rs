@@ -119,7 +119,8 @@ async fn run_one_helios_task(task: &FixtureTask) -> Result<TaskOutcome, FixtureE
         config.timeout_secs = Some(secs);
     }
     if let Some(env_key) = &adapter.working_dir_env {
-        let dir = std::env::var(env_key).map_err(|_| FixtureError::WorkdirUnset(task.task_id.clone()))?;
+        let dir =
+            std::env::var(env_key).map_err(|_| FixtureError::WorkdirUnset(task.task_id.clone()))?;
         config.working_dir = Some(dir);
     }
 
@@ -129,11 +130,7 @@ async fn run_one_helios_task(task: &FixtureTask) -> Result<TaskOutcome, FixtureE
 
     let passed = match (&task.acceptance, result) {
         (
-            Acceptance {
-                must_error: Some(true),
-                error_class: Some(class),
-                ..
-            },
+            Acceptance { must_error: Some(true), error_class: Some(class), .. },
             Err(RunError::Timeout(_)),
         ) if class == "timeout" => true,
         (acceptance, Ok(run)) => {
@@ -172,11 +169,7 @@ async fn run_one_helios_task(task: &FixtureTask) -> Result<TaskOutcome, FixtureE
     Ok(TaskOutcome {
         task_id: task.task_id.clone(),
         passed,
-        detail: if passed {
-            "ok".into()
-        } else {
-            "acceptance failed".into()
-        },
+        detail: if passed { "ok".into() } else { "acceptance failed".into() },
     })
 }
 

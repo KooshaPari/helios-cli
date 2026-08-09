@@ -130,7 +130,8 @@ class TeammateRegistry:
                 candidates = [
                     c
                     for c in self._configs.values()
-                    if c.type == type and self._status.get(c.name, TeammateStatus(c.name)).state == TeammateState.IDLE
+                    if c.type == type
+                    and self._status.get(c.name, TeammateStatus(c.name)).state == TeammateState.IDLE
                 ]
             else:
                 candidates = [
@@ -198,7 +199,10 @@ class TeammateRegistry:
             return {
                 "total_teammates": len(self._configs),
                 "by_state": states,
-                "by_type": {t.value: len([c for c in self._configs.values() if c.type == t]) for t in TeammateType},
+                "by_type": {
+                    t.value: len([c for c in self._configs.values() if c.type == t])
+                    for t in TeammateType
+                },
             }
 
     def _persist(self) -> None:
@@ -213,7 +217,9 @@ class TeammateRegistry:
         # Convert enum to string for JSON
         for teammate in data["teammates"]:
             teammate["type"] = (
-                teammate["type"].value if isinstance(teammate["type"], TeammateType) else teammate["type"]
+                teammate["type"].value
+                if isinstance(teammate["type"], TeammateType)
+                else teammate["type"]
             )
 
         self._persist_path.parent.mkdir(parents=True, exist_ok=True)

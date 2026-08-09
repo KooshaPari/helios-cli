@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-
 SHA256_RE = re.compile(r"[0-9a-f]{64}")
 HTTP_FILE_BLOCK_RE = re.compile(r"(?ms)^http_file\(\n.*?^\)\n?")
 HTTP_FILE_VERSION_RE = re.compile(r"^rusty_v8_([0-9]+)_([0-9]+)_([0-9]+)_")
@@ -38,22 +37,16 @@ def parse_checksum_manifest(path: Path) -> dict[str, str]:
             continue
         parts = line.split()
         if len(parts) != 2:
-            raise RustyV8ChecksumError(
-                f"{path}:{line_number}: expected '<sha256>  <filename>'"
-            )
+            raise RustyV8ChecksumError(f"{path}:{line_number}: expected '<sha256>  <filename>'")
         checksum, filename = parts
         if not SHA256_RE.fullmatch(checksum):
             raise RustyV8ChecksumError(
                 f"{path}:{line_number}: invalid SHA-256 digest for {filename}"
             )
         if not filename or filename in {".", ".."} or "/" in filename:
-            raise RustyV8ChecksumError(
-                f"{path}:{line_number}: expected a bare artifact filename"
-            )
+            raise RustyV8ChecksumError(f"{path}:{line_number}: expected a bare artifact filename")
         if filename in checksums:
-            raise RustyV8ChecksumError(
-                f"{path}:{line_number}: duplicate checksum for {filename}"
-            )
+            raise RustyV8ChecksumError(f"{path}:{line_number}: duplicate checksum for {filename}")
         checksums[filename] = checksum
 
     if not checksums:
@@ -80,9 +73,7 @@ def rusty_v8_http_files(module_bazel: str, version: str) -> list[RustyV8HttpFile
             continue
         downloaded_file_path = string_field(block, "downloaded_file_path")
         if not downloaded_file_path:
-            raise RustyV8ChecksumError(
-                f"MODULE.bazel {name} is missing downloaded_file_path"
-            )
+            raise RustyV8ChecksumError(f"MODULE.bazel {name} is missing downloaded_file_path")
         entries.append(
             RustyV8HttpFile(
                 start=match.start(),
@@ -151,8 +142,7 @@ def module_checksum_errors(
             errors.append(f"MODULE.bazel {entry.name} is missing sha256")
         elif entry.sha256 != expected:
             errors.append(
-                f"MODULE.bazel {entry.name} has sha256 {entry.sha256}, "
-                f"expected {expected}"
+                f"MODULE.bazel {entry.name} has sha256 {entry.sha256}, expected {expected}"
             )
     return errors
 
@@ -209,9 +199,7 @@ def update_module_bazel_text(
     previous_end = 0
     for entry in entries:
         updated.append(module_bazel[previous_end : entry.start])
-        updated.append(
-            block_with_sha256(entry.block, checksums[entry.downloaded_file_path])
-        )
+        updated.append(block_with_sha256(entry.block, checksums[entry.downloaded_file_path]))
         previous_end = entry.end
     updated.append(module_bazel[previous_end:])
     return "".join(updated)

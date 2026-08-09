@@ -24,7 +24,6 @@ if str(_rust_path) not in sys.path:
     sys.path.insert(0, str(_rust_path))
 
 try:
-    from helios_harness_rs import CacheStats as RustCacheStats
     from helios_harness_rs import LruCache as RustLruCache
 
     RUST_AVAILABLE = True

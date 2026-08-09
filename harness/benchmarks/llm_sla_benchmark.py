@@ -157,7 +157,7 @@ def detect_harness() -> str:
         sock.close()
         if result == 0:
             return "cliproxy"
-    except:
+    except Exception:
         pass
     return "unknown"
 
@@ -208,18 +208,9 @@ async def _call_llm_async(
     metrics = LLMMetrics()
     start = time.perf_counter()
 
-    # Estimate network RTT (ping to cliproxy)
-    rtt_start = time.perf_counter()
-    try:
-        await client.get(f"{CLIPROXY_URL}/health", timeout=5.0)
-        rtt_estimate = (time.perf_counter() - rtt_start) * 1000  # ms
-    except:
-        rtt_estimate = 0
-
     try:
         # Stream request to measure TTFT
         first_token_time = None
-        tokens_received = 0
 
         async with client.stream(
             "POST",
@@ -241,14 +232,14 @@ async def _call_llm_async(
                         break
                     try:
                         chunk = json.loads(data)
-                        if "choices" in chunk and chunk["choices"]:
+                        if chunk.get("choices"):
                             delta = chunk["choices"][0].get("delta", {})
                             if delta.get("content"):
                                 if first_token_time is None:
                                     first_token_time = time.perf_counter() - start
                                 content_parts.append(delta["content"])
                                 token_count += 1
-                    except:
+                    except Exception:
                         pass
 
             total_time = time.perf_counter() - start
@@ -395,20 +386,26 @@ def _run_codex_benchmark(
 
         # Init git repos
         subprocess.run(["git", "init"], cwd=work_dir, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=work_dir, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@test.com"], cwd=work_dir, capture_output=True
+        )
         subprocess.run(["git", "config", "user.name", "Test"], cwd=work_dir, capture_output=True)
 
         for i in range(agent_count):
             agent_dir = work_dir / f"agent_{i}"
             agent_dir.mkdir(exist_ok=True)
             subprocess.run(["git", "init"], cwd=agent_dir, capture_output=True)
-            subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=agent_dir, capture_output=True)
-            subprocess.run(["git", "config", "user.name", "Test"], cwd=agent_dir, capture_output=True)
+            subprocess.run(
+                ["git", "config", "user.email", "test@test.com"], cwd=agent_dir, capture_output=True
+            )
+            subprocess.run(
+                ["git", "config", "user.name", "Test"], cwd=agent_dir, capture_output=True
+            )
             (agent_dir / "task.txt").write_text(f"Agent {i}: {prompt}")
 
             cmd = binary.split() if "node" not in binary else ["node", binary.split()[-1]]
             with safe_popen(
-                cmd + ["exec", "-m", model, prompt],
+                [*cmd, "exec", "-m", model, prompt],
                 cwd=agent_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -473,7 +470,9 @@ def print_sla_report(result: BenchmarkResult) -> None:
     print(
         f"  {'Generation':<20} │ {result.llm.generation_time:>9.3f}s │ {result.llm.generation_time / total * 100:>9.1f}%"
     )
-    print(f"  {'Codex/Overhead':<20} │ {result.codex_overhead:>9.3f}s │ {result.codex_overhead / total * 100:>9.1f}%")
+    print(
+        f"  {'Codex/Overhead':<20} │ {result.codex_overhead:>9.3f}s │ {result.codex_overhead / total * 100:>9.1f}%"
+    )
     print(f"  {'-' * 20}─┼{'-' * 12}─┼{'-' * 12}")
     print(f"  {'TOTAL':<20} │ {total:>9.3f}s │ {'100.0%':>10}")
 
@@ -548,7 +547,7 @@ if __name__ == "__main__":
 
     if args.compare:
         results = compare_models(args.agents, prompt)
-        for name, result in results.items():
+        for _, result in results.items():
             print_sla_report(result)
 
         # Comparison summary

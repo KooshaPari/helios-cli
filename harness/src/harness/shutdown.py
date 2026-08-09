@@ -4,6 +4,8 @@ Provides signal handling and cleanup utilities for clean shutdown of
 long-running processes.
 """
 
+from __future__ import annotations
+
 import atexit
 import logging
 import signal

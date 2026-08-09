@@ -4,6 +4,7 @@ Provides integration with perf (Linux) and Instruments (macOS) for CPU profiling
 """
 
 import os
+import shutil
 import subprocess
 import threading
 import time
@@ -58,7 +59,7 @@ class PerfProfiler:
                 timeout=5,
             )
             return result.returncode == 0
-        except FileNotFoundError, subprocess.TimeoutExpired:
+        except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
 
     def start(self, pid: int | None = None) -> bool:
@@ -148,8 +149,8 @@ class PerfProfiler:
 
         try:
             # Check if flamegraph is available
-            flamegraph.pl = shutil.which("flamegraph")
-            if not flamegraph.pl:
+            flamegraph_pl = shutil.which("flamegraph")
+            if not flamegraph_pl:
                 return None
 
             # Generate
@@ -157,7 +158,7 @@ class PerfProfiler:
 
             # Run perf to flamegraph
             subprocess.run(
-                f"perf script -i {self._output_file} | {flamegraph.pl} > {svg_file}",
+                f"perf script -i {self._output_file} | {flamegraph_pl} > {svg_file}",
                 shell=True,
                 check=True,
             )
@@ -262,7 +263,6 @@ def get_cpu_info() -> dict[str, Any]:
     """Get CPU information."""
     import psutil
 
-    cpu = psutil.cpu_times()
     return {
         "physical_cores": psutil.cpu_count(logical=False),
         "logical_cores": psutil.cpu_count(logical=True),

@@ -127,7 +127,8 @@ def get_cache(config: CacheConfig | None = None) -> LRUCache:
     if _cache is None or config != _cache_config:
         _cache_config = config
         _cache = LRUCache(
-            max_size=config.max_size if config else 1000, default_ttl=config.default_ttl if config else 300.0
+            max_size=config.max_size if config else 1000,
+            default_ttl=config.default_ttl if config else 300.0,
         )
     return _cache
 

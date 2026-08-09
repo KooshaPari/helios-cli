@@ -120,7 +120,9 @@ class TestRunnerProfile:
         runner = Runner(config)
 
         commands = [
-            CanonicalCommand(command="echo test", bucket=EvidenceBucket.BUILD, cwd="/test", required=True),
+            CanonicalCommand(
+                command="echo test", bucket=EvidenceBucket.BUILD, cwd="/test", required=True
+            ),
         ]
 
         results = runner.run_profile(commands, "/test/root")

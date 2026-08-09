@@ -56,9 +56,7 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
             args,
         )
         self.assertEqual(
-            run_bazel_with_buildbuddy.remote_config(
-                args, {"BUILDBUDDY_API_KEY": "fork-token"}
-            ),
+            run_bazel_with_buildbuddy.remote_config(args, {"BUILDBUDDY_API_KEY": "fork-token"}),
             "buildbuddy-generic",
         )
 
@@ -138,9 +136,7 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
             env = self.github_env(temp_dir, fork=True)
 
             self.assertEqual(
-                run_bazel_with_buildbuddy.remote_config(
-                    ["build", "--config=ci-v8"], env
-                ),
+                run_bazel_with_buildbuddy.remote_config(["build", "--config=ci-v8"], env),
                 "buildbuddy-generic-rbe",
             )
 
@@ -149,9 +145,7 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
             env = self.github_env(temp_dir, repository="contributor/codex")
 
             self.assertEqual(
-                run_bazel_with_buildbuddy.remote_config(
-                    ["build", "--config=ci-v8"], env
-                ),
+                run_bazel_with_buildbuddy.remote_config(["build", "--config=ci-v8"], env),
                 "buildbuddy-generic-rbe",
             )
 
@@ -215,12 +209,8 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
         )
 
     def test_main_preserves_spaced_argument_and_child_exit_status(self) -> None:
-        spaced_arg = (
-            r"--test_env=PATH=C:\Program Files\PowerShell\7;C:\Program Files\Git\bin"
-        )
-        child_code = (
-            f"import sys; sys.exit(37 if sys.argv[1] == {spaced_arg!r} else 91)"
-        )
+        spaced_arg = r"--test_env=PATH=C:\Program Files\PowerShell\7;C:\Program Files\Git\bin"
+        child_code = f"import sys; sys.exit(37 if sys.argv[1] == {spaced_arg!r} else 91)"
         env = os.environ.copy()
         env["CODEX_BAZEL_BIN"] = sys.executable
         env.pop("BAZEL_OUTPUT_USER_ROOT", None)

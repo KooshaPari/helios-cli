@@ -82,9 +82,7 @@ __pycache__/
         encoding="utf-8",
     )
 
-    include_line = (
-        f"[include]\n    path = {host_gitconfig}\n\n" if host_gitconfig.exists() else ""
-    )
+    include_line = f"[include]\n    path = {host_gitconfig}\n\n" if host_gitconfig.exists() else ""
 
     local_gitconfig.write_text(
         f"""# Container-local git configuration

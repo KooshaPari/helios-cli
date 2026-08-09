@@ -12,7 +12,6 @@ import shutil
 import subprocess
 import sys
 
-
 ARGS_TOKEN = "{args}"
 STDERR_NULL_TOKEN = "{stderr-null}"
 POWERSHELL_ARGS = "@($args | Select-Object -Skip 1)"

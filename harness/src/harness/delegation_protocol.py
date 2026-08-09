@@ -5,6 +5,7 @@ timeout handling, and escalation paths.
 """
 
 import asyncio
+import contextlib
 import threading
 import time
 from collections.abc import Callable
@@ -78,14 +79,19 @@ class DelegationProtocol:
         self._results: dict[str, DelegationResult] = {}
         self._handlers: dict[str, Callable] = {}  # agent_type -> handler
         self._locks: dict[str, asyncio.Lock] = {}
+        self._tasks: dict[str, asyncio.Task] = {}
         self._lock = threading.Lock()
         self._callbacks: dict[str, list[Callable]] = {}  # state -> callbacks
 
-    def register_handler(self, agent_type: str, handler: Callable[[DelegationRequest], Any]) -> None:
+    def register_handler(
+        self, agent_type: str, handler: Callable[[DelegationRequest], Any]
+    ) -> None:
         """Register a handler for an agent type."""
         self._handlers[agent_type] = handler
 
-    def register_callback(self, state: DelegationState, callback: Callable[[DelegationResult], None]) -> None:
+    def register_callback(
+        self, state: DelegationState, callback: Callable[[DelegationResult], None]
+    ) -> None:
         """Register callback for state changes."""
         if state.value not in self._callbacks:
             self._callbacks[state.value] = []
@@ -117,8 +123,8 @@ class DelegationProtocol:
             self._pending[request.id] = request
             self._locks[request.id] = asyncio.Lock()
 
-        # Start execution
-        asyncio.create_task(self._execute(request))
+        # Start execution (keep a reference so the task is not garbage collected)
+        self._tasks[request.id] = asyncio.create_task(self._execute(request))
 
         return request
 
@@ -225,10 +231,9 @@ class DelegationProtocol:
         """Notify callbacks of state change."""
         callbacks = self._callbacks.get(state.value, [])
         for callback in callbacks:
-            try:
+            # Don't let callback errors break things
+            with contextlib.suppress(Exception):
                 callback(result)
-            except Exception:
-                pass  # Don't let callback errors break things
 
 
 # Simple async handler for testing

@@ -5,9 +5,9 @@ from __future__ import annotations
 import argparse
 import re
 import sys
-import tomllib
 from pathlib import Path
 
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CARGO_TOML = ROOT / "codex-rs" / "Cargo.toml"
@@ -15,9 +15,7 @@ DEFAULT_BAZELRC = ROOT / ".bazelrc"
 BAZEL_CLIPPY_FLAG_PREFIX = "build:clippy --@rules_rust//rust/settings:clippy_flag="
 BAZEL_SPECIAL_FLAGS = {"-Dwarnings"}
 VALID_LEVELS = {"allow", "warn", "deny", "forbid"}
-LONG_FLAG_RE = re.compile(
-    r"^--(?P<level>allow|warn|deny|forbid)=clippy::(?P<lint>[a-z0-9_]+)$"
-)
+LONG_FLAG_RE = re.compile(r"^--(?P<level>allow|warn|deny|forbid)=clippy::(?P<lint>[a-z0-9_]+)$")
 SHORT_FLAG_RE = re.compile(r"^-(?P<level>[AWDF])clippy::(?P<lint>[a-z0-9_]+)$")
 SHORT_LEVEL_NAMES = {
     "A": "allow",
@@ -93,9 +91,7 @@ def load_workspace_clippy_lints(cargo_toml: Path) -> dict[str, str]:
             )
         normalized = level.strip().lower()
         if normalized not in VALID_LEVELS:
-            raise SystemExit(
-                f"unsupported lint level {level!r} for clippy::{lint} in {cargo_toml}"
-            )
+            raise SystemExit(f"unsupported lint level {level!r} for clippy::{lint} in {cargo_toml}")
         parsed[lint] = normalized
     return parsed
 
@@ -160,8 +156,7 @@ def print_sync_error(
     )
     print(file=sys.stderr)
     print(
-        f"Cargo defines the source of truth in {cargo_toml_display} "
-        "[workspace.lints.clippy].",
+        f"Cargo defines the source of truth in {cargo_toml_display} [workspace.lints.clippy].",
         file=sys.stderr,
     )
     if example_manifest is not None:
@@ -176,8 +171,7 @@ def print_sync_error(
         file=sys.stderr,
     )
     print(
-        f"Update {bazelrc_display} so its `build:clippy` "
-        "`clippy_flag` entries match Cargo.",
+        f"Update {bazelrc_display} so its `build:clippy` `clippy_flag` entries match Cargo.",
         file=sys.stderr,
     )
 

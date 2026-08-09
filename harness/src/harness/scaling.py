@@ -87,7 +87,9 @@ class ResourceSampler:
             result = self._rust.sample()
             # Handle both tuple (new) and object (old) returns
             if isinstance(result, tuple):
-                cpu_percent, memory_percent, memory_available_mb, fd_count, load_avg, timestamp = result
+                cpu_percent, memory_percent, memory_available_mb, fd_count, load_avg, timestamp = (
+                    result
+                )
                 return ResourceSnapshot(
                     cpu_percent=cpu_percent,
                     memory_percent=memory_percent,
@@ -124,7 +126,7 @@ class ResourceSampler:
             try:
                 import resource
 
-                soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+                soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
                 fd_limit = soft
             except Exception:
                 fd_limit = 1024
@@ -208,7 +210,10 @@ class DynamicLimitController:
                 self._state = "scaling_up"
         elif target < self.current_limit:
             # Scale down
-            if running_count < target and now - self._last_change_time >= self.config.hysteresis_dwell:
+            if (
+                running_count < target
+                and now - self._last_change_time >= self.config.hysteresis_dwell
+            ):
                 self.current_limit = target
                 self._last_change_time = now
                 self._state = "scaling_down"

@@ -12,11 +12,20 @@ class QualityNormalizer:
             "BUILD": ["build", "buildx", "compile", "pkg"],
         }
 
-    def normalize(self, run_results: list[RunResult], discovered_commands: list) -> QualityNormalization:
+    def normalize(
+        self, run_results: list[RunResult], discovered_commands: list
+    ) -> QualityNormalization:
         normalization = QualityNormalization(inferred_profile="strict-full", mapped_buckets={})
         observed = {r.command.lower() for r in run_results}
 
-        mapped_buckets = {"STATIC": [], "TEST": [], "BUILD": [], "API": [], "RUNTIME": [], "QUALITY": []}
+        mapped_buckets = {
+            "STATIC": [],
+            "TEST": [],
+            "BUILD": [],
+            "API": [],
+            "RUNTIME": [],
+            "QUALITY": [],
+        }
         for result in run_results:
             cmd = result.command
             lower_cmd = cmd.lower()

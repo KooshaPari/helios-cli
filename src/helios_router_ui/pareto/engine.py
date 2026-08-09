@@ -36,7 +36,10 @@ def pareto_front_mask(df: pd.DataFrame, minimize: list[str], maximize: list[str]
 
 
 def compute_pareto(
-    indices_df: pd.DataFrame, minimize_cost: bool = True, minimize_speed: bool = True, maximize_quality: bool = True
+    indices_df: pd.DataFrame,
+    minimize_cost: bool = True,
+    minimize_speed: bool = True,
+    maximize_quality: bool = True,
 ) -> pd.DataFrame:
     """Compute Pareto frontier for offers."""
     if indices_df.empty:

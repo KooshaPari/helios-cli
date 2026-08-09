@@ -1,6 +1,6 @@
 """Standardized Codex/Harness Benchmark Runner.
 
-Matrix: 2x models × Nx harnesses for consistent comparisons.
+Matrix: 2x models x Nx harnesses for consistent comparisons.
 
 Models:
   - MiniMax-M2.5
@@ -47,7 +47,10 @@ CLIPROXY_URL = os.environ.get("CLIPROXY_URL", "http://localhost:8317")
 
 MODELS = {
     "MiniMax-M2.5": {"cliproxy_name": "MiniMax-M2.5", "codex_model": "MiniMax-M2.5"},
-    "MiniMax-M2.5-highspeed": {"cliproxy_name": "MiniMax-M2.5-highspeed", "codex_model": "MiniMax-M2.5-highspeed"},
+    "MiniMax-M2.5-highspeed": {
+        "cliproxy_name": "MiniMax-M2.5-highspeed",
+        "codex_model": "MiniMax-M2.5-highspeed",
+    },
 }
 
 HARNESSES = {
@@ -143,7 +146,7 @@ async def run_cliproxy(
                                 if first_token is None:
                                     first_token = time.perf_counter() - start
                                 content_parts.append(delta["content"])
-                        except:
+                        except Exception:
                             pass
 
             return first_token, "".join(content_parts)
@@ -178,7 +181,9 @@ async def run_cliproxy(
         if tokens_list:
             result.completion_tokens = int(sum(tokens_list) / len(tokens_list))
             if result.ttft > 0:
-                result.tokens_per_second = result.completion_tokens / (result.total_wall_time - result.ttft)
+                result.tokens_per_second = result.completion_tokens / (
+                    result.total_wall_time - result.ttft
+                )
 
         result.success = True
 
@@ -211,7 +216,9 @@ def run_codex_cli(
     with tempfile.TemporaryDirectory() as tmpdir:
         # Init git repo
         subprocess.run(["git", "init"], cwd=tmpdir, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=tmpdir, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@test.com"], cwd=tmpdir, capture_output=True
+        )
         subprocess.run(["git", "config", "user.name", "Test"], cwd=tmpdir, capture_output=True)
 
         procs = []
@@ -222,7 +229,15 @@ def run_codex_cli(
 
             # Use minimax provider via config - with safe_popen for proper cleanup
             with safe_popen(
-                [codex_path, "-c", "model_provider=minimax", "-c", f"model={model}", "exec", prompt],
+                [
+                    codex_path,
+                    "-c",
+                    "model_provider=minimax",
+                    "-c",
+                    f"model={model}",
+                    "exec",
+                    prompt,
+                ],
                 cwd=agent_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -272,7 +287,7 @@ def run_droid(
     # Run single prompt for baseline
     start = time.perf_counter()
 
-    with ResourceMonitor() as monitor:
+    with ResourceMonitor():
         try:
             with safe_popen(
                 [droid_path, "exec", prompt],
@@ -310,7 +325,7 @@ def run_claude(
 
     start = time.perf_counter()
 
-    with ResourceMonitor() as monitor:
+    with ResourceMonitor():
         try:
             with safe_popen(
                 [claude_path, "-p", prompt],
@@ -353,7 +368,7 @@ async def run_benchmark_matrix(
     )
 
     print(f"\n{'=' * 70}")
-    print(f"BENCHMARK MATRIX: {len(models)} models × {len(harnesses)} harnesses")
+    print(f"BENCHMARK MATRIX: {len(models)} models x {len(harnesses)} harnesses")
     print(f"Agents: {agent_count} | Prompt: {prompt[:30]}...")
     print(f"{'=' * 70}\n")
 
@@ -393,11 +408,13 @@ def print_matrix_report(matrix: BenchmarkMatrix) -> None:
     print(f"{'=' * 80}")
 
     # Group by model
-    for model in MODELS.keys():
+    for model in MODELS:
         print(f"\n{'─' * 80}")
         print(f"MODEL: {model}")
         print(f"{'─' * 80}")
-        print(f"{'Harness':<15} {'P50':>8} {'P95':>8} {'P99':>8} {'TTFT':>8} {'Tokens':>8} {'tps':>8} {'Status':>8}")
+        print(
+            f"{'Harness':<15} {'P50':>8} {'P95':>8} {'P99':>8} {'TTFT':>8} {'Tokens':>8} {'tps':>8} {'Status':>8}"
+        )
         print(f"{'─' * 80}")
 
         for r in matrix.results:
@@ -445,7 +462,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("--agents", "-n", type=int, default=6)
     parser.add_argument("--prompt", "-p", type=str, default="Say hello and be brief")
-    parser.add_argument("--models", type=str, help="Comma-separated: MiniMax-M2.5,MiniMax-M2.5-highspeed")
+    parser.add_argument(
+        "--models", type=str, help="Comma-separated: MiniMax-M2.5,MiniMax-M2.5-highspeed"
+    )
     parser.add_argument("--json", "-j", action="store_true", help="JSON output")
     parser.add_argument("--json", "-j", action="store_true", help="JSON output")
 
@@ -459,10 +478,7 @@ if __name__ == "__main__":
         harness_list = [harness_input]
 
     # Determine models
-    if args.models:
-        model_list = [m.strip() for m in args.models.split(",")]
-    else:
-        model_list = list(MODELS.keys())
+    model_list = [m.strip() for m in args.models.split(",")] if args.models else list(MODELS.keys())
 
     # Run matrix
     matrix = asyncio.run(

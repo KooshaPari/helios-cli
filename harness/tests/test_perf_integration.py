@@ -56,7 +56,12 @@ class TestContextCompaction:
 
     def test_compactor_priority(self):
         """Test priority-based compaction."""
-        from harness.context_compactor import CompactionConfig, CompactionStrategy, ContextCompactor, ContextMessage
+        from harness.context_compactor import (
+            CompactionConfig,
+            CompactionStrategy,
+            ContextCompactor,
+            ContextMessage,
+        )
 
         config = CompactionConfig(
             max_tokens=100,

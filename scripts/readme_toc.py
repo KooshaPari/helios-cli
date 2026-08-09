@@ -22,12 +22,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Check and optionally fix the README.md Table of Contents."
     )
-    parser.add_argument(
-        "file", nargs="?", default="README.md", help="Markdown file to process"
-    )
-    parser.add_argument(
-        "--fix", action="store_true", help="Rewrite file with updated ToC"
-    )
+    parser.add_argument("file", nargs="?", default="README.md", help="Markdown file to process")
+    parser.add_argument("--fix", action="store_true", help="Rewrite file with updated ToC")
     args = parser.parse_args()
     path = Path(args.file)
     return check_or_fix(path, args.fix)
@@ -75,8 +71,8 @@ def check_or_fix(readme_path: Path, fix: bool) -> int:
     lines = content.splitlines()
     # locate ToC markers
     try:
-        begin_idx = next(i for i, l in enumerate(lines) if l.strip() == BEGIN_TOC)
-        end_idx = next(i for i, l in enumerate(lines) if l.strip() == END_TOC)
+        begin_idx = next(i for i, line in enumerate(lines) if line.strip() == BEGIN_TOC)
+        end_idx = next(i for i, line in enumerate(lines) if line.strip() == END_TOC)
     except StopIteration:
         # No ToC markers found; treat as a no-op so repos without a ToC don't fail CI
         print(
@@ -85,16 +81,14 @@ def check_or_fix(readme_path: Path, fix: bool) -> int:
         return 0
     # extract current ToC list items
     current_block = lines[begin_idx + 1 : end_idx]
-    current = [l for l in current_block if l.lstrip().startswith("- [")]
+    current = [line for line in current_block if line.lstrip().startswith("- [")]
     # generate expected ToC from content without current ToC
     toc_content = lines[:begin_idx] + lines[end_idx + 1 :]
     expected = generate_toc_lines("\n".join(toc_content))
     if current == expected:
         return 0
     if not fix:
-        print(
-            "ERROR: README ToC is out of date. Diff between existing and generated ToC:"
-        )
+        print("ERROR: README ToC is out of date. Diff between existing and generated ToC:")
         # Show full unified diff of current vs expected
         diff = difflib.unified_diff(
             current,
@@ -109,7 +103,7 @@ def check_or_fix(readme_path: Path, fix: bool) -> int:
     # rebuild file with updated ToC
     prefix = lines[: begin_idx + 1]
     suffix = lines[end_idx + 1 :]
-    new_lines = prefix + [""] + expected + [""] + suffix
+    new_lines = [*prefix, "", *expected, "", *suffix]
     readme_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
     print(f"Updated ToC in {readme_path}.")
     return 0

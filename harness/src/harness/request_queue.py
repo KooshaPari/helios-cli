@@ -56,7 +56,9 @@ class RequestQueue:
         self, payload: Any, priority: Priority = Priority.NORMAL, callback: Callable | None = None
     ) -> str:
         """Enqueue a request."""
-        request = QueuedRequest(priority=priority.value, timestamp=time.time(), payload=payload, callback=callback)
+        request = QueuedRequest(
+            priority=priority.value, timestamp=time.time(), payload=payload, callback=callback
+        )
 
         try:
             self._queue.put_nowait(request)
@@ -64,7 +66,7 @@ class RequestQueue:
             return request.request_id
         except asyncio.QueueFull:
             self._metrics["rejected"] += 1
-            raise QueueFull(f"Queue at capacity ({self.max_size})")
+            raise QueueFullError(f"Queue at capacity ({self.max_size})") from None
 
     async def dequeue(self, timeout: float | None = None) -> QueuedRequest | None:
         """Dequeue a request."""
@@ -94,7 +96,7 @@ class RequestQueue:
         return self._metrics.copy()
 
 
-class QueueFull(Exception):
+class QueueFullError(Exception):
     """Exception raised when queue is full."""
 
     pass

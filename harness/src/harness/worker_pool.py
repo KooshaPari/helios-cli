@@ -56,7 +56,7 @@ class WorkerPool:
     def start(self):
         """Start the worker pool."""
         self._running = True
-        for i in range(self.num_workers):
+        for _ in range(self.num_workers):
             t = threading.Thread(target=self._worker_loop, daemon=True)
             t.start()
             self._workers.append(t)
@@ -88,7 +88,9 @@ class WorkerPool:
                 elapsed = (time.time() - start) * 1000
                 with self._lock:
                     n = self._metrics.completed_tasks + self._metrics.failed_tasks
-                    self._metrics.avg_latency_ms = (self._metrics.avg_latency_ms * (n - 1) + elapsed) / n
+                    self._metrics.avg_latency_ms = (
+                        self._metrics.avg_latency_ms * (n - 1) + elapsed
+                    ) / n
 
             except Empty:
                 continue

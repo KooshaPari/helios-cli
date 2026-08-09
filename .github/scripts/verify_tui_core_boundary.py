@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import re
 import sys
-import tomllib
 from pathlib import Path
 
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 TUI_ROOT = ROOT / "codex-rs" / "tui"
@@ -66,7 +66,7 @@ def dependency_sections(manifest: dict) -> list[tuple[str, dict]]:
         for section_name in ("dependencies", "dev-dependencies", "build-dependencies"):
             dependencies = target.get(section_name)
             if isinstance(dependencies, dict):
-                sections.append((f'target.{target_name}.{section_name}', dependencies))
+                sections.append((f"target.{target_name}.{section_name}", dependencies))
 
     return sections
 

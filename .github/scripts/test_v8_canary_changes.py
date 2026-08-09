@@ -3,10 +3,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from v8_canary_changes import changed_files
-from v8_canary_changes import merge_base
-from v8_canary_changes import resolved_v8_version
-from v8_canary_changes import windows_source_required
+from v8_canary_changes import (
+    changed_files,
+    merge_base,
+    resolved_v8_version,
+    windows_source_required,
+)
 
 
 class V8CanaryChangesTest(unittest.TestCase):

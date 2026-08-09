@@ -114,7 +114,12 @@ class Tracer:
         parent_span = TraceContext.get_span_id()
         context = TraceContext.start_trace(parent_span)
 
-        span = Span(name=name, trace_id=context["trace_id"], span_id=context["span_id"], parent_span_id=parent_span)
+        span = Span(
+            name=name,
+            trace_id=context["trace_id"],
+            span_id=context["span_id"],
+            parent_span_id=parent_span,
+        )
 
         if tags:
             for key, value in tags.items():

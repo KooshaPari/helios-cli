@@ -62,7 +62,6 @@ def test_discover_extract_scripts():
 
 def test_discover_bucket_commands():
     """Test command bucketing."""
-    root = Path(__file__).resolve().parents[1]
     d = Discoverer()
 
     scripts = [

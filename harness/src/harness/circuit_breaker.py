@@ -120,7 +120,9 @@ class CircuitBreaker:
 
 def circuit_breaker(failure_threshold: int = 5, timeout: float = 30.0):
     """Decorator to apply circuit breaker to a function."""
-    _breaker = CircuitBreaker(CircuitBreakerConfig(failure_threshold=failure_threshold, timeout=timeout))
+    _breaker = CircuitBreaker(
+        CircuitBreakerConfig(failure_threshold=failure_threshold, timeout=timeout)
+    )
 
     def decorator(fn):
         @wraps(fn)

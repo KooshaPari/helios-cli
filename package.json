@@ -21,8 +21,13 @@
         "semver": "^7.7.1"
     },
     "overrides": {
-        "esbuild": ">=0.25.0",
+        "esbuild": ">=0.28.0",
         "punycode": "^2.3.1"
+    },
+    "pnpm": {
+        "overrides": {
+            "esbuild": ">=0.28.0"
+        }
     },
     "engines": {
         "node": ">=22",
