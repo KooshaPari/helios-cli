@@ -161,6 +161,25 @@ cc_library(
     ],
 )
 
+# Hermetic C library headers for the custom-libc++ builds. libc++'s C-compat
+# wrappers (e.g. <string.h>) reach the C library via #include_next, so the
+# include search must land on the real glibc/musl headers instead of the
+# toolchain's own libc++ copies. v8+ references this wrapper (rather than the
+# toolchain module directly, which is invisible from that external repo).
+cc_library(
+    name = "rusty_v8_c_library_headers",
+    visibility = ["//visibility:public"],
+    deps = select({
+        "@toolchains_llvm_bootstrapped//platforms/config:gnu": [
+            "@@toolchains_llvm_bootstrapped++glibc+glibc//:gnu_libc_headers",
+        ],
+        "@toolchains_llvm_bootstrapped//platforms/config:musl": [
+            "@@toolchains_llvm_bootstrapped++musl+musl_libc//:musl_libc_headers",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
 genrule(
     name = "binding_cc",
     srcs = ["@v8_crate_146_4_0//:binding_cc"],
