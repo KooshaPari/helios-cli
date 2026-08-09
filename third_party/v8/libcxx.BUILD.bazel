@@ -111,6 +111,10 @@ cc_runtime_stage0_library(
         "//conditions:default": ["-fPIC"],
     }),
     defines = [
+        # Chromium always builds libc++ with _GNU_SOURCE; without it glibc
+        # does not declare iswspace_l/iswprint_l/... which libc++'s
+        # __locale_dir/support/linux.h relies on.
+        "_GNU_SOURCE",
         "CR_LIBCXX_REVISION=99457fa555797f8c5ac3c076ca288d8481d3b23a",
         "LIBCXX_BUILDING_LIBCXXABI",
         "LIBC_NAMESPACE=__llvm_libc_cr",

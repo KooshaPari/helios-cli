@@ -144,7 +144,7 @@ cc_library(
         ":platform_aarch64_unknown_linux_musl": ["ANDROID_HOST_MUSL"],
         ":platform_x86_64_unknown_linux_musl": ["ANDROID_HOST_MUSL"],
         "//conditions:default": [],
-    }),
+    }) + ["_GNU_SOURCE"],
     visibility = ["//visibility:public"],
     deps = [
         "@rusty_v8_libcxx//:headers",
