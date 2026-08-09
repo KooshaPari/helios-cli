@@ -25,20 +25,20 @@ index 03f48fb..189bfdd 100644
      name = "empty",
      srcs = ["empty.c"],
 diff --git a/toolchain/cc_toolchain.bzl b/toolchain/cc_toolchain.bzl
-index 01851e2..eef6255 100644
+index 01851e2..6a92376 100644
 --- a/toolchain/cc_toolchain.bzl
 +++ b/toolchain/cc_toolchain.bzl
 @@ -109,11 +109,13 @@ def cc_toolchain(name, tool_map, module_map = None):
          tool_map = tool_map,
          module_map = module_map,
          static_runtime_lib = select({
-+            "@@//third_party/v8:use_rusty_v8_custom_libcxx": "@toolchains_llvm_bootstrapped//runtimes:static_runtime_lib_no_libcxx",
++            "@@//third_party/v8:use_rusty_v8_custom_libcxx_user_targets": "@toolchains_llvm_bootstrapped//runtimes:static_runtime_lib_no_libcxx",
              "@toolchains_llvm_bootstrapped//toolchain:runtimes_none": "@toolchains_llvm_bootstrapped//runtimes:none",
              "@toolchains_llvm_bootstrapped//toolchain:runtimes_stage1": "@toolchains_llvm_bootstrapped//runtimes:none",
              "//conditions:default": "@toolchains_llvm_bootstrapped//runtimes:static_runtime_lib",
          }),
          dynamic_runtime_lib = select({
-+            "@@//third_party/v8:use_rusty_v8_custom_libcxx": "@toolchains_llvm_bootstrapped//runtimes:none",
++            "@@//third_party/v8:use_rusty_v8_custom_libcxx_user_targets": "@toolchains_llvm_bootstrapped//runtimes:none",
              "@toolchains_llvm_bootstrapped//toolchain:runtimes_none": "@toolchains_llvm_bootstrapped//runtimes:none",
              "@toolchains_llvm_bootstrapped//toolchain:runtimes_stage1": "@toolchains_llvm_bootstrapped//runtimes:none",
              "//conditions:default": "@toolchains_llvm_bootstrapped//runtimes:dynamic_runtime_lib",

@@ -29,6 +29,19 @@ config_setting(
     },
 )
 
+# Same as use_rusty_v8_custom_libcxx but only for user targets (runtime
+# stage "complete"). The custom libcxx/libcxxabi runtimes are themselves
+# built with the bootstrap toolchain (runtime_stage stage0/stage1), which
+# must keep the toolchain's runtime wiring for the link to work; the
+# toolchain module selects on this setting to suppress its own libc++.
+config_setting(
+    name = "use_rusty_v8_custom_libcxx_user_targets",
+    flag_values = {
+        "@v8//:v8_use_rusty_v8_custom_libcxx": "True",
+        "@toolchains_llvm_bootstrapped//toolchain:runtime_stage": "complete",
+    },
+)
+
 alias(
     name = "v8_149_2_0_x86_64_pc_windows_msvc",
     actual = "@rusty_v8_149_2_0_x86_64_pc_windows_msvc_archive//file",
