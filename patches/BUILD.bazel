@@ -20,6 +20,7 @@ exports_files([
     "rules_rs_windows_exec_linker.patch",
     "rusty_v8_prebuilt_out_dir.patch",
     "ring_windows_msvc_include_dirs.patch",
+    "toolchains_llvm_bootstrapped_rusty_v8_runtime_lib.patch",
     "v8_bazel_rules.patch",
     "v8_module_deps.patch",
     "v8_source_portability.patch",

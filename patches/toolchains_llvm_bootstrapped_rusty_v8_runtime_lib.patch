@@ -1,0 +1,44 @@
+diff --git a/runtimes/BUILD.bazel b/runtimes/BUILD.bazel
+index 03f48fb..189bfdd 100644
+--- a/runtimes/BUILD.bazel
++++ b/runtimes/BUILD.bazel
+@@ -72,6 +72,21 @@ filegroup(
+     visibility = ["//visibility:public"],
+ )
+ 
++# V8's custom-libc++ build ships its own libc++/libc++abi runtime and must
++# not also link the toolchain's copies (duplicate std::* symbols at link
++# time). libunwind is still needed: the custom libc++abi uses its _Unwind_*
++# entry points and does not define them itself.
++filegroup(
++    name = "static_runtime_lib_no_libcxx",
++    srcs = select({
++        "@platforms//os:linux": [
++            "@libunwind//:libunwind.static",
++        ],
++        "//conditions:default": [],
++    }),
++    visibility = ["//visibility:public"],
++)
++
+ cc_library(
+     name = "empty",
+     srcs = ["empty.c"],
+diff --git a/toolchain/cc_toolchain.bzl b/toolchain/cc_toolchain.bzl
+index 01851e2..eef6255 100644
+--- a/toolchain/cc_toolchain.bzl
++++ b/toolchain/cc_toolchain.bzl
+@@ -109,11 +109,13 @@ def cc_toolchain(name, tool_map, module_map = None):
+         tool_map = tool_map,
+         module_map = module_map,
+         static_runtime_lib = select({
++            "@@//third_party/v8:use_rusty_v8_custom_libcxx": "@toolchains_llvm_bootstrapped//runtimes:static_runtime_lib_no_libcxx",
+             "@toolchains_llvm_bootstrapped//toolchain:runtimes_none": "@toolchains_llvm_bootstrapped//runtimes:none",
+             "@toolchains_llvm_bootstrapped//toolchain:runtimes_stage1": "@toolchains_llvm_bootstrapped//runtimes:none",
+             "//conditions:default": "@toolchains_llvm_bootstrapped//runtimes:static_runtime_lib",
+         }),
+         dynamic_runtime_lib = select({
++            "@@//third_party/v8:use_rusty_v8_custom_libcxx": "@toolchains_llvm_bootstrapped//runtimes:none",
+             "@toolchains_llvm_bootstrapped//toolchain:runtimes_none": "@toolchains_llvm_bootstrapped//runtimes:none",
+             "@toolchains_llvm_bootstrapped//toolchain:runtimes_stage1": "@toolchains_llvm_bootstrapped//runtimes:none",
+             "//conditions:default": "@toolchains_llvm_bootstrapped//runtimes:dynamic_runtime_lib",
