@@ -1,4 +1,4 @@
-load("@llvm//toolchain/runtimes:cc_runtime_library.bzl", "cc_runtime_stage0_library")
+load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_runtime_library.bzl", "cc_runtime_stage0_library")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -121,7 +121,7 @@ cc_runtime_stage0_library(
         "_LIBCPP_INSTRUMENTED_WITH_ASAN=0",
         "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
     ] + select({
-        "@llvm//platforms/config:musl": [
+        "@toolchains_llvm_bootstrapped//platforms/config:musl": [
             # Chromium's checked-in __config_site uses this switch to enable
             # libc++'s musl-specific configuration.
             "ANDROID_HOST_MUSL",
@@ -142,15 +142,15 @@ cc_runtime_stage0_library(
         "@rusty_v8_llvm_libc//:headers",
     ] + select({
         ":is_linux": [
-            "@@llvm++kernel_headers+kernel_headers//:kernel_headers",
+            "@@toolchains_llvm_bootstrapped++kernel_headers+kernel_headers//:kernel_headers",
         ],
         "//conditions:default": [],
     }) + select({
-        "@llvm//platforms/config:gnu": [
-            "@@llvm++glibc+glibc//:gnu_libc_headers",
+        "@toolchains_llvm_bootstrapped//platforms/config:gnu": [
+            "@@toolchains_llvm_bootstrapped++glibc+glibc//:gnu_libc_headers",
         ],
-        "@llvm//platforms/config:musl": [
-            "@@llvm++musl+musl_libc//:musl_libc_headers",
+        "@toolchains_llvm_bootstrapped//platforms/config:musl": [
+            "@@toolchains_llvm_bootstrapped++musl+musl_libc//:musl_libc_headers",
         ],
         "//conditions:default": [],
     }),

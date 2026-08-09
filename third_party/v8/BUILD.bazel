@@ -9,7 +9,7 @@ config_setting(
     constraint_values = [
         "@platforms//cpu:aarch64",
         "@platforms//os:linux",
-        "@llvm//constraints/libc:musl",
+        "@toolchains_llvm_bootstrapped//constraints/libc:musl",
     ],
 )
 
@@ -18,7 +18,7 @@ config_setting(
     constraint_values = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
-        "@llvm//constraints/libc:musl",
+        "@toolchains_llvm_bootstrapped//constraints/libc:musl",
     ],
 )
 
@@ -306,23 +306,23 @@ genrule(
     name = "v8_146_4_0_aarch64_unknown_linux_musl_release",
     srcs = [
         ":v8_146_4_0_aarch64_unknown_linux_musl_release_base",
-        "@llvm//runtimes/compiler-rt:clang_rt.builtins.static",
+        "@toolchains_llvm_bootstrapped//runtimes/compiler-rt:clang_rt.builtins.static",
     ],
     outs = ["libv8_146_4_0_aarch64_unknown_linux_musl.a"],
     cmd = """
       cat > "$(@D)/merge.mri" <<'EOF'
 create $@
 addlib $(location :v8_146_4_0_aarch64_unknown_linux_musl_release_base)
-addlib $(location @llvm//runtimes/compiler-rt:clang_rt.builtins.static)
+addlib $(location @toolchains_llvm_bootstrapped//runtimes/compiler-rt:clang_rt.builtins.static)
 save
 end
 EOF
-      $(location @llvm//tools:llvm-ar) -M < "$(@D)/merge.mri"
-      $(location @llvm//tools:llvm-ranlib) "$@"
+      $(location @toolchains_llvm_bootstrapped//tools:llvm-ar) -M < "$(@D)/merge.mri"
+      $(location @toolchains_llvm_bootstrapped//tools:llvm-ranlib) "$@"
     """,
     tools = [
-        "@llvm//tools:llvm-ar",
-        "@llvm//tools:llvm-ranlib",
+        "@toolchains_llvm_bootstrapped//tools:llvm-ar",
+        "@toolchains_llvm_bootstrapped//tools:llvm-ranlib",
     ],
 )
 
@@ -379,23 +379,23 @@ genrule(
     name = "v8_149_2_0_aarch64_unknown_linux_musl_release",
     srcs = [
         ":v8_149_2_0_aarch64_unknown_linux_musl_release_base",
-        "@llvm//runtimes/compiler-rt:clang_rt.builtins.static",
+        "@toolchains_llvm_bootstrapped//runtimes/compiler-rt:clang_rt.builtins.static",
     ],
     outs = ["libv8_149_2_0_aarch64_unknown_linux_musl.a"],
     cmd = """
       cat > "$(@D)/merge.mri" <<'EOF'
 create $@
 addlib $(location :v8_149_2_0_aarch64_unknown_linux_musl_release_base)
-addlib $(location @llvm//runtimes/compiler-rt:clang_rt.builtins.static)
+addlib $(location @toolchains_llvm_bootstrapped//runtimes/compiler-rt:clang_rt.builtins.static)
 save
 end
 EOF
-      $(location @llvm//tools:llvm-ar) -M < "$(@D)/merge.mri"
-      $(location @llvm//tools:llvm-ranlib) "$@"
+      $(location @toolchains_llvm_bootstrapped//tools:llvm-ar) -M < "$(@D)/merge.mri"
+      $(location @toolchains_llvm_bootstrapped//tools:llvm-ranlib) "$@"
     """,
     tools = [
-        "@llvm//tools:llvm-ar",
-        "@llvm//tools:llvm-ranlib",
+        "@toolchains_llvm_bootstrapped//tools:llvm-ar",
+        "@toolchains_llvm_bootstrapped//tools:llvm-ranlib",
     ],
 )
 
