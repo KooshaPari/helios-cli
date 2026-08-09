@@ -15,7 +15,7 @@ def multiplatform_binaries(name, platforms = PLATFORMS):
     for platform in platforms:
         platform_data(
             name = name + "_" + platform,
-            platform = "@llvm//platforms:" + platform,
+            platform = "@toolchains_llvm_bootstrapped//platforms:" + platform,
             target = name,
             tags = ["manual"],
         )

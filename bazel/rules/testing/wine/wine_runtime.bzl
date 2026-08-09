@@ -14,7 +14,7 @@ _WINE_RUNTIME_DATA = [
 ]
 
 WINE_TEST_TARGET_COMPATIBLE_WITH = [
-    "@llvm//constraints/libc:gnu.2.28",
+    "@toolchains_llvm_bootstrapped//constraints/libc:gnu.2.28",
     "@platforms//cpu:x86_64",
     "@platforms//os:linux",
 ]
