@@ -18,7 +18,15 @@ common --enable_platform_specific_config
 common:linux --host_platform=//:local_linux
 common:windows --host_platform=//:local_windows
 common --@rules_cc//cc/toolchains/args/archiver_flags:use_libtool_on_macos=False
-common --@llvm//config:experimental_stub_libgcc_s
+# The hermetic LLVM toolchain module is imported as toolchains_llvm_bootstrapped
+# (see MODULE.bazel); the upstream @llvm name no longer exists in the repo map.
+common --@toolchains_llvm_bootstrapped//config:experimental_stub_libgcc_s
+
+# Bazelisk picks the latest Bazel (no .bazelversion), and the resolved module
+# graph (rules_cc 0.2.16 vs 0.2.17) differs between runs; both rewrite the
+# committed MODULE.bazel.lock and trip check-clean-worktree. Ignore the lockfile
+# for builds; the repository cache keeps module resolution cheap.
+build --lockfile_mode=off
 
 # TODO(zbarsky): rules_rust doesn't implement this flag properly with remote exec...
 # common --@rules_rust//rust/settings:pipelined_compilation
