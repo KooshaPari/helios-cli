@@ -48,10 +48,10 @@ index bbe1495..6673518 100644
 +            # libc++'s include_next; without them the C wrappers dead-end on
 +            # the toolchain's own libc++ copy and C symbols (e.g. ::memcpy)
 +            # never resolve. Mirror the libcxx overlays' platform select.
-+            "@toolchains_llvm_bootstrapped//platforms/config:gnu": [
++            "@@toolchains_llvm_bootstrapped//platforms/config:gnu": [
 +                "@@toolchains_llvm_bootstrapped++glibc+glibc//:gnu_libc_headers",
 +            ],
-+            "@toolchains_llvm_bootstrapped//platforms/config:musl": [
++            "@@toolchains_llvm_bootstrapped//platforms/config:musl": [
 +                "@@toolchains_llvm_bootstrapped++musl+musl_libc//:musl_libc_headers",
 +            ],
 +            "//conditions:default": [],
