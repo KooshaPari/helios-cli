@@ -27,6 +27,7 @@ config_setting(
     flag_values = {
         "@v8//:v8_use_rusty_v8_custom_libcxx": "True",
     },
+    visibility = ["//visibility:public"],
 )
 
 # Same as use_rusty_v8_custom_libcxx but only for user targets (runtime
@@ -40,6 +41,7 @@ config_setting(
         "@v8//:v8_use_rusty_v8_custom_libcxx": "True",
         "@toolchains_llvm_bootstrapped//toolchain:runtime_stage": "complete",
     },
+    visibility = ["//visibility:public"],
 )
 
 alias(
