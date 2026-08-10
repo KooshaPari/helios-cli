@@ -61,6 +61,7 @@ members = [
     "codex-api",
     "state",
     "codex-experimental-api-macros",
+    "v8-poc",
 ]
 resolver = "2"
 
