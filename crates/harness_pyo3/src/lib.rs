@@ -7,7 +7,7 @@
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use std::collections::HashMap;
-use ffi_utils::FfiMutex;
+use parking_lot::Mutex as FfiMutex;
 use std::time::{Duration, Instant};
 
 static CACHE: FfiMutex<Option<PyCache>> = FfiMutex::new(None);
