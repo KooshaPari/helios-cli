@@ -24,6 +24,20 @@ index 03f48fb..189bfdd 100644
  cc_library(
      name = "empty",
      srcs = ["empty.c"],
+diff --git a/toolchain/BUILD.bazel b/toolchain/BUILD.bazel
+index d38c471..e39c0da 100644
+--- a/toolchain/BUILD.bazel
++++ b/toolchain/BUILD.bazel
+@@ -20,6 +20,9 @@ string_setting(
+         "complete", # depends on above: user programs.
+     ],
+     build_setting_default = "complete",
++    # Referenced by the main repo's config_setting for the custom-libc++
++    # build (use_rusty_v8_custom_libcxx_user_targets).
++    visibility = ["//visibility:public"],
+ )
+ 
+ # Controls whether targets are built with bootstrapped toolchain or prebuilt toolchain.
 diff --git a/toolchain/cc_toolchain.bzl b/toolchain/cc_toolchain.bzl
 index 01851e2..6a92376 100644
 --- a/toolchain/cc_toolchain.bzl
