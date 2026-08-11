@@ -8,6 +8,11 @@ bazel-*
 build/
 out/
 
+# CI: upstream rusty_v8 checkout used by the v8-canary windows-source job.
+# The workflow checks this repo out into the workspace, so exclude it from
+# the check-clean-worktree gate (the checkout is intentional, not debris).
+/upstream-rusty-v8/
+
 # Node.js
 node_modules/
 .pnpm-store/
