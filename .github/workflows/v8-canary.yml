@@ -110,7 +110,6 @@ jobs:
       actions: read
     environment:
       name: bazel
-      deployment: false
     strategy:
       fail-fast: false
       matrix:
@@ -245,7 +244,7 @@ jobs:
             "--config=v8-target-${V8_CPU}"
             "${pair_target}"
             --verbose_failures
-            --build_metadata=COMMIT_SHA=$(git rev-parse HEAD)
+            "--build_metadata=COMMIT_SHA=$(git rev-parse HEAD)"
           )
           if [[ "${SANDBOX}" != "true" ]]; then
             bazel_args+=(--config=v8-release-compat)

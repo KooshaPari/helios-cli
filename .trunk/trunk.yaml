@@ -1,3 +1,4 @@
+---
 # =============================================================================
 # Trunk.io — Plugin versions for linting/formatting tools
 # =============================================================================
@@ -9,60 +10,72 @@ version: 0.1
 
 # CLI version pinned for reproducible runs (matches the version CI downloads).
 cli:
-  version: 1.22.2
+    version: 1.22.2
 
 # The `trunk` plugin provides the linter/formatter definitions used below.
 # User definitions merge over the plugin: fields set in this file override the
 # plugin, everything else (files, tools, runtimes, version pins) is inherited.
 plugins:
-  sources:
-    - id: trunk
-      ref: v1.2.2
-      uri: https://github.com/trunk-io/plugins
+    sources:
+        - id: trunk
+          ref: v1.2.2
+          uri: https://github.com/trunk-io/plugins
 
 lint:
-  # Repo-specific command overrides merged over the plugin definitions.
-  definitions:
-    # black: enforce 100-char line length in both lint and format modes.
-    - name: black
-      commands:
-        - name: lint
-          output: pass_fail
-          run: black --check --line-length 100 ${target}
-          success_codes: [0, 1]
-        - name: format
-          output: rewrite
-          run: black --line-length 100 ${target}
-          success_codes: [0]
-          batch: true
-          in_place: true
-          formatter: true
-    # clippy: lint all targets/features and fail on any warning.
-    - name: clippy
-      commands:
-        - name: lint
-          output: clippy
-          target: ${parent_with(Cargo.toml)}
-          run: cargo clippy --message-format json --all-targets --all-features --locked -- -D warnings
-          success_codes: [0, 101, 383]
-          disable_upstream: true
+    # Repo-specific command overrides merged over the plugin definitions.
+    definitions:
+        # black: enforce 100-char line length in both lint and format modes.
+        - name: black
+          commands:
+              - name: lint
+                output: pass_fail
+                run: black --check --line-length 100 ${target}
+                success_codes: [0, 1]
+              - name: format
+                output: rewrite
+                run: black --line-length 100 ${target}
+                success_codes: [0]
+                batch: true
+                in_place: true
+                formatter: true
+        # clippy: lint all targets/features and fail on any warning.
+        - name: clippy
+          commands:
+              - name: lint
+                output: clippy
+                target: ${parent_with(Cargo.toml)}
+                run: >
+                    cargo clippy --message-format json --all-targets
+                    --all-features
+                    --locked -- -D warnings
+                success_codes: [0, 101, 383]
+                disable_upstream: true
 
-  # Enabled tools (plugin defaults unless overridden above).
-  enabled:
-    - actionlint
-    - black
-    - clippy
-    - eslint
-    - golangci-lint
-    - mypy
-    - prettier
-    - ruff
-    - rustfmt
-    - shellcheck
-    - taplo
-    - yamllint
+    # Enabled tools (plugin defaults unless overridden above).
+    enabled:
+        - actionlint
+        - black
+        - clippy
+        - eslint
+        - golangci-lint
+        - mypy
+        - prettier
+        - ruff
+        - rustfmt
+        - shellcheck
+        - taplo
+        - yamllint
+
+    # GitHub workflow files are covered by actionlint (syntax + shellcheck).
+    # prettier's YAML printer re-indents `on:`-keyed workflow files with a
+    # nonstandard style, and yamllint's 80-column default flags long action
+    # refs; neither reflects this repo's intent, so scope both off workflows.
+    ignore:
+        - linters: [prettier, yamllint]
+          paths:
+              - .github/workflows/**
 
 # Git hooks: run `trunk check` before `git push`.
 actions:
-  enabled:
-    - trunk-check-pre-push
+    enabled:
+        - trunk-check-pre-push

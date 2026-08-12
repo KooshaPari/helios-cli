@@ -1,0 +1,6 @@
+# TOML formatting style for this repository (used by the `taplo` linter in
+# .trunk/trunk.yaml). The existing Cargo.toml files indent array entries
+# with 4 spaces, so keep taplo aligned with that instead of its 2-space
+# default.
+[formatting]
+indent_string = "    "
