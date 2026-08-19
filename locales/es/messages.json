@@ -1,0 +1,27 @@
+{
+  "welcome": "Bienvenido a Helios CLI",
+  "errors": {
+    "file_not_found": "Archivo no encontrado: {path}",
+    "permission_denied": "Permiso denegado: {path}",
+    "command_failed": "Comando fallido: {command}",
+    "build_failed": "Error de compilación: {reason}",
+    "test_failed": "{count} prueba(s) fallaron"
+  },
+  "status": {
+    "building": "Compilando...",
+    "testing": "Ejecutando pruebas...",
+    "deploying": "Desplegando...",
+    "completed": "Completado exitosamente",
+    "failed": "Falló"
+  },
+  "cli": {
+    "help_description": "Helios CLI - Kit de herramientas para desarrollo de Unikernel",
+    "version": "Versión {version}",
+    "init_success": "Proyecto inicializado exitosamente"
+  },
+  "quality_gates": {
+    "passed": "Puerta de calidad aprobada: {gate}",
+    "failed": "Puerta de calidad fallida: {gate} - {reason}",
+    "coverage_check": "Verificación de cobertura: {current}% (umbral: {threshold}%)"
+  }
+}
