@@ -1,0 +1,117 @@
+name: AgilePlus Weekly Pillar Scorecard
+
+on:
+  schedule:
+    # Mondays 15:00 UTC ≈ 08:00 PT (DST-aware).
+    - cron: "0 15 * * 1"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Render the scorecard locally without posting an issue"
+        required: false
+        default: "false"
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  pillar-scorecard:
+    name: Post weekly pillar scorecard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Read scorecard
+        id: scorecard
+        run: |
+          set -euo pipefail
+          if [ ! -f agileplus/pillars/31-pillar-scorecard.json ]; then
+            echo "::error::agileplus/pillars/31-pillar-scorecard.json missing"
+            exit 1
+          fi
+          jq -r '
+            "grade=\(.grade)",
+            "average=\(.weighted_average)",
+            "audit_date=\(.audit_date)"
+          ' agileplus/pillars/31-pillar-scorecard.json >> "$GITHUB_OUTPUT"
+
+      - name: Render table
+        id: render
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/scorecard.md
+          import json, datetime as dt
+          with open("agileplus/pillars/31-pillar-scorecard.json") as fh:
+              data = json.load(fh)
+          today = dt.date.today().isoformat()
+          pillars = data["pillars"]
+          print(f"## Weekly Pillar Scorecard — {today}\n")
+          print(f"**Grade:** {data['grade']} · **Weighted average:** {data['weighted_average']} · "
+                f"**Audit date:** {data['audit_date']}\n")
+          print("| Pillar | Score | Weight | Evidence |")
+          print("| --- | ---: | ---: | --- |")
+          for p in pillars:
+              score = p["score"]
+              emoji = "🟢" if score >= 8 else ("🟡" if score >= 6 else "🔴")
+              print(f"| {p['name']} | {emoji} {score} | {p['weight']:.1f} | {p['evidence']} |")
+          remediations = data.get("remediation", [])
+          if remediations:
+              print("\n### Remediation plan\n")
+              print("| Pillar | Target | Sprint | Work item |")
+              print("| --- | ---: | --- | --- |")
+              for r in remediations:
+                  print(f"| {r['pillar']} | {r['target_score']} | {r['due_sprint']} | `{r['work_item']}` |")
+          PY
+          wc -l /tmp/scorecard.md
+
+      - name: Dry run
+        if: ${{ inputs.dry_run == 'true' }}
+        run: |
+          echo "Dry run requested. Scorecard body:"
+          cat /tmp/scorecard.md
+
+      - name: Find existing weekly issue
+        id: find_issue
+        if: ${{ inputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          today="$(date -u +%Y-%m-%d)"
+          echo "Searching for an existing weekly issue for ${today}…"
+          issue_number=$(gh issue list \
+            --state all \
+            --search "Weekly Pillar Scorecard ${today} in:title" \
+            --json number --jq '.[0].number // empty')
+          echo "issue_number=${issue_number}" >> "$GITHUB_OUTPUT"
+
+      - name: Post or update weekly issue
+        if: ${{ inputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          today="$(date -u +%Y-%m-%d)"
+          title="Weekly Pillar Scorecard ${today}"
+          body=$(cat /tmp/scorecard.md)
+          if [ -n "${{ steps.find_issue.outputs.issue_number }}" ]; then
+            echo "Updating existing issue #${{ steps.find_issue.outputs.issue_number }}"
+            gh issue edit "${{ steps.find_issue.outputs.issue_number }}" --body "${body}"
+          else
+            echo "Creating new issue for ${today}"
+            gh issue create \
+              --title "${title}" \
+              --label "agileplus,pillar-scorecard,weekly" \
+              --assignee "kooshapari" \
+              --body "${body}"
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "Grade: ${{ steps.scorecard.outputs.grade }}"
+          echo "Average: ${{ steps.scorecard.outputs.average }}"
+          echo "Audit date: ${{ steps.scorecard.outputs.audit_date }}"
