@@ -1,0 +1,64 @@
+# Pillar ownership for helios-cli
+#
+# Mirrors `.github/CODEOWNERS` semantically but is keyed by pillar rather than
+# by file path. Pillar owners are responsible for:
+#   * keeping the scorecard honest
+#   * filing remediation work items when their pillar drops below target
+#   * reviewing changes that materially affect their pillar
+#
+# Multiple owners per pillar are encouraged; the first listed owner is the
+# accountable lead for sprint planning purposes.
+
+# --- Tier 1: release-blocking pillars (weight >= 1.5) ---
+/agileplus/pillars/ci_cd.json            @helios-cli/maintainers
+/agileplus/pillars/security.json         @helios-cli/maintainers
+/agileplus/pillars/tests.json            @helios-cli/maintainers
+/agileplus/pillars/branch_mgmt.json      @helios-cli/maintainers
+/agileplus/pillars/vuln_disc.json        @helios-cli/maintainers
+/agileplus/pillars/releases.json         @helios-cli/maintainers
+
+# --- Tier 2: core quality pillars (weight 1.0) ---
+/agileplus/pillars/code_quality.json     @helios-cli/maintainers
+/agileplus/pillars/docs.json             @helios-cli/maintainers
+/agileplus/pillars/architecture.json     @helios-cli/maintainers
+/agileplus/pillars/dx.json               @helios-cli/maintainers
+/agileplus/pillars/deps.json             @helios-cli/maintainers
+/agileplus/pillars/reviews.json          @helios-cli/maintainers
+/agileplus/pillars/issue_tracking.json   @helios-cli/maintainers
+/agileplus/pillars/agile_pm.json         @kooshapari
+/agileplus/pillars/api.json              @helios-cli/maintainers
+/agileplus/pillars/db.json               @helios-cli/maintainers
+/agileplus/pillars/errors.json           @helios-cli/maintainers
+/agileplus/pillars/config.json           @helios-cli/maintainers
+/agileplus/pillars/env.json              @helios-cli/maintainers
+/agileplus/pillars/build.json            @helios-cli/maintainers
+/agileplus/pillars/pkg.json              @helios-cli/maintainers
+/agileplus/pillars/license.json          @helios-cli/maintainers
+/agileplus/pillars/contributing.json     @helios-cli/maintainers
+/agileplus/pillars/coc.json              @helios-cli/maintainers
+
+# --- Tier 3: long-tail pillars (weight 0.5) ---
+/agileplus/pillars/performance.json      @helios-cli/maintainers
+/agileplus/pillars/monitoring.json       @helios-cli/maintainers
+/agileplus/pillars/accessibility.json    @helios-cli/maintainers
+/agileplus/pillars/i18n.json             @helios-cli/maintainers
+/agileplus/pillars/mobile.json           @helios-cli/maintainers
+/agileplus/pillars/logging.json          @helios-cli/maintainers
+/agileplus/pillars/community.json        @helios-cli/maintainers
+
+# --- Aggregate files ---
+/agileplus/pillars/31-pillar-scorecard.json   @helios-cli/maintainers @kooshapari
+/agileplus/AGILEPLUS.md                        @kooshapari
+/agileplus/sprint-current.md                   @kooshapari
+/agileplus/backlog.md                          @kooshapari
+/agileplus/velocity.md                         @kooshapari
+/agileplus/quality-gates.yml                   @helios-cli/maintainers
+/agileplus/sprint-retrospective-template.md    @kooshapari
+
+# --- Documentation surfaces that drive pillar scores ---
+/docs/                                  @helios-cli/maintainers
+/.github/workflows/                     @helios-cli/maintainers
+/.github/CODE_OF_CONDUCT.md             @helios-cli/maintainers
+/.github/SECURITY.md                    @helios-cli/maintainers
+/Cargo.toml                             @helios-cli/maintainers
+/deny.toml                              @helios-cli/maintainers
