@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "last_updated": "2026-08-19T00:00:00Z",
+  "benchmarks": {
+    "BenchmarkHarnessRecord": {
+      "metric": "ns/op",
+      "baseline": 1000000,
+      "tolerance_pct": 20,
+      "description": "Harness recording overhead"
+    },
+    "BenchmarkI18nLookup": {
+      "metric": "ns/op",
+      "baseline": 1000,
+      "tolerance_pct": 50,
+      "description": "I18n key lookup latency"
+    },
+    "BenchmarkPTYSnapshot": {
+      "metric": "ns/op",
+      "baseline": 500000,
+      "tolerance_pct": 25,
+      "description": "PTY snapshot capture time"
+    },
+    "BenchmarkScriptPlayback": {
+      "metric": "ns/op",
+      "baseline": 2000000,
+      "tolerance_pct": 15,
+      "description": "Script playback throughput"
+    }
+  }
+}
