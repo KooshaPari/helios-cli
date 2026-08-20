@@ -1,0 +1,27 @@
+{
+  "welcome": "Witaj w Helios CLI",
+  "errors": {
+    "file_not_found": "Nie znaleziono pliku: {path}",
+    "permission_denied": "Odmowa dostępu: {path}",
+    "command_failed": "Polecenie nie powiodło się: {command}",
+    "build_failed": "Budowa nie powiodła się: {reason}",
+    "test_failed": "{count} test(ów) nie powiodło się"
+  },
+  "status": {
+    "building": "Kompilowanie...",
+    "testing": "Uruchamianie testów...",
+    "deploying": "Wdrażanie...",
+    "completed": "Zakończono pomyślnie",
+    "failed": "Nie powiodło się"
+  },
+  "cli": {
+    "help_description": "Helios CLI - Zestaw narzędzi do rozwoju unikerneli",
+    "version": "Wersja {version}",
+    "init_success": "Projekt zainicjalizowany pomyślnie"
+  },
+  "quality_gates": {
+    "passed": "Brama jakości przeszła: {gate}",
+    "failed": "Brama jakości nie powiodła się: {gate} - {reason}",
+    "coverage_check": "Kontrola pokrycia: {current}% (próg: {threshold}%)"
+  }
+}

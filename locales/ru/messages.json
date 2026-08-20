@@ -1,0 +1,27 @@
+{
+  "welcome": "Добро пожаловать в Helios CLI",
+  "errors": {
+    "file_not_found": "Файл не найден: {path}",
+    "permission_denied": "Доступ запрещён: {path}",
+    "command_failed": "Команда не удалась: {command}",
+    "build_failed": "Сборка не удалась: {reason}",
+    "test_failed": "{count} тест(ов) не пройдено"
+  },
+  "status": {
+    "building": "Сборка...",
+    "testing": "Запуск тестов...",
+    "deploying": "Развёртывание...",
+    "completed": "Успешно завершено",
+    "failed": "Не удалось"
+  },
+  "cli": {
+    "help_description": "Helios CLI - Набор инструментов для разработки униядер",
+    "version": "Версия {version}",
+    "init_success": "Проект успешно инициализирован"
+  },
+  "quality_gates": {
+    "passed": "Проверка качества пройдена: {gate}",
+    "failed": "Проверка качества не пройдена: {gate} - {reason}",
+    "coverage_check": "Проверка покрытия: {current}% (порог: {threshold}%)"
+  }
+}

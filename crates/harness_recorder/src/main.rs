@@ -5,11 +5,13 @@
 use clap::Parser;
 
 mod cli;
+mod i18n;
 mod media;
 mod pty;
 mod script;
 
 use cli::Commands;
+use i18n::I18n;
 
 #[derive(Parser)]
 #[command(name = "kla")]
@@ -19,6 +21,10 @@ use cli::Commands;
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+
+    /// Set the locale for the CLI (e.g. en, fr)
+    #[arg(long, env = "HELIOS_LOCALE", default_value = "en")]
+    locale: String,
 }
 
 #[tokio::main]
@@ -33,11 +39,12 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let cli = Cli::parse();
+    let i18n = I18n::new(&cli.locale);
 
-    match cli::execute_command(cli.command).await {
+    match cli::execute_command(cli.command, &i18n).await {
         Ok(_) => Ok(()),
         Err(e) => {
-            eprintln!("Error: {}", e);
+            eprintln!("{}", i18n.t_with("error.general", &[("error", &e.to_string())]));
             std::process::exit(1);
         }
     }
