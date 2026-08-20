@@ -1,0 +1,223 @@
+name: Performance Trend Tracking
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday at midnight UTC
+  workflow_dispatch:
+    inputs:
+      regression_threshold:
+        description: 'Regression threshold percentage (default 20)'
+        required: false
+        default: '20'
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  REGRESSION_THRESHOLD: ${{ github.event.inputs.regression_threshold || '20' }}
+  HISTORY_FILE: agileplus/perf-trend-history.json
+
+jobs:
+  perf-trend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # ── Checkout ────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      # ── Install Rust ───────────────────────────────────────────
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@00b3c63dc006fafd2055c21c06a107637c28c530 # stable
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Cache cargo registry and build
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: perf-trend-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            perf-trend-${{ runner.os }}-
+
+      # ── Record commit metadata ─────────────────────────────────
+      - name: Record commit info
+        id: commit
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$TIMESTAMP" >> "$GITHUB_OUTPUT"
+
+      # ── Benchmark: cargo check ─────────────────────────────────
+      - name: Benchmark cargo check
+        id: bench_check
+        run: |
+          echo "::group::cargo check timing"
+          START=$(date +%s%N)
+          cargo check --workspace 2>&1 || true
+          END=$(date +%s%N)
+          ELAPSED_MS=$(( (END - START) / 1000000 ))
+          ELAPSED_SECS=$(echo "scale=2; $ELAPSED_MS / 1000" | bc)
+          echo "cargo_check_secs=$ELAPSED_SECS" >> "$GITHUB_OUTPUT"
+          echo "cargo check completed in ${ELAPSED_SECS}s"
+          echo "::endgroup::"
+
+      # ── Benchmark: cargo test ──────────────────────────────────
+      - name: Benchmark cargo test
+        id: bench_test
+        run: |
+          echo "::group::cargo test timing"
+          START=$(date +%s%N)
+          cargo test --workspace 2>&1 || true
+          END=$(date +%s%N)
+          ELAPSED_MS=$(( (END - START) / 1000000 ))
+          ELAPSED_SECS=$(echo "scale=2; $ELAPSED_MS / 1000" | bc)
+          echo "cargo_test_secs=$ELAPSED_SECS" >> "$GITHUB_OUTPUT"
+          echo "cargo test completed in ${ELAPSED_SECS}s"
+          echo "::endgroup::"
+
+      # ── Metric: clippy warnings ────────────────────────────────
+      - name: Count clippy warnings
+        id: clippy
+        run: |
+          WARNINGS=$(cargo clippy --workspace 2>&1 | grep -c "^warning" || echo "0")
+          echo "clippy_warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
+          echo "clippy warnings: $WARNINGS"
+
+      # ── Metric: binary size ────────────────────────────────────
+      - name: Measure binary size
+        id: bin_size
+        run: |
+          cargo build --release --workspace 2>&1 || true
+          # Find the largest binary in the target/release directory
+          SIZE=0
+          if ls target/release/* 1>/dev/null 2>&1; then
+            SIZE=$(find target/release -maxdepth 1 -type f -executable -printf '%s\n' 2>/dev/null | sort -rn | head -1 || echo "0")
+          fi
+          echo "binary_size_bytes=${SIZE:-0}" >> "$GITHUB_OUTPUT"
+          echo "binary size: ${SIZE:-0} bytes"
+
+      # ── Metric: dependency count ───────────────────────────────
+      - name: Count dependencies
+        id: deps
+        run: |
+          DEP_COUNT=$(cargo tree --workspace --depth 1 --no-dedupe 2>/dev/null | wc -l || echo "0")
+          echo "dependency_count=$DEP_COUNT" >> "$GITHUB_OUTPUT"
+          echo "dependency count: $DEP_COUNT"
+
+      # ── Metric: fuzz corpus size ───────────────────────────────
+      - name: Measure fuzz corpus size
+        id: fuzz
+        run: |
+          if [ -d "fuzz/corpus" ]; then
+            CORPUS_SIZE=$(find fuzz/corpus -type f | wc -l)
+          else
+            CORPUS_SIZE=0
+          fi
+          echo "fuzz_corpus_size=$CORPUS_SIZE" >> "$GITHUB_OUTPUT"
+          echo "fuzz corpus files: $CORPUS_SIZE"
+
+      # ── Parse timing and append to history JSON ────────────────
+      - name: Update performance history
+        id: history
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Collect metrics from step outputs
+            const metrics = {
+              cargo_check_secs: parseFloat('${{ steps.bench_check.outputs.cargo_check_secs }}') || 0,
+              cargo_test_secs: parseFloat('${{ steps.bench_test.outputs.cargo_test_secs }}') || 0,
+              clippy_warnings: parseInt('${{ steps.clippy.outputs.clippy_warnings }}') || 0,
+              binary_size_bytes: parseInt('${{ steps.bin_size.outputs.binary_size_bytes }}') || 0,
+              fuzz_corpus_size: parseInt('${{ steps.fuzz.outputs.fuzz_corpus_size }}') || 0,
+              dependency_count: parseInt('${{ steps.deps.outputs.dependency_count }}') || 0
+            };
+
+            const newRun = {
+              timestamp: '${{ steps.commit.outputs.timestamp }}',
+              commit_sha: '${{ steps.commit.outputs.sha }}',
+              baseline: false,
+              metrics: metrics
+            };
+
+            // Load existing history
+            let history = { runs: [], baselines: {} };
+            const historyFile = '${{ env.HISTORY_FILE }}';
+            try {
+              const raw = fs.readFileSync(historyFile, 'utf8');
+              history = JSON.parse(raw);
+            } catch (e) {
+              console.log('No existing history file found, starting fresh.');
+            }
+
+            // Append new run
+            history.runs.push(newRun);
+
+            // Keep only last 52 runs (1 year of weekly data)
+            if (history.runs.length > 52) {
+              history.runs = history.runs.slice(-52);
+            }
+
+            // Update baselines from the first run if not set
+            if (!history.baselines || Object.keys(history.baselines).length === 0) {
+              history.baselines = newRun.metrics;
+            }
+
+            // Write updated history
+            fs.writeFileSync(historyFile, JSON.stringify(history, null, 2) + '\n');
+            console.log('Updated history with run:', JSON.stringify(newRun, null, 2));
+
+            // ── Regression check ───────────────────────────────
+            const threshold = parseFloat(process.env.REGRESSION_THRESHOLD) / 100;
+            const regressions = [];
+            const baseline = history.baselines;
+
+            const numericMetrics = [
+              'cargo_check_secs', 'cargo_test_secs',
+              'binary_size_bytes', 'dependency_count'
+            ];
+
+            for (const key of numericMetrics) {
+              const baseVal = baseline[key];
+              const curVal = metrics[key];
+              if (baseVal > 0 && curVal > 0) {
+                const change = (curVal - baseVal) / baseVal;
+                if (change > threshold) {
+                  regressions.push({
+                    metric: key,
+                    baseline: baseVal,
+                    current: curVal,
+                    change_pct: (change * 100).toFixed(1)
+                  });
+                }
+              }
+            }
+
+            if (regressions.length > 0) {
+              console.log(`\n⚠ REGRESSION DETECTED (${regressions.length} metrics):`);
+              for (const r of regressions) {
+                console.log(`  ${r.metric}: ${r.baseline} → ${r.current} (+${r.change_pct}%)`);
+              }
+              core.setFailed(`Performance regression detected: ${regressions.map(r => `${r.metric} +${r.change_pct}%`).join(', ')}`);
+            } else {
+              console.log('\n✓ No regressions detected.');
+            }
+
+      # ── Commit history update ──────────────────────────────────
+      - name: Commit performance history
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add ${{ env.HISTORY_FILE }}
+          git diff --staged --quiet || git commit -m "perf: update trend history for ${{ steps.commit.outputs.timestamp }}"
+          git push

@@ -1,0 +1,12 @@
+{
+  "spec_version": "1.0",
+  "name": "test-spec",
+  "description": "A valid JSON specification for fuzzing",
+  "enabled": true,
+  "tags": ["test", "fuzz", "json"],
+  "config": {
+    "timeout_ms": 5000,
+    "max_retries": 3,
+    "debug": false
+  }
+}

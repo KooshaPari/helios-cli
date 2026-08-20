@@ -1,0 +1,1 @@
+{"emoji": "🔥 Hello 🌍", "cjk": "你好世界", "symbols": "♠♥♦♣", "greek": "αβγδ"}

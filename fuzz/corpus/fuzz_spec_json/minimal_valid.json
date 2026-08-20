@@ -1,0 +1,17 @@
+{
+  "spec": {
+    "name": "basic-test",
+    "version": "1.0.0",
+    "verification": [
+      {
+        "type": "test",
+        "name": "unit_tests",
+        "command": "echo hello"
+      }
+    ],
+    "rollback": {
+      "strategy": "git_revert",
+      "checkpoint_required": true
+    }
+  }
+}

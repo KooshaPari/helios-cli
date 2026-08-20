@@ -1,0 +1,25 @@
+{
+  "runs": [
+    {
+      "timestamp": "2026-08-19T00:00:00Z",
+      "commit_sha": "initial",
+      "baseline": true,
+      "metrics": {
+        "cargo_check_secs": 45,
+        "cargo_test_secs": 120,
+        "clippy_warnings": 0,
+        "binary_size_bytes": 2048000,
+        "fuzz_corpus_size": 100,
+        "dependency_count": 85
+      }
+    }
+  ],
+  "baselines": {
+    "cargo_check_secs": 45,
+    "cargo_test_secs": 120,
+    "clippy_warnings": 0,
+    "binary_size_bytes": 2048000,
+    "fuzz_corpus_size": 100,
+    "dependency_count": 85
+  }
+}

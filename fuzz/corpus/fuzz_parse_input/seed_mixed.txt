@@ -1,0 +1,7 @@
+--- yaml block ---
+name: test
+version: 1
+--- json block ---
+{"type": "mixed"}
+--- kv block ---
+key=value

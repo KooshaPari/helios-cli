@@ -1,0 +1,1 @@
+special: "chars\nand\ttabs\rand\"quotes\"and'single quotes'and\\backslash"
