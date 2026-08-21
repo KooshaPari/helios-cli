@@ -1,0 +1,12 @@
+/Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli/target/debug/deps/vt100-6e59a7f1a8904593.d: /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/lib.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/attrs.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/cell.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/grid.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/parser.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/row.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/screen.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/term.rs
+
+/Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli/target/debug/deps/libvt100-6e59a7f1a8904593.rmeta: /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/lib.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/attrs.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/cell.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/grid.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/parser.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/row.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/screen.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/term.rs
+
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/lib.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/attrs.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/cell.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/grid.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/parser.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/row.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/screen.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vt100-0.15.2/src/term.rs:

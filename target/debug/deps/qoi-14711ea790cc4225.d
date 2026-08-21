@@ -1,0 +1,13 @@
+/Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli/target/debug/deps/qoi-14711ea790cc4225.d: /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/lib.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/decode.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/encode.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/error.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/header.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/pixel.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/types.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/utils.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/consts.rs
+
+/Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli/target/debug/deps/libqoi-14711ea790cc4225.rmeta: /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/lib.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/decode.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/encode.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/error.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/header.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/pixel.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/types.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/utils.rs /Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/consts.rs
+
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/lib.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/decode.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/encode.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/error.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/header.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/pixel.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/types.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/utils.rs:
+/Users/kooshapari/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/qoi-0.4.1/src/consts.rs:
