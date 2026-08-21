@@ -1,0 +1,81 @@
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 16px;
+  height: 24px;
+  background: #f3f4f6;
+  border-top: 1px solid #e5e7eb;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.status-left,
+.status-center,
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-connected {
+  background: #10b981;
+}
+
+.status-disconnected {
+  background: #ef4444;
+}
+
+.status-connecting {
+  background: #f59e0b;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.status-text {
+  color: #374151;
+}
+
+.message-count {
+  color: #6b7280;
+}
+
+.version-info {
+  color: #9ca3af;
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  .status-bar {
+    background: #0d1117;
+    border-top-color: #21262d;
+    color: #8b949e;
+  }
+
+  .status-text {
+    color: #c9d1d9;
+  }
+
+  .message-count {
+    color: #8b949e;
+  }
+
+  .version-info {
+    color: #484f58;
+  }
+}
