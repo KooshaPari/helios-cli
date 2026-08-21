@@ -5,6 +5,15 @@ All notable changes to HeliosCLI are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/KooshaPari/helios-cli/compare/v0.3.0...v0.4.0) (2026-08-21)
+
+
+### Features
+
+* **sre:** add chaos CI gate, Terraform IaC, SLO burn rate alerting, and OTel collector config ([edf00f3](https://github.com/KooshaPari/helios-cli/commit/edf00f30eae0718a4b53d7384c73f8366c78a3a2))
+* **sre:** add SLO alerting, OTel deployment scripts, terraform validate CI ([a32d976](https://github.com/KooshaPari/helios-cli/commit/a32d976e199833e268f0e562e871a7b21ef099a4))
+* **sre:** add SLO monitoring, Terraform CI validation, and performance dashboard ([20a1265](https://github.com/KooshaPari/helios-cli/commit/20a12655f94a5c44373e8e585a6e6ab04a10ce20))
+
 ## [0.3.0](https://github.com/KooshaPari/helios-cli/compare/v0.2.0...v0.3.0) (2026-08-20)
 
 
