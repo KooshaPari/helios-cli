@@ -1,4 +1,5 @@
 import { Conversation } from '../App';
+import type { AppView } from '../types';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -7,6 +8,10 @@ interface SidebarProps {
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onDeleteConversation: (id: string) => void;
+  activeView: AppView;
+  onNavigate: (view: AppView) => void;
+  agentCount: number;
+  taskCount: number;
 }
 
 function Sidebar({
@@ -15,6 +20,10 @@ function Sidebar({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  activeView,
+  onNavigate,
+  agentCount,
+  taskCount,
 }: SidebarProps) {
   return (
     <aside className="sidebar">
@@ -28,6 +37,52 @@ function Sidebar({
           <span className="btn-icon">+</span>
         </button>
       </div>
+
+      <nav className="sidebar-nav">
+        <button
+          className={`nav-item ${activeView === 'chat' ? 'active' : ''}`}
+          onClick={() => onNavigate('chat')}
+        >
+          <span className="nav-icon">#</span>
+          <span className="nav-label">Chat</span>
+        </button>
+        <button
+          className={`nav-item ${activeView === 'agents' ? 'active' : ''}`}
+          onClick={() => onNavigate('agents')}
+        >
+          <span className="nav-icon">{'>*'}</span>
+          <span className="nav-label">Agents</span>
+          {agentCount > 0 && (
+            <span className="nav-badge agents-badge">{agentCount}</span>
+          )}
+        </button>
+        <button
+          className={`nav-item ${activeView === 'tasks' ? 'active' : ''}`}
+          onClick={() => onNavigate('tasks')}
+        >
+          <span className="nav-icon">[]</span>
+          <span className="nav-label">Tasks</span>
+          {taskCount > 0 && (
+            <span className="nav-badge tasks-badge">{taskCount}</span>
+          )}
+        </button>
+        <button
+          className={`nav-item ${activeView === 'tracera' ? 'active' : ''}`}
+          onClick={() => onNavigate('tracera')}
+        >
+          <span className="nav-icon">T</span>
+          <span className="nav-label">Tracera</span>
+        </button>
+        <button
+          className={`nav-item ${activeView === 'agileplus' ? 'active' : ''}`}
+          onClick={() => onNavigate('agileplus')}
+        >
+          <span className="nav-icon">A+</span>
+          <span className="nav-label">AgilePlus</span>
+        </button>
+      </nav>
+
+      <div className="sidebar-section-header">Conversations</div>
 
       <div className="conversations-list">
         {conversations.length === 0 ? (

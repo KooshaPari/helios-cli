@@ -11,6 +11,11 @@
   overflow: hidden;
 }
 
+.view-container {
+  flex: 1;
+  overflow: hidden;
+}
+
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
   :root {

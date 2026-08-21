@@ -1,8 +1,12 @@
+mod agents;
 mod config;
 mod github;
+mod tasks;
 
+use agents::AgentInfo;
 use config::AppConfig;
 use github::{CIStatus, Issue, PullRequest, RepoStatus, WorkflowRun};
+use tasks::Task;
 use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem};
 
 // ---------------------------------------------------------------------------
@@ -102,6 +106,53 @@ async fn update_config(config: AppConfig) -> Result<AppConfig, String> {
     Ok(config)
 }
 
+/// List all managed agents.
+#[tauri::command]
+fn list_agents() -> Vec<AgentInfo> {
+    agents::list_agents()
+}
+
+/// Spawn a new agent.
+#[tauri::command]
+fn spawn_agent(
+    name: String,
+    repo: Option<String>,
+    command: Option<String>,
+    args: Option<Vec<String>>,
+) -> Result<AgentInfo, String> {
+    agents::spawn_agent(name, repo, command, args)
+}
+
+/// Stop a running agent.
+#[tauri::command]
+fn stop_agent(id: String) -> Result<AgentInfo, String> {
+    agents::stop_agent(&id)
+}
+
+/// Get logs for an agent.
+#[tauri::command]
+fn get_agent_logs(id: String, tail: Option<usize>) -> Result<Vec<agents::AgentLogEntry>, String> {
+    agents::get_agent_logs(&id, tail)
+}
+
+/// Create a new task.
+#[tauri::command]
+fn create_task(title: String, assignee_agent: Option<String>) -> Result<Task, String> {
+    tasks::create_task(title, assignee_agent)
+}
+
+/// List all tasks.
+#[tauri::command]
+fn list_tasks() -> Result<Vec<Task>, String> {
+    tasks::list_tasks()
+}
+
+/// Rollback a task.
+#[tauri::command]
+fn rollback_task(task_id: String) -> Result<Task, String> {
+    tasks::rollback_task(task_id)
+}
+
 // ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
@@ -134,6 +185,13 @@ pub fn run() {
             remove_repo,
             list_repos,
             update_config,
+            list_agents,
+            spawn_agent,
+            stop_agent,
+            get_agent_logs,
+            create_task,
+            list_tasks,
+            rollback_task,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Helios Command Center");

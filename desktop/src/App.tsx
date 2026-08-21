@@ -1,9 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Chat from './components/Chat';
 import CommandPalette from './components/CommandPalette';
 import StatusBar from './components/StatusBar';
+import AgentPanel from './components/AgentPanel';
+import TaskQueue from './components/TaskQueue';
+import TraceraIntegration from './components/TraceraIntegration';
+import AgilePlusIntegration from './components/AgilePlusIntegration';
+import { useAgents, useTasks } from './hooks/useHelios';
+import type { AppView } from './types';
 import './App.css';
 
 export interface Message {
@@ -26,6 +32,15 @@ function App() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
+  const [activeView, setActiveView] = useState<AppView>('chat');
+
+  const { agents } = useAgents();
+  const { tasks } = useTasks();
+
+  useEffect(() => {
+    // Simulate connection status.
+    setConnectionStatus('connected');
+  }, []);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId) || null;
 
@@ -162,6 +177,39 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
+  // Determine header title based on active view.
+  const getViewTitle = () => {
+    switch (activeView) {
+      case 'agents': return 'Agent Management';
+      case 'tasks': return 'Task Queue';
+      case 'tracera': return 'Tracera Integration';
+      case 'agileplus': return 'AgilePlus Integration';
+      default: return activeConversation?.title || 'Helios CLI Desktop';
+    }
+  };
+
+  // Render the main content area based on active view.
+  const renderMainContent = () => {
+    switch (activeView) {
+      case 'agents':
+        return <AgentPanel />;
+      case 'tasks':
+        return <TaskQueue />;
+      case 'tracera':
+        return <TraceraIntegration />;
+      case 'agileplus':
+        return <AgilePlusIntegration />;
+      default:
+        return (
+          <Chat
+            conversation={activeConversation}
+            isProcessing={isProcessing}
+            onSendMessage={sendMessage}
+          />
+        );
+    }
+  };
+
   return (
     <div className="app">
       <Sidebar
@@ -170,18 +218,20 @@ function App() {
         onSelectConversation={selectConversation}
         onNewConversation={createNewConversation}
         onDeleteConversation={deleteConversation}
+        activeView={activeView}
+        onNavigate={setActiveView}
+        agentCount={agents.filter((a) => a.status === 'running').length}
+        taskCount={tasks.filter((t) => t.status === 'pending').length}
       />
       <div className="main-content">
         <Header
-          title={activeConversation?.title || 'Helios CLI Desktop'}
+          title={getViewTitle()}
           isProcessing={isProcessing}
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         />
-        <Chat
-          conversation={activeConversation}
-          isProcessing={isProcessing}
-          onSendMessage={sendMessage}
-        />
+        <div className="view-container">
+          {renderMainContent()}
+        </div>
         <StatusBar
           connectionStatus={connectionStatus}
           messageCount={activeConversation?.messages.length || 0}
