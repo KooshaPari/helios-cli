@@ -1,14 +1,11 @@
-output "vpc_id" {
-  description = "The ID of the VPC"
-  value       = aws_vpc.main.id
+output "us_east_1_distribution_outputs" {
+  value = module.us_east_1_distribution.*
 }
 
-output "ecr_repository_url" {
-  description = "The URL of the ECR repository"
-  value       = aws_ecr_repository.app.repository_url
+output "eu_west_1_distribution_outputs" {
+  value = module.eu_west_1_distribution.*
 }
 
-output "alb_dns_name" {
-  description = "The DNS name of the ALB"
-  value       = aws_lb.app.dns_name
+output "ap_southeast_1_distribution_outputs" {
+  value = module.ap_southeast_1_distribution.*
 }

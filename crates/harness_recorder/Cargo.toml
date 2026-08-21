@@ -52,6 +52,11 @@ rck-core = { git = "https://github.com/KooshaPari/rich-cli-kit", rev = "4db13bcd
 # Timing and async utilities
 futures = "0.3"
 
+# OpenTelemetry
+opentelemetry = "0.22"
+opentelemetry-otlp = { version = "0.15", features = ["tonic"] }
+opentelemetry_sdk = { version = "0.22", features = ["rt-tokio"] }
+
 # File operations
 tempfile = "3.8"
 

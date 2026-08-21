@@ -141,8 +141,8 @@ services:
       - GF_INSTALL_PLUGINS=
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ../otel/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../otel/grafana/dashboards:/var/lib/grafana/dashboards:ro
     ports:
       - "3000:3000"
     deploy:

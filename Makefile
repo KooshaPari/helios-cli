@@ -3,7 +3,8 @@
 
 .PHONY: help build test test-unit test-integration bench lint fmt clippy \
         clean coverage security-scan fmt-check clippy-fix pre-commit-install \
-        pre-commit qa doc check
+        pre-commit qa doc check \
+        otel-deploy otel-teardown otel-health otel-logs otel-ps
 
 CARGO := cargo
 CARGOFLAGS := --workspace
@@ -134,3 +135,25 @@ pre-commit: ## Run all pre-commit hooks
 
 qa: fmt-check clippy test coverage security-scan ## Full quality assurance suite
 	@echo "All QA checks passed."
+
+# ──────────────────────────────────────────────
+# OTel / Observability Stack
+# ──────────────────────────────────────────────
+
+otel-deploy: ## Deploy production OTel collector stack
+	@bash deploy/deploy.sh
+
+otel-teardown: ## Tear down OTel stack (containers only)
+	@bash deploy/teardown.sh
+
+otel-teardown-all: ## Tear down OTel stack, volumes, and images
+	@bash deploy/teardown.sh --all
+
+otel-health: ## Run OTel stack health checks
+	@bash deploy/health-check.sh
+
+otel-logs: ## Tail logs from all OTel services
+	docker compose -f deploy/docker-compose.production.yml --env-file deploy/.env logs -f
+
+otel-ps: ## Show OTel stack status
+	docker compose -f deploy/docker-compose.production.yml --env-file deploy/.env ps
