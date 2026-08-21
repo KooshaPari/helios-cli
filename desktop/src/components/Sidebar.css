@@ -206,6 +206,34 @@
   color: #fff;
 }
 
+.notif-badge {
+  background: #ef4444;
+  color: #fff;
+}
+
+.nav-divider {
+  height: 1px;
+  background: #2a2a4a;
+  margin: 6px 12px;
+}
+
+.nav-section-label {
+  padding: 2px 12px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666688;
+}
+
+.tracera-icon {
+  color: #3b82f6;
+}
+
+.agileplus-icon {
+  color: #a855f7;
+}
+
 .sidebar-section-header {
   padding: 12px 16px 4px;
   font-size: 11px;
@@ -244,5 +272,9 @@
 
   .sidebar-footer {
     border-top-color: #21262d;
+  }
+
+  .nav-divider {
+    background: #21262d;
   }
 }

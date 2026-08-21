@@ -79,6 +79,73 @@ export interface AgilePlusSpec {
 }
 
 // ---------------------------------------------------------------------------
+// Milestone 3: Unified Search types
+// ---------------------------------------------------------------------------
+
+export type ToolSource = 'tracera' | 'agileplus' | 'github' | 'helios';
+
+export type ResultType =
+  | 'issue'
+  | 'task'
+  | 'spec'
+  | 'pull_request'
+  | 'workflow'
+  | 'notification'
+  | 'agent';
+
+export interface SearchQuery {
+  text: string;
+  source_filter: ToolSource | null;
+  type_filter: ResultType | null;
+}
+
+export interface SearchResult {
+  source: ToolSource;
+  type: ResultType;
+  title: string;
+  snippet: string;
+  url: string | null;
+  timestamp: string | null;
+  score: number;
+}
+
+// ---------------------------------------------------------------------------
+// Milestone 3: Notification types
+// ---------------------------------------------------------------------------
+
+export type NotificationSource = 'tracera' | 'agileplus' | 'github' | 'helios';
+
+export type NotificationType =
+  | 'tracera_issue'
+  | 'agile_plus_gate_failure'
+  | 'agent_error'
+  | 'ci_status'
+  | 'task_complete';
+
+export interface Notification {
+  id: string;
+  source: NotificationSource;
+  type: NotificationType;
+  title: string;
+  body: string;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface SourceCount {
+  source: NotificationSource;
+  total: number;
+  unread: number;
+}
+
+export interface NotificationCounts {
+  total: number;
+  unread: number;
+  by_source: SourceCount[];
+}
+
+// ---------------------------------------------------------------------------
 // Navigation view types
 // ---------------------------------------------------------------------------
 
@@ -87,4 +154,8 @@ export type AppView =
   | 'agents'
   | 'tasks'
   | 'tracera'
-  | 'agileplus';
+  | 'agileplus'
+  | 'tracera-board'
+  | 'agileplus-board'
+  | 'notifications'
+  | 'search';

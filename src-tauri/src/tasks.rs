@@ -232,4 +232,19 @@ pub fn update_task_status(
     }
 
     // Return updated task.
-    let tasks = list_tas
+    let tasks = list_tasks()?;
+    tasks
+        .into_iter()
+        .find(|t| t.id == task_id)
+        .ok_or_else(|| format!("Task {task_id} not found after update"))
+}
+
+/// Rollback a completed task.
+pub fn rollback_task(task_id: String) -> Result<Task, String> {
+    update_task_status(task_id, TaskStatus::RolledBack, Some("Rolled back by user".to_string()))
+}
+
+/// Get task history (all tasks with status changes, ordered by creation).
+pub fn get_task_history() -> Result<Vec<Task>, String> {
+    list_tasks()
+}

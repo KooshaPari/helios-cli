@@ -6,9 +6,11 @@ interface HeaderProps {
   title: string;
   isProcessing: boolean;
   onOpenCommandPalette: () => void;
+  onOpenNotifications?: () => void;
+  notificationCount?: number;
 }
 
-function Header({ title, isProcessing, onOpenCommandPalette }: HeaderProps) {
+function Header({ title, isProcessing, onOpenCommandPalette, onOpenNotifications, notificationCount }: HeaderProps) {
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
@@ -56,15 +58,29 @@ function Header({ title, isProcessing, onOpenCommandPalette }: HeaderProps) {
         <button
           className="command-palette-trigger"
           onClick={onOpenCommandPalette}
-          title="Command Palette (Ctrl+K)"
+          title="Unified Search (Ctrl+K)"
         >
-          <span className="search-icon">⌘</span>
-          <span className="command-hint">Type a command...</span>
-          <kbd className="shortcut">⌘K</kbd>
+          <span className="search-icon">{'\u2318'}</span>
+          <span className="command-hint">Search across tools...</span>
+          <kbd className="shortcut">{'\u2318'}K</kbd>
         </button>
       </div>
 
       <div className="header-right">
+        <div className="header-actions">
+          <button
+            className="notification-bell-btn"
+            onClick={onOpenNotifications}
+            title="Notifications (Ctrl+J)"
+          >
+            <span className="bell-icon">{'\u{1f514}'}</span>
+            {(notificationCount || 0) > 0 && (
+              <span className="notification-count-badge">
+                {notificationCount! > 99 ? '99+' : notificationCount}
+              </span>
+            )}
+          </button>
+        </div>
         <div className="window-controls">
           <button
             className="control-btn minimize"

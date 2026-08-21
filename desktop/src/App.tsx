@@ -8,7 +8,11 @@ import AgentPanel from './components/AgentPanel';
 import TaskQueue from './components/TaskQueue';
 import TraceraIntegration from './components/TraceraIntegration';
 import AgilePlusIntegration from './components/AgilePlusIntegration';
-import { useAgents, useTasks } from './hooks/useHelios';
+import UnifiedSearch from './components/UnifiedSearch';
+import NotificationCenter from './components/NotificationCenter';
+import EmbeddedTracera from './components/EmbeddedTracera';
+import EmbeddedAgilePlus from './components/EmbeddedAgilePlus';
+import { useAgents, useTasks, useNotifications } from './hooks/useHelios';
 import type { AppView } from './types';
 import './App.css';
 
@@ -30,12 +34,15 @@ function App() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
   const [activeView, setActiveView] = useState<AppView>('chat');
 
   const { agents } = useAgents();
   const { tasks } = useTasks();
+  const { counts } = useNotifications();
 
   useEffect(() => {
     // Simulate connection status.
@@ -111,11 +118,10 @@ function App() {
         createNewConversation();
         break;
       case '/help':
-        // Show help in chat
         const helpMessage: Message = {
           id: `msg-${Date.now()}`,
           role: 'system',
-          content: `**Available Commands:**\n\n- \`/new\` or \`/clear\` - Start a new conversation\n- \`/help\` - Show this help message\n- \`/status\` - Show connection status\n- \`/quit\` - Close the application`,
+          content: `**Available Commands:**\n\n- \`/new\` or \`/clear\` - Start a new conversation\n- \`/help\` - Show this help message\n- \`/status\` - Show connection status\n- \`/quit\` - Close the application\n\n**Milestone 3:**\n- Press **Ctrl+K** to open Unified Search\n- Use the bell icon to view Notifications\n- Navigate to Tracera Board and AgilePlus Scorecard from the sidebar`,
           timestamp: new Date(),
         };
         if (activeConversationId) {
@@ -132,7 +138,7 @@ function App() {
         const statusMessage: Message = {
           id: `msg-${Date.now()}`,
           role: 'system',
-          content: `**Connection Status:** ${connectionStatus}\n**Active Conversations:** ${conversations.length}\n**Current Conversation:** ${activeConversation?.title || 'None'}`,
+          content: `**Connection Status:** ${connectionStatus}\n**Active Conversations:** ${conversations.length}\n**Current Conversation:** ${activeConversation?.title || 'None'}\n**Unread Notifications:** ${counts?.unread || 0}`,
           timestamp: new Date(),
         };
         if (activeConversationId) {
@@ -148,7 +154,7 @@ function App() {
       default:
         sendMessage(command);
     }
-  }, [activeConversationId, activeConversation, conversations.length, connectionStatus, sendMessage, createNewConversation]);
+  }, [activeConversationId, activeConversation, conversations.length, connectionStatus, sendMessage, createNewConversation, counts]);
 
   const selectConversation = useCallback((id: string) => {
     setActiveConversationId(id);
@@ -161,15 +167,25 @@ function App() {
     }
   }, [activeConversationId]);
 
-  // Keyboard shortcut for command palette
+  // Keyboard shortcuts: Cmd/Ctrl+K for search, Cmd/Ctrl+Shift+K for command palette.
   useState(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsCommandPaletteOpen(prev => !prev);
+        if (e.shiftKey) {
+          setIsCommandPaletteOpen(prev => !prev);
+        } else {
+          setIsSearchOpen(prev => !prev);
+        }
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
+        e.preventDefault();
+        setIsNotificationsOpen(prev => !prev);
       }
       if (e.key === 'Escape') {
         setIsCommandPaletteOpen(false);
+        setIsSearchOpen(false);
+        setIsNotificationsOpen(false);
       }
     };
 
@@ -184,6 +200,9 @@ function App() {
       case 'tasks': return 'Task Queue';
       case 'tracera': return 'Tracera Integration';
       case 'agileplus': return 'AgilePlus Integration';
+      case 'tracera-board': return 'Tracera Board';
+      case 'agileplus-board': return 'AgilePlus Scorecard';
+      case 'notifications': return 'Notifications';
       default: return activeConversation?.title || 'Helios CLI Desktop';
     }
   };
@@ -199,6 +218,16 @@ function App() {
         return <TraceraIntegration />;
       case 'agileplus':
         return <AgilePlusIntegration />;
+      case 'tracera-board':
+        return <EmbeddedTracera />;
+      case 'agileplus-board':
+        return <EmbeddedAgilePlus />;
+      case 'notifications':
+        return (
+          <div className="notifications-view">
+            <NotificationCenter isOpen={true} onClose={() => setActiveView('chat')} />
+          </div>
+        );
       default:
         return (
           <Chat
@@ -222,12 +251,15 @@ function App() {
         onNavigate={setActiveView}
         agentCount={agents.filter((a) => a.status === 'running').length}
         taskCount={tasks.filter((t) => t.status === 'pending').length}
+        notificationCount={counts?.unread || 0}
       />
       <div className="main-content">
         <Header
           title={getViewTitle()}
           isProcessing={isProcessing}
-          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onOpenCommandPalette={() => setIsSearchOpen(true)}
+          onOpenNotifications={() => setIsNotificationsOpen(prev => !prev)}
+          notificationCount={counts?.unread || 0}
         />
         <div className="view-container">
           {renderMainContent()}
@@ -235,12 +267,32 @@ function App() {
         <StatusBar
           connectionStatus={connectionStatus}
           messageCount={activeConversation?.messages.length || 0}
+          notificationCount={counts?.unread || 0}
         />
       </div>
+
+      {/* Unified Search Overlay (Cmd+K) */}
+      <UnifiedSearch
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+
+      {/* Notification Center dropdown */}
+      <NotificationCenter
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+      />
+
+      {/* Command Palette (Cmd+Shift+K) */}
       {isCommandPaletteOpen && (
         <CommandPalette
           onClose={() => setIsCommandPaletteOpen(false)}
           onCommand={handleCommand}
+          onNavigate={setActiveView}
+          onOpenSearch={() => {
+            setIsCommandPaletteOpen(false);
+            setIsSearchOpen(true);
+          }}
         />
       )}
     </div>

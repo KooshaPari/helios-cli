@@ -5,9 +5,10 @@ import './StatusBar.css';
 interface StatusBarProps {
   connectionStatus: 'connected' | 'disconnected' | 'connecting';
   messageCount: number;
+  notificationCount: number;
 }
 
-function StatusBar({ connectionStatus, messageCount }: StatusBarProps) {
+function StatusBar({ connectionStatus, messageCount, notificationCount }: StatusBarProps) {
   const { agents } = useAgents();
   const { tasks } = useTasks();
   const [lastRefresh, setLastRefresh] = useState(new Date());
@@ -70,6 +71,15 @@ function StatusBar({ connectionStatus, messageCount }: StatusBarProps) {
         </span>
       </div>
       <div className="status-right">
+        {notificationCount > 0 && (
+          <span className="status-notifications">
+            <span className="status-dot notif-dot"></span>
+            {notificationCount} unread
+          </span>
+        )}
+        <span className="search-shortcut-hint" title="Press Ctrl+K to search">
+          {'\u2318'}K
+        </span>
         <span className="last-refresh">Refreshed {formatTime(lastRefresh)}</span>
         <span className="version-info">v0.2.0</span>
       </div>

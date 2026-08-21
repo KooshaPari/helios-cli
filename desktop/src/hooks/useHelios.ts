@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
-import type { AgentInfo, AgentLogEntry, Task, TaskStatus } from '../types';
+import type {
+  AgentInfo,
+  AgentLogEntry,
+  Task,
+  TaskStatus,
+  SearchResult,
+  SearchQuery,
+  Notification,
+  NotificationCounts,
+} from '../types';
 
 // ---------------------------------------------------------------------------
 // Agent hooks
@@ -175,4 +184,114 @@ export function useTasks() {
   }, [fetchTasks]);
 
   return { tasks, loading, error, refresh, create, rollback };
+}
+
+// ---------------------------------------------------------------------------
+// Milestone 3: Unified Search hook
+// ---------------------------------------------------------------------------
+
+export function useUnifiedSearch() {
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const search = useCallback(async (query: SearchQuery) => {
+    if (!query.text.trim()) {
+      setResults([]);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const searchResults = await invoke<SearchResult[]>('unified_search_cmd', {
+        query,
+      });
+      setResults(searchResults);
+    } catch (err) {
+      setError(String(err));
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const clear = useCallback(() => {
+    setResults([]);
+    setError(null);
+  }, []);
+
+  return { results, loading, error, search, clear };
+}
+
+// ---------------------------------------------------------------------------
+// Milestone 3: Notifications hook
+// ---------------------------------------------------------------------------
+
+export function useNotifications() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [counts, setCounts] = useState<NotificationCounts | null>(null);
+  const [loading, setLoading] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const [notifs, cts] = await Promise.all([
+        invoke<Notification[]>('list_notifications', { limit: 100 }),
+        invoke<NotificationCounts>('get_notification_counts'),
+      ]);
+      setNotifications(notifs);
+      setCounts(cts);
+    } catch {
+      // Silently fail on auto-refresh.
+    }
+  }, []);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    await fetchNotifications();
+    setLoading(false);
+  }, [fetchNotifications]);
+
+  const markRead = useCallback(async (notificationId: string) => {
+    try {
+      await invoke('mark_notification_read', { notificationId });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n)),
+      );
+      // Refresh counts.
+      const cts = await invoke<NotificationCounts>('get_notification_counts');
+      setCounts(cts);
+    } catch (err) {
+      throw err;
+    }
+  }, []);
+
+  const markAllRead = useCallback(async () => {
+    try {
+      await invoke('mark_all_notifications_read');
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      const cts = await invoke<NotificationCounts>('get_notification_counts');
+      setCounts(cts);
+    } catch (err) {
+      throw err;
+    }
+  }, []);
+
+  // Auto-refresh every 10 seconds.
+  useEffect(() => {
+    fetchNotifications();
+    intervalRef.current = setInterval(fetchNotifications, 10000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [fetchNotifications]);
+
+  return {
+    notifications,
+    counts,
+    loading,
+    refresh,
+    markRead,
+    markAllRead,
+  };
 }

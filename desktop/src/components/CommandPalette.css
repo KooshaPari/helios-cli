@@ -125,6 +125,20 @@
   margin-right: 4px;
 }
 
+/* Command groups */
+.palette-group {
+  margin-bottom: 4px;
+}
+
+.group-label {
+  padding: 6px 12px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+}
+
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
   .command-palette {

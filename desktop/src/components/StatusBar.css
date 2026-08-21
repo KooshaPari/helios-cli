@@ -91,6 +91,29 @@
   color: #9ca3af;
 }
 
+.status-notifications {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #ef4444;
+}
+
+.notif-dot {
+  background: #ef4444;
+}
+
+.search-shortcut-hint {
+  padding: 2px 6px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: monospace;
+  color: #9ca3af;
+  cursor: default;
+}
+
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
   .status-bar {
@@ -109,5 +132,10 @@
 
   .version-info {
     color: #484f58;
+  }
+
+  .search-shortcut-hint {
+    background: #21262d;
+    border-color: #30363d;
   }
 }

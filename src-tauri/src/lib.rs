@@ -1,12 +1,16 @@
 mod agents;
 mod config;
 mod github;
+mod notifications;
 mod tasks;
+mod unified_search;
 
 use agents::AgentInfo;
 use config::AppConfig;
 use github::{CIStatus, Issue, PullRequest, RepoStatus, WorkflowRun};
+use notifications::{Notification, NotificationCounts, NotificationSource, NotificationType};
 use tasks::Task;
+use unified_search::{SearchQuery, SearchResult};
 use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem};
 
 // ---------------------------------------------------------------------------
@@ -154,6 +158,65 @@ fn rollback_task(task_id: String) -> Result<Task, String> {
 }
 
 // ---------------------------------------------------------------------------
+// Milestone 3: Unified Search + Notifications
+// ---------------------------------------------------------------------------
+
+/// Unified search across all connected tools.
+#[tauri::command]
+async fn unified_search_cmd(query: SearchQuery) -> Result<Vec<SearchResult>, String> {
+    Ok(unified_search::unified_search(query).await)
+}
+
+/// List notifications.
+#[tauri::command]
+async fn list_notifications(limit: Option<u32>) -> Result<Vec<Notification>, String> {
+    notifications::list_notifications(limit)
+}
+
+/// Mark a notification as read.
+#[tauri::command]
+async fn mark_notification_read(notification_id: String) -> Result<(), String> {
+    notifications::mark_read(&notification_id)
+}
+
+/// Mark all notifications as read.
+#[tauri::command]
+async fn mark_all_notifications_read() -> Result<(), String> {
+    notifications::mark_all_read()
+}
+
+/// Get notification counts by source.
+#[tauri::command]
+async fn get_notification_counts() -> Result<NotificationCounts, String> {
+    notifications::get_counts_by_source()
+}
+
+/// Create a notification (internal use / test).
+#[tauri::command]
+async fn create_notification(
+    source: String,
+    notification_type: String,
+    title: String,
+    body: String,
+    link: Option<String>,
+) -> Result<Notification, String> {
+    let src = match source.as_str() {
+        "tracera" => NotificationSource::Tracera,
+        "agileplus" => NotificationSource::AgilePlus,
+        "github" => NotificationSource::GitHub,
+        _ => NotificationSource::Helios,
+    };
+    let ntype = match notification_type.as_str() {
+        "tracera_issue" => NotificationType::TraceraIssue,
+        "agile_plus_gate_failure" => NotificationType::AgilePlusGateFailure,
+        "agent_error" => NotificationType::AgentError,
+        "ci_status" => NotificationType::CIStatus,
+        _ => NotificationType::TaskComplete,
+    };
+    notifications::create_notification(src, ntype, title, body, link)
+}
+
+// ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
 
@@ -192,6 +255,12 @@ pub fn run() {
             create_task,
             list_tasks,
             rollback_task,
+            unified_search_cmd,
+            list_notifications,
+            mark_notification_read,
+            mark_all_notifications_read,
+            get_notification_counts,
+            create_notification,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Helios Command Center");

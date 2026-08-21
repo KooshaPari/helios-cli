@@ -12,6 +12,7 @@ interface SidebarProps {
   onNavigate: (view: AppView) => void;
   agentCount: number;
   taskCount: number;
+  notificationCount: number;
 }
 
 function Sidebar({
@@ -24,6 +25,7 @@ function Sidebar({
   onNavigate,
   agentCount,
   taskCount,
+  notificationCount,
 }: SidebarProps) {
   return (
     <aside className="sidebar">
@@ -66,19 +68,36 @@ function Sidebar({
             <span className="nav-badge tasks-badge">{taskCount}</span>
           )}
         </button>
+
+        <div className="nav-divider" />
+        <div className="nav-section-label">Integrations</div>
+
         <button
-          className={`nav-item ${activeView === 'tracera' ? 'active' : ''}`}
-          onClick={() => onNavigate('tracera')}
+          className={`nav-item ${activeView === 'tracera' || activeView === 'tracera-board' ? 'active' : ''}`}
+          onClick={() => onNavigate('tracera-board')}
         >
-          <span className="nav-icon">T</span>
-          <span className="nav-label">Tracera</span>
+          <span className="nav-icon tracera-icon">T</span>
+          <span className="nav-label">Tracera Board</span>
         </button>
         <button
-          className={`nav-item ${activeView === 'agileplus' ? 'active' : ''}`}
-          onClick={() => onNavigate('agileplus')}
+          className={`nav-item ${activeView === 'agileplus' || activeView === 'agileplus-board' ? 'active' : ''}`}
+          onClick={() => onNavigate('agileplus-board')}
         >
-          <span className="nav-icon">A+</span>
-          <span className="nav-label">AgilePlus</span>
+          <span className="nav-icon agileplus-icon">A+</span>
+          <span className="nav-label">AgilePlus Scorecard</span>
+        </button>
+
+        <div className="nav-divider" />
+
+        <button
+          className={`nav-item ${activeView === 'notifications' ? 'active' : ''}`}
+          onClick={() => onNavigate('notifications')}
+        >
+          <span className="nav-icon">{'\u{1f514}'}</span>
+          <span className="nav-label">Notifications</span>
+          {notificationCount > 0 && (
+            <span className="nav-badge notif-badge">{notificationCount}</span>
+          )}
         </button>
       </nav>
 
@@ -103,7 +122,7 @@ function Sidebar({
                 <div className="conversation-title">{conversation.title}</div>
                 <div className="conversation-meta">
                   {conversation.messages.length} message
-                  {conversation.messages.length !== 1 ? 's' : ''} •{' '}
+                  {conversation.messages.length !== 1 ? 's' : ''} {' \u2022 '}
                   {formatRelativeTime(conversation.createdAt)}
                 </div>
               </div>
@@ -115,7 +134,7 @@ function Sidebar({
                 }}
                 title="Delete conversation"
               >
-                ×
+                &times;
               </button>
             </div>
           ))
@@ -123,8 +142,8 @@ function Sidebar({
       </div>
 
       <div className="sidebar-footer">
-        <div className="version-info">Helios CLI v0.1.0</div>
-        <div className="shortcut-hint">Ctrl+K for commands</div>
+        <div className="version-info">Helios CLI v0.2.0</div>
+        <div className="shortcut-hint">Ctrl+K search | Ctrl+Shift+K commands</div>
       </div>
     </aside>
   );
