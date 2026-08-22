@@ -369,7 +369,7 @@ mod tests {
     fn run_error_display_formatting() {
         assert_eq!(RunError::Timeout(42).to_string(), "Timeout after 42s");
         assert_eq!(RunError::NotFound.to_string(), "Command not found");
-        let io_err = std::io::Error::new(std::io::ErrorKind::Other, "bad pipe");
+        let io_err = std::io::Error::other("bad pipe");
         let err: RunError = io_err.into();
         assert!(err.to_string().contains("bad pipe"));
     }
