@@ -15,7 +15,6 @@
 #![allow(unused_imports)]
 
 pub mod cli;
-pub mod i18n;
 pub mod media;
 pub mod pty;
 pub mod script;

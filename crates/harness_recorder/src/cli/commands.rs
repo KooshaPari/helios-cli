@@ -1,7 +1,6 @@
 use anyhow::{Context, Result};
 use std::path::PathBuf;
 
-use crate::i18n::I18n;
 use crate::media::{MediaRecorder, OutputFormat};
 use crate::pty::TerminalController;
 use crate::script::{Script, ScriptLoader};
@@ -10,20 +9,19 @@ pub async fn record_command(
     script_path: PathBuf,
     output_dir: PathBuf,
     format: String,
-    i18n: &I18n,
 ) -> Result<()> {
-    println!("{}", i18n.t_with("status.recording", &[("script", &script_path.display().to_string())]));
+    println!("Recording {}", script_path.display());
 
     // Load script
     let script = ScriptLoader::load_from_file(&script_path)
-        .with_context(|| i18n.t_with("error.load_script", &[("path", &script_path.display().to_string())]))?;
+        .with_context(|| format!("Failed to load script: {}", script_path.display()))?;
 
     // Parse output format
     let output_format = OutputFormat::from_string(&format)?;
 
     // Create output directory
     std::fs::create_dir_all(&output_dir)
-        .with_context(|| i18n.t_with("error.create_output_dir", &[("path", &output_dir.display().to_string())]))?;
+        .with_context(|| format!("Failed to create output directory: {}", output_dir.display()))?;
 
     // Initialize terminal controller
     let mut terminal = TerminalController::new(&script.settings)?;
@@ -32,13 +30,18 @@ pub async fn record_command(
     let mut recorder = MediaRecorder::new(output_format, &output_dir)?;
 
     // Execute script
-    println!("{}", i18n.t_with("status.executing", &[("count", &script.steps.len().to_string())]));
+    println!("Executing {} steps", script.steps.len());
 
     // Track produced artifacts so we can render a summary panel at the end.
     let mut artifacts: Vec<String> = Vec::new();
 
     for (i, step) in script.steps.iter().enumerate() {
-        println!("{}", i18n.t_with("status.step", &[("index", &(i + 1).to_string()), ("total", &script.steps.len().to_string()), ("type", &format!("{:?}", step.step_type))]));
+        println!(
+            "Step {}/{}: {:?}",
+            i + 1,
+            script.steps.len(),
+            step.step_type
+        );
 
         match step.step_type {
             crate::script::StepType::Command { ref text, wait } => {
@@ -53,7 +56,7 @@ pub async fn record_command(
             crate::script::StepType::Screenshot { ref name } => {
                 let screenshot_path = output_dir.join(format!("{}.png", name));
                 recorder.take_screenshot(&terminal, &screenshot_path).await?;
-                println!("{}", i18n.t_with("status.screenshot_taken", &[("path", &screenshot_path.display().to_string())]));
+                println!("Screenshot saved: {}", screenshot_path.display());
                 artifacts.push(format!("📸 {}", screenshot_path.display()));
             }
             crate::script::StepType::RecordGif { duration, ref name } => {
@@ -61,13 +64,13 @@ pub async fn record_command(
                 recorder.start_gif_recording(&terminal).await?;
                 tokio::time::sleep(duration).await;
                 recorder.stop_gif_recording(&gif_path).await?;
-                println!("{}", i18n.t_with("status.screenshot_taken", &[("path", &gif_path.display().to_string())]));
+                println!("GIF saved: {}", gif_path.display());
                 artifacts.push(format!("🎞️ {}", gif_path.display()));
             }
         }
     }
 
-    print_recording_summary(&output_dir, script.steps.len(), &artifacts, i18n);
+    print_recording_summary(&output_dir, script.steps.len(), &artifacts);
     Ok(())
 }
 
@@ -75,13 +78,13 @@ pub async fn record_command(
 /// Phenotype-org rck-core toolkit. Capability detection degrades the panel to
 /// plain ASCII when piped, in CI, or on terminals without graphics support, so
 /// the output stays pipe-safe.
-fn print_recording_summary(output_dir: &std::path::Path, steps: usize, artifacts: &[String], i18n: &I18n) {
+fn print_recording_summary(output_dir: &std::path::Path, steps: usize, artifacts: &[String]) {
     use std::io::Write;
 
     let caps = rck_core::detect();
 
     let mut lines: Vec<String> = vec![
-        i18n.t("status.done"),
+        "Done".to_string(),
         format!("steps    : {steps}"),
         format!("output   : {}", output_dir.display()),
     ];
@@ -105,11 +108,11 @@ fn print_recording_summary(output_dir: &std::path::Path, steps: usize, artifacts
         .and_then(|()| out.flush().map_err(Into::into))
         .is_err()
     {
-        println!("✅ {}", i18n.t("status.done"));
+        println!("✅ Done");
     }
 }
 
-pub async fn screenshot_command(command: String, output: PathBuf, i18n: &I18n) -> Result<()> {
+pub async fn screenshot_command(command: String, output: PathBuf) -> Result<()> {
     println!("📸 {}", command);
 
     // Create a simple single-command script
@@ -126,11 +129,11 @@ pub async fn screenshot_command(command: String, output: PathBuf, i18n: &I18n) -
         MediaRecorder::new(OutputFormat::Png, output.parent().unwrap_or(&PathBuf::from(".")))?;
     recorder.take_screenshot(&terminal, &output).await?;
 
-    println!("{}", i18n.t_with("status.screenshot_taken", &[("path", &output.display().to_string())]));
+    println!("Screenshot saved: {}", output.display());
     Ok(())
 }
 
-pub async fn demo_command(script_path: PathBuf, interactive: bool, i18n: &I18n) -> Result<()> {
+pub async fn demo_command(script_path: PathBuf, interactive: bool) -> Result<()> {
     println!("🎭 {}", script_path.display());
 
     let script = ScriptLoader::load_from_file(&script_path)?;
@@ -138,7 +141,12 @@ pub async fn demo_command(script_path: PathBuf, interactive: bool, i18n: &I18n) 
 
     for (i, step) in script.steps.iter().enumerate() {
         if interactive {
-            println!("\n📋 {} {}/{}: {:?}", i18n.t("status.step"), i + 1, script.steps.len(), step.step_type);
+            println!(
+                "\n📋 Step {}/{}: {:?}",
+                i + 1,
+                script.steps.len(),
+                step.step_type
+            );
             println!("Press Enter to continue...");
             let mut input = String::new();
             std::io::stdin().read_line(&mut input)?;
@@ -158,39 +166,35 @@ pub async fn demo_command(script_path: PathBuf, interactive: bool, i18n: &I18n) 
         }
     }
 
-    println!("✅ {}", i18n.t("status.done"));
+    println!("✅ Done");
     Ok(())
 }
 
-pub async fn convert_command(input: PathBuf, output: PathBuf, i18n: &I18n) -> Result<()> {
-    println!("🔄 {} {} {}", i18n.t("cmd.convert"), input.display(), output.display());
+pub async fn convert_command(input: PathBuf, output: PathBuf) -> Result<()> {
+    println!("🔄 {} → {}", input.display(), output.display());
 
     // TODO: Implement format conversion logic
     // This would handle converting between different recording formats
 
-    println!("✅ {}", i18n.t("status.done"));
+    println!("✅ Done");
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::i18n::I18n;
 
     #[test]
     fn print_recording_summary_writes_ascii_when_not_tty() {
         let dir = std::path::Path::new("artifacts/test-output");
-        let i18n = I18n::new("en");
-        print_recording_summary(dir, 2, &["demo.png".to_string()], &i18n);
+        print_recording_summary(dir, 2, &["demo.png".to_string()]);
     }
 
     #[tokio::test]
     async fn convert_command_is_noop_success() {
-        let i18n = I18n::new("en");
         convert_command(
             std::path::PathBuf::from("input.gif"),
             std::path::PathBuf::from("output.mp4"),
-            &i18n,
         )
         .await
         .expect("convert");
@@ -226,8 +230,9 @@ steps:
 "#;
         std::fs::write(&script_path, yaml).expect("write script");
         let output_dir = dir.path().join("out");
-        let i18n = I18n::new("en");
-        record_command(script_path, output_dir.clone(), "png".to_string(), &i18n).await.expect("record");
+        record_command(script_path, output_dir.clone(), "png".to_string())
+            .await
+            .expect("record");
         assert!(output_dir.is_dir());
     }
 }

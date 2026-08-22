@@ -1,8 +1,6 @@
 
 use std::path::PathBuf;
 
-use crate::i18n::I18n;
-
 pub mod commands;
 
 #[derive(Subcommand)]
@@ -56,16 +54,16 @@ pub enum Commands {
     },
 }
 
-pub async fn execute_command(command: Commands, i18n: &I18n) -> anyhow::Result<()> {
+pub async fn execute_command(command: Commands) -> anyhow::Result<()> {
     match command {
         Commands::Record { script, output, format } => {
-            commands::record_command(script, output, format, i18n).await
+            commands::record_command(script, output, format).await
         }
         Commands::Screenshot { command, output } => {
-            commands::screenshot_command(command, output, i18n).await
+            commands::screenshot_command(command, output).await
         }
-        Commands::Demo { script, interactive } => commands::demo_command(script, interactive, i18n).await,
-        Commands::Convert { input, output } => commands::convert_command(input, output, i18n).await,
+        Commands::Demo { script, interactive } => commands::demo_command(script, interactive).await,
+        Commands::Convert { input, output } => commands::convert_command(input, output).await,
     }
 }
 
