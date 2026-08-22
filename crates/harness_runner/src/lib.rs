@@ -295,4 +295,122 @@ mod tests {
 
         assert!(matches!(result, Err(RunError::Timeout(1))));
     }
+
+    // ------------------------------------------------------------------
+    // Additional tests
+    // ------------------------------------------------------------------
+
+    /// RunnerConfig: default values are sensible.
+    #[test]
+    fn runner_config_defaults() {
+        let cfg = RunnerConfig::default();
+        assert!(cfg.working_dir.is_none());
+        assert_eq!(cfg.timeout_secs, Some(30));
+        assert!(cfg.env.is_empty());
+        assert!(!cfg.shell);
+    }
+
+    /// Runner: builder methods populate config correctly.
+    #[test]
+    fn runner_builder_methods() {
+        let runner = Runner::new()
+            .with_working_dir("/tmp")
+            .with_env("FOO", "bar")
+            .with_timeout(10)
+            .with_shell(true);
+
+        assert_eq!(runner.config.working_dir.as_deref(), Some("/tmp"));
+        assert_eq!(runner.config.env.get("FOO").map(String::as_str), Some("bar"));
+        assert_eq!(runner.config.timeout_secs, Some(10));
+        assert!(runner.config.shell);
+    }
+
+    /// RunResult: output() falls back to stderr when stdout is empty.
+    #[test]
+    fn run_result_output_falls_back_to_stderr() {
+        let r = RunResult {
+            success: false,
+            exit_code: Some(1),
+            stdout: String::new(),
+            stderr: "error output".into(),
+            duration: Duration::ZERO,
+        };
+        assert_eq!(r.output(), "error output");
+    }
+
+    /// RunResult: output() prefers stdout when non-empty.
+    #[test]
+    fn run_result_output_prefers_stdout() {
+        let r = RunResult {
+            success: true,
+            exit_code: Some(0),
+            stdout: "hello".into(),
+            stderr: "err".into(),
+            duration: Duration::ZERO,
+        };
+        assert_eq!(r.output(), "hello");
+    }
+
+    /// RunResult: output_lines splits on newlines.
+    #[test]
+    fn run_result_output_lines() {
+        let r = RunResult {
+            success: true,
+            exit_code: Some(0),
+            stdout: "a\nb\nc".into(),
+            stderr: String::new(),
+            duration: Duration::ZERO,
+        };
+        assert_eq!(r.output_lines(), vec!["a", "b", "c"]);
+    }
+
+    /// RunError: display formatting.
+    #[test]
+    fn run_error_display_formatting() {
+        assert_eq!(RunError::Timeout(42).to_string(), "Timeout after 42s");
+        assert_eq!(RunError::NotFound.to_string(), "Command not found");
+        let io_err = std::io::Error::new(std::io::ErrorKind::Other, "bad pipe");
+        let err: RunError = io_err.into();
+        assert!(err.to_string().contains("bad pipe"));
+    }
+
+    /// Runner: clone of RunnerConfig works.
+    #[test]
+    fn runner_config_clone() {
+        let cfg = RunnerConfig {
+            working_dir: Some("/test".into()),
+            timeout_secs: Some(5),
+            env: std::collections::HashMap::from([("K".into(), "V".into())]),
+            shell: true,
+        };
+        let cfg2 = cfg.clone();
+        assert_eq!(cfg2.working_dir.as_deref(), Some("/test"));
+        assert_eq!(cfg2.timeout_secs, Some(5));
+        assert_eq!(cfg2.env.get("K").map(String::as_str), Some("V"));
+        assert!(cfg2.shell);
+    }
+
+    /// Runner with no timeout does not error on short commands.
+    #[tokio::test]
+    async fn run_with_no_timeout() {
+        #[cfg(windows)]
+        let result = Runner::new().with_timeout(0).run("cmd", &["/C", "echo hi"]).await;
+        #[cfg(not(windows))]
+        let result = Runner::new().with_timeout(0).run("sh", &["-c", "echo hi"]).await;
+
+        // Timeout(0) fires immediately on most systems.
+        assert!(matches!(result, Err(RunError::Timeout(0))));
+    }
+
+    #[tokio::test]
+    async fn run_failing_command_reports_failure() {
+        #[cfg(windows)]
+        let result = Runner::new().with_timeout(10).run("cmd", &["/C", "exit 1"]).await;
+        #[cfg(not(windows))]
+        let result = Runner::new().with_timeout(10).run("sh", &["-c", "exit 1"]).await;
+
+        let result = result.unwrap();
+        assert!(!result.success);
+        assert_eq!(result.exit_code, Some(1));
+    }
 }

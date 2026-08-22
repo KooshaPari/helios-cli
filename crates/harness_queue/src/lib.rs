@@ -262,4 +262,118 @@ mod tests {
         assert!(queue.pop().is_none());
         assert!(queue.steal().is_none());
     }
+
+    // ------------------------------------------------------------------
+    // Additional tests
+    // ------------------------------------------------------------------
+
+    /// Channel: sequential send/recv preserves FIFO order.
+    #[test]
+    fn channel_fifo_order_preserved() {
+        let ch: Channel<i32> = Channel::new(8);
+        ch.send(1).unwrap();
+        ch.send(2).unwrap();
+        ch.send(3).unwrap();
+        assert_eq!(ch.recv(), Some(1));
+        assert_eq!(ch.recv(), Some(2));
+        assert_eq!(ch.recv(), Some(3));
+        assert!(ch.recv().is_none());
+    }
+
+    /// Channel: size tracks incremental operations.
+    #[test]
+    fn channel_size_tracks_incremental() {
+        let ch: Channel<i32> = Channel::new(4);
+        assert_eq!(ch.len(), 0);
+        assert!(ch.is_empty());
+        ch.send(10).unwrap();
+        assert_eq!(ch.len(), 1);
+        ch.send(20).unwrap();
+        assert_eq!(ch.len(), 2);
+        ch.recv();
+        assert_eq!(ch.len(), 1);
+        ch.recv();
+        assert_eq!(ch.len(), 0);
+        assert!(ch.is_empty());
+    }
+
+    /// Channel: capacity-1 channel works correctly.
+    #[test]
+    fn channel_single_capacity() {
+        let ch: Channel<u8> = Channel::new(1);
+        ch.send(42).unwrap();
+        assert!(ch.is_full());
+        assert!(matches!(ch.send(99), Err(QueueError::Full)));
+        assert_eq!(ch.recv(), Some(42));
+        assert!(!ch.is_full());
+        assert!(ch.is_empty());
+    }
+
+    /// RingBuffer: pop on empty returns None.
+    #[test]
+    fn ring_buffer_pop_empty_returns_none() {
+        let mut ring: RingBuffer<i32> = RingBuffer::new(4);
+        assert!(ring.pop().is_none());
+        assert!(ring.is_empty());
+    }
+
+    /// RingBuffer: multiple push/pop cycles maintain correct length.
+    #[test]
+    fn ring_buffer_push_pop_cycles() {
+        let mut ring: RingBuffer<i32> = RingBuffer::new(3);
+        ring.push(10);
+        ring.push(20);
+        assert_eq!(ring.len(), 2);
+        ring.pop();
+        ring.pop();
+        assert!(ring.is_empty());
+        ring.push(30);
+        assert_eq!(ring.len(), 1);
+        assert_eq!(ring.pop(), Some(30));
+    }
+
+    /// RingBuffer: push beyond capacity is rejected.
+    #[test]
+    fn ring_buffer_push_beyond_capacity() {
+        let mut ring: RingBuffer<i32> = RingBuffer::new(2);
+        assert!(ring.push(1));
+        assert!(ring.push(2));
+        assert!(!ring.push(3));
+        assert_eq!(ring.len(), 2);
+    }
+
+    /// WorkQueue: steal returns global items when local is empty.
+    #[test]
+    fn work_queue_steal_global() {
+        let queue: WorkQueue<i32> = WorkQueue::new();
+        // Push to global directly by acquiring the lock.
+        if let Ok(mut g) = queue.global.lock() {
+            g.push_back(100);
+        }
+        assert_eq!(queue.steal(), Some(100));
+        assert!(queue.steal().is_none());
+    }
+
+    /// WorkQueue: multiple items maintain push/pop order.
+    #[test]
+    fn work_queue_multiple_items() {
+        let queue: WorkQueue<i32> = WorkQueue::new();
+        queue.push(1);
+        queue.push(2);
+        queue.push(3);
+        assert_eq!(queue.pop(), Some(1));
+        assert_eq!(queue.pop(), Some(2));
+        assert_eq!(queue.pop(), Some(3));
+        assert!(queue.pop().is_none());
+    }
+
+    /// QueueError display variants.
+    #[test]
+    fn queue_error_display_variants() {
+        assert_eq!(QueueError::Closed.to_string(), "Channel is closed");
+        assert_eq!(QueueError::Full.to_string(), "Channel is full");
+        assert_eq!(QueueError::Empty.to_string(), "Channel is empty");
+        assert!(QueueError::Send("test".into()).to_string().contains("test"));
+        assert!(QueueError::Receive("test".into()).to_string().contains("test"));
+    }
 }

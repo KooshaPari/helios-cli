@@ -133,4 +133,117 @@ mod tests {
         record.complete();
         assert_eq!(record.status, RollbackStatus::Partial);
     }
+
+    // ------------------------------------------------------------------
+    // Additional tests
+    // ------------------------------------------------------------------
+
+    /// RollbackRecord::new initializes with correct default state.
+    #[test]
+    fn rollback_record_new_defaults() {
+        let record = RollbackRecord::new("cp-100", "my-spec");
+        assert_eq!(record.checkpoint_id, "cp-100");
+        assert_eq!(record.spec_id, "my-spec");
+        assert_eq!(record.status, RollbackStatus::Pending);
+        assert!(record.completed_at.is_none());
+        assert!(record.restored_items.is_empty());
+        assert!(record.failed_items.is_empty());
+        assert!(record.error.is_none());
+    }
+
+    /// RollbackRecord::start transitions status to Started.
+    #[test]
+    fn rollback_record_start_transition() {
+        let mut record = RollbackRecord::new("cp", "sp");
+        assert_eq!(record.status, RollbackStatus::Pending);
+        record.start();
+        assert_eq!(record.status, RollbackStatus::Started);
+    }
+
+    /// RollbackRecord::fail records error and sets Failed status.
+    #[test]
+    fn rollback_record_fail_records_error() {
+        let mut record = RollbackRecord::new("cp", "sp");
+        record.start();
+        record.fail("something went wrong");
+        assert_eq!(record.status, RollbackStatus::Failed);
+        assert_eq!(record.error.as_deref(), Some("something went wrong"));
+        assert!(record.completed_at.is_some());
+    }
+
+    /// RollbackRecord: complete with no failures yields Completed.
+    #[test]
+    fn rollback_record_complete_no_failures() {
+        let mut record = RollbackRecord::new("cp", "sp");
+        record.start();
+        record.add_restored("item-a");
+        record.complete();
+        assert_eq!(record.status, RollbackStatus::Completed);
+        assert!(record.completed_at.is_some());
+    }
+
+    /// RollbackEngine: default creates empty engine.
+    #[test]
+    fn rollback_engine_default_empty() {
+        let engine = RollbackEngine::default();
+        assert!(engine.history().is_empty());
+    }
+
+    /// RollbackEngine: register stores checkpoint mapping.
+    #[test]
+    fn rollback_engine_register_checkpoint() {
+        let mut engine = RollbackEngine::new();
+        let id = engine.register("cp-a", "spec-a");
+        // Register returns a valid UUID.
+        assert!(!id.is_nil());
+    }
+
+    /// RollbackEngine: history tracks all rollback records.
+    #[test]
+    fn rollback_engine_history_tracking() {
+        let mut engine = RollbackEngine::new();
+        engine.rollback("cp-1");
+        engine.rollback("cp-2");
+        let history = engine.history();
+        assert_eq!(history.len(), 2);
+        assert_eq!(history[0].checkpoint_id, "cp-1");
+        assert_eq!(history[1].checkpoint_id, "cp-2");
+    }
+
+    /// RollbackEngine: verify fails on partial records.
+    #[test]
+    fn rollback_engine_verify_partial() {
+        let engine = RollbackEngine::new();
+        let mut record = RollbackRecord::new("cp", "spec");
+        record.start();
+        record.add_restored("ok-item");
+        record.add_failed("bad-item");
+        record.complete();
+        assert!(!engine.verify(&record));
+    }
+
+    /// RollbackEngine: verify passes on completed records.
+    #[test]
+    fn rollback_engine_verify_completed() {
+        let mut engine = RollbackEngine::new();
+        let record = engine.rollback("cp-ok").unwrap();
+        assert!(engine.verify(&record));
+    }
+
+    /// RollbackStatus: serialization round-trip.
+    #[test]
+    fn rollback_status_serialization_roundtrip() {
+        let statuses = [
+            RollbackStatus::Pending,
+            RollbackStatus::Started,
+            RollbackStatus::Completed,
+            RollbackStatus::Failed,
+            RollbackStatus::Partial,
+        ];
+        for s in &statuses {
+            let json = serde_json::to_string(s).expect("serialize");
+            let back: RollbackStatus = serde_json::from_str(&json).expect("deserialize");
+            assert_eq!(&back, s);
+        }
+    }
 }

@@ -699,4 +699,236 @@ cache:
             None => env::remove_var(key),
         }
     }
+
+    // ------------------------------------------------------------------
+    // Additional tests
+    // ------------------------------------------------------------------
+
+    /// ConfigError: FileRead variant displays path and message.
+    #[test]
+    fn config_error_file_read_display() {
+        let err = ConfigError::FileRead {
+            path: PathBuf::from("/bad/config.yaml"),
+            inner: std::io::Error::new(std::io::ErrorKind::NotFound, "not found"),
+        };
+        let msg = err.to_string();
+        assert!(msg.contains("/bad/config.yaml"));
+        assert!(msg.contains("not found"));
+    }
+
+    /// ConfigError: EnvVar variant displays variable name.
+    #[test]
+    fn config_error_env_var_display() {
+        let err = ConfigError::EnvVar {
+            var: "HELIOS_FOO".into(),
+            inner: "not a number".into(),
+        };
+        let msg = err.to_string();
+        assert!(msg.contains("HELIOS_FOO"));
+        assert!(msg.contains("not a number"));
+    }
+
+    /// load_from with non-existent path falls back to defaults.
+    #[test]
+    fn load_from_nonexistent_path_uses_defaults() {
+        let path = std::path::Path::new("/nonexistent/helios_config_test.yaml");
+        let config = HeliosConfig::load_from(Some(path));
+        assert_eq!(config.cache.max_capacity, 10_000);
+        assert_eq!(config.runner.timeout_secs, 30);
+    }
+
+    /// load_from with None path uses defaults when no config files exist.
+    #[test]
+    fn load_from_none_uses_defaults() {
+        // Save and clear HELIOS_CONFIG_PATH to ensure defaults
+        let prior = env::var("HELIOS_CONFIG_PATH").ok();
+        env::remove_var("HELIOS_CONFIG_PATH");
+        let config = HeliosConfig::load_from(None);
+        assert_eq!(config.cache.max_capacity, 10_000);
+        match prior {
+            Some(value) => env::set_var("HELIOS_CONFIG_PATH", value),
+            None => {}
+        }
+    }
+
+    /// Config round-trip through TOML serialization.
+    #[test]
+    fn test_config_roundtrip_toml() {
+        let config = HeliosConfig::default();
+        let toml_str = toml::to_string(&config).expect("serialize to toml");
+        let deserialized: HeliosConfig = toml::from_str(&toml_str).expect("deserialize from toml");
+        assert_eq!(deserialized.cache.max_capacity, config.cache.max_capacity);
+        assert_eq!(deserialized.runner.timeout_secs, config.runner.timeout_secs);
+        assert_eq!(
+            deserialized.checkpoint.git_signature_email,
+            config.checkpoint.git_signature_email
+        );
+    }
+
+    /// Sub-config: scaling defaults are sensible.
+    #[test]
+    fn test_scaling_config_defaults() {
+        let cfg = ScalingConfig::default();
+        assert_eq!(cfg.min_instances, 1);
+        assert_eq!(cfg.max_instances, 10);
+        assert!((cfg.target_cpu_percent - 50.0).abs() < f64::EPSILON);
+        assert!((cfg.target_memory_percent - 70.0).abs() < f64::EPSILON);
+        assert!((cfg.scale_up_threshold - 0.8).abs() < f64::EPSILON);
+        assert!((cfg.scale_down_threshold - 0.3).abs() < f64::EPSILON);
+        assert_eq!(cfg.cooldown_secs, 60);
+    }
+
+    /// Sub-config: predictive scaler defaults.
+    #[test]
+    fn test_predictive_scaler_defaults() {
+        let cfg = PredictiveScalerConfig::default();
+        assert_eq!(cfg.max_history, 100);
+        assert_eq!(cfg.prediction_horizon, 5);
+    }
+
+    /// Sub-config: token bucket defaults.
+    #[test]
+    fn test_token_bucket_defaults() {
+        let cfg = TokenBucketConfig::default();
+        assert!((cfg.default_capacity - 100.0).abs() < f64::EPSILON);
+        assert!((cfg.default_refill_rate - 10.0).abs() < f64::EPSILON);
+    }
+
+    /// Sub-config: elicitation defaults.
+    #[test]
+    fn test_elicitation_config_defaults() {
+        let cfg = ElicitationConfig::default();
+        assert!((cfg.confidence_threshold - 0.1).abs() < f64::EPSILON);
+    }
+
+    /// Sub-config: verify config defaults.
+    #[test]
+    fn test_verify_config_defaults() {
+        let cfg = VerifyConfig::default();
+        assert_eq!(cfg.test_timeout_secs, 300);
+        assert_eq!(cfg.smoke_test_timeout_secs, 60);
+    }
+
+    /// Sub-config: circuit breaker defaults.
+    #[test]
+    fn test_circuit_breaker_config_defaults() {
+        let cfg = CircuitBreakerConfig::default();
+        assert_eq!(cfg.failure_threshold, 5);
+        assert_eq!(cfg.success_threshold, 3);
+        assert_eq!(cfg.retry_timeout_secs, 30);
+    }
+
+    /// Sub-config: teammate defaults.
+    #[test]
+    fn test_teammate_config_defaults() {
+        let cfg = TeammateConfig::default();
+        assert_eq!(cfg.max_concurrent, 1);
+        assert_eq!(cfg.timeout_secs, 300);
+    }
+
+    /// Sub-config: spec defaults.
+    #[test]
+    fn test_spec_config_defaults() {
+        let cfg = SpecConfig::default();
+        assert_eq!(cfg.default_version, "1.0.0");
+        assert_eq!(cfg.default_timeout_secs, 30);
+    }
+
+    /// Sub-config: checkpoint defaults.
+    #[test]
+    fn test_checkpoint_config_defaults() {
+        let cfg = CheckpointConfig::default();
+        assert_eq!(cfg.git_signature_name, "heliosHarness");
+        assert_eq!(cfg.git_signature_email, "checkpoint@helios.local");
+    }
+
+    /// Env override: string fields (checkpoint signature).
+    #[test]
+    fn test_env_override_string_fields() {
+        let name_key = "HELIOS_CHECKPOINT_SIGNATURE_NAME";
+        let email_key = "HELIOS_CHECKPOINT_SIGNATURE_EMAIL";
+        let prior_name = env::var(name_key).ok();
+        let prior_email = env::var(email_key).ok();
+        env::set_var(name_key, "test-author");
+        env::set_var(email_key, "test@example.com");
+
+        let config = HeliosConfig::load();
+        assert_eq!(config.checkpoint.git_signature_name, "test-author");
+        assert_eq!(config.checkpoint.git_signature_email, "test@example.com");
+
+        match prior_name {
+            Some(v) => env::set_var(name_key, v),
+            None => env::remove_var(name_key),
+        }
+        match prior_email {
+            Some(v) => env::set_var(email_key, v),
+            None => env::remove_var(email_key),
+        }
+    }
+
+    /// Env override: runner timeout.
+    #[test]
+    fn test_env_override_runner_timeout() {
+        let key = "HELIOS_RUNNER_TIMEOUT";
+        let prior = env::var(key).ok();
+        env::set_var(key, "120");
+
+        let config = HeliosConfig::load();
+        assert_eq!(config.runner.timeout_secs, 120);
+
+        match prior {
+            Some(v) => env::set_var(key, v),
+            None => env::remove_var(key),
+        }
+    }
+
+    /// Config: partial YAML overlay preserves non-specified sub-configs.
+    #[test]
+    fn test_partial_overlay_preserves_all_subconfigs() {
+        let yaml = r#"
+cache:
+  max_capacity: 123
+"#;
+        let partial: HeliosConfig = serde_yaml::from_str(yaml).expect("parse");
+        // Overridden
+        assert_eq!(partial.cache.max_capacity, 123);
+        // All sub-configs should have their defaults
+        assert_eq!(partial.scaling.min_instances, 1);
+        assert_eq!(partial.circuit_breaker.failure_threshold, 5);
+        assert_eq!(partial.teammate.timeout_secs, 300);
+        assert_eq!(partial.spec.default_version, "1.0.0");
+        assert_eq!(partial.predictive_scaler.max_history, 100);
+        assert!((partial.token_bucket.default_capacity - 100.0).abs() < f64::EPSILON);
+    }
+
+    /// Config: from_file with invalid YAML returns error.
+    #[test]
+    fn test_config_from_invalid_yaml() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("helios_test_invalid_config.yaml");
+        std::fs::write(&path, "{{{{invalid yaml!!!").expect("write");
+        let result = HeliosConfig::from_file(&path);
+        assert!(result.is_err());
+        let _ = std::fs::remove_file(&path);
+    }
+
+    /// Config: from_file with non-existent file returns FileRead error.
+    #[test]
+    fn test_config_from_nonexistent_file() {
+        let path = std::path::Path::new("/no/such/helios_test_file.toml");
+        let result = HeliosConfig::from_file(path);
+        assert!(matches!(result, Err(ConfigError::FileRead { .. })));
+    }
+
+    /// HeliosConfig: clone produces independent copy.
+    #[test]
+    fn test_config_clone() {
+        let mut config = HeliosConfig::default();
+        config.cache.max_capacity = 42;
+        let cloned = config.clone();
+        assert_eq!(cloned.cache.max_capacity, 42);
+        // Mutating original does not affect clone
+        config.cache.max_capacity = 99;
+        assert_eq!(cloned.cache.max_capacity, 42);
+    }
 }
