@@ -745,9 +745,8 @@ cache:
         env::remove_var("HELIOS_CONFIG_PATH");
         let config = HeliosConfig::load_from(None);
         assert_eq!(config.cache.max_capacity, 10_000);
-        match prior {
-            Some(value) => env::set_var("HELIOS_CONFIG_PATH", value),
-            None => {}
+        if let Some(value) = prior {
+            env::set_var("HELIOS_CONFIG_PATH", value);
         }
     }
 
