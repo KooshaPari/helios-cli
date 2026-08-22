@@ -5,6 +5,20 @@ All notable changes to HeliosCLI are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0](https://github.com/KooshaPari/helios-cli/compare/v0.4.0...v0.5.0) (2026-08-22)
+
+
+### Features
+
+* **agents:** M2 - Agent management panel, task queue, log viewer, Tracera/AgilePlus integration ([69ed4c9](https://github.com/KooshaPari/helios-cli/commit/69ed4c9644770642faf8d94c7e8ffca00a50f5e7))
+* **desktop:** M1 - Helios Command Center dashboard with Tauri 2, repo monitoring, and CI status ([bde424f](https://github.com/KooshaPari/helios-cli/commit/bde424fdd9fb0046e4274de5a75aaee09254bdee))
+* **unified:** M3 - Unified search, notification center, embedded Tracera/AgilePlus panels, command palette enhancement ([b8a8697](https://github.com/KooshaPari/helios-cli/commit/b8a86971109ce9fd32d13ff0578b70bf859eb0b1))
+
+
+### Bug Fixes
+
+* **kla:** add missing clap::Subcommand import to fix workspace build ([a4a384e](https://github.com/KooshaPari/helios-cli/commit/a4a384eb4bc4087e5f4b5369237f5b6aa9007499))
+
 ## [0.4.0](https://github.com/KooshaPari/helios-cli/compare/v0.3.0...v0.4.0) (2026-08-21)
 
 
