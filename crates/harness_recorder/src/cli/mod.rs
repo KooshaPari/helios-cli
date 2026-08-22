@@ -1,6 +1,8 @@
 
 use std::path::PathBuf;
 
+use clap::Subcommand;
+
 pub mod commands;
 
 #[derive(Subcommand)]
