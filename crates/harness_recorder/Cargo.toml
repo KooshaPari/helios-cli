@@ -9,10 +9,6 @@ repository = "https://github.com/kooshapari/KommandLineAutomation"
 keywords = ["cli", "terminal", "recording", "automation", "gif"]
 categories = ["command-line-utilities", "multimedia", "development-tools"]
 
-[[bin]]
-name = "kla"
-path = "src/main.rs"
-
 [dependencies]
 # Terminal and PTY handling
 portable-pty = "0.8"

@@ -4,12 +4,8 @@
 
 use clap::Parser;
 
-mod cli;
-mod media;
-mod pty;
-mod script;
-
-use cli::Commands;
+// Import from the library crate to avoid duplicating module declarations.
+use kla::cli::{self, Commands};
 
 #[derive(Parser)]
 #[command(name = "kla")]
