@@ -369,7 +369,7 @@ mod tests {
     fn run_error_display_formatting() {
         assert_eq!(RunError::Timeout(42).to_string(), "Timeout after 42s");
         assert_eq!(RunError::NotFound.to_string(), "Command not found");
-        let io_err = std::io::Error::new(std::io::ErrorKind::Other, "bad pipe");
+        let io_err = std::io::Error::other("bad pipe");
         let err: RunError = io_err.into();
         assert!(err.to_string().contains("bad pipe"));
     }
@@ -390,15 +390,15 @@ mod tests {
         assert!(cfg2.shell);
     }
 
-    /// Runner with no timeout does not error on short commands.
+    /// A zero timeout fails deterministically before a long-running child completes.
     #[tokio::test]
-    async fn run_with_no_timeout() {
+    async fn run_with_zero_timeout() {
         #[cfg(windows)]
-        let result = Runner::new().with_timeout(0).run("cmd", &["/C", "echo hi"]).await;
+        let result =
+            Runner::new().with_timeout(0).run("cmd", &["/C", "ping -n 2 127.0.0.1 > NUL"]).await;
         #[cfg(not(windows))]
-        let result = Runner::new().with_timeout(0).run("sh", &["-c", "echo hi"]).await;
+        let result = Runner::new().with_timeout(0).run("sh", &["-c", "sleep 1"]).await;
 
-        // Timeout(0) fires immediately on most systems.
         assert!(matches!(result, Err(RunError::Timeout(0))));
     }
 
