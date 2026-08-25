@@ -719,10 +719,7 @@ cache:
     /// ConfigError: EnvVar variant displays variable name.
     #[test]
     fn config_error_env_var_display() {
-        let err = ConfigError::EnvVar {
-            var: "HELIOS_FOO".into(),
-            inner: "not a number".into(),
-        };
+        let err = ConfigError::EnvVar { var: "HELIOS_FOO".into(), inner: "not a number".into() };
         let msg = err.to_string();
         assert!(msg.contains("HELIOS_FOO"));
         assert!(msg.contains("not a number"));
@@ -745,9 +742,8 @@ cache:
         env::remove_var("HELIOS_CONFIG_PATH");
         let config = HeliosConfig::load_from(None);
         assert_eq!(config.cache.max_capacity, 10_000);
-        match prior {
-            Some(value) => env::set_var("HELIOS_CONFIG_PATH", value),
-            None => {}
+        if let Some(value) = prior {
+            env::set_var("HELIOS_CONFIG_PATH", value);
         }
     }
 

@@ -36,12 +36,7 @@ pub async fn record_command(
     let mut artifacts: Vec<String> = Vec::new();
 
     for (i, step) in script.steps.iter().enumerate() {
-        println!(
-            "Step {}/{}: {:?}",
-            i + 1,
-            script.steps.len(),
-            step.step_type
-        );
+        println!("Step {}/{}: {:?}", i + 1, script.steps.len(), step.step_type);
 
         match step.step_type {
             crate::script::StepType::Command { ref text, wait } => {
@@ -153,12 +148,7 @@ pub async fn demo_command(script_path: PathBuf, interactive: bool) -> Result<()>
 
     for (i, step) in script.steps.iter().enumerate() {
         if interactive {
-            println!(
-                "\n📋 Step {}/{}: {:?}",
-                i + 1,
-                script.steps.len(),
-                step.step_type
-            );
+            println!("\n📋 Step {}/{}: {:?}", i + 1, script.steps.len(), step.step_type);
             println!("Press Enter to continue...");
             let mut input = String::new();
             std::io::stdin().read_line(&mut input)?;
@@ -242,9 +232,7 @@ steps:
 "#;
         std::fs::write(&script_path, yaml).expect("write script");
         let output_dir = dir.path().join("out");
-        record_command(script_path, output_dir.clone(), "png".to_string())
-            .await
-            .expect("record");
+        record_command(script_path, output_dir.clone(), "png".to_string()).await.expect("record");
         assert!(output_dir.is_dir());
     }
 }
