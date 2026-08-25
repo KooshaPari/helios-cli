@@ -62,7 +62,19 @@ pub async fn record_command(
             crate::script::StepType::RecordGif { duration, ref name } => {
                 let gif_path = output_dir.join(format!("{}.gif", name));
                 recorder.start_gif_recording(&terminal).await?;
-                tokio::time::sleep(duration).await;
+                // Capture frames at 1-second intervals during the recording duration
+                let frame_interval = std::time::Duration::from_secs(1);
+                let mut elapsed = std::time::Duration::ZERO;
+                while elapsed < duration {
+                    tokio::time::sleep(frame_interval).await;
+                    elapsed += frame_interval;
+                    if elapsed < duration {
+                        // Capture a frame from the current terminal state
+                        if let Err(e) = recorder.capture_gif_frame(&terminal).await {
+                            log::warn!("Failed to capture GIF frame: {}", e);
+                        }
+                    }
+                }
                 recorder.stop_gif_recording(&gif_path).await?;
                 println!("GIF saved: {}", gif_path.display());
                 artifacts.push(format!("🎞️ {}", gif_path.display()));
