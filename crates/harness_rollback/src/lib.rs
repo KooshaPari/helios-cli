@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 // Copyright (c) 2026 Phenotype org (heliosCLI)
 
-//! Rollback Engine - Simple version
+//! Rollback Engine - Integrated with harness_checkpoint
+//!
+//! When a `repo_path` is provided, `rollback()` performs real git restoration
+//! via `harness_checkpoint::git::restore_git_checkpoint`. Without a repo path,
+//! it records the intended action (useful for testing or non-git scenarios).
 
 use chrono::{DateTime, Utc};
+use harness_checkpoint::git::restore_git_checkpoint;
+use harness_checkpoint::store::CheckpointStore;
+use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
+use tracing::{info, warn};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -70,7 +78,9 @@ impl RollbackRecord {
 
 pub struct RollbackEngine {
     records: Vec<RollbackRecord>,
-    checkpoints: Vec<(String, String)>,
+    checkpoints: Vec<(String, String, String)>, // (checkpoint_id, git_sha, spec_id)
+    repo_path: Option<PathBuf>,
+    store: Option<std::sync::Arc<CheckpointStore>>,
 }
 
 impl Default for RollbackEngine {
@@ -81,19 +91,81 @@ impl Default for RollbackEngine {
 
 impl RollbackEngine {
     pub fn new() -> Self {
-        Self { records: vec![], checkpoints: vec![] }
+        Self { records: vec![], checkpoints: vec![], repo_path: None, store: None }
     }
 
-    pub fn register(&mut self, checkpoint_id: &str, spec_id: &str) -> Uuid {
+    /// Create engine with a git repo path for real restoration
+    pub fn with_repo(repo_path: PathBuf) -> Self {
+        Self {
+            records: vec![],
+            checkpoints: vec![],
+            repo_path: Some(repo_path),
+            store: None,
+        }
+    }
+
+    /// Create engine with a checkpoint store for lookup
+    pub fn with_store(store: std::sync::Arc<CheckpointStore>) -> Self {
+        Self { records: vec![], checkpoints: vec![], repo_path: None, store: Some(store) }
+    }
+
+    /// Create engine with both repo path and checkpoint store
+    pub fn with_repo_and_store(repo_path: PathBuf, store: std::sync::Arc<CheckpointStore>) -> Self {
+        Self {
+            records: vec![],
+            checkpoints: vec![],
+            repo_path: Some(repo_path),
+            store: Some(store),
+        }
+    }
+
+    pub fn register(&mut self, checkpoint_id: &str, git_sha: &str, spec_id: &str) -> Uuid {
         let id = Uuid::new_v4();
-        self.checkpoints.push((checkpoint_id.to_string(), spec_id.to_string()));
+        self.checkpoints
+            .push((checkpoint_id.to_string(), git_sha.to_string(), spec_id.to_string()));
         id
     }
 
+    /// Rollback to a checkpoint. When repo_path is set, performs real git restoration.
     pub fn rollback(&mut self, checkpoint_id: &str) -> Option<RollbackRecord> {
-        let mut record = RollbackRecord::new(checkpoint_id, "spec");
+        let spec_id = self
+            .checkpoints
+            .iter()
+            .find(|(id, _, _)| id == checkpoint_id)
+            .map(|(_, _, sid)| sid.as_str())
+            .unwrap_or("unknown");
+
+        let mut record = RollbackRecord::new(checkpoint_id, spec_id);
         record.start();
-        record.add_restored(&format!("git:{}", checkpoint_id));
+
+        // Find the git SHA for this checkpoint
+        let git_sha = self
+            .checkpoints
+            .iter()
+            .find(|(id, _, _)| id == checkpoint_id)
+            .map(|(_, sha, _)| sha.clone());
+
+        if let Some(ref repo_path) = self.repo_path {
+            if let Some(ref sha) = git_sha {
+                match restore_git_checkpoint(repo_path, sha) {
+                    Ok(()) => {
+                        info!(checkpoint_id, sha = %sha, "git checkpoint restored");
+                        record.add_restored(&format!("git:{}:restored", sha));
+                    }
+                    Err(e) => {
+                        warn!(checkpoint_id, sha = %sha, error = %e, "git restore failed");
+                        record.add_restored(&format!("git:{}:attempted", sha));
+                        record.add_failed(&format!("git:{}:{}", sha, e));
+                    }
+                }
+            } else {
+                record.add_failed("no git SHA found for checkpoint");
+            }
+        } else {
+            // No repo path — record intended action
+            record.add_restored(&format!("git:{}:recorded", checkpoint_id));
+        }
+
         record.complete();
         self.records.push(record.clone());
         Some(record)
@@ -115,7 +187,7 @@ mod tests {
     #[test]
     fn test_rollback() {
         let mut engine = RollbackEngine::new();
-        engine.register("chk-001", "test-spec");
+        engine.register("chk-001", "abc123sha", "test-spec");
         let result = engine.rollback("chk-001");
         assert!(result.is_some());
         let result = engine.rollback("chk-001");
@@ -193,7 +265,7 @@ mod tests {
     #[test]
     fn rollback_engine_register_checkpoint() {
         let mut engine = RollbackEngine::new();
-        let id = engine.register("cp-a", "spec-a");
+        let id = engine.register("cp-a", "sha-abc123", "spec-a");
         // Register returns a valid UUID.
         assert!(!id.is_nil());
     }
