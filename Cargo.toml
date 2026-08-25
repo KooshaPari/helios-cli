@@ -32,6 +32,8 @@ members = [
     "crates/helios_config",
     # KLA absorbed (L5-200): Playwright-for-CLI recorder
     "crates/harness_recorder",
+    # Unified HeliosCLI binary
+    "crates/helios",
 ]
 
 [workspace.package]
