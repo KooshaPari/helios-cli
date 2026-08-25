@@ -18,6 +18,12 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use tracing::instrument;
 
+/// Escape a string for safe use in a shell command.
+/// Wraps in single quotes and escapes any embedded single quotes.
+fn shell_escape(s: &str) -> String {
+    format!("'{}'", s.replace('\'', "'\\''"))
+}
+
 /// Runner configuration
 #[derive(Debug, Clone)]
 pub struct RunnerConfig {
@@ -79,7 +85,12 @@ impl Runner {
 
         let mut cmd = if self.config.shell {
             let mut c = Command::new("sh");
-            c.arg("-c").arg(format!("{} {}", cmd, args.join(" ")));
+            // Escape each argument to prevent shell injection
+            let escaped = std::iter::once(cmd.to_string())
+                .chain(args.iter().map(|a| shell_escape(a)))
+                .collect::<Vec<_>>()
+                .join(" ");
+            c.arg("-c").arg(escaped);
             c
         } else {
             let mut c = Command::new(cmd);
@@ -125,7 +136,11 @@ impl Runner {
     pub async fn run_with_input(&self, cmd: &str, args: &[&str], input: &str) -> Result<RunResult> {
         let mut cmd = if self.config.shell {
             let mut c = Command::new("sh");
-            c.arg("-c").arg(format!("{} {}", cmd, args.join(" ")));
+            let escaped = std::iter::once(cmd.to_string())
+                .chain(args.iter().map(|a| shell_escape(a)))
+                .collect::<Vec<_>>()
+                .join(" ");
+            c.arg("-c").arg(escaped);
             c
         } else {
             let mut c = Command::new(cmd);
