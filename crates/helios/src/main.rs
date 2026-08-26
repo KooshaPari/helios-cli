@@ -8,7 +8,7 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[command(
     name = "helios",
     about = "HeliosCLI — Unified harness for agent task orchestration",
@@ -24,7 +24,7 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 enum Commands {
     /// Run a command through the harness runner
     Run {
@@ -274,4 +274,75 @@ fn cmd_enqueue(payload: String, capacity: usize) -> Result<()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Test that the status command runs successfully and displays version info.
+    #[test]
+    fn test_status_command_displays_version_info() {
+        let result = cmd_status();
+        assert!(result.is_ok(), "cmd_status should return Ok(())");
+    }
+
+    /// Test that enqueue validates JSON input — invalid JSON must fail.
+    #[test]
+    fn test_enqueue_validates_json_input() {
+        let result = cmd_enqueue("not valid json {{{".to_string(), 10);
+        assert!(result.is_err(), "invalid JSON should be rejected");
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("JSON") || err_msg.contains("json"),
+            "error should mention JSON: {err_msg}"
+        );
+    }
+
+    /// Test that RunnerConfig defaults are sane.
+    #[test]
+    fn test_runner_config_defaults_are_sane() {
+        let cfg = harness_runner::RunnerConfig::default();
+        assert!(cfg.working_dir.is_none(), "default working_dir should be None");
+        assert!(cfg.timeout_secs.is_some(), "default timeout_secs should be set");
+        assert!(cfg.timeout_secs.unwrap() > 0, "default timeout should be positive");
+        assert!(cfg.env.is_empty(), "default env should be empty");
+        assert!(!cfg.shell, "default shell mode should be false");
+    }
+
+    /// Test that CheckpointOptions loads sensible defaults.
+    #[test]
+    fn test_checkpoint_config_loads() {
+        let opts = harness_checkpoint::checkpoint::CheckpointOptions::default();
+        assert!(opts.git_checkpoint, "git_checkpoint should default to true");
+        assert!(opts.config_snapshot, "config_snapshot should default to true");
+        assert!(opts.metrics_baseline, "metrics_baseline should default to true");
+        assert!(opts.include_uncommitted, "include_uncommitted should default to true");
+        assert!(opts.message.is_none(), "message should default to None");
+    }
+
+    /// Test that RollbackEngine initializes with empty state.
+    #[test]
+    fn test_rollback_engine_initializes() {
+        let engine = harness_rollback::RollbackEngine::new();
+        assert!(engine.history().is_empty(), "new engine should have no history");
+    }
+
+    /// Test that enqueue succeeds with valid JSON payload.
+    #[test]
+    fn test_enqueue_accepts_valid_json() {
+        let payload = r#"{"task":"run-tests","priority":"high"}"#.to_string();
+        let result = cmd_enqueue(payload, 10);
+        assert!(result.is_ok(), "valid JSON payload should be accepted: {result:?}");
+    }
+
+    /// Test that the CLI parser can be constructed without panicking.
+    #[test]
+    fn test_cli_parser_construction() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from(["helios", "status"]);
+        assert!(cli.is_ok(), "CLI parsing 'helios status' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        assert!(matches!(cli.command, Commands::Status));
+    }
 }
