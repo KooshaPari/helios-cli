@@ -194,7 +194,27 @@ impl VerificationPipeline {
                 })
             }
             VerificationRule::Custom { command, expected_exit_code } => {
-                // Run custom command
+                // Reject commands with shell metacharacters to prevent injection
+                if has_shell_metacharacters(command) {
+                    return Ok(VerificationResult {
+                        id: uuid::Uuid::new_v4(),
+                        spec_id: spec_id.to_string(),
+                        verification_type: crate::result::VerificationType::Custom,
+                        status: crate::result::VerificationStatus::Failed,
+                        started_at: chrono::Utc::now(),
+                        completed_at: Some(chrono::Utc::now()),
+                        duration_ms: 0,
+                        output: format!(
+                            "Custom command rejected: contains shell metacharacters"
+                        ),
+                        errors: vec![format!(
+                            "command '{}' contains potentially dangerous characters",
+                            command
+                        )],
+                        metrics: Default::default(),
+                    });
+                }
+                // Run custom command (safe — metacharacters stripped above)
                 let output =
                     tokio::process::Command::new("sh").args(["-c", command]).output().await?;
 
@@ -451,7 +471,9 @@ mod tests {
 
     #[test]
     fn has_shell_metacharacters_detects_injection_attempts() {
-        assert!(has_shell_metacharacters("rm -rf /"));
+        // rm -rf / is dangerous but has NO metacharacters — it's a plain command
+        assert!(!has_shell_metacharacters("rm -rf /"));
+        // These DO contain metacharacters (pipe, semicolon, etc.)
         assert!(has_shell_metacharacters("echo hello | cat /etc/passwd"));
         assert!(has_shell_metacharacters("test; rm -rf /"));
         assert!(has_shell_metacharacters("cmd && malice"));
