@@ -33,6 +33,8 @@ members = [
     "crates/helios",
     # KLA (Kommand Line Automation) recording harness
     "crates/harness_recorder",
+    # AI client for OpenAI-compatible APIs
+    "crates/helios-ai",
 ]
 
 [workspace.package]

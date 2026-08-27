@@ -95,6 +95,28 @@ enum Commands {
         #[arg(short, long, default_value = "both")]
         format: String,
     },
+
+    /// Ask an AI question using an OpenAI-compatible API
+    Ask {
+        /// The question/prompt to send
+        prompt: String,
+
+        /// Provider URL (overrides HELIOS_AI_BASE_URL env)
+        #[arg(short, long)]
+        url: Option<String>,
+
+        /// API key (overrides HELIOS_AI_API_KEY env)
+        #[arg(short = 'k', long)]
+        api_key: Option<String>,
+
+        /// Model name (overrides HELIOS_AI_MODEL env)
+        #[arg(short, long)]
+        model: Option<String>,
+
+        /// System prompt
+        #[arg(short, long)]
+        system: Option<String>,
+    },
 }
 
 #[tokio::main]
@@ -125,6 +147,9 @@ async fn main() -> Result<()> {
         }
         Commands::Record { script, output, format } => {
             cmd_record(script, output, format).await
+        }
+        Commands::Ask { prompt, url, api_key, model, system } => {
+            cmd_ask(prompt, url, api_key, model, system).await
         }
     }
 }
@@ -307,6 +332,59 @@ async fn cmd_record(script: PathBuf, output: PathBuf, format: String) -> Result<
     kla::cli::commands::record_command(script, output, format).await
 }
 
+/// Ask an AI question using an OpenAI-compatible API
+async fn cmd_ask(
+    prompt: String,
+    url: Option<String>,
+    api_key: Option<String>,
+    model: Option<String>,
+    system: Option<String>,
+) -> Result<()> {
+    use helios_ai::{AiClient, Message, ProviderConfig};
+
+    // Resolve config from args > env > defaults
+    let base_url = url
+        .or_else(|| std::env::var("HELIOS_AI_BASE_URL").ok())
+        .unwrap_or_else(|| "http://localhost:11434/v1".into());
+
+    let api_key_val = api_key
+        .or_else(|| std::env::var("HELIOS_AI_API_KEY").ok())
+        .unwrap_or_default();
+
+    let model_val = model
+        .or_else(|| std::env::var("HELIOS_AI_MODEL").ok())
+        .unwrap_or_else(|| "gpt-4o".into());
+
+    let config = ProviderConfig {
+        base_url,
+        api_key: api_key_val,
+        model: model_val,
+        timeout_secs: 120,
+    };
+
+    let client = AiClient::new(config)
+        .context("Failed to create AI client")?;
+
+    println!("[helios] Asking AI (model: {})...", client.config().model);
+
+    let response = if let Some(sys) = system {
+        client.complete_with_system(&sys, &prompt).await
+    } else {
+        client.complete(&prompt).await
+    };
+
+    match response {
+        Ok(text) => {
+            println!("\n{text}");
+            Ok(())
+        }
+        Err(e) => {
+            eprintln!("[helios] AI request failed: {e}");
+            anyhow::bail!("AI request failed: {e}")
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -402,5 +480,20 @@ mod tests {
         assert!(cli.is_ok(), "CLI parsing 'helios record' should succeed: {cli:?}");
         let cli = cli.unwrap();
         assert!(matches!(cli.command, Commands::Record { .. }));
+    }
+
+    /// Test that the CLI parser can handle the ask subcommand.
+    #[test]
+    fn test_cli_parser_ask_subcommand() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "ask", "What is Rust?",
+            "--url", "http://localhost:11434/v1",
+            "--model", "llama3",
+            "--system", "You are a helpful assistant",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios ask' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        assert!(matches!(cli.command, Commands::Ask { .. }));
     }
 }
