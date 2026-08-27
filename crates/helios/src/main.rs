@@ -81,6 +81,20 @@ enum Commands {
         #[arg(short, long, default_value = "100")]
         capacity: usize,
     },
+
+    /// Record a terminal session using KLA
+    Record {
+        /// Path to the KLA script (.kla.yaml)
+        script: PathBuf,
+
+        /// Output directory for recordings
+        #[arg(short, long, default_value = "./output")]
+        output: PathBuf,
+
+        /// Output format (png, gif, both)
+        #[arg(short, long, default_value = "both")]
+        format: String,
+    },
 }
 
 #[tokio::main]
@@ -108,6 +122,9 @@ async fn main() -> Result<()> {
         Commands::Status => cmd_status(),
         Commands::Enqueue { payload, capacity } => {
             cmd_enqueue(payload, capacity)
+        }
+        Commands::Record { script, output, format } => {
+            cmd_record(script, output, format).await
         }
     }
 }
@@ -246,6 +263,7 @@ fn cmd_status() -> Result<()> {
     println!("  helios rollback <id>          Rollback to a checkpoint");
     println!("  helios status                 Show this status");
     println!("  helios enqueue <payload>      Enqueue a background task");
+    println!("  helios record <script>        Record a terminal session (KLA)");
 
     Ok(())
 }
@@ -278,6 +296,15 @@ fn cmd_enqueue(payload: String, capacity: usize) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Record a terminal session using KLA
+async fn cmd_record(script: PathBuf, output: PathBuf, format: String) -> Result<()> {
+    println!("[helios] Recording session from: {}", script.display());
+    println!("[helios] Output dir: {}", output.display());
+    println!("[helios] Format: {}", format);
+
+    kla::cli::commands::record_command(script, output, format).await
 }
 
 #[cfg(test)]
@@ -361,5 +388,19 @@ mod tests {
         assert!(cli.is_ok(), "CLI parsing 'helios status' should succeed: {cli:?}");
         let cli = cli.unwrap();
         assert!(matches!(cli.command, Commands::Status));
+    }
+
+    /// Test that the CLI parser can handle the record subcommand.
+    #[test]
+    fn test_cli_parser_record_subcommand() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "record", "test.kla.yaml",
+            "--output", "./recording",
+            "--format", "gif",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios record' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        assert!(matches!(cli.command, Commands::Record { .. }));
     }
 }

@@ -1103,6 +1103,7 @@ dependencies = [
  "harness_spec",
  "harness_verify",
  "helios_config",
+ "kla",
  "serde_json",
  "tokio",
  "tracing",

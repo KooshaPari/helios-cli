@@ -77,3 +77,35 @@ fn test_helios_run_with_working_dir() {
     );
 }
 
+#[test]
+fn test_helios_help_shows_record_subcommand() {
+    let output = helios_bin()
+        .args(["--help"])
+        .output()
+        .expect("failed to execute helios --help");
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("record"),
+        "help should mention 'record' subcommand, got: {}",
+        stdout
+    );
+}
+
+#[test]
+fn test_helios_record_with_missing_script_fails() {
+    let output = helios_bin()
+        .args(["record", "nonexistent.kla.yaml", "--output", "./test_output"])
+        .output()
+        .expect("failed to execute helios record");
+
+    // Should fail because the script file doesn't exist
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        !output.status.success() || stderr.contains("Failed to load script") || stdout.contains("Failed to load script"),
+        "helios record with missing script should fail, got stdout: {}, stderr: {}",
+        stdout, stderr
+    );
+}
+

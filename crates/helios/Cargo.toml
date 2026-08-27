@@ -17,6 +17,7 @@ harness_queue = { path = "../harness_queue" }
 harness_runner = { path = "../harness_runner" }
 harness_rollback = { path = "../harness_rollback" }
 harness_checkpoint = { path = "../harness_checkpoint" }
+kla = { path = "../harness_recorder" }
 harness_spec = { path = "../harness_spec" }
 harness_verify = { path = "../harness_verify" }
 helios_config = { path = "../helios_config" }
