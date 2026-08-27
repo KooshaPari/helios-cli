@@ -314,9 +314,6 @@ impl Default for RunnerConfig {
 // ---------------------------------------------------------------------------
 
 /// Scaling configuration defaults.
-///
-/// Previously hardcoded in:
-/// - `crates/harness_scaling/src/lib.rs` (ScalingConfig)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ScalingConfig {
@@ -355,9 +352,6 @@ impl Default for ScalingConfig {
 // ---------------------------------------------------------------------------
 
 /// Circuit breaker configuration defaults.
-///
-/// Previously hardcoded in:
-/// - `crates/harness_scaling/src/lib.rs` (CircuitBreaker)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CircuitBreakerConfig {
@@ -500,9 +494,6 @@ impl Default for VerifyConfig {
 // ---------------------------------------------------------------------------
 
 /// Predictive scaler configuration.
-///
-/// Previously hardcoded in:
-/// - `crates/harness_scaling/src/lib.rs` (PredictiveScaler)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct PredictiveScalerConfig {
@@ -523,9 +514,6 @@ impl Default for PredictiveScalerConfig {
 // ---------------------------------------------------------------------------
 
 /// Token bucket rate limiter configuration.
-///
-/// Previously hardcoded in:
-/// - `crates/harness_scaling/src/lib.rs` (TokenBucket)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TokenBucketConfig {

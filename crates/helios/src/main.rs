@@ -224,7 +224,6 @@ fn cmd_status() -> Result<()> {
     println!("  harness_runner:     {}", env!("CARGO_PKG_VERSION"));
     println!("  harness_rollback:   {}", env!("CARGO_PKG_VERSION"));
     println!("  harness_checkpoint: {}", env!("CARGO_PKG_VERSION"));
-    println!("  harness_scaling:    {}", env!("CARGO_PKG_VERSION"));
     println!("  harness_spec:       {}", env!("CARGO_PKG_VERSION"));
     println!("  harness_verify:     {}", env!("CARGO_PKG_VERSION"));
     println!();
