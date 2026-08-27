@@ -31,6 +31,8 @@ members = [
     "crates/helios_config",
     # Unified HeliosCLI binary
     "crates/helios",
+    # KLA (Kommand Line Automation) recording harness
+    "crates/harness_recorder",
 ]
 
 [workspace.package]

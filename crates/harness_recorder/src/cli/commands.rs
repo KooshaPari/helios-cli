@@ -175,9 +175,52 @@ pub async fn demo_command(script_path: PathBuf, interactive: bool) -> Result<()>
 pub async fn convert_command(input: PathBuf, output: PathBuf) -> Result<()> {
     println!("🔄 {} → {}", input.display(), output.display());
 
-    // TODO: Implement format conversion logic
-    // This would handle converting between different recording formats
+    // Load the script from the input file — supports both .yaml and .json.
+    let content = std::fs::read_to_string(&input)
+        .with_context(|| format!("Failed to read input file: {}", input.display()))?;
 
+    let script: crate::script::Script = if input
+        .extension()
+        .map_or(false, |e| e == "json" || e.to_string_lossy() == "kla.json")
+    {
+        serde_json::from_str(&content)
+            .with_context(|| format!("Failed to parse JSON script: {}", input.display()))?
+    } else {
+        // Default: treat as YAML
+        serde_yaml::from_str(&content)
+            .with_context(|| format!("Failed to parse YAML script: {}", input.display()))?
+    };
+
+    // Determine output format from the file extension.
+    let out_ext = output
+        .extension()
+        .map(|e| e.to_string_lossy().to_lowercase())
+        .unwrap_or_default();
+
+    let serialized = match out_ext.as_str() {
+        "json" | "kla.json" => serde_json::to_string_pretty(&script)
+            .context("Failed to serialize script to JSON")?,
+        "yaml" | "kla.yaml" | "yml" => serde_yaml::to_string(&script)
+            .context("Failed to serialize script to YAML")?,
+        other => {
+            anyhow::bail!(
+                "Unsupported output format '.{}'. Supported: .json, .kla.json, .yaml, .kla.yaml, .yml",
+                other
+            );
+        }
+    };
+
+    // Ensure parent directory exists.
+    if let Some(parent) = output.parent() {
+        std::fs::create_dir_all(parent)
+            .with_context(|| format!("Failed to create output directory: {}", parent.display()))?;
+    }
+
+    std::fs::write(&output, serialized)
+        .with_context(|| format!("Failed to write output file: {}", output.display()))?;
+
+    println!("  Steps: {}", script.steps.len());
+    println!("  Output: {}", output.display());
     println!("✅ Done");
     Ok(())
 }
@@ -193,13 +236,59 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn convert_command_is_noop_success() {
-        convert_command(
-            std::path::PathBuf::from("input.gif"),
-            std::path::PathBuf::from("output.mp4"),
-        )
-        .await
-        .expect("convert");
+    async fn convert_yaml_to_json_roundtrips() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let input = dir.path().join("script.kla.yaml");
+        let output = dir.path().join("script.kla.json");
+        let yaml = r#"name: convert-test
+settings:
+  width: 80
+  height: 24
+  shell: sh
+steps:
+  - type: command
+    text: echo hello
+    wait: 500ms
+"#;
+        std::fs::write(&input, yaml).expect("write yaml input");
+        convert_command(input, output.clone()).await.expect("convert");
+        assert!(output.exists(), "output JSON should exist");
+        let json_content = std::fs::read_to_string(&output).unwrap();
+        let parsed: crate::script::Script = serde_json::from_str(&json_content).unwrap();
+        assert_eq!(parsed.name, "convert-test");
+        assert_eq!(parsed.steps.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn convert_json_to_yaml_roundtrips() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let input = dir.path().join("script.json");
+        let output = dir.path().join("converted.yaml");
+        let json_str = r#"{"name":"json-input","settings":{"width":100,"height":30,"shell":"bash","theme":"default"},"steps":[{"type":"command","text":"ls"}]}"#;
+        std::fs::write(&input, json_str).expect("write json input");
+        convert_command(input, output.clone()).await.expect("convert");
+        assert!(output.exists(), "output YAML should exist");
+        let yaml_content = std::fs::read_to_string(&output).unwrap();
+        let parsed: crate::script::Script = serde_yaml::from_str(&yaml_content).unwrap();
+        assert_eq!(parsed.name, "json-input");
+        assert_eq!(parsed.steps.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn convert_unsupported_extension_fails() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let input = dir.path().join("script.kla.yaml");
+        let output = dir.path().join("output.xml");
+        let yaml = r#"name: test
+settings:
+  width: 80
+  height: 24
+  shell: sh
+steps: []
+"#;
+        std::fs::write(&input, yaml).expect("write yaml");
+        let result = convert_command(input, output).await;
+        assert!(result.is_err(), "unsupported extension should fail");
     }
 
     #[tokio::test]

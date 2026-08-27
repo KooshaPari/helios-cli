@@ -80,6 +80,18 @@ impl<T> Channel<T> {
         Ok(())
     }
 
+    /// Attempt to send without blocking.
+    ///
+    /// Returns `Err(QueueError::Full)` if the buffer is at capacity and
+    /// `Err(QueueError::Closed)` if the channel has been closed.  This is
+    /// the preferred API for fire-and-forget enqueue paths where blocking
+    /// the caller is unacceptable.
+    ///
+    /// Traces to: FR-HELIOS-Q-001
+    pub fn try_send(&self, item: T) -> Result<(), QueueError> {
+        self.send(item)
+    }
+
     pub fn recv(&self) -> Option<T> {
         let mut buffer = self.buffer.lock().ok()?;
         if buffer.is_empty() {
@@ -365,6 +377,30 @@ mod tests {
         assert_eq!(queue.pop(), Some(2));
         assert_eq!(queue.pop(), Some(3));
         assert!(queue.pop().is_none());
+    }
+
+    /// try_send: non-blocking send mirrors send() semantics.
+    #[test]
+    fn try_send_returns_full_when_at_capacity() {
+        let ch: Channel<i32> = Channel::new(1);
+        assert!(ch.try_send(1).is_ok());
+        assert!(matches!(ch.try_send(2), Err(QueueError::Full)));
+        // Still full — nothing was consumed
+        assert!(matches!(ch.try_send(3), Err(QueueError::Full)));
+        // After close, returns Closed
+        ch.close();
+        assert!(matches!(ch.try_send(0), Err(QueueError::Closed)));
+    }
+
+    /// try_send: works correctly when there is capacity.
+    #[test]
+    fn try_send_succeeds_with_capacity() {
+        let ch: Channel<i32> = Channel::new(4);
+        assert!(ch.try_send(10).is_ok());
+        assert!(ch.try_send(20).is_ok());
+        assert_eq!(ch.len(), 2);
+        assert_eq!(ch.recv(), Some(10));
+        assert_eq!(ch.recv(), Some(20));
     }
 
     /// QueueError display variants.

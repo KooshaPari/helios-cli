@@ -250,7 +250,11 @@ fn cmd_status() -> Result<()> {
     Ok(())
 }
 
-/// Enqueue a task for background processing
+/// Enqueue a task for background processing.
+///
+/// Uses [`harness_queue::Channel::try_send`] to guarantee the enqueue never
+/// blocks — it returns immediately with an error if the channel is full or
+/// closed, rather than waiting for a consumer.
 fn cmd_enqueue(payload: String, capacity: usize) -> Result<()> {
     use harness_queue::Channel;
 
@@ -260,7 +264,8 @@ fn cmd_enqueue(payload: String, capacity: usize) -> Result<()> {
     let _parsed: serde_json::Value = serde_json::from_str(&payload)
         .context("Invalid JSON payload")?;
 
-    channel.send(payload.clone())
+    // try_send is non-blocking: returns Err immediately if full / closed.
+    channel.try_send(payload.clone())
         .map_err(|e| anyhow::anyhow!("Queue send failed: {:?}", e))?;
 
     println!("[helios] Task enqueued (queue depth: 1)");
@@ -333,6 +338,19 @@ mod tests {
         let payload = r#"{"task":"run-tests","priority":"high"}"#.to_string();
         let result = cmd_enqueue(payload, 10);
         assert!(result.is_ok(), "valid JSON payload should be accepted: {result:?}");
+    }
+
+    /// Test that enqueue with capacity=1 does not block even when channel is full.
+    #[test]
+    fn test_enqueue_with_full_channel_returns_error() {
+        use harness_queue::Channel;
+        let channel: Channel<String> = Channel::new(1);
+        channel.try_send("a".into()).unwrap();
+        // The channel is full — try_send must return Err immediately, not block.
+        assert!(
+            channel.try_send("b".into()).is_err(),
+            "try_send on a full channel must not block"
+        );
     }
 
     /// Test that the CLI parser can be constructed without panicking.

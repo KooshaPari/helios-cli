@@ -74,11 +74,21 @@ mod tests {
 
     #[tokio::test]
     async fn execute_command_dispatches_convert() {
-        execute_command(Commands::Convert {
-            input: PathBuf::from("in.gif"),
-            output: PathBuf::from("out.mp4"),
-        })
-        .await
-        .expect("convert dispatch");
+        let dir = tempfile::tempdir().expect("tempdir");
+        let input = dir.path().join("dispatch.kla.yaml");
+        let output = dir.path().join("dispatch.json");
+        let yaml = r#"name: dispatch-test
+settings:
+  width: 80
+  height: 24
+  shell: sh
+steps:
+  - type: command
+    text: echo dispatch
+"#;
+        std::fs::write(&input, yaml).expect("write yaml");
+        execute_command(Commands::Convert { input, output })
+            .await
+            .expect("convert dispatch");
     }
 }
