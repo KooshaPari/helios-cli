@@ -18,6 +18,12 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use tracing::instrument;
 
+/// Escape a string for safe use in a shell command.
+/// Wraps in single quotes and escapes any embedded single quotes.
+fn shell_escape(s: &str) -> String {
+    format!("'{}'", s.replace('\'', "'\\''"))
+}
+
 /// Runner configuration
 #[derive(Debug, Clone)]
 pub struct RunnerConfig {
@@ -79,7 +85,12 @@ impl Runner {
 
         let mut cmd = if self.config.shell {
             let mut c = Command::new("sh");
-            c.arg("-c").arg(format!("{} {}", cmd, args.join(" ")));
+            // Escape each argument to prevent shell injection
+            let escaped = std::iter::once(cmd.to_string())
+                .chain(args.iter().map(|a| shell_escape(a)))
+                .collect::<Vec<_>>()
+                .join(" ");
+            c.arg("-c").arg(escaped);
             c
         } else {
             let mut c = Command::new(cmd);
@@ -125,7 +136,11 @@ impl Runner {
     pub async fn run_with_input(&self, cmd: &str, args: &[&str], input: &str) -> Result<RunResult> {
         let mut cmd = if self.config.shell {
             let mut c = Command::new("sh");
-            c.arg("-c").arg(format!("{} {}", cmd, args.join(" ")));
+            let escaped = std::iter::once(cmd.to_string())
+                .chain(args.iter().map(|a| shell_escape(a)))
+                .collect::<Vec<_>>()
+                .join(" ");
+            c.arg("-c").arg(escaped);
             c
         } else {
             let mut c = Command::new(cmd);
@@ -369,7 +384,7 @@ mod tests {
     fn run_error_display_formatting() {
         assert_eq!(RunError::Timeout(42).to_string(), "Timeout after 42s");
         assert_eq!(RunError::NotFound.to_string(), "Command not found");
-        let io_err = std::io::Error::new(std::io::ErrorKind::Other, "bad pipe");
+        let io_err = std::io::Error::other("bad pipe");
         let err: RunError = io_err.into();
         assert!(err.to_string().contains("bad pipe"));
     }
@@ -394,15 +409,9 @@ mod tests {
     #[tokio::test]
     async fn run_with_zero_timeout() {
         #[cfg(windows)]
-        let result = Runner::new()
-            .with_timeout(0)
-            .run("cmd", &["/C", "ping -n 2 127.0.0.1 > NUL"])
-            .await;
+        let result = Runner::new().with_timeout(0).run("cmd", &["/C", "ping -n 2 127.0.0.1 > NUL"]).await;
         #[cfg(not(windows))]
-        let result = Runner::new()
-            .with_timeout(0)
-            .run("sh", &["-c", "sleep 1"])
-            .await;
+        let result = Runner::new().with_timeout(0).run("sh", &["-c", "sleep 1"]).await;
 
         assert!(matches!(result, Err(RunError::Timeout(0))));
     }

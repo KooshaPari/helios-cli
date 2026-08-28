@@ -49,9 +49,9 @@ rck-core = { git = "https://github.com/KooshaPari/rich-cli-kit", rev = "4db13bcd
 futures = "0.3"
 
 # OpenTelemetry
-opentelemetry = "0.22"
-opentelemetry-otlp = { version = "0.15", features = ["tonic"] }
-opentelemetry_sdk = { version = "0.32", features = ["rt-tokio"] }
+opentelemetry = "0.32"
+opentelemetry-otlp = { version = "0.32", features = ["grpc-tonic", "trace", "metrics"] }
+opentelemetry_sdk = { version = "0.32", features = ["rt-tokio", "trace", "metrics"] }
 
 # File operations
 tempfile = "3.8"

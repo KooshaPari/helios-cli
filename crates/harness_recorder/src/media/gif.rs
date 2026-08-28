@@ -7,12 +7,10 @@ use super::screenshot::ScreenshotGenerator;
 use super::{MediaConfig, ThemeConfig};
 
 pub struct GifGenerator {
-    encoder: Encoder<File>,
-    screenshot_gen: ScreenshotGenerator,
-    // Stored for future multi-pass re-encoding; not read after construction.
-    #[allow(dead_code)]
+    config: MediaConfig,
+    theme: ThemeConfig,
+    frames: Vec<Vec<u8>>,
     width: u16,
-    #[allow(dead_code)]
     height: u16,
     frame_delay: u16, // in centiseconds (1/100th of a second)
 }
@@ -24,18 +22,10 @@ impl GifGenerator {
         terminal_width: u16,
         terminal_height: u16,
     ) -> Result<Self> {
-        // We'll create the encoder later when we know the output path
-        // For now, create a temporary file
-        let temp_file =
-            tempfile::NamedTempFile::new().context("Failed to create temporary file for GIF")?;
-
-        let file = temp_file.into_file();
-        let mut encoder = Encoder::new(file, terminal_width, terminal_height, &[])?;
-        encoder.set_repeat(Repeat::Infinite)?;
-
         Ok(Self {
-            encoder,
-            screenshot_gen: ScreenshotGenerator::new(config, theme),
+            config: config.clone(),
+            theme: theme.clone(),
+            frames: Vec::new(),
             width: terminal_width,
             height: terminal_height,
             frame_delay: 50, // 0.5 seconds default
@@ -53,35 +43,44 @@ impl GifGenerator {
         terminal_width: u16,
         terminal_height: u16,
     ) -> Result<()> {
-        // Generate a frame image
+        // Generate a frame image to a temp file, then read the raw PNG bytes
         let temp_image_file = tempfile::NamedTempFile::with_suffix(".png")?;
-        self.screenshot_gen.generate(
+        let screenshot_gen = ScreenshotGenerator::new(&self.config, &self.theme);
+        screenshot_gen.generate(
             content,
             terminal_width,
             terminal_height,
             temp_image_file.path(),
         )?;
 
-        // Load the image and convert to GIF frame
-        let image =
-            image::open(temp_image_file.path()).context("Failed to load generated screenshot")?;
-
-        let rgb_image = image.to_rgb8();
-        let (width, height) = rgb_image.dimensions();
-
-        // Convert to GIF frame format
-        let mut frame = Frame::from_rgb(width as u16, height as u16, &rgb_image);
-        frame.delay = self.frame_delay;
-
-        self.encoder.write_frame(&frame).context("Failed to write GIF frame")?;
+        // Read the PNG bytes into our frame buffer
+        let image_data = std::fs::read(temp_image_file.path())
+            .context("Failed to read generated screenshot")?;
+        self.frames.push(image_data);
 
         Ok(())
     }
 
-    pub fn save(self, output_path: &Path) -> Result<()> {
-        // The encoder automatically finalizes when dropped
-        // We need to move the temporary file to the desired location
-        // This is a simplified approach - in practice, you'd handle this better
+    pub fn save(&self, output_path: &Path) -> Result<()> {
+        if self.frames.is_empty() {
+            return Err(anyhow::anyhow!("No frames to save"));
+        }
+
+        let file = File::create(output_path)
+            .with_context(|| format!("Failed to create GIF file: {}", output_path.display()))?;
+
+        let mut encoder = Encoder::new(file, self.width, self.height, &[])?;
+        encoder.set_repeat(Repeat::Infinite)?;
+
+        for frame_data in &self.frames {
+            let image =
+                image::load_from_memory(frame_data).context("Failed to decode frame image")?;
+            let rgb_image = image.to_rgb8();
+            let (width, height) = rgb_image.dimensions();
+            let mut frame = Frame::from_rgb(width as u16, height as u16, &rgb_image);
+            frame.delay = self.frame_delay;
+            encoder.write_frame(&frame).context("Failed to write GIF frame")?;
+        }
 
         log::info!("GIF saved to: {}", output_path.display());
         Ok(())

@@ -5,6 +5,31 @@ All notable changes to HeliosCLI are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0](https://github.com/KooshaPari/helios-cli/compare/v0.5.0...v0.6.0) (2026-08-28)
+
+
+### Features
+
+* **ai:** add helios-ai crate with OpenAI-compatible client ([4176b67](https://github.com/KooshaPari/helios-cli/commit/4176b6779c5da03b68c6bf581ce3c83973d8b0a1))
+* **helios:** add e2e tests, remove harness_recorder dead crate, add codex sync marker ([e312dbc](https://github.com/KooshaPari/helios-cli/commit/e312dbc7bf01f20904003c349cf0a6573a4cc308))
+* **helios:** add multi-turn chat mode (--chat flag) and performance/security verify rules ([513ab53](https://github.com/KooshaPari/helios-cli/commit/513ab532a356d236d7e9c5a3bc3f0dc241624848))
+* **helios:** unified binary wiring harness_queue, runner, rollback, checkpoint ([1d15745](https://github.com/KooshaPari/helios-cli/commit/1d157458d576e4a59f27445fb3f8aecddb0d3abe))
+* **helios:** wire harness_recorder as kla dependency, fix split_matches error ([11d859a](https://github.com/KooshaPari/helios-cli/commit/11d859ae3f053c835786ae07d1f54d3b3328f9e4))
+* **rollback:** integrate with harness_checkpoint for real git restoration ([8bb5a2d](https://github.com/KooshaPari/helios-cli/commit/8bb5a2d22cc96a2609441051a9c26d1233c547dc))
+* **run:** add --sandbox flag for platform-aware sandboxing ([877512f](https://github.com/KooshaPari/helios-cli/commit/877512f4a38a0cde2ed19d5db70c13b76fca116e))
+* **verify:** implement Performance rule with real benchmark execution ([af16424](https://github.com/KooshaPari/helios-cli/commit/af16424678f8622cca61159deb7079331eabc816))
+
+
+### Bug Fixes
+
+* add try_send to Channel&lt;T&gt; and implement KLA convert subcommand ([fdf036f](https://github.com/KooshaPari/helios-cli/commit/fdf036f48d41741eecfc9ee91a8dd11625333e57))
+* avoid-clippy-single-match ([#640](https://github.com/KooshaPari/helios-cli/issues/640)) ([0f708a4](https://github.com/KooshaPari/helios-cli/commit/0f708a4e7f8707dcaf464a8ae0e79e9c725ce850))
+* **helios:** improve screenshot font, add helios binary tests, remove dead code ([cd8f752](https://github.com/KooshaPari/helios-cli/commit/cd8f752b32e7ba945ecb177e67aa4e15883e7204))
+* **kla:** implement GIF recording (capture frames + write output) ([f7ef099](https://github.com/KooshaPari/helios-cli/commit/f7ef099b7dd0a4e23764fa410294a5b1abdf090c))
+* **kla:** wire binary to use library crate modules, remove duplicate mod declarations ([e5ded92](https://github.com/KooshaPari/helios-cli/commit/e5ded9266c4e8cbb0a20c802fbeee08cf886c59c))
+* **runner:** prevent shell command injection in shell mode ([d7c7831](https://github.com/KooshaPari/helios-cli/commit/d7c7831bde68e941f936221a617240e825917940))
+* **verify:** add metacharacter check to Custom rule, fix test assertion ([7432021](https://github.com/KooshaPari/helios-cli/commit/74320219924b907f308c047885044d85d2a00c48))
+
 ## [0.5.0](https://github.com/KooshaPari/helios-cli/compare/v0.4.0...v0.5.0) (2026-08-22)
 
 

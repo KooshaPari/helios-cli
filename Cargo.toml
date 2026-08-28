@@ -11,7 +11,6 @@ members = [
     "crates/harness_queue",
     "crates/harness_rollback",
     "crates/harness_runner",
-    "crates/harness_scaling",
     "crates/harness_schema",
     "crates/harness_spec",
     "crates/harness_teammates",
@@ -30,8 +29,12 @@ members = [
     "crates/plugin-arch",
     # Centralised configuration
     "crates/helios_config",
-    # KLA absorbed (L5-200): Playwright-for-CLI recorder
+    # Unified HeliosCLI binary
+    "crates/helios",
+    # KLA (Kommand Line Automation) recording harness
     "crates/harness_recorder",
+    # AI client for OpenAI-compatible APIs
+    "crates/helios-ai",
 ]
 
 [workspace.package]
