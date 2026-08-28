@@ -116,6 +116,10 @@ enum Commands {
         /// System prompt
         #[arg(short, long)]
         system: Option<String>,
+
+        /// Enable interactive multi-turn chat mode
+        #[arg(long)]
+        chat: bool,
     },
 }
 
@@ -148,8 +152,8 @@ async fn main() -> Result<()> {
         Commands::Record { script, output, format } => {
             cmd_record(script, output, format).await
         }
-        Commands::Ask { prompt, url, api_key, model, system } => {
-            cmd_ask(prompt, url, api_key, model, system).await
+        Commands::Ask { prompt, url, api_key, model, system, chat } => {
+            cmd_ask(prompt, url, api_key, model, system, chat).await
         }
     }
 }
@@ -339,8 +343,9 @@ async fn cmd_ask(
     api_key: Option<String>,
     model: Option<String>,
     system: Option<String>,
+    chat: bool,
 ) -> Result<()> {
-    use helios_ai::{AiClient, Message, ProviderConfig};
+    use helios_ai::{AiClient, ChatSession, ProviderConfig};
 
     // Resolve config from args > env > defaults
     let base_url = url
@@ -362,25 +367,67 @@ async fn cmd_ask(
         timeout_secs: 120,
     };
 
-    let client = AiClient::new(config)
-        .context("Failed to create AI client")?;
+    if chat {
+        // Interactive multi-turn chat mode
+        let mut session = ChatSession::new(config, system.as_deref())
+            .context("Failed to create chat session")?;
 
-    println!("[helios] Asking AI (model: {})...", client.config().model);
+        println!("[helios] Chat mode (model: {}). Type 'exit' to quit, 'clear' to reset history.", session.client().config().model);
 
-    let response = if let Some(sys) = system {
-        client.complete_with_system(&sys, &prompt).await
-    } else {
-        client.complete(&prompt).await
-    };
+        // Send the initial prompt
+        let response = session.send(&prompt).await?;
+        println!("\n{response}");
 
-    match response {
-        Ok(text) => {
-            println!("\n{text}");
-            Ok(())
+        // Interactive loop
+        let stdin = std::io::stdin();
+        loop {
+            print!("\n> ");
+            std::io::Write::flush(&mut std::io::stdout()).ok();
+
+            let mut input = String::new();
+            if stdin.read_line(&mut input).is_err() || input.trim().is_empty() {
+                break;
+            }
+
+            let input = input.trim().to_string();
+            if input == "exit" || input == "quit" {
+                println!("[helios] Chat ended. {} messages in history.", session.history().len());
+                break;
+            }
+            if input == "clear" {
+                session.clear();
+                println!("[helios] History cleared.");
+                continue;
+            }
+
+            match session.send(&input).await {
+                Ok(response) => println!("\n{response}"),
+                Err(e) => eprintln!("[helios] Error: {e}"),
+            }
         }
-        Err(e) => {
-            eprintln!("[helios] AI request failed: {e}");
-            anyhow::bail!("AI request failed: {e}")
+        Ok(())
+    } else {
+        // Single-turn mode (existing behavior)
+        let client = AiClient::new(config)
+            .context("Failed to create AI client")?;
+
+        println!("[helios] Asking AI (model: {})...", client.config().model);
+
+        let response = if let Some(sys) = system {
+            client.complete_with_system(&sys, &prompt).await
+        } else {
+            client.complete(&prompt).await
+        };
+
+        match response {
+            Ok(text) => {
+                println!("\n{text}");
+                Ok(())
+            }
+            Err(e) => {
+                eprintln!("[helios] AI request failed: {e}");
+                anyhow::bail!("AI request failed: {e}")
+            }
         }
     }
 }

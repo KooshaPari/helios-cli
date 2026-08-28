@@ -211,6 +211,71 @@ impl AiClient {
     }
 }
 
+/// A multi-turn chat session that maintains conversation history.
+pub struct ChatSession {
+    client: AiClient,
+    messages: Vec<Message>,
+    max_history: usize,
+}
+
+impl ChatSession {
+    /// Create a new chat session with an optional system prompt.
+    pub fn new(config: ProviderConfig, system_prompt: Option<&str>) -> Result<Self> {
+        let client = AiClient::new(config)?;
+        let mut messages = Vec::new();
+        if let Some(sys) = system_prompt {
+            messages.push(Message::system(sys));
+        }
+        Ok(Self {
+            client,
+            messages,
+            max_history: 50,
+        })
+    }
+
+    /// Send a user message and get the assistant's response, maintaining history.
+    pub async fn send(&mut self, user_message: &str) -> Result<String> {
+        self.messages.push(Message::user(user_message));
+
+        // Trim history if too long (keep system prompt + last N exchanges)
+        if self.messages.len() > self.max_history {
+            let system_msg = self.messages.first().cloned();
+            let drain_count = self.messages.len() - self.max_history + 1;
+            self.messages.drain(1..drain_count + 1);
+            if let Some(sys) = system_msg {
+                self.messages.insert(0, sys);
+            }
+        }
+
+        let response = self.client.chat(&self.messages, None, None).await?;
+        let content = response.choices.first()
+            .map(|c| c.message.content.clone())
+            .unwrap_or_default();
+
+        self.messages.push(Message::assistant(&content));
+        Ok(content)
+    }
+
+    /// Get the current conversation history.
+    pub fn history(&self) -> &[Message] {
+        &self.messages
+    }
+
+    /// Get a reference to the inner AI client.
+    pub fn client(&self) -> &AiClient {
+        &self.client
+    }
+
+    /// Clear conversation history (preserves system prompt).
+    pub fn clear(&mut self) {
+        let system_msg = self.messages.first().cloned();
+        self.messages.clear();
+        if let Some(sys) = system_msg {
+            self.messages.push(sys);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -316,5 +381,38 @@ mod tests {
         let config = ProviderConfig::ollama("test");
         let client = AiClient::new(config).unwrap();
         assert_eq!(client.config().model, "test");
+    }
+
+    #[test]
+    fn chat_session_new_with_system() {
+        let config = ProviderConfig::ollama("test");
+        let session = ChatSession::new(config, Some("You are helpful")).unwrap();
+        assert_eq!(session.history().len(), 1);
+        assert_eq!(session.history()[0].role, "system");
+    }
+
+    #[test]
+    fn chat_session_new_without_system() {
+        let config = ProviderConfig::ollama("test");
+        let session = ChatSession::new(config, None).unwrap();
+        assert!(session.history().is_empty());
+    }
+
+    #[test]
+    fn chat_session_clear_preserves_system() {
+        let config = ProviderConfig::ollama("test");
+        let mut session = ChatSession::new(config, Some("system prompt")).unwrap();
+        // Simulate adding messages
+        session.clear();
+        assert_eq!(session.history().len(), 1);
+        assert_eq!(session.history()[0].role, "system");
+    }
+
+    #[test]
+    fn chat_session_clear_empty_when_no_system() {
+        let config = ProviderConfig::ollama("test");
+        let mut session = ChatSession::new(config, None).unwrap();
+        session.clear();
+        assert!(session.history().is_empty());
     }
 }
