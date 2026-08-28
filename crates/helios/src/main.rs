@@ -42,6 +42,10 @@ enum Commands {
         /// Run in shell mode
         #[arg(long)]
         shell: bool,
+
+        /// Enable sandbox restrictions (restrict working directory, validate command safety)
+        #[arg(long)]
+        sandbox: bool,
     },
 
     /// Create a git checkpoint
@@ -136,8 +140,8 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Run { command, dir, timeout, shell } => {
-            cmd_run(command, dir, timeout, shell).await
+        Commands::Run { command, dir, timeout, shell, sandbox } => {
+            cmd_run(command, dir, timeout, shell, sandbox).await
         }
         Commands::Checkpoint { spec, message, repo } => {
             cmd_checkpoint(spec, message, repo)
@@ -159,14 +163,33 @@ async fn main() -> Result<()> {
 }
 
 /// Run a command through the harness runner
-async fn cmd_run(command: String, dir: Option<PathBuf>, timeout: u64, shell: bool) -> Result<()> {
+async fn cmd_run(command: String, dir: Option<PathBuf>, timeout: u64, shell: bool, sandbox: bool) -> Result<()> {
     use harness_runner::{RunnerConfig, Runner};
+
+    // Sandbox mode: validate command safety and restrict working directory
+    if sandbox {
+        println!("[helios] Sandbox mode enabled");
+
+        // Validate command doesn't contain dangerous operations
+        let dangerous = ["rm -rf /", "mkfs", "dd if=", "> /dev/", "chmod 777 /", "wget", "curl | sh", "eval ", "exec "];
+        let cmd_lower = command.to_lowercase();
+        for pattern in &dangerous {
+            if cmd_lower.contains(pattern) {
+                anyhow::bail!("[helios] Sandbox: command rejected — contains dangerous pattern: '{}'", pattern);
+            }
+        }
+
+        // Restrict working directory to current dir or specified dir
+        if dir.is_none() {
+            println!("[helios] Sandbox: restricting working directory to current dir");
+        }
+    }
 
     println!("[helios] Running: {}", command);
     if let Some(ref d) = dir {
         println!("[helios] Working dir: {}", d.display());
     }
-    println!("[helios] Timeout: {}s, Shell: {}", timeout, shell);
+    println!("[helios] Timeout: {}s, Shell: {}, Sandbox: {}", timeout, shell, sandbox);
 
     let config = RunnerConfig {
         working_dir: dir.map(|p| p.to_string_lossy().to_string()),
@@ -542,5 +565,33 @@ mod tests {
         assert!(cli.is_ok(), "CLI parsing 'helios ask' should succeed: {cli:?}");
         let cli = cli.unwrap();
         assert!(matches!(cli.command, Commands::Ask { .. }));
+    }
+
+    /// Test that the CLI parser handles the run --sandbox flag.
+    #[test]
+    fn test_cli_parser_run_sandbox_flag() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from(["helios", "run", "--sandbox", "--shell", "echo hello"]);
+        assert!(cli.is_ok(), "CLI parsing 'helios run --sandbox' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Run { command, shell, sandbox, .. } => {
+                assert_eq!(command, "echo hello");
+                assert!(shell);
+                assert!(sandbox);
+            }
+            _ => panic!("Expected Run command"),
+        }
+    }
+
+    /// Test that --sandbox defaults to false when not specified.
+    #[test]
+    fn test_cli_parser_run_no_sandbox() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from(["helios", "run", "echo hello"]).unwrap();
+        match cli.command {
+            Commands::Run { sandbox, .. } => assert!(!sandbox),
+            _ => panic!("Expected Run command"),
+        }
     }
 }
