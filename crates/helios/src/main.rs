@@ -147,6 +147,17 @@ enum Commands {
         #[arg(short, long)]
         model: Option<String>,
     },
+
+    /// Resume a previous session.
+    Resume {
+        /// Resume the most recent session
+        #[arg(long)]
+        last: bool,
+
+        /// Resume a specific session by UUID
+        #[arg(short, long, conflicts_with = "last")]
+        session_id: Option<String>,
+    },
 }
 
 #[tokio::main]
@@ -183,6 +194,9 @@ async fn main() -> Result<()> {
         }
         Commands::Exec { prompt, url, api_key, model } => {
             cmd_exec(prompt, url, api_key, model).await
+        }
+        Commands::Resume { last, session_id } => {
+            cmd_resume(last, session_id)
         }
     }
 }
@@ -342,6 +356,7 @@ fn cmd_status() -> Result<()> {
     println!("  helios enqueue <payload>      Enqueue a background task");
     println!("  helios record <script>        Record a terminal session (KLA)");
     println!("  helios exec <prompt>          Execute an agent task via AI");
+    println!("  helios resume --last           Resume the most recent session");
 
     Ok(())
 }
@@ -553,6 +568,50 @@ async fn cmd_exec(
     Ok(())
 }
 
+/// Resume a previous chat session.
+///
+/// With `--last`, loads the most recently saved session. With `--session-id <id>`,
+/// loads a specific session. Prints the session metadata and conversation history.
+fn cmd_resume(last: bool, session_id: Option<String>) -> Result<()> {
+    use helios_ai::{load_last_session, load_session, session_from_record, session_path};
+
+    if !last && session_id.is_none() {
+        anyhow::bail!("Specify --last to resume the most recent session, or --session-id <uuid>");
+    }
+
+    let record = if last {
+        println!("[helios:resume] Loading most recent session...");
+        match load_last_session()? {
+            Some(r) => r,
+            None => {
+                anyhow::bail!("No saved sessions found in ~/.helios/sessions/");
+            }
+        }
+    } else {
+        let id_str = session_id.unwrap();
+        let id: uuid::Uuid = id_str.parse()
+            .context("Invalid session UUID")?;
+        let path = session_path(&id)?;
+        println!("[helios:resume] Loading session {}...", id);
+        load_session(&path)?
+    };
+
+    println!("[helios:resume] Session ID:    {}", record.id);
+    println!("[helios:resume] Created:       {}", record.created_at);
+    println!("[helios:resume] Last saved:    {}", record.saved_at);
+    println!("[helios:resume] Model:         {}", record.config.model);
+    println!("[helios:resume] Messages:      {}", record.messages.len());
+    println!();
+
+    let _session = session_from_record(&record)
+        .context("Failed to reconstruct session")?;
+
+    println!("[helios:resume] Session restored successfully.");
+    println!("[helios:resume] Use 'helios ask --chat' or 'helios exec' to continue the conversation.");
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -727,5 +786,66 @@ mod tests {
         assert!(!AGENT_SYSTEM_PROMPT.is_empty());
         assert!(AGENT_SYSTEM_PROMPT.contains("Helios"));
         assert!(AGENT_SYSTEM_PROMPT.contains("agent") || AGENT_SYSTEM_PROMPT.contains("assistant"));
+    }
+
+    /// Test that the resume subcommand parses with --last.
+    #[test]
+    fn test_cli_parser_resume_last() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from(["helios", "resume", "--last"]);
+        assert!(cli.is_ok(), "CLI parsing 'helios resume --last' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Resume { last, session_id } => {
+                assert!(last);
+                assert!(session_id.is_none());
+            }
+            _ => panic!("Expected Resume command"),
+        }
+    }
+
+    /// Test that the resume subcommand parses with --session-id.
+    #[test]
+    fn test_cli_parser_resume_session_id() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "resume", "--session-id", "550e8400-e29b-41d4-a716-446655440000",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios resume --session-id' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Resume { last, session_id } => {
+                assert!(!last);
+                assert_eq!(session_id.as_deref(), Some("550e8400-e29b-41d4-a716-446655440000"));
+            }
+            _ => panic!("Expected Resume command"),
+        }
+    }
+
+    /// Test that resume without flags parses successfully (validation is at runtime).
+    #[test]
+    fn test_cli_parser_resume_requires_flag() {
+        use clap::Parser;
+        // clap allows bare 'resume'; runtime validation in cmd_resume rejects it
+        let cli = Cli::try_parse_from(["helios", "resume"]);
+        assert!(cli.is_ok(), "resume without flags should parse (validated at runtime): {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Resume { last, session_id } => {
+                assert!(!last);
+                assert!(session_id.is_none());
+            }
+            _ => panic!("Expected Resume command"),
+        }
+    }
+
+    /// Test that --last and --session-id conflict.
+    #[test]
+    fn test_cli_parser_resume_conflicting_flags() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "resume", "--last", "--session-id", "some-uuid",
+        ]);
+        assert!(cli.is_err(), "--last and --session-id should conflict");
     }
 }

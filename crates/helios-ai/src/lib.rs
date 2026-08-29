@@ -4,9 +4,12 @@
 //! vLLM, and any OpenAI-compatible API endpoint.
 
 use anyhow::{Context, Result};
+use chrono::{DateTime, Utc};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 use tracing::{debug, info};
+use uuid::Uuid;
 
 /// Configuration for an AI provider.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -214,7 +217,7 @@ impl AiClient {
 /// A multi-turn chat session that maintains conversation history.
 pub struct ChatSession {
     client: AiClient,
-    messages: Vec<Message>,
+    pub(crate) messages: Vec<Message>,
     max_history: usize,
 }
 
@@ -274,6 +277,115 @@ impl ChatSession {
             self.messages.push(sys);
         }
     }
+}
+
+/// Serialized representation of a chat session for persistence.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SessionRecord {
+    /// Unique session identifier.
+    pub id: Uuid,
+    /// Timestamp when the session was created.
+    pub created_at: DateTime<Utc>,
+    /// Timestamp of the last save.
+    pub saved_at: DateTime<Utc>,
+    /// The provider configuration used for this session.
+    pub config: ProviderConfig,
+    /// Optional system prompt that was used.
+    pub system_prompt: Option<String>,
+    /// Full conversation history.
+    pub messages: Vec<Message>,
+}
+
+/// Get the helios sessions directory (`~/.helios/sessions/`).
+/// Creates it if it doesn't exist.
+pub fn sessions_dir() -> Result<PathBuf> {
+    let home = dirs()
+        .context("Cannot determine home directory")?;
+    let sessions = home.join(".helios").join("sessions");
+    std::fs::create_dir_all(&sessions)
+        .context("Failed to create sessions directory")?;
+    Ok(sessions)
+}
+
+/// Resolve the user's home directory.
+fn dirs() -> Result<PathBuf> {
+    // Try $HOME first, then $USERPROFILE (Windows fallback)
+    if let Ok(home) = std::env::var("HOME") {
+        return Ok(PathBuf::from(home));
+    }
+    if let Ok(profile) = std::env::var("USERPROFILE") {
+        return Ok(PathBuf::from(profile));
+    }
+    anyhow::bail!("Cannot determine home directory (HOME/USERPROFILE not set)")
+}
+
+/// Get the file path for a session record.
+pub fn session_path(id: &Uuid) -> Result<PathBuf> {
+    Ok(sessions_dir()?.join(format!("{}.json", id)))
+}
+
+/// Save a chat session to disk.
+///
+/// Serializes the session to `~/.helios/sessions/<uuid>.json` and returns
+/// the path that was written.
+pub fn save_session(
+    record: &SessionRecord,
+) -> Result<PathBuf> {
+    let path = session_path(&record.id)?;
+    let json = serde_json::to_string_pretty(record)
+        .context("Failed to serialize session")?;
+    std::fs::write(&path, &json)
+        .with_context(|| format!("Failed to write session to {}", path.display()))?;
+    info!(id = %record.id, path = %path.display(), "Session saved");
+    Ok(path)
+}
+
+/// Load a session from a specific file path.
+pub fn load_session(path: &Path) -> Result<SessionRecord> {
+    let json = std::fs::read_to_string(path)
+        .with_context(|| format!("Failed to read session from {}", path.display()))?;
+    let record: SessionRecord = serde_json::from_str(&json)
+        .with_context(|| format!("Failed to parse session from {}", path.display()))?;
+    debug!(id = %record.id, "Session loaded");
+    Ok(record)
+}
+
+/// Load the most recently saved session from `~/.helios/sessions/`.
+///
+/// Returns `None` if no sessions exist yet.
+pub fn load_last_session() -> Result<Option<SessionRecord>> {
+    let dir = sessions_dir()?;
+    let mut entries: Vec<PathBuf> = std::fs::read_dir(&dir)
+        .with_context(|| format!("Failed to read sessions dir {}", dir.display()))?
+        .filter_map(|e| e.ok())
+        .map(|e| e.path())
+        .filter(|p| p.extension().map_or(false, |ext| ext == "json"))
+        .collect();
+
+    if entries.is_empty() {
+        return Ok(None);
+    }
+
+    // Sort by modification time, newest first
+    entries.sort_by(|a, b| {
+        let ta = std::fs::metadata(a).and_then(|m| m.modified()).ok();
+        let tb = std::fs::metadata(b).and_then(|m| m.modified()).ok();
+        tb.cmp(&ta)
+    });
+
+    let newest = &entries[0];
+    debug!(path = %newest.display(), "Found most recent session");
+    Ok(Some(load_session(newest)?))
+}
+
+/// Reconstruct a [`ChatSession`] from a loaded [`SessionRecord`].
+///
+/// This re-creates the AI client with the stored configuration and populates
+/// the message history.
+pub fn session_from_record(record: &SessionRecord) -> Result<ChatSession> {
+    let mut session = ChatSession::new(record.config.clone(), None)?;
+    session.messages = record.messages.clone();
+    Ok(session)
 }
 
 #[cfg(test)]
@@ -414,5 +526,106 @@ mod tests {
         let mut session = ChatSession::new(config, None).unwrap();
         session.clear();
         assert!(session.history().is_empty());
+    }
+
+    // ── Session persistence tests ──────────────────────────────────
+
+    use tempfile::TempDir;
+
+    fn make_test_record(id: Uuid) -> SessionRecord {
+        SessionRecord {
+            id,
+            created_at: Utc::now(),
+            saved_at: Utc::now(),
+            config: ProviderConfig::ollama("test-model"),
+            system_prompt: Some("test system".into()),
+            messages: vec![
+                Message::system("test system"),
+                Message::user("hello"),
+                Message::assistant("hi there"),
+            ],
+        }
+    }
+
+    #[test]
+    fn session_record_serialization_roundtrip() {
+        let record = make_test_record(Uuid::new_v4());
+        let json = serde_json::to_string(&record).unwrap();
+        let deserialized: SessionRecord = serde_json::from_str(&json).unwrap();
+        assert_eq!(deserialized.id, record.id);
+        assert_eq!(deserialized.messages.len(), 3);
+        assert_eq!(deserialized.config.model, "test-model");
+        assert_eq!(deserialized.system_prompt.as_deref(), Some("test system"));
+    }
+
+    #[test]
+    fn save_and_load_session_roundtrip() {
+        let tmp = TempDir::new().unwrap();
+        let id = Uuid::new_v4();
+        let record = make_test_record(id);
+
+        // Override the path by writing directly to tmp dir
+        let path = tmp.path().join(format!("{}.json", id));
+        let json = serde_json::to_string_pretty(&record).unwrap();
+        std::fs::write(&path, &json).unwrap();
+
+        let loaded = load_session(&path).unwrap();
+        assert_eq!(loaded.id, id);
+        assert_eq!(loaded.messages.len(), 3);
+        assert_eq!(loaded.messages[0].role, "system");
+        assert_eq!(loaded.messages[1].content, "hello");
+        assert_eq!(loaded.messages[2].content, "hi there");
+    }
+
+    #[test]
+    fn session_from_record_reconstructs_chat_session() {
+        let record = make_test_record(Uuid::new_v4());
+        let session = session_from_record(&record).unwrap();
+        assert_eq!(session.history().len(), 3);
+        assert_eq!(session.client().config().model, "test-model");
+    }
+
+    #[test]
+    fn load_last_session_returns_none_when_empty() {
+        let tmp = TempDir::new().unwrap();
+        // Override HOME to point to tmpdir so sessions_dir is inside it
+        let original_home = std::env::var("HOME").ok();
+        let original_profile = std::env::var("USERPROFILE").ok();
+
+        // Set HOME to tmpdir, ensuring sessions dir exists but is empty
+        let fake_home = tmp.path().join("fakehome");
+        std::fs::create_dir_all(fake_home.join(".helios").join("sessions")).unwrap();
+        std::env::set_var("HOME", &fake_home);
+        #[cfg(windows)]
+        std::env::set_var("USERPROFILE", &fake_home);
+
+        let result = load_last_session().unwrap();
+        assert!(result.is_none(), "no sessions should return None");
+
+        // Restore env
+        match original_home {
+            Some(v) => std::env::set_var("HOME", v),
+            None => std::env::remove_var("HOME"),
+        }
+        #[cfg(windows)]
+        match original_profile {
+            Some(v) => std::env::set_var("USERPROFILE", v),
+            None => std::env::remove_var("USERPROFILE"),
+        }
+        #[cfg(not(windows))]
+        if let Some(v) = original_profile {
+            std::env::set_var("USERPROFILE", v);
+        }
+    }
+
+    #[test]
+    fn session_record_has_valid_timestamps() {
+        let record = make_test_record(Uuid::new_v4());
+        // Timestamps should be close to now
+        let now = Utc::now();
+        let diff_created = (now - record.created_at).num_seconds().abs();
+        let diff_saved = (now - record.saved_at).num_seconds().abs();
+        assert!(diff_created < 5, "created_at should be recent: {diff_created}s ago");
+        assert!(diff_saved < 5, "saved_at should be recent: {diff_saved}s ago");
     }
 }
