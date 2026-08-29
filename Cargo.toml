@@ -35,6 +35,8 @@ members = [
     "crates/harness_recorder",
     # AI client for OpenAI-compatible APIs
     "crates/helios-ai",
+    # File-edit tools for the Helios agent
+    "crates/helios-tools",
 ]
 
 [workspace.package]

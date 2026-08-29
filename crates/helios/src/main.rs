@@ -486,7 +486,15 @@ async fn cmd_ask(
 const AGENT_SYSTEM_PROMPT: &str = concat!(
     "You are Helios, an AI-powered software engineering assistant.\n",
     "You help users with programming tasks, file operations, and\n",
-    "software development processes. Be concise and actionable.",
+    "software development processes. Be concise and actionable.\n",
+    "\n",
+    "Available tools:\n",
+    "- read_file(path): Read a file's contents.\n",
+    "- write_file(path, content): Write content to a file.\n",
+    "- edit_file(path, search, replace, replace_all): Search-and-replace in a file.\n",
+    "\n",
+    "When you need to edit files, describe the exact tool calls you would make.\n",
+    "Future versions will execute them automatically.",
 );
 
 /// Execute an agent loop: send a prompt to the AI, parse and print the response.
@@ -525,7 +533,12 @@ async fn cmd_exec(
     let client = AiClient::new(config)
         .context("Failed to create AI client for exec")?;
 
+    // Initialize file-edit tool rooted at the current working directory
+    let file_tool = helios_tools::FileEditTool::from_cwd()
+        .context("Failed to initialize file-edit tool")?;
+
     println!("[helios:exec] Sending task to {}...", client.config().model);
+    println!("[helios:exec] Working directory: {}", file_tool.working_dir().display());
     println!("[helios:exec] Prompt: {}", prompt);
 
     let response = client
