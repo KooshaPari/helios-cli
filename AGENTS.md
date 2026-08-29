@@ -25,7 +25,7 @@ Read `CLAUDE.md` (in-repo) for governance and branch discipline, and
 
 ### AgilePlus Integration
 
-All work MUST be tracked in the external AgilePlus service.  The tracker is
+All work MUST be tracked in the external AgilePlus service. The tracker is
 not a source repository for HeliosCLI work and is not mirrored into this
 repository.
 
@@ -39,6 +39,7 @@ repository.
   remain HeliosCLI documentation; they are not tracker mirrors.
 
 **Requirements**:
+
 1. Create or reference an external AgilePlus work-item identifier before implementation.
 2. Record the item's scope and acceptance criteria in the external tracker.
 3. Update the external item as work progresses when its service interface is available.
@@ -128,7 +129,7 @@ cargo fmt --all -- --check
 - `Cargo.toml` — root workspace manifest (members + excludes)
 - `justfile` — canonical task commands
 - `ARCHITECTURE.md`, `ADR.md` — architecture and decisions
-- `docs/functional-requirements/` — FR-* specs (SHALL statements); tests must
+- `docs/functional-requirements/` — FR-\* specs (SHALL statements); tests must
   trace to them
 - `docs/security/threat-model.md`, `docs/slsa.md` — security posture and
   supply-chain claims (keep truthful: `docs/slsa.md` must match what

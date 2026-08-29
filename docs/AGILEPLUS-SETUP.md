@@ -10,9 +10,9 @@ copy of tracker worklogs. Those are tracker artifacts, not application source.
 
 Every implementation branch, commit, and pull request cites one of:
 
-| Identifier | Use |
-| --- | --- |
-| `AP-ITEM:<id>` | A queued external tracker item. |
+| Identifier                | Use                                       |
+| ------------------------- | ----------------------------------------- |
+| `AP-ITEM:<id>`            | A queued external tracker item.           |
 | `AP-FEATURE:<slug>/WP<n>` | An external feature and its work package. |
 
 Create the item and record its scope and acceptance criteria in the external
