@@ -125,6 +125,28 @@ enum Commands {
         #[arg(long)]
         chat: bool,
     },
+
+    /// Execute an agent loop: send a prompt to the AI and display the response.
+    ///
+    /// This is the entry point for turning helios from an infrastructure CLI
+    /// into a working agent. The response is parsed and printed (file-editing
+    /// integration will come in a later phase).
+    Exec {
+        /// The task prompt to send to the AI agent
+        prompt: String,
+
+        /// Provider URL (overrides HELIOS_AI_BASE_URL env)
+        #[arg(short, long)]
+        url: Option<String>,
+
+        /// API key (overrides HELIOS_AI_API_KEY env)
+        #[arg(short = 'k', long)]
+        api_key: Option<String>,
+
+        /// Model name (overrides HELIOS_AI_MODEL env)
+        #[arg(short, long)]
+        model: Option<String>,
+    },
 }
 
 #[tokio::main]
@@ -158,6 +180,9 @@ async fn main() -> Result<()> {
         }
         Commands::Ask { prompt, url, api_key, model, system, chat } => {
             cmd_ask(prompt, url, api_key, model, system, chat).await
+        }
+        Commands::Exec { prompt, url, api_key, model } => {
+            cmd_exec(prompt, url, api_key, model).await
         }
     }
 }
@@ -316,6 +341,7 @@ fn cmd_status() -> Result<()> {
     println!("  helios status                 Show this status");
     println!("  helios enqueue <payload>      Enqueue a background task");
     println!("  helios record <script>        Record a terminal session (KLA)");
+    println!("  helios exec <prompt>          Execute an agent task via AI");
 
     Ok(())
 }
@@ -455,6 +481,65 @@ async fn cmd_ask(
     }
 }
 
+/// Default system prompt for the agent loop.
+/// This frames helios as an autonomous agent that can plan and execute tasks.
+const AGENT_SYSTEM_PROMPT: &str = concat!(
+    "You are Helios, an AI-powered software engineering assistant.\n",
+    "You help users with programming tasks, file operations, and\n",
+    "software development processes. Be concise and actionable.",
+);
+
+/// Execute an agent loop: send a prompt to the AI, parse and print the response.
+///
+/// This is the working-agent entry point. Currently a stub that sends the
+/// prompt to the configured AI provider and prints the result. Future phases
+/// will add tool-calling, file editing, and multi-step planning.
+async fn cmd_exec(
+    prompt: String,
+    url: Option<String>,
+    api_key: Option<String>,
+    model: Option<String>,
+) -> Result<()> {
+    use helios_ai::{AiClient, ProviderConfig};
+
+    // Resolve config from args > env > defaults (same pattern as cmd_ask)
+    let base_url = url
+        .or_else(|| std::env::var("HELIOS_AI_BASE_URL").ok())
+        .unwrap_or_else(|| "http://localhost:11434/v1".into());
+
+    let api_key_val = api_key
+        .or_else(|| std::env::var("HELIOS_AI_API_KEY").ok())
+        .unwrap_or_default();
+
+    let model_val = model
+        .or_else(|| std::env::var("HELIOS_AI_MODEL").ok())
+        .unwrap_or_else(|| "gpt-4o".into());
+
+    let config = ProviderConfig {
+        base_url,
+        api_key: api_key_val,
+        model: model_val,
+        timeout_secs: 120,
+    };
+
+    let client = AiClient::new(config)
+        .context("Failed to create AI client for exec")?;
+
+    println!("[helios:exec] Sending task to {}...", client.config().model);
+    println!("[helios:exec] Prompt: {}", prompt);
+
+    let response = client
+        .complete_with_system(AGENT_SYSTEM_PROMPT, &prompt)
+        .await
+        .context("AI request failed during exec")?;
+
+    println!("\n--- Helios Agent Response ---\n");
+    println!("{response}");
+    println!("\n--- End Response ---");
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -587,11 +672,47 @@ mod tests {
     /// Test that --sandbox defaults to false when not specified.
     #[test]
     fn test_cli_parser_run_no_sandbox() {
-        use clap::Parser;
         let cli = Cli::try_parse_from(["helios", "run", "echo hello"]).unwrap();
         match cli.command {
             Commands::Run { sandbox, .. } => assert!(!sandbox),
             _ => panic!("Expected Run command"),
         }
+    }
+
+    /// Test that the exec subcommand parses correctly.
+    #[test]
+    fn test_cli_parser_exec_subcommand() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "exec", "fix the failing tests",
+            "--url", "http://localhost:11434/v1",
+            "--model", "llama3",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios exec' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Exec { prompt, url, model, .. } => {
+                assert_eq!(prompt, "fix the failing tests");
+                assert_eq!(url.as_deref(), Some("http://localhost:11434/v1"));
+                assert_eq!(model.as_deref(), Some("llama3"));
+            }
+            _ => panic!("Expected Exec command"),
+        }
+    }
+
+    /// Test that the exec subcommand requires a prompt.
+    #[test]
+    fn test_cli_parser_exec_requires_prompt() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from(["helios", "exec"]);
+        assert!(cli.is_err(), "exec without prompt should fail");
+    }
+
+    /// Test that the agent system prompt is non-empty and contains key markers.
+    #[test]
+    fn test_agent_system_prompt_is_well_formed() {
+        assert!(!AGENT_SYSTEM_PROMPT.is_empty());
+        assert!(AGENT_SYSTEM_PROMPT.contains("Helios"));
+        assert!(AGENT_SYSTEM_PROMPT.contains("agent") || AGENT_SYSTEM_PROMPT.contains("assistant"));
     }
 }
