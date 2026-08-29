@@ -7,6 +7,7 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
+use tracing::info;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -24,6 +25,17 @@ struct Cli {
     command: Commands,
 }
 
+/// Approval policy for the agent exec loop.
+#[derive(Debug, Clone, clap::ValueEnum, Default, PartialEq, Eq)]
+enum ApprovalPolicy {
+    /// Show the plan without executing (safest).
+    #[default]
+    Suggest,
+    /// Auto-apply file edits, but ask before shell commands.
+    AutoEdit,
+    /// Execute everything without asking.
+    FullAuto,
+}
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// Run a command through the harness runner
@@ -124,6 +136,10 @@ enum Commands {
         /// Enable interactive multi-turn chat mode
         #[arg(long)]
         chat: bool,
+
+        /// Enable SSE streaming (tokens print as they arrive)
+        #[arg(long)]
+        stream: bool,
     },
 
     /// Execute an agent loop: send a prompt to the AI and display the response.
@@ -146,6 +162,14 @@ enum Commands {
         /// Model name (overrides HELIOS_AI_MODEL env)
         #[arg(short, long)]
         model: Option<String>,
+
+        /// Approval policy: suggest (plan only), auto-edit (apply file edits), full-auto (execute all)
+        #[arg(long, value_enum, default_value_t)]
+        approval: ApprovalPolicy,
+
+        /// Maximum number of agent iterations (default: 10)
+        #[arg(long, default_value = "10")]
+        max_iterations: u32,
     },
 
     /// Resume a previous session.
@@ -189,11 +213,11 @@ async fn main() -> Result<()> {
         Commands::Record { script, output, format } => {
             cmd_record(script, output, format).await
         }
-        Commands::Ask { prompt, url, api_key, model, system, chat } => {
-            cmd_ask(prompt, url, api_key, model, system, chat).await
+        Commands::Ask { prompt, url, api_key, model, system, chat, stream } => {
+            cmd_ask(prompt, url, api_key, model, system, chat, stream).await
         }
-        Commands::Exec { prompt, url, api_key, model } => {
-            cmd_exec(prompt, url, api_key, model).await
+        Commands::Exec { prompt, url, api_key, model, approval, max_iterations } => {
+            cmd_exec(prompt, url, api_key, model, approval, max_iterations).await
         }
         Commands::Resume { last, session_id } => {
             cmd_resume(last, session_id)
@@ -408,6 +432,7 @@ async fn cmd_ask(
     model: Option<String>,
     system: Option<String>,
     chat: bool,
+    stream: bool,
 ) -> Result<()> {
     use helios_ai::{AiClient, ChatSession, ProviderConfig};
 
@@ -470,6 +495,34 @@ async fn cmd_ask(
             }
         }
         Ok(())
+    } else if stream {
+        // SSE streaming mode
+        let client = AiClient::new(config)
+            .context("Failed to create AI client")?;
+
+        println!("[helios] Streaming from {}...", client.config().model);
+
+        let messages = if let Some(sys) = system {
+            vec![helios_ai::Message::system(sys), helios_ai::Message::user(&prompt)]
+        } else {
+            vec![helios_ai::Message::user(&prompt)]
+        };
+
+        let mut rx = client.stream_chat(&messages, None, None).await
+            .context("Failed to start streaming")?;
+
+        let mut full_response = String::new();
+        while let Some(token) = rx.recv().await {
+            print!("{token}");
+            std::io::Write::flush(&mut std::io::stdout()).ok();
+            full_response.push_str(&token);
+        }
+        println!();
+
+        if !full_response.is_empty() {
+            info!(tokens = full_response.len(), "Streaming complete");
+        }
+        Ok(())
     } else {
         // Single-turn mode (existing behavior)
         let client = AiClient::new(config)
@@ -517,11 +570,18 @@ const AGENT_SYSTEM_PROMPT: &str = concat!(
 /// This is the working-agent entry point. Currently a stub that sends the
 /// prompt to the configured AI provider and prints the result. Future phases
 /// will add tool-calling, file editing, and multi-step planning.
+///
+/// The `approval` flag controls what the agent is allowed to do:
+/// - `suggest`: Show the plan without executing anything.
+/// - `auto-edit`: Auto-apply file edits, but ask before shell commands.
+/// - `full-auto`: Execute everything without asking.
 async fn cmd_exec(
     prompt: String,
     url: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
+    approval: ApprovalPolicy,
+    max_iterations: u32,
 ) -> Result<()> {
     use helios_ai::{AiClient, ProviderConfig};
 
@@ -548,22 +608,65 @@ async fn cmd_exec(
     let client = AiClient::new(config)
         .context("Failed to create AI client for exec")?;
 
-    // Initialize file-edit tool rooted at the current working directory
-    let file_tool = helios_tools::FileEditTool::from_cwd()
-        .context("Failed to initialize file-edit tool")?;
+    // Build an augmented system prompt based on approval policy
+    let approval_desc = match approval {
+        ApprovalPolicy::Suggest => {
+            "You are in SUGGEST mode. Describe what you would do, but DO NOT \
+             execute any commands or write any files. Just present the plan."
+        }
+        ApprovalPolicy::AutoEdit => {
+            "You are in AUTO-EDIT mode. You may propose file edits. File edits \
+             will be applied automatically. Do NOT propose shell commands."
+        }
+        ApprovalPolicy::FullAuto => {
+            "You are in FULL-AUTO mode. Execute all actions including file edits \
+             and shell commands without hesitation."
+        }
+    };
+
+    let system_prompt = format!("{AGENT_SYSTEM_PROMPT}\n\nApproval policy: {approval_desc}");
 
     println!("[helios:exec] Sending task to {}...", client.config().model);
-    println!("[helios:exec] Working directory: {}", file_tool.working_dir().display());
+    println!("[helios:exec] Approval: {:?}, Max iterations: {}", approval, max_iterations);
     println!("[helios:exec] Prompt: {}", prompt);
 
-    let response = client
-        .complete_with_system(AGENT_SYSTEM_PROMPT, &prompt)
-        .await
-        .context("AI request failed during exec")?;
+    // Agent loop: iterate up to max_iterations, sending the prompt and printing responses.
+    // Future phases will parse tool calls from the response and dispatch them.
+    let mut current_prompt = prompt;
 
-    println!("\n--- Helios Agent Response ---\n");
-    println!("{response}");
-    println!("\n--- End Response ---");
+    for iteration in 1..=max_iterations {
+        println!("\n--- Iteration {iteration}/{max_iterations} ---\n");
+
+        let response = client
+            .complete_with_system(&system_prompt, &current_prompt)
+            .await
+            .context("AI request failed during exec")?;
+
+        println!("{response}");
+
+        // In suggest mode, stop after the first response (plan only)
+        if approval == ApprovalPolicy::Suggest {
+            println!("\n[suggest mode] Plan displayed. No actions taken.");
+            break;
+        }
+
+        // In future phases, we would parse tool calls here and dispatch them.
+        // For now, if the response doesn't contain any tool call markers, we're done.
+        if !response.contains("read_file")
+            && !response.contains("write_file")
+            && !response.contains("edit_file")
+        {
+            println!("\n--- No tool calls detected. Agent loop complete. ---");
+            break;
+        }
+
+        // Feed the response back as context for the next iteration
+        current_prompt = format!(
+            "The previous response contained tool call descriptions. \n\
+             In future versions these will be executed automatically. \n\
+             For now, respond with the final result."
+        );
+    }
 
     Ok(())
 }
@@ -763,10 +866,12 @@ mod tests {
         assert!(cli.is_ok(), "CLI parsing 'helios exec' should succeed: {cli:?}");
         let cli = cli.unwrap();
         match cli.command {
-            Commands::Exec { prompt, url, model, .. } => {
+            Commands::Exec { prompt, url, model, approval, max_iterations, .. } => {
                 assert_eq!(prompt, "fix the failing tests");
                 assert_eq!(url.as_deref(), Some("http://localhost:11434/v1"));
                 assert_eq!(model.as_deref(), Some("llama3"));
+                assert_eq!(approval, ApprovalPolicy::Suggest, "default should be suggest");
+                assert_eq!(max_iterations, 10, "default max_iterations should be 10");
             }
             _ => panic!("Expected Exec command"),
         }
@@ -847,5 +952,113 @@ mod tests {
             "helios", "resume", "--last", "--session-id", "some-uuid",
         ]);
         assert!(cli.is_err(), "--last and --session-id should conflict");
+    }
+
+    /// Test that the exec subcommand parses --approval auto-edit.
+    #[test]
+    fn test_cli_parser_exec_approval_auto_edit() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "exec", "refactor this",
+            "--approval", "auto-edit",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios exec --approval auto-edit' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Exec { approval, .. } => {
+                assert_eq!(approval, ApprovalPolicy::AutoEdit);
+            }
+            _ => panic!("Expected Exec command"),
+        }
+    }
+
+    /// Test that the exec subcommand parses --approval full-auto.
+    #[test]
+    fn test_cli_parser_exec_approval_full_auto() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "exec", "deploy everything",
+            "--approval", "full-auto",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios exec --approval full-auto' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Exec { approval, .. } => {
+                assert_eq!(approval, ApprovalPolicy::FullAuto);
+            }
+            _ => panic!("Expected Exec command"),
+        }
+    }
+
+    /// Test that --max-iterations is parsed correctly.
+    #[test]
+    fn test_cli_parser_exec_max_iterations() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "exec", "build the project",
+            "--max-iterations", "5",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios exec --max-iterations 5' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Exec { max_iterations, .. } => {
+                assert_eq!(max_iterations, 5);
+            }
+            _ => panic!("Expected Exec command"),
+        }
+    }
+
+    /// Test that --approval defaults to suggest.
+    #[test]
+    fn test_cli_parser_exec_approval_default() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from(["helios", "exec", "hello"]).unwrap();
+        match cli.command {
+            Commands::Exec { approval, .. } => {
+                assert_eq!(approval, ApprovalPolicy::Suggest, "default approval should be suggest");
+            }
+            _ => panic!("Expected Exec command"),
+        }
+    }
+
+    /// Test that --approval rejects invalid values.
+    #[test]
+    fn test_cli_parser_exec_approval_invalid() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "exec", "hello",
+            "--approval", "invalid-mode",
+        ]);
+        assert!(cli.is_err(), "invalid approval value should be rejected");
+    }
+
+    /// Test that the ask subcommand parses --stream.
+    #[test]
+    fn test_cli_parser_ask_stream_flag() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "ask", "What is Rust?",
+            "--stream",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios ask --stream' should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Ask { stream, .. } => {
+                assert!(stream);
+            }
+            _ => panic!("Expected Ask command"),
+        }
+    }
+
+    /// Test that --stream defaults to false.
+    #[test]
+    fn test_cli_parser_ask_no_stream() {
+        let cli = Cli::try_parse_from(["helios", "ask", "hello"]).unwrap();
+        match cli.command {
+            Commands::Ask { stream, .. } => {
+                assert!(!stream, "--stream should default to false");
+            }
+            _ => panic!("Expected Ask command"),
+        }
     }
 }

@@ -8,6 +8,7 @@ use chrono::{DateTime, Utc};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
+use tokio::sync::mpsc;
 use tracing::{debug, info};
 use uuid::Uuid;
 
@@ -212,6 +213,88 @@ impl AiClient {
     pub fn config(&self) -> &ProviderConfig {
         &self.config
     }
+
+    /// Send a chat completion request with SSE streaming.
+    ///
+    /// Returns a [`mpsc::Receiver`] that yields content tokens as they arrive.
+    /// The receiver is closed when the stream ends or an error occurs.
+    pub async fn stream_chat(
+        &self,
+        messages: &[Message],
+        max_tokens: Option<u32>,
+        temperature: Option<f32>,
+    ) -> Result<mpsc::Receiver<String>> {
+        let url = format!("{}/chat/completions", self.config.base_url);
+        let body = ChatRequest {
+            model: self.config.model.clone(),
+            messages: messages.to_vec(),
+            max_tokens,
+            temperature,
+            stream: true,
+        };
+
+        debug!(url = %url, model = %self.config.model, "Sending streaming chat request");
+
+        let mut req = self.http.post(&url).json(&body);
+        if !self.config.api_key.is_empty() {
+            req = req.bearer_auth(&self.config.api_key);
+        }
+
+        let resp = req.send().await.context("Failed to send streaming request")?;
+        let status = resp.status();
+
+        if !status.is_success() {
+            let text = resp.text().await.unwrap_or_default();
+            anyhow::bail!("API error {status}: {text}");
+        }
+
+        let (tx, rx) = mpsc::channel(256);
+
+        tokio::spawn(async move {
+            use futures::StreamExt;
+            let mut buffer = String::new();
+            let mut byte_stream = resp.bytes_stream();
+
+            while let Some(chunk_result) = byte_stream.next().await {
+                let chunk = match chunk_result {
+                    Ok(c) => c,
+                    Err(e) => {
+                        debug!(error = %e, "Stream read error");
+                        break;
+                    }
+                };
+
+                buffer.push_str(&String::from_utf8_lossy(&chunk));
+
+                // Process complete lines
+                while let Some(newline_pos) = buffer.find('\n') {
+                    let line = buffer[..newline_pos].trim().to_string();
+                    buffer = buffer[newline_pos + 1..].to_string();
+
+                    if line.is_empty() {
+                        continue;
+                    }
+
+                    match parse_sse_line(&line) {
+                        Some(SseEvent::Token(text)) => {
+                            if tx.send(text).await.is_err() {
+                                return; // receiver dropped
+                            }
+                        }
+                        Some(SseEvent::Done) => {
+                            debug!("SSE stream done");
+                            return;
+                        }
+                        None => {
+                            // skip unknown lines (e.g. comments, event types)
+                        }
+                    }
+                }
+            }
+        });
+
+        Ok(rx)
+    }
 }
 
 /// A multi-turn chat session that maintains conversation history.
@@ -262,6 +345,38 @@ impl ChatSession {
     /// Get the current conversation history.
     pub fn history(&self) -> &[Message] {
         &self.messages
+    }
+
+    /// Send a user message with SSE streaming, maintaining conversation history.
+    ///
+    /// Returns a [`mpsc::Receiver`] that yields content tokens. After consuming
+    /// the receiver, call [`record_response`](Self::record_response) to append
+    /// the full accumulated text to the conversation history.
+    pub async fn send_stream(
+        &mut self,
+        user_message: &str,
+    ) -> Result<mpsc::Receiver<String>> {
+        self.messages.push(Message::user(user_message));
+
+        // Trim history if too long (keep system prompt + last N exchanges)
+        if self.messages.len() > self.max_history {
+            let system_msg = self.messages.first().cloned();
+            let drain_count = self.messages.len() - self.max_history + 1;
+            self.messages.drain(1..drain_count + 1);
+            if let Some(sys) = system_msg {
+                self.messages.insert(0, sys);
+            }
+        }
+
+        self.client.stream_chat(&self.messages, None, None).await
+    }
+
+    /// Record an assistant response in the conversation history.
+    ///
+    /// Call this after consuming the receiver from [`send_stream`](Self::send_stream)
+    /// to keep the conversation state consistent.
+    pub fn record_response(&mut self, content: &str) {
+        self.messages.push(Message::assistant(content));
     }
 
     /// Get a reference to the inner AI client.
@@ -386,6 +501,50 @@ pub fn session_from_record(record: &SessionRecord) -> Result<ChatSession> {
     let mut session = ChatSession::new(record.config.clone(), None)?;
     session.messages = record.messages.clone();
     Ok(session)
+}
+
+/// An event parsed from an SSE line.
+#[derive(Debug)]
+pub enum SseEvent {
+    /// A content token from the stream.
+    Token(String),
+    /// The stream has ended.
+    Done,
+}
+
+/// Parse a single SSE line into an [`SseEvent`].
+///
+/// SSE format from OpenAI-compatible APIs:
+/// - `data: {"choices":[{"delta":{"content":"..."}}]}` → Token
+/// - `data: [DONE]` → Done
+/// - Anything else (empty lines, comments, `event:` lines) → None
+pub fn parse_sse_line(line: &str) -> Option<SseEvent> {
+    let line = line.trim();
+
+    if line.is_empty() {
+        return None;
+    }
+
+    // SSE lines start with "data: "
+    let data = line.strip_prefix("data: ")?;
+
+    if data == "[DONE]" {
+        return Some(SseEvent::Done);
+    }
+
+    // Try to parse as a StreamChunk
+    let chunk: StreamChunk = serde_json::from_str(data).ok()?;
+    let delta_content = chunk
+        .choices
+        .first()
+        .and_then(|c| c.delta.as_ref())
+        .and_then(|d| d.content.clone())?;
+
+    if delta_content.is_empty() {
+        return None;
+    }
+
+    Some(SseEvent::Token(delta_content))
 }
 
 #[cfg(test)]
@@ -627,5 +786,85 @@ mod tests {
         let diff_saved = (now - record.saved_at).num_seconds().abs();
         assert!(diff_created < 5, "created_at should be recent: {diff_created}s ago");
         assert!(diff_saved < 5, "saved_at should be recent: {diff_saved}s ago");
+    }
+
+    // ── SSE streaming tests ────────────────────────────────────────
+
+    #[test]
+    fn parse_sse_line_token() {
+        let line = r#"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#;
+        match parse_sse_line(line) {
+            Some(SseEvent::Token(text)) => assert_eq!(text, "Hello"),
+            other => panic!("expected Token, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn parse_sse_line_done() {
+        let line = "data: [DONE]";
+        assert!(matches!(parse_sse_line(line), Some(SseEvent::Done)));
+    }
+
+    #[test]
+    fn parse_sse_line_empty_returns_none() {
+        assert!(parse_sse_line("").is_none());
+        assert!(parse_sse_line("  ").is_none());
+    }
+
+    #[test]
+    fn parse_sse_line_comment_returns_none() {
+        assert!(parse_sse_line(": this is a comment").is_none());
+    }
+
+    #[test]
+    fn parse_sse_line_no_data_prefix_returns_none() {
+        assert!(parse_sse_line("event: message").is_none());
+    }
+
+    #[test]
+    fn parse_sse_line_empty_content_returns_none() {
+        let line = r#"data: {"choices":[{"delta":{"content":""},"finish_reason":null}]}"#;
+        assert!(parse_sse_line(line).is_none());
+    }
+
+    #[test]
+    fn parse_sse_line_no_delta_returns_none() {
+        let line = r#"data: {"choices":[{"finish_reason":"stop"}]}"#;
+        assert!(parse_sse_line(line).is_none());
+    }
+
+    #[test]
+    fn parse_sse_line_invalid_json_returns_none() {
+        assert!(parse_sse_line("data: {not json}").is_none());
+    }
+
+    #[test]
+    fn parse_sse_line_with_whitespace() {
+        let line = "  data: {\"choices\":[{\"delta\":{\"content\":\"Hi\"}}]}  ";
+        match parse_sse_line(line) {
+            Some(SseEvent::Token(text)) => assert_eq!(text, "Hi"),
+            other => panic!("expected Token, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn stream_chunk_deserialization_empty_choices() {
+        let json = r#"{"choices":[]}"#;
+        let chunk: StreamChunk = serde_json::from_str(json).unwrap();
+        assert!(chunk.choices.is_empty());
+    }
+
+    #[test]
+    fn stream_chunk_with_role_delta() {
+        let json = r#"{
+            "choices": [{
+                "delta": {"role": "assistant", "content": null},
+                "finish_reason": null
+            }]
+        }"#;
+        let chunk: StreamChunk = serde_json::from_str(json).unwrap();
+        let delta = chunk.choices[0].delta.as_ref().unwrap();
+        assert_eq!(delta.role.as_deref(), Some("assistant"));
+        assert!(delta.content.is_none());
     }
 }
