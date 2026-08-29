@@ -1,6 +1,7 @@
 name: Bazel
 
-# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
+# AgilePlus traceability is external: cite AP-ITEM:<id> or AP-FEATURE:<slug>/WP<n>
+# in the associated PR; do not link an in-repository tracker artifact.
 # Note this workflow was originally derived from:
 # https://github.com/cerisier/toolchains_llvm_bootstrapped/blob/main/.github/workflows/ci.yaml
 #

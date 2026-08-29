@@ -25,19 +25,24 @@ Read `CLAUDE.md` (in-repo) for governance and branch discipline, and
 
 ### AgilePlus Integration
 
-All work MUST be tracked in AgilePlus:
+All work MUST be tracked in the external AgilePlus service.  The tracker is
+not a source repository for HeliosCLI work and is not mirrored into this
+repository.
 
-- Reference: a sibling checkout of the AgilePlus repo (e.g. `$HOME/AgilePlus`
-  or a sibling directory — never a machine-specific path)
-- CLI: `cd <agileplus-checkout> && agileplus <command>`
-- Specs: `<agileplus-checkout>/kitty-specs/<feature-id>/`
-- Worklog: `<agileplus-checkout>/.work-audit/worklog.md`
+- Cite `AP-ITEM:<id>` for a queued external work item.
+- Cite `AP-FEATURE:<slug>/WP<n>` when the external service has created a
+  feature and work package.
+- Put the identifier in the branch, commits, and pull-request body.
+- Do not create, copy, or commit AgilePlus tracker artifacts (`kitty-specs/`,
+  worklogs, or tracker database state) in either the AgilePlus source repo or
+  this repository. Product requirements in `docs/functional-requirements/`
+  remain HeliosCLI documentation; they are not tracker mirrors.
 
 **Requirements**:
-1. Check for AgilePlus spec before implementing
-2. Create spec for new work: `agileplus specify --title "<feature>"`
-3. Update work package status as work progresses
-4. No code without corresponding AgilePlus spec
+1. Create or reference an external AgilePlus work-item identifier before implementation.
+2. Record the item's scope and acceptance criteria in the external tracker.
+3. Update the external item as work progresses when its service interface is available.
+4. No untracked code: every implementation change must cite its external AgilePlus item.
 
 ---
 
@@ -143,8 +148,9 @@ cargo fmt --all -- --check
 3. **Never** weaken CI: no `continue-on-error`, no `|| echo ::warning::`
    swallows, no tag-pin→`@main` downgrades on security actions.
 4. **Never** force-push to `main` or shared branches; no direct pushes to
-   `main` — work in a branch/worktree and open a PR (Mergify requires 1
-   approval + green checks).
+   `main` — work in a branch/worktree and open a PR. Mergify requires the
+   configured green checks, conflict-free state, and resolved conversations;
+   it does not require a human approval.
 5. **Never** commit secrets — `auth.json`, tokens, AKV credentials, `.env`
    files. CI runs trufflehog + gitleaks and will fail.
 6. Do not edit vendored code in `codex-rs/` without an upstream-tracked

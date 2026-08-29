@@ -1,5 +1,6 @@
 # helios-cli Rust workspace CI
-# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
+# AgilePlus traceability is external: cite AP-ITEM:<id> or AP-FEATURE:<slug>/WP<n>
+# in the associated PR; do not link an in-repository tracker artifact.
 # Replaces the upstream Codex rust-ci (hard-fork 2026-06-30).
 # Checks: build, test, clippy (-D warnings), fmt, cargo-deny.
 name: rust-ci

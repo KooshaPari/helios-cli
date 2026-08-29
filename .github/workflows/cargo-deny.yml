@@ -1,5 +1,6 @@
 name: cargo-deny
-# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
+# AgilePlus traceability is external: cite AP-ITEM:<id> or AP-FEATURE:<slug>/WP<n>
+# in the associated PR; do not link an in-repository tracker artifact.
 # Helios hard-fork: run deny against the root harness workspace deny.toml
 # (allow-git includes rich-cli-kit for kla/harness_recorder). Prefer the
 # in-repo EmbarkStudios action over the phenotype reusable until that

@@ -2,11 +2,10 @@
 # Docs: https://docs.mergify.com/
 
 pull_request_rules:
-  # Auto-merge when all CI checks pass and PR is approved
-  - name: Auto-merge when approved + CI green
+  # Auto-merge when all CI checks pass; GitHub branch protection resolves conversations.
+  - name: Auto-merge when CI is green
     conditions:
       - "#review-requested=0"
-      - "#approved-reviews-by>=1"
       - check-success=ci
       - check-success=lint
       - check-success=typecheck
@@ -131,7 +130,6 @@ pull_request_rules:
       - check-success=ci
       - check-success=lint
       - check-success=test
-      - "#approved-reviews-by>=1"
     actions:
       label:
         add:

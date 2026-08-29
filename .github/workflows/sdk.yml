@@ -1,6 +1,7 @@
 name: sdk
 
-# AgilePlus: agileplus/003-helios-portage-completion/spec.md (WP02)
+# AgilePlus traceability is external: cite AP-ITEM:<id> or AP-FEATURE:<slug>/WP<n>
+# in the associated PR; do not link an in-repository tracker artifact.
 # Helios hard-fork (2026-07-14): SDK jobs build vendored `codex` via Bazel on
 # self-hosted `*-runners` labels that are not available on this fork.
 # Jobs are gated with `if: false` so harness green is not blocked.

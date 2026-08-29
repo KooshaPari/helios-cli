@@ -1,6 +1,8 @@
 # Workflow Strategy
 
-AgilePlus trace: [`003-helios-portage-completion` WP02](../../agileplus/003-helios-portage-completion/spec.md).
+AgilePlus traceability is external. Cite `AP-ITEM:<id>` or
+`AP-FEATURE:<slug>/WP<n>` in the associated pull request; do not link a local
+tracker artifact.
 
 The workflows in this directory are split so that pull requests get fast, review-friendly signal while optional vendored/upstream trees stay off the critical path.
 
