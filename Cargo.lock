@@ -1172,12 +1172,14 @@ dependencies = [
  "harness_spec",
  "harness_verify",
  "helios-ai",
+ "helios-tools",
  "helios_config",
  "kla",
  "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -1185,11 +1187,24 @@ name = "helios-ai"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "reqwest 0.11.27",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
  "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "helios-tools"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "tempfile",
+ "thiserror 1.0.69",
  "tracing",
 ]
 
