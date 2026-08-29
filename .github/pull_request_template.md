@@ -33,7 +33,7 @@
 ## Checklist
 
 - [ ] PR description is truthful (no advisory-only CI claims)
-- [ ] No scratch files committed (build-*.txt, *.bat, __pycache__, etc.)
+- [ ] No scratch files committed (<code>build-\*.txt</code>, <code>\*.bat</code>, <code>\_\_pycache\_\_</code>, etc.)
 - [ ] No machine-specific absolute paths added (AGENTS.md rule)
 - [ ] CI gates left fail-hard (no `continue-on-error` / `::warning::` swallows)
 - [ ] External AgilePlus item is cited; no tracker artifacts were added
