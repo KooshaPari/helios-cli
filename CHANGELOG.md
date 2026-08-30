@@ -5,6 +5,18 @@ All notable changes to HeliosCLI are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0](https://github.com/KooshaPari/helios-cli/compare/v0.6.0...v0.7.0) (2026-08-30)
+
+
+### Features
+
+* add SSE streaming and approval policies ([13b7cfa](https://github.com/KooshaPari/helios-cli/commit/13b7cfa5c84c805f0ce2376c88d56fa95826708d))
+* **cost:** add token usage tracking and budget limits to agent loop ([ab910b4](https://github.com/KooshaPari/helios-cli/commit/ab910b439c69789f7c59ce11d79fd6a909f2409d))
+* **helios-ai:** add session persistence and helios resume (H-E3) ([43425da](https://github.com/KooshaPari/helios-cli/commit/43425da7812424a4ad66c4a0b0357f55f8a11f7b))
+* **helios-tools:** add FileEditTool crate for agent file operations (H-E2) ([cfb66b8](https://github.com/KooshaPari/helios-cli/commit/cfb66b8ca8b104391f786c9609bd4949c5af745b))
+* **helios:** add exec agent loop stub (H-E1) ([cb4f2be](https://github.com/KooshaPari/helios-cli/commit/cb4f2be1707b4aba44ebff012ffafff120287d6d))
+* **sandbox:** implement real Landlock sandboxing for helios exec ([e16440a](https://github.com/KooshaPari/helios-cli/commit/e16440a1dccc84d525659e923894eaec63ba6126))
+
 ## [0.6.0](https://github.com/KooshaPari/helios-cli/compare/v0.5.0...v0.6.0) (2026-08-28)
 
 
