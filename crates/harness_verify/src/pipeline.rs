@@ -88,9 +88,10 @@ impl VerificationPipeline {
                             "Security scanner name '{}' contains shell metacharacters — rejected",
                             scanner_clean
                         ),
-                        errors: vec![format!(
+                        errors: vec![
                             "scanner name rejected: contains potentially dangerous characters"
-                        )],
+                                .to_string(),
+                        ],
                         metrics: Default::default(),
                     });
                 }
@@ -190,8 +191,10 @@ impl VerificationPipeline {
                             let output = std::process::Command::new("cargo")
                                 .args(["bench", "--bench", &metric, "--", "--output-format=bencher"])
                                 .output();
-                            if output.is_ok() && output.as_ref().unwrap().status.success() {
-                                return output.unwrap();
+                            if let Ok(output) = output {
+                                if output.status.success() {
+                                    return output;
+                                }
                             }
                             // Fallback: try cargo test with --benches flag
                             std::process::Command::new("cargo")
@@ -302,9 +305,8 @@ impl VerificationPipeline {
                         started_at: chrono::Utc::now(),
                         completed_at: Some(chrono::Utc::now()),
                         duration_ms: 0,
-                        output: format!(
-                            "Custom command rejected: contains shell metacharacters"
-                        ),
+                        output: "Custom command rejected: contains shell metacharacters"
+                            .to_string(),
                         errors: vec![format!(
                             "command '{}' contains potentially dangerous characters",
                             command
@@ -493,7 +495,7 @@ fn which_scanner(name: &str) -> Option<String> {
 
     // Search PATH
     if let Ok(path_var) = std::env::var("PATH") {
-        for dir in path_var.split(|c| c == ':' || c == ';') {
+        for dir in path_var.split([':', ';']) {
             let candidate = std::path::Path::new(dir).join(name);
             if candidate.is_file() {
                 return Some(candidate.to_string_lossy().to_string());
