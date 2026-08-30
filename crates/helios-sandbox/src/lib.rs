@@ -12,9 +12,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 static SANDBOXED: AtomicBool = AtomicBool::new(false);
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", test))]
 fn landlock_fd_from_syscall_result(result: libc::c_long) -> Option<libc::c_int> {
-    libc::c_int::try_from(result).ok()
+    libc::c_int::try_from(result).ok().filter(|fd| *fd >= 0)
 }
 
 /// Returns whether the process is currently sandboxed.
@@ -379,7 +379,6 @@ mod tests {
         let _fn_ref2: fn() -> bool = is_sandboxed;
     }
 
-    #[cfg(target_os = "linux")]
     #[test]
     fn landlock_fd_conversion_rejects_invalid_syscall_results() {
         assert_eq!(landlock_fd_from_syscall_result(0), Some(0));
