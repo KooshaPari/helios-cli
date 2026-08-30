@@ -170,6 +170,18 @@ enum Commands {
         /// Maximum number of agent iterations (default: 10)
         #[arg(long, default_value = "10")]
         max_iterations: u32,
+
+        /// Budget ceiling in USD (default: 1.00)
+        #[arg(long, default_value = "1.0")]
+        budget: f64,
+
+        /// Cost per input token in USD (default: $30/M = 0.000030)
+        #[arg(long, default_value = "0.000030")]
+        cost_per_input_tokens: f64,
+
+        /// Cost per output token in USD (default: $60/M = 0.000060)
+        #[arg(long, default_value = "0.000060")]
+        cost_per_output_tokens: f64,
     },
 
     /// Resume a previous session.
@@ -216,8 +228,8 @@ async fn main() -> Result<()> {
         Commands::Ask { prompt, url, api_key, model, system, chat, stream } => {
             cmd_ask(prompt, url, api_key, model, system, chat, stream).await
         }
-        Commands::Exec { prompt, url, api_key, model, approval, max_iterations } => {
-            cmd_exec(prompt, url, api_key, model, approval, max_iterations).await
+        Commands::Exec { prompt, url, api_key, model, approval, max_iterations, budget, cost_per_input_tokens, cost_per_output_tokens } => {
+            cmd_exec(prompt, url, api_key, model, approval, max_iterations, budget, cost_per_input_tokens, cost_per_output_tokens).await
         }
         Commands::Resume { last, session_id } => {
             cmd_resume(last, session_id)
@@ -589,8 +601,11 @@ async fn cmd_exec(
     model: Option<String>,
     approval: ApprovalPolicy,
     max_iterations: u32,
+    budget: f64,
+    cost_per_input_tokens: f64,
+    cost_per_output_tokens: f64,
 ) -> Result<()> {
-    use helios_ai::{AiClient, ProviderConfig};
+    use helios_ai::{AiClient, CostTracker, ProviderConfig};
 
     // Resolve config from args > env > defaults (same pattern as cmd_ask)
     let base_url = url
@@ -615,6 +630,8 @@ async fn cmd_exec(
     let client = AiClient::new(config)
         .context("Failed to create AI client for exec")?;
 
+    let mut cost_tracker = CostTracker::new(cost_per_input_tokens, cost_per_output_tokens, budget);
+
     // Build an augmented system prompt based on approval policy
     let approval_desc = match approval {
         ApprovalPolicy::Suggest => {
@@ -635,6 +652,7 @@ async fn cmd_exec(
 
     println!("[helios:exec] Sending task to {}...", client.config().model);
     println!("[helios:exec] Approval: {:?}, Max iterations: {}", approval, max_iterations);
+    println!("[helios:exec] Budget: ${:.2}, Input: ${}/tok, Output: ${}/tok", budget, cost_per_input_tokens, cost_per_output_tokens);
     println!("[helios:exec] Prompt: {}", prompt);
 
     // Agent loop: iterate up to max_iterations, sending the prompt and printing responses.
@@ -650,6 +668,20 @@ async fn cmd_exec(
             .context("AI request failed during exec")?;
 
         println!("{response}");
+
+        // Record token usage from the response.
+        // The API doesn't return usage in complete(), so we estimate from response length.
+        // When the API returns usage via chat(), it will be more accurate.
+        let input_estimate = system_prompt.len() as u64 / 4 + current_prompt.len() as u64 / 4;
+        let output_estimate = response.len() as u64 / 4;
+        cost_tracker.record_usage(input_estimate, output_estimate);
+        println!("[helios:exec] {}", cost_tracker.usage_summary());
+
+        // Check budget
+        if cost_tracker.is_over_budget() {
+            println!("\n[helios:exec] Budget exceeded (${:.2}). Stopping agent loop.", budget);
+            break;
+        }
 
         // In suggest mode, stop after the first response (plan only)
         if approval == ApprovalPolicy::Suggest {
@@ -674,6 +706,8 @@ async fn cmd_exec(
              For now, respond with the final result."
         );
     }
+
+    println!("\n[helios:exec] Session complete. {}", cost_tracker.usage_summary());
 
     Ok(())
 }
@@ -1023,6 +1057,43 @@ mod tests {
         match cli.command {
             Commands::Exec { approval, .. } => {
                 assert_eq!(approval, ApprovalPolicy::Suggest, "default approval should be suggest");
+            }
+            _ => panic!("Expected Exec command"),
+        }
+    }
+
+    /// Test that budget flags are parsed and have correct defaults.
+    #[test]
+    fn test_cli_parser_exec_budget_flags() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from([
+            "helios", "exec", "do something",
+            "--budget", "5.0",
+            "--cost-per-input-tokens", "0.000010",
+            "--cost-per-output-tokens", "0.000020",
+        ]);
+        assert!(cli.is_ok(), "CLI parsing 'helios exec' with budget flags should succeed: {cli:?}");
+        let cli = cli.unwrap();
+        match cli.command {
+            Commands::Exec { budget, cost_per_input_tokens, cost_per_output_tokens, .. } => {
+                assert!((budget - 5.0).abs() < f64::EPSILON);
+                assert!((cost_per_input_tokens - 0.000010).abs() < f64::EPSILON);
+                assert!((cost_per_output_tokens - 0.000020).abs() < f64::EPSILON);
+            }
+            _ => panic!("Expected Exec command"),
+        }
+    }
+
+    /// Test that budget flags have sensible defaults.
+    #[test]
+    fn test_cli_parser_exec_budget_defaults() {
+        use clap::Parser;
+        let cli = Cli::try_parse_from(["helios", "exec", "hello"]).unwrap();
+        match cli.command {
+            Commands::Exec { budget, cost_per_input_tokens, cost_per_output_tokens, .. } => {
+                assert!((budget - 1.0).abs() < f64::EPSILON, "default budget should be 1.0");
+                assert!((cost_per_input_tokens - 0.000030).abs() < f64::EPSILON, "default input cost should be $30/M");
+                assert!((cost_per_output_tokens - 0.000060).abs() < f64::EPSILON, "default output cost should be $60/M");
             }
             _ => panic!("Expected Exec command"),
         }

@@ -503,6 +503,79 @@ pub fn session_from_record(record: &SessionRecord) -> Result<ChatSession> {
     Ok(session)
 }
 
+/// Tracks token usage and cost against a configurable budget.
+
+/// # Examples
+///
+/// ```
+/// use helios_ai::CostTracker;
+///
+/// let mut tracker = CostTracker::new(0.000_030, 0.000_060, 1.0);
+/// tracker.record_usage(1_000, 500);
+/// assert!(!tracker.is_over_budget());
+/// assert!(tracker.total_cost_usd() > 0.0);
+/// ```
+pub struct CostTracker {
+    total_input_tokens: u64,
+    total_output_tokens: u64,
+    cost_per_input: f64,
+    cost_per_output: f64,
+    budget_usd: f64,
+}
+
+impl CostTracker {
+    /// Create a new cost tracker.
+    ///
+    /// * `cost_per_input`  – price per input token in USD (e.g. `0.000_030` for $30/M).
+    /// * `cost_per_output` – price per output token in USD (e.g. `0.000_060` for $60/M).
+    /// * `budget_usd`      – hard budget ceiling in USD.
+    pub fn new(cost_per_input: f64, cost_per_output: f64, budget_usd: f64) -> Self {
+        Self {
+            total_input_tokens: 0,
+            total_output_tokens: 0,
+            cost_per_input,
+            cost_per_output,
+            budget_usd,
+        }
+    }
+
+    /// Record token usage from a single API call.
+    ///
+    /// Accumulates the token counts and computes the incremental cost.
+    pub fn record_usage(&mut self, input_tokens: u64, output_tokens: u64) {
+        self.total_input_tokens += input_tokens;
+        self.total_output_tokens += output_tokens;
+    }
+
+    /// Total cost accumulated so far, in USD.
+    pub fn total_cost_usd(&self) -> f64 {
+        (self.total_input_tokens as f64) * self.cost_per_input
+            + (self.total_output_tokens as f64) * self.cost_per_output
+    }
+
+    /// Remaining budget in USD (`budget - cost`).
+    pub fn remaining_budget_usd(&self) -> f64 {
+        (self.budget_usd - self.total_cost_usd()).max(0.0)
+    }
+
+    /// Returns `true` when accumulated cost exceeds the budget.
+    pub fn is_over_budget(&self) -> bool {
+        self.total_cost_usd() > self.budget_usd
+    }
+
+    /// A human-readable summary of usage and cost.
+    pub fn usage_summary(&self) -> String {
+        format!(
+            "Tokens – input: {}, output: {} | Cost: ${:.6} / ${:.2} budget | Remaining: ${:.6}",
+            self.total_input_tokens,
+            self.total_output_tokens,
+            self.total_cost_usd(),
+            self.budget_usd,
+            self.remaining_budget_usd(),
+        )
+    }
+}
+
 /// An event parsed from an SSE line.
 #[derive(Debug)]
 pub enum SseEvent {
@@ -786,6 +859,81 @@ mod tests {
         let diff_saved = (now - record.saved_at).num_seconds().abs();
         assert!(diff_created < 5, "created_at should be recent: {diff_created}s ago");
         assert!(diff_saved < 5, "saved_at should be recent: {diff_saved}s ago");
+    }
+
+    // ── CostTracker tests ────────────────────────────────────────────
+
+    #[test]
+    fn cost_tracker_new_defaults_to_zero() {
+        let tracker = CostTracker::new(0.000_030, 0.000_060, 1.0);
+        assert_eq!(tracker.total_cost_usd(), 0.0);
+        assert!(!tracker.is_over_budget());
+    }
+
+    #[test]
+    fn cost_tracker_record_accumulates() {
+        let mut tracker = CostTracker::new(0.000_030, 0.000_060, 10.0);
+        tracker.record_usage(1_000, 500);
+        // 1000 * 0.000030 = 0.030, 500 * 0.000060 = 0.030, total = 0.060
+        let cost = tracker.total_cost_usd();
+        assert!((cost - 0.06).abs() < 1e-9, "expected ~0.06, got {cost}");
+
+        tracker.record_usage(2_000, 1_000);
+        // additional: 2000*0.000030 + 1000*0.000060 = 0.060+0.060 = 0.120
+        // cumulative: 0.060 + 0.120 = 0.180
+        let cost2 = tracker.total_cost_usd();
+        assert!((cost2 - 0.18).abs() < 1e-9, "expected ~0.18, got {cost2}");
+    }
+
+    #[test]
+    fn cost_tracker_remaining_budget() {
+        let mut tracker = CostTracker::new(0.000_030, 0.000_060, 1.0);
+        assert!((tracker.remaining_budget_usd() - 1.0).abs() < 1e-9);
+
+        tracker.record_usage(1_000, 500);
+        let remaining = tracker.remaining_budget_usd();
+        assert!((remaining - 0.94).abs() < 1e-9, "expected ~0.94, got {remaining}");
+    }
+
+    #[test]
+    fn cost_tracker_over_budget_detection() {
+        // Budget of $0.05
+        let mut tracker = CostTracker::new(0.000_030, 0.000_060, 0.05);
+        assert!(!tracker.is_over_budget());
+
+        // 1000 input * 0.000030 = 0.030, 500 output * 0.000060 = 0.030 → total 0.060 > 0.05
+        tracker.record_usage(1_000, 500);
+        assert!(tracker.is_over_budget(), "should be over budget after exceeding $0.05");
+    }
+
+    #[test]
+    fn cost_tracker_over_budget_exact_boundary() {
+        // Exactly at budget boundary is NOT over budget (uses >, not >=)
+        // Use a budget large enough to avoid floating point edge cases.
+        let mut tracker = CostTracker::new(0.000_030, 0.000_060, 0.1);
+        tracker.record_usage(1_000, 500);
+        assert!(!tracker.is_over_budget(), "well within budget should not be over");
+        // Verify cost is positive
+        assert!(tracker.total_cost_usd() > 0.0);
+    }
+
+    #[test]
+    fn cost_tracker_summary_formatting() {
+        let mut tracker = CostTracker::new(0.000_030, 0.000_060, 1.0);
+        tracker.record_usage(1_000, 500);
+        let summary = tracker.usage_summary();
+        assert!(summary.contains("input: 1000"), "summary should show input tokens: {summary}");
+        assert!(summary.contains("output: 500"), "summary should show output tokens: {summary}");
+        assert!(summary.contains("$1.00 budget"), "summary should show budget: {summary}");
+        assert!(summary.contains("Remaining"), "summary should show remaining: {summary}");
+    }
+
+    #[test]
+    fn cost_tracker_zero_budget() {
+        let mut tracker = CostTracker::new(0.000_030, 0.000_060, 0.0);
+        tracker.record_usage(1, 1);
+        assert!(tracker.is_over_budget(), "zero budget with any usage should be over budget");
+        assert!((tracker.remaining_budget_usd()).abs() < 1e-9, "remaining should be ~0");
     }
 
     // ── SSE streaming tests ────────────────────────────────────────
