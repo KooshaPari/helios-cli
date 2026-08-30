@@ -1172,6 +1172,7 @@ dependencies = [
  "harness_spec",
  "harness_verify",
  "helios-ai",
+ "helios-sandbox",
  "helios-tools",
  "helios_config",
  "kla",
@@ -1197,6 +1198,14 @@ dependencies = [
  "tokio",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "helios-sandbox"
+version = "0.2.1"
+dependencies = [
+ "libc",
+ "tracing",
 ]
 
 [[package]]

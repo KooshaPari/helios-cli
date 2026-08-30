@@ -37,6 +37,8 @@ members = [
     "crates/helios-ai",
     # File-edit tools for the Helios agent
     "crates/helios-tools",
+    # OS-level sandboxing (Landlock/Seatbelt)
+    "crates/helios-sandbox",
 ]
 
 [workspace.package]

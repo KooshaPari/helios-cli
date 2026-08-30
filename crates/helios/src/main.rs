@@ -229,9 +229,12 @@ async fn main() -> Result<()> {
 async fn cmd_run(command: String, dir: Option<PathBuf>, timeout: u64, shell: bool, sandbox: bool) -> Result<()> {
     use harness_runner::{RunnerConfig, Runner};
 
-    // Sandbox mode: validate command safety and restrict working directory
+    // Sandbox mode: enable OS-level sandboxing and validate command safety
     if sandbox {
-        println!("[helios] Sandbox mode enabled");
+        println!("[helios] Sandbox mode enabled — enabling OS-level sandboxing…");
+
+        // Enable real OS-level sandboxing (Landlock on Linux, guidance on macOS/Windows)
+        helios_sandbox::enable_sandbox();
 
         // Validate command doesn't contain dangerous operations
         let dangerous = ["rm -rf /", "mkfs", "dd if=", "> /dev/", "chmod 777 /", "wget", "curl | sh", "eval ", "exec "];
@@ -245,6 +248,10 @@ async fn cmd_run(command: String, dir: Option<PathBuf>, timeout: u64, shell: boo
         // Restrict working directory to current dir or specified dir
         if dir.is_none() {
             println!("[helios] Sandbox: restricting working directory to current dir");
+        }
+
+        if helios_sandbox::is_sandboxed() {
+            println!("[helios] Sandbox: filesystem access is now restricted (Landlock active)");
         }
     }
 

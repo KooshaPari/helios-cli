@@ -23,6 +23,7 @@ harness_verify = { path = "../harness_verify" }
 helios_config = { path = "../helios_config" }
 helios-ai = { path = "../helios-ai" }
 helios-tools = { path = "../helios-tools" }
+helios-sandbox = { path = "../helios-sandbox" }
 
 # Dependencies
 clap = { version = "4.5", features = ["derive"] }
