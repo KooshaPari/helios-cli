@@ -53,11 +53,16 @@ class RepoManifest:
 
     @classmethod
     def from_repo(cls, repo_root: Path, repo_id: str) -> RepoManifest:
-        from subprocess import CalledProcessError, TimeoutExpired, check_output
+        from subprocess import DEVNULL, CalledProcessError, TimeoutExpired, check_output
 
         def git_output(*args: str) -> str:
             try:
-                return check_output(["git", "-C", root, *args], text=True, timeout=2).strip()
+                return check_output(
+                    ["git", "-C", root, *args],
+                    text=True,
+                    timeout=2,
+                    stderr=DEVNULL,
+                ).strip()
             except (CalledProcessError, TimeoutExpired, FileNotFoundError):
                 return ""
 
@@ -68,7 +73,7 @@ class RepoManifest:
             remote = "(no-remote)"
         try:
             branch = git_output("branch", "--show-current")
-            commit = git_output("rev-parse", "--short", "HEAD")
+            commit = git_output("rev-parse", "--verify", "HEAD")
         except (CalledProcessError, TimeoutExpired):
             branch = "(no-git)"
             commit = ""

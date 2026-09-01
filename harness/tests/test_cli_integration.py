@@ -2,10 +2,12 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
 def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
+    # Traces to: FR-HELIOS-IO-006 (explicit non-Git provenance handling).
     source_root = Path(__file__).resolve().parents[1]
     workspace = tmp_path / "phase2-harness-workspace"
     workspace.mkdir()
@@ -29,6 +31,7 @@ def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
 
     env = os.environ.copy()
     env["HELIOS_HARNESS_ROOT"] = str(workspace)
+    env["HELIOS_HARNESS_PYTHON"] = sys.executable
 
     proc = subprocess.run(
         ["bash", "commands/execute-phase-2-harness.sh"],
@@ -38,12 +41,14 @@ def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
         capture_output=True,
     )
     assert proc.returncode == 0
+    assert "No such remote" not in proc.stderr
 
     evidence = json.loads((workspace / "artifacts" / "phase-2" / "evidence-all.json").read_text())
     targets = evidence["targets"]
     assert any(t["repo_name"] == "toyrepo" for t in targets)
     toy_target = next(t for t in targets if t["repo_name"] == "toyrepo")
-    assert toy_target["run"]["result_code"] == "PASS"
+    assert toy_target["run"]["result_code"] == "WARN"
+    assert toy_target["run"]["provenance"]["reason"] == "non_git_repository"
 
     matrix_text = (
         workspace / "artifacts" / "phase-2" / "lane-d" / "integration-matrix.md"
