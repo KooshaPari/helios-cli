@@ -39,6 +39,8 @@ members = [
     "crates/helios-tools",
     # OS-level sandboxing (Landlock/Seatbelt)
     "crates/helios-sandbox",
+    # Terminal UI scaffold (ratatui-based)
+    "crates/helios-tui",
 ]
 
 [workspace.package]
