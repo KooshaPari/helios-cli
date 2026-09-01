@@ -5,6 +5,20 @@ All notable changes to HeliosCLI are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0](https://github.com/KooshaPari/helios-cli/compare/v0.7.0...v0.8.0) (2026-09-01)
+
+
+### Features
+
+* **tui:** add ratatui-based terminal UI scaffold ([efead0a](https://github.com/KooshaPari/helios-cli/commit/efead0a19cadd2cec4467855c67e78cc538469d8))
+* **tui:** ratatui-based terminal UI scaffold ([6469cc5](https://github.com/KooshaPari/helios-cli/commit/6469cc57701fe19062988c69d69c2df6c811fbf7))
+
+
+### Bug Fixes
+
+* **ai:** upgrade reqwest to clear cargo-deny advisories ([#647](https://github.com/KooshaPari/helios-cli/issues/647)) ([22b21b0](https://github.com/KooshaPari/helios-cli/commit/22b21b0688a7045543118d621514f6d901f205b3))
+* **verify:** resolve strict Clippy warnings (AP-ITEM:1) ([#646](https://github.com/KooshaPari/helios-cli/issues/646)) ([32a2940](https://github.com/KooshaPari/helios-cli/commit/32a2940170bf9b3622807be92c3933235b24ef7d))
+
 ## [0.7.0](https://github.com/KooshaPari/helios-cli/compare/v0.6.0...v0.7.0) (2026-08-30)
 
 
