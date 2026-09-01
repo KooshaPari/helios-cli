@@ -12,6 +12,11 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 static SANDBOXED: AtomicBool = AtomicBool::new(false);
 
+#[cfg(any(target_os = "linux", test))]
+fn landlock_fd_from_syscall_result(result: libc::c_long) -> Option<libc::c_int> {
+    libc::c_int::try_from(result).ok().filter(|fd| *fd >= 0)
+}
+
 /// Returns whether the process is currently sandboxed.
 ///
 /// The flag is set to `true` by [`enable_sandbox`] on Linux after the
@@ -194,6 +199,13 @@ fn enable_sandbox_linux() {
         );
         return;
     }
+    let Some(ruleset_fd) = landlock_fd_from_syscall_result(ruleset_fd) else {
+        eprintln!(
+            "[helios-sandbox] Landlock create_ruleset returned an invalid file descriptor; \
+             sandboxing unavailable"
+        );
+        return;
+    };
 
     // 2. Open the current working directory for the path-beneath rule.
     let cwd = std::env::current_dir().unwrap_or_else(|_| {
@@ -365,6 +377,17 @@ mod tests {
     fn public_api_exists() {
         let _fn_ref: fn() = enable_sandbox;
         let _fn_ref2: fn() -> bool = is_sandboxed;
+    }
+
+    #[test]
+    fn landlock_fd_conversion_rejects_invalid_syscall_results() {
+        assert_eq!(landlock_fd_from_syscall_result(0), Some(0));
+        assert_eq!(
+            landlock_fd_from_syscall_result(libc::c_int::MAX as libc::c_long),
+            Some(libc::c_int::MAX)
+        );
+        assert_eq!(landlock_fd_from_syscall_result(-1), None);
+        assert_eq!(landlock_fd_from_syscall_result(libc::c_int::MAX as libc::c_long + 1), None);
     }
 
     /// Calling `enable_sandbox` multiple times is idempotent and safe.
