@@ -5,6 +5,14 @@ All notable changes to HeliosCLI are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1](https://github.com/KooshaPari/helios-cli/compare/v0.7.0...v0.7.1) (2026-09-01)
+
+
+### Bug Fixes
+
+* **ai:** upgrade reqwest to clear cargo-deny advisories ([#647](https://github.com/KooshaPari/helios-cli/issues/647)) ([22b21b0](https://github.com/KooshaPari/helios-cli/commit/22b21b0688a7045543118d621514f6d901f205b3))
+* **verify:** resolve strict Clippy warnings (AP-ITEM:1) ([#646](https://github.com/KooshaPari/helios-cli/issues/646)) ([32a2940](https://github.com/KooshaPari/helios-cli/commit/32a2940170bf9b3622807be92c3933235b24ef7d))
+
 ## [0.7.0](https://github.com/KooshaPari/helios-cli/compare/v0.6.0...v0.7.0) (2026-08-30)
 
 
