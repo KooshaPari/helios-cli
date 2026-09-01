@@ -96,7 +96,7 @@ def cmd_cache_stats() -> None:
 def cmd_cache_clear() -> None:
     from harness import L1Cache, L2Cache
 
-    L1Cache()._cache.clear()
+    L1Cache().clear()
     print("L1 cache cleared")
     L2Cache().clear()
     print("L2 cache cleared")

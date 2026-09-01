@@ -14,6 +14,7 @@ from harness.teammates import (
     Teammate,
     TeammateRegistry,
 )
+from pydantic import ValidationError
 
 
 class TestTeammate:
@@ -48,6 +49,10 @@ class TestDelegationRequest:
         )
         assert req.priority == Priority.HIGH
         assert req.timeout_seconds == 600
+
+    def test_delegation_request_rejects_oversized_prompt(self):
+        with pytest.raises(ValidationError, match="task_description"):
+            DelegationRequest(teammate_id="agent-1", task_description="x" * 32769)
 
 
 class TestTeammateRegistry:
@@ -92,8 +97,8 @@ class TestDelegationProtocol:
         result = protocol.cancel_delegation("fake-id")
         assert result is False
 
-    def test_protocol_cancel_delegation_found(self):
-        protocol = DelegationProtocol()
+    def test_protocol_cancel_delegation_found(self, tmp_path):
+        protocol = DelegationProtocol(state_dir=tmp_path)
         # Add a fake delegation
         req = DelegationRequest(teammate_id="test", task_description="test")
         protocol._delegations["test-id"] = req
@@ -101,6 +106,21 @@ class TestDelegationProtocol:
         result = protocol.cancel_delegation("test-id")
         assert result is True
         assert protocol.get_status("test-id").status == DelegationStatus.CANCELLED
+
+    @pytest.mark.asyncio
+    async def test_protocol_status_survives_new_process_instance(self, tmp_path):
+        class Executor:
+            async def execute(self, _request):
+                return {"output": "done", "evidence": []}
+
+        first = DelegationProtocol(state_dir=tmp_path)
+        result = await first.delegate(
+            DelegationRequest(teammate_id="test", task_description="test"), Executor()
+        )
+
+        restored = DelegationProtocol(state_dir=tmp_path).get_status(result.delegation_id)
+        assert restored is not None
+        assert restored.status == DelegationStatus.COMPLETED
 
 
 class TestCodexExecutor:

@@ -112,18 +112,30 @@ def _write_output(out: str, content: str) -> None:
     try:
         common_root = os.path.commonpath((workspace, resolved))
     except ValueError as exc:
-        raise ValueError(
-            f"output path must remain inside the invoking workspace: {out!r}"
-        ) from exc
+        raise ValueError(f"output path must remain inside the invoking workspace: {out!r}") from exc
     if common_root != workspace:
-        raise ValueError(
-            f"output path must remain inside the invoking workspace: {out!r}"
-        )
+        raise ValueError(f"output path must remain inside the invoking workspace: {out!r}")
     if resolved == workspace:
         raise ValueError("output path must name a file inside the invoking workspace")
-    # ``resolved`` is realpath-canonicalized and commonpath-checked; traversal
-    # and symlink escapes are rejected before this write.
-    Path(resolved).write_text(content)  # NOSONAR(S8707)
+    relative_parts = Path(os.path.relpath(resolved, workspace)).parts
+    directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    nofollow = getattr(os, "O_NOFOLLOW", 0)
+    directory_fd = os.open(workspace, directory_flags | nofollow)
+    try:
+        for part in relative_parts[:-1]:
+            next_fd = os.open(part, directory_flags | nofollow, dir_fd=directory_fd)
+            os.close(directory_fd)
+            directory_fd = next_fd
+        output_fd = os.open(
+            relative_parts[-1],
+            os.O_WRONLY | os.O_CREAT | os.O_TRUNC | nofollow,
+            0o644,
+            dir_fd=directory_fd,
+        )
+        with os.fdopen(output_fd, "w") as output_file:
+            output_file.write(content)
+    finally:
+        os.close(directory_fd)
 
 
 def _write_unresolved_provenance(payload: dict, out: str, repo: str, subject_ref: str) -> None:
@@ -154,6 +166,7 @@ def run_discovery(root: str, out: str, max_scan_depth: int) -> None:
 
 
 def run_runner(repo: str, profile: str, out: str, args) -> None:
+    from harness.benchmark_envelope import add_envelope, stored_plan_hash
     from harness.discoverer import Discoverer
     from harness.interfaces import DiscoverInput
     from harness.normalizer import QualityNormalizer
@@ -175,7 +188,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
             prior_payload = json.loads(prior_path.read_text())
             prior_commands = prior_payload.get("plan")
             if not isinstance(prior_commands, list):
-                prior_commands = prior_payload.get("commands", [])
+                prior_commands = prior_payload.get("commands")
             if isinstance(prior_commands, list):
                 prior_plan = [
                     {
@@ -200,7 +213,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
                 )
                 prior_hash = _command_plan_hash(prior_plan)
             else:
-                prior_hash = None
+                prior_hash = stored_plan_hash(prior_payload)
                 prior_plan = []
             replay_payload = {
                 "path": str(prior_path),
@@ -239,7 +252,6 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
 
     if args.dry_run:
         result["result_code"] = "WARN" if not commands else "PASS"
-        from harness.benchmark_envelope import add_envelope
         result = add_envelope(
             result,
             repo=repo,
@@ -281,8 +293,8 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
             prior = json.loads(replay_path.read_text())
             prior_commands = prior.get("plan")
             if not isinstance(prior_commands, list):
-                prior_commands = prior.get("commands", [])
-            prior_hash = prior.get("plan_hash")
+                prior_commands = prior.get("commands")
+            prior_hash = stored_plan_hash(prior)
             if prior_hash is None and isinstance(prior_commands, list):
                 prior_plan = [
                     {
@@ -310,7 +322,7 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
                 "path": str(replay_path),
                 "prior_plan_hash": prior_hash,
                 "same_plan": prior_hash == command_hash,
-                "plan_diff": _plan_diff(prior_commands, commands),
+                "plan_diff": _plan_diff(prior_commands or [], commands),
             }
         elif replay_payload is not None:
             payload["replay"] = {
@@ -323,7 +335,6 @@ def run_runner(repo: str, profile: str, out: str, args) -> None:
         _write_unresolved_provenance(payload, out, repo, subject_ref)
         return
 
-    from harness.benchmark_envelope import add_envelope
     payload = add_envelope(
         payload,
         repo=repo,
@@ -366,8 +377,7 @@ def normalize_run(input_file: str, out: str) -> None:
     discovered_commands = payload.get("commands", [])
     result = QualityNormalizer().normalize(runs, discovered_commands)
     _write_output(
-        out,
-        json.dumps({"quality": result.__dict__, "source": str(input_file)}, indent=2)
+        out, json.dumps({"quality": result.__dict__, "source": str(input_file)}, indent=2)
     )
 
 
@@ -439,14 +449,14 @@ def main() -> None:
     s = sp.add_parser("scaling")
     s_sp = s.add_subparsers(dest="scaling_cmd")
 
-    s_status = s_sp.add_parser("status")
+    s_sp.add_parser("status")
 
     # Cache commands
     c = sp.add_parser("cache")
     c_sp = c.add_subparsers(dest="cache_cmd")
 
-    c_stats = c_sp.add_parser("stats")
-    c_clear = c_sp.add_parser("clear")
+    c_sp.add_parser("stats")
+    c_sp.add_parser("clear")
 
     args = p.parse_args()
 

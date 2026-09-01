@@ -124,6 +124,16 @@ class L1Cache:
                 self._cache[key] = value
                 self._timestamps[key] = time.time()
 
+    def clear(self) -> None:
+        """Clear cached values for either backend."""
+        if self._using_rust:
+            self._rust.clear()
+            return
+        with self._lock:
+            self._cache.clear()
+            if hasattr(self, "_timestamps"):
+                self._timestamps.clear()
+
     @property
     def stats(self) -> L1CacheStats:
         """Get cache statistics."""

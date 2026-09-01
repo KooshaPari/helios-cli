@@ -36,6 +36,7 @@ MAX_PARALLEL=${PHASE2_HARNESS_MAX_PARALLEL:-1}
 SKIP_REPOS=${PHASE2_SKIP_REPOS:-}
 
 mkdir -p "$LANE_D_DIR"
+cd "$ROOT_DIR"
 
 echo "[phase-2-harness] root: $ROOT_DIR"
 echo "[phase-2-harness] clones: $CLONES_DIR"
@@ -45,14 +46,14 @@ echo "[phase-2-harness] skip list: $SKIP_REPOS"
 for repo_path in "$CLONES_DIR"/*; do
   [[ -d "$repo_path" ]] || continue
   repo_name=$(basename "$repo_path")
+  discovery_out="$ARTIFACT_ROOT/discovery-${repo_name}.json"
+  run_out="$LANE_D_DIR/${repo_name}-run.json"
+  rm -f -- "$discovery_out" "$run_out"
 
   if [[ ",${SKIP_REPOS}," == *",${repo_name},"* ]]; then
     echo "[phase-2-harness] skip $repo_name"
     continue
   fi
-
-  discovery_out="$ARTIFACT_ROOT/discovery-${repo_name}.json"
-  run_out="$LANE_D_DIR/${repo_name}-run.json"
 
   echo "[phase-2-harness] discover $repo_name"
   if ! "$PYTHON_BIN" "$SCRIPT_PATH" discover --root "$repo_path" --out "$discovery_out"; then

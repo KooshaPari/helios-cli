@@ -54,6 +54,20 @@ def test_validated_output_path_rejects_workspace_escape(tmp_path, monkeypatch):
         write_output("link/run.json", "{}")
 
 
+def test_write_output_uses_descriptor_safe_write(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    write_output = _legacy_module()._write_output
+    (tmp_path / "artifacts").mkdir()
+
+    def unsafe_write(*_args, **_kwargs):
+        raise AssertionError("Path.write_text leaves a check/write race")
+
+    monkeypatch.setattr(Path, "write_text", unsafe_write)
+    write_output("artifacts/run.json", "{}")
+
+    assert (tmp_path / "artifacts" / "run.json").read_text() == "{}"
+
+
 def test_harness_dry_run_and_plan_hash(tmp_path):
     # Traces to: FR-HELIOS-IO-006 (strict dry-run envelope).
     repo = tmp_path / "repo"
@@ -166,3 +180,42 @@ def test_harness_replay_and_validate(tmp_path):
         ],
         cwd=tmp_path,
     )
+
+
+def test_replay_uses_stored_plan_hash_when_plan_details_are_absent(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "Makefile").write_text("check:\n\t@echo check\n")
+    _initialize_git_repo(repo)
+    first = tmp_path / "first.json"
+    replay = tmp_path / "replay.json"
+
+    _run(
+        [sys.executable, str(SCRIPT), "run", "--repo", str(repo), "--out", str(first)],
+        cwd=tmp_path,
+    )
+    prior = json.loads(first.read_text())
+    expected_hash = prior["plan_hash"]
+    prior.pop("plan", None)
+    prior.pop("commands", None)
+    prior.pop("tasks", None)
+    first.write_text(json.dumps(prior))
+
+    _run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "run",
+            "--repo",
+            str(repo),
+            "--out",
+            str(replay),
+            "--replay",
+            str(first),
+        ],
+        cwd=tmp_path,
+    )
+
+    output = json.loads(replay.read_text())
+    assert output["replay"]["prior_plan_hash"] == expected_hash
+    assert output["replay"]["same_plan"] is True

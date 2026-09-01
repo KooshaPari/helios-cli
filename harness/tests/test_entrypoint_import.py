@@ -1,5 +1,8 @@
+import subprocess
+import sys
 from importlib import import_module
 from pathlib import Path
+
 import tomllib
 
 
@@ -36,3 +39,21 @@ def test_entrypoint_resolves_a_real_legacy_runner() -> None:
 
     assert path.is_file()
     assert path.name in {"run-harness.py", "_legacy_runner.py"}
+
+
+def test_repository_root_package_exposes_lazy_exports() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from harness import L1Cache, TeammateRegistry; "
+            "assert L1Cache.__name__ == 'L1Cache'; "
+            "assert TeammateRegistry.__name__ == 'TeammateRegistry'",
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr

@@ -54,3 +54,46 @@ def test_execute_phase_2_harness_script_smoke(tmp_path: Path) -> None:
         workspace / "artifacts" / "phase-2" / "lane-d" / "integration-matrix.md"
     ).read_text()
     assert "toyrepo" in matrix_text
+
+
+def test_phase_2_wrapper_uses_configured_root_and_discards_stale_outputs(
+    tmp_path: Path,
+) -> None:
+    source_root = Path(__file__).resolve().parents[1]
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / "commands").mkdir()
+    (workspace / "clones" / "toyrepo").mkdir(parents=True)
+    artifact_root = workspace / "artifacts" / "phase-2"
+    lane_dir = artifact_root / "lane-d"
+    lane_dir.mkdir(parents=True)
+    (artifact_root / "discovery-toyrepo.json").write_text('{"stale": true}')
+    (lane_dir / "toyrepo-run.json").write_text('{"result_code": "PASS"}')
+    shutil.copy2(
+        source_root.parent / "commands" / "execute-phase-2-harness.sh",
+        workspace / "commands" / "execute-phase-2-harness.sh",
+    )
+    (workspace / "harness" / "scripts").mkdir(parents=True)
+    (workspace / "harness" / "scripts" / "run-harness.py").write_text("")
+    fake_python = workspace / "fail-runner-python"
+    fake_python.write_text(
+        f'#!/bin/sh\nif [ "${{1:-}}" != "-" ]; then exit 1; fi\nexec {sys.executable} "$@"\n'
+    )
+    fake_python.chmod(0o755)
+    env = os.environ.copy()
+    env["HELIOS_HARNESS_ROOT"] = str(workspace)
+    env["HELIOS_HARNESS_PYTHON"] = str(fake_python)
+
+    proc = subprocess.run(
+        ["bash", str(workspace / "commands" / "execute-phase-2-harness.sh")],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    evidence = json.loads((artifact_root / "evidence-all.json").read_text())
+    target = next(item for item in evidence["targets"] if item["repo_name"] == "toyrepo")
+    assert target["discovery"]["status"] == "missing"
+    assert target["run"]["result_code"] == "MISSING"

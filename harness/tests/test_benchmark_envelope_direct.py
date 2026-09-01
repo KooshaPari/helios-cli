@@ -3,17 +3,17 @@
 Traces to: FR-HELIOS-IO-006 (truthful, tamper-evident benchmark evidence).
 """
 
-from importlib import import_module
-from copy import deepcopy
+import hashlib
 import json
-from pathlib import Path
 import subprocess
+from copy import deepcopy
+from importlib import import_module
+from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
-
 from harness.benchmark_envelope import add_envelope, verify_envelope_integrity
 from harness.interfaces import RepoManifest
+from jsonschema import Draft202012Validator
 
 
 def test_envelope_module_exposes_strict_contract_api() -> None:
@@ -24,17 +24,19 @@ def test_envelope_module_exposes_strict_contract_api() -> None:
 
 
 def _valid_envelope() -> dict:
+    commands = [
+        {
+            "command": "pytest -q",
+            "bucket": "test",
+            "required": True,
+            "cwd": ".",
+            "source": "pyproject.toml",
+            "rationale": "",
+        }
+    ]
     return add_envelope(
         {
-            "commands": [
-                {
-                    "command": "pytest -q",
-                    "bucket": "test",
-                    "required": True,
-                    "cwd": ".",
-                    "source": "pyproject.toml",
-                }
-            ],
+            "commands": commands,
             "runs": [
                 {
                     "command": "pytest -q",
@@ -46,7 +48,9 @@ def _valid_envelope() -> dict:
             "result_code": "PASS",
         },
         repo="helios-cli",
-        plan_hash="b" * 64,
+        plan_hash=hashlib.sha256(
+            json.dumps(commands, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
         subject_commit="a" * 40,
         subject_ref="main",
     )
@@ -163,6 +167,104 @@ def test_integrity_verifier_rejects_provenance_mismatch() -> None:
 
     with pytest.raises(ValueError, match="provenance"):
         verify_envelope_integrity(envelope)
+
+
+def test_integrity_verifier_rejects_plan_content_tampering() -> None:
+    envelope = deepcopy(_valid_envelope())
+    for field in ("plan", "commands", "tasks"):
+        envelope[field][0]["command"] = "pytest --collect-only"
+
+    with pytest.raises(ValueError, match="plan hash"):
+        verify_envelope_integrity(envelope)
+
+
+def test_budget_skipped_run_is_non_passing() -> None:
+    commands = [
+        {
+            "command": "pytest -q",
+            "bucket": "test",
+            "required": True,
+            "cwd": ".",
+            "source": "pyproject.toml",
+            "rationale": "",
+        }
+    ]
+    envelope = add_envelope(
+        {
+            "commands": commands,
+            "runs": [
+                {
+                    "command": "pytest -q",
+                    "returncode": 0,
+                    "timed_out": False,
+                    "skipped": True,
+                    "duration_ms": 0,
+                }
+            ],
+            "result_code": "WARN",
+        },
+        repo="helios-cli",
+        plan_hash=hashlib.sha256(
+            json.dumps(commands, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+        subject_commit="a" * 40,
+        subject_ref="main",
+    )
+
+    assert envelope["runs"][0]["status"] == "skipped"
+    assert envelope["result"]["status"] == "cancelled"
+    _schema_validator().validate(envelope)
+
+
+def test_run_task_identity_survives_canonical_plan_sorting() -> None:
+    commands = [
+        {
+            "command": "z-last",
+            "bucket": "test",
+            "required": True,
+            "cwd": ".",
+            "source": "fixture",
+            "rationale": "",
+        },
+        {
+            "command": "a-first",
+            "bucket": "build",
+            "required": True,
+            "cwd": ".",
+            "source": "fixture",
+            "rationale": "",
+        },
+    ]
+    canonical = sorted(
+        commands,
+        key=lambda entry: (
+            entry["bucket"],
+            entry["required"],
+            entry["command"],
+            entry["source"],
+            entry["cwd"],
+        ),
+    )
+    plan_hash = hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    envelope = add_envelope(
+        {
+            "commands": commands,
+            "runs": [
+                {"command": "z-last", "returncode": 0, "duration_ms": 1},
+                {"command": "a-first", "returncode": 0, "duration_ms": 1},
+            ],
+            "result_code": "PASS",
+        },
+        repo="helios-cli",
+        plan_hash=plan_hash,
+        subject_commit="a" * 40,
+        subject_ref="main",
+    )
+    task_ids_by_command = {task["command"]: task["task_id"] for task in envelope["tasks"]}
+
+    assert all(run["task_id"] == task_ids_by_command[run["command"]] for run in envelope["runs"])
 
 
 def test_integrity_verifier_rejects_placeholder_signature_claim() -> None:
