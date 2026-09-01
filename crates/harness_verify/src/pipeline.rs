@@ -88,9 +88,10 @@ impl VerificationPipeline {
                             "Security scanner name '{}' contains shell metacharacters — rejected",
                             scanner_clean
                         ),
-                        errors: vec![format!(
+                        errors: vec![
                             "scanner name rejected: contains potentially dangerous characters"
-                        )],
+                                .to_string(),
+                        ],
                         metrics: Default::default(),
                     });
                 }
@@ -190,8 +191,10 @@ impl VerificationPipeline {
                             let output = std::process::Command::new("cargo")
                                 .args(["bench", "--bench", &metric, "--", "--output-format=bencher"])
                                 .output();
-                            if output.is_ok() && output.as_ref().unwrap().status.success() {
-                                return output.unwrap();
+                            if let Ok(output) = output {
+                                if output.status.success() {
+                                    return output;
+                                }
                             }
                             // Fallback: try cargo test with --benches flag
                             std::process::Command::new("cargo")
@@ -302,9 +305,8 @@ impl VerificationPipeline {
                         started_at: chrono::Utc::now(),
                         completed_at: Some(chrono::Utc::now()),
                         duration_ms: 0,
-                        output: format!(
-                            "Custom command rejected: contains shell metacharacters"
-                        ),
+                        output: "Custom command rejected: contains shell metacharacters"
+                            .to_string(),
                         errors: vec![format!(
                             "command '{}' contains potentially dangerous characters",
                             command
@@ -493,7 +495,7 @@ fn which_scanner(name: &str) -> Option<String> {
 
     // Search PATH
     if let Ok(path_var) = std::env::var("PATH") {
-        for dir in path_var.split(|c| c == ':' || c == ';') {
+        for dir in path_var.split([':', ';']) {
             let candidate = std::path::Path::new(dir).join(name);
             if candidate.is_file() {
                 return Some(candidate.to_string_lossy().to_string());
@@ -599,13 +601,14 @@ mod tests {
     #[tokio::test]
     async fn security_rule_is_skipped_with_message() {
         let pipeline = VerificationPipeline::new();
+        let absent_scanner = "harness-verify-test-scanner-not-installed";
         let spec = harness_spec::models::Specification {
             spec: harness_spec::models::SpecContent {
                 name: "security-demo".to_string(),
                 version: "1.0.0".to_string(),
                 owner: String::new(),
                 verification: vec![harness_spec::models::VerificationRule::Security {
-                    scanner: "trivy".to_string(),
+                    scanner: absent_scanner.to_string(),
                     critical_only: true,
                 }],
                 rollback: Default::default(),
@@ -619,7 +622,7 @@ mod tests {
         let results = pipeline.verify(&spec).await.unwrap();
         assert_eq!(results.len(), 1);
         assert!(matches!(results[0].status, VerificationStatus::Skipped));
-        assert!(results[0].output.contains("trivy"));
+        assert!(results[0].output.contains(absent_scanner));
     }
 
     #[tokio::test]
@@ -642,13 +645,18 @@ mod tests {
             },
         };
 
-        // The benchmark won't exist, so it should fail (not skip)
+        // The benchmark won't exist, so the cargo-bench fallback path must
+        // return a terminal verification result rather than panic or skip.
         let results = pipeline.verify(&spec).await.unwrap();
         assert_eq!(results.len(), 1);
+        assert!(matches!(
+            results[0].status,
+            VerificationStatus::Failed | VerificationStatus::Passed
+        ));
         assert!(
-            matches!(results[0].status, VerificationStatus::Failed | VerificationStatus::Passed),
-            "Performance rule should run and return Passed or Failed, got {:?}",
-            results[0].status
+            results[0].output.starts_with("Performance:"),
+            "Performance fallback should report a terminal result, got {:?}",
+            results[0].output
         );
     }
 
@@ -735,6 +743,43 @@ mod tests {
         assert_eq!(results.len(), 1);
         assert!(matches!(results[0].status, VerificationStatus::Failed));
         assert!(results[0].output.contains("metacharacters"));
+        assert_eq!(
+            results[0].errors,
+            vec![
+                "scanner name rejected: contains potentially dangerous characters".to_string()
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn custom_rule_rejects_metacharacters_without_running_command() {
+        let pipeline = VerificationPipeline::new();
+        let command = "echo should-not-run; false";
+        let spec = harness_spec::models::Specification {
+            spec: harness_spec::models::SpecContent {
+                name: "custom-inject".to_string(),
+                version: "1.0.0".to_string(),
+                owner: String::new(),
+                verification: vec![harness_spec::models::VerificationRule::Custom {
+                    command: command.to_string(),
+                    expected_exit_code: 0,
+                }],
+                rollback: Default::default(),
+                success_criteria: vec![],
+                behavior: None,
+                resources: None,
+                metadata: Default::default(),
+            },
+        };
+
+        let results = pipeline.verify(&spec).await.unwrap();
+        assert_eq!(results.len(), 1);
+        assert!(matches!(results[0].status, VerificationStatus::Failed));
+        assert_eq!(results[0].output, "Custom command rejected: contains shell metacharacters");
+        assert_eq!(
+            results[0].errors,
+            vec![format!("command '{}' contains potentially dangerous characters", command)]
+        );
     }
 
     #[tokio::test]
