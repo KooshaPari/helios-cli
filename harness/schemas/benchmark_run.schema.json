@@ -497,7 +497,9 @@
                     "pattern": "^task_[a-f0-9]{64}$"
                 },
                 "command": { "type": "string" },
-                "status": { "enum": ["passed", "failed", "timeout", "skipped"] },
+                "status": {
+                    "enum": ["passed", "failed", "timeout", "skipped"]
+                },
                 "returncode": { "type": ["integer", "null"] },
                 "duration_ms": { "type": "integer", "minimum": 0 }
             }
