@@ -15,16 +15,18 @@ Extends thegent governance base. See `platforms/thegent/dotfiles/governance/CLAU
 
 ## AgilePlus Mandate
 
-All work MUST be tracked in AgilePlus:
-- Reference: a sibling checkout of the AgilePlus repo (e.g. `$HOME/AgilePlus` or a sibling directory — never a machine-specific path)
-- CLI: `cd <agileplus-checkout> && agileplus <command>`
+All work MUST be tracked in the external AgilePlus service. Cite
+`AP-ITEM:<id>` for queue work or `AP-FEATURE:<slug>/WP<n>` for a service-backed
+feature/work package in the branch, commits, and pull request. Do not create,
+copy, or commit tracker artifacts in the AgilePlus source repo or in
+HeliosCLI.
 
 ## Work Requirements
 
-1. **Check for AgilePlus spec before implementing**
-2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
-3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
-4. **No code without corresponding AgilePlus spec**
+1. **Create or reference an external AgilePlus item before implementing**
+2. **Record scope and acceptance criteria in that external item**
+3. **Update its external tracker state when the service supports the transition**
+4. **No untracked code**: every implementation change cites its AgilePlus identifier
 
 ## Branch Discipline
 
@@ -61,6 +63,7 @@ fn test_feature_name() {
 ```
 
 **Verification**:
+
 - Every FR in FUNCTIONAL_REQUIREMENTS.md MUST have >=1 test
 - Every test MUST reference >=1 FR
 - Run: `cargo test` to verify
@@ -125,18 +128,19 @@ cargo run -- <command>
 
 ### Design Principles
 
-| Principle | Description | Application |
-|-----------|-------------|-------------|
+| Principle | Description                                                                                          | Application                                                     |
+| --------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **SOLID** | Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion | Commands are single-purpose; backends implement trait interface |
-| **DRY** | Don't Repeat Yourself | Shared utilities in `src/utils/` |
-| **KISS** | Keep It Simple, Stupid | Clear command structure, minimal abstractions |
-| **YAGNI** | You Aren't Gonna Need It | Build features as needed |
+| **DRY**   | Don't Repeat Yourself                                                                                | Shared utilities in `src/utils/`                                |
+| **KISS**  | Keep It Simple, Stupid                                                                               | Clear command structure, minimal abstractions                   |
+| **YAGNI** | You Aren't Gonna Need It                                                                             | Build features as needed                                        |
 
 ---
 
 ## Governance Reference
 
 See thegent governance base for:
+
 - Complete CI completeness policy
 - Phenotype Git and Delivery Workflow Protocol
 - Phenotype Org Cross-Project Reuse Protocol

@@ -3,11 +3,14 @@
 <!-- What changed, why, and how it fits the hard-fork/dual-workspace model.
      Keep it truthful: no "by invitation only" boilerplate here. -->
 
-## Linked FR / Spec
+## Linked requirement and external tracker item
 
-<!-- Required. Reference the Functional Requirement(s) or spec this change
-     traces to, e.g. docs/functional-requirements/FR-CHK-001_GIT_CHECKPOINT.md,
-     or an AgilePlus kitty-spec. If no FR covers this change, say so. -->
+<!-- Required. Cite AP-ITEM:<id> or AP-FEATURE:<slug>/WP<n> from the external
+     AgilePlus service. Also reference any in-repo Functional Requirement, e.g.
+     docs/functional-requirements/FR-CHK-001_GIT_CHECKPOINT.md. Do not add or
+     link AgilePlus tracker artifacts in this repository or its source repo. -->
+
+- External AgilePlus item: `AP-ITEM:<id>` or `AP-FEATURE:<slug>/WP<n>`
 
 - [ ] New FR or spec required (attach proposal)
 
@@ -30,8 +33,9 @@
 ## Checklist
 
 - [ ] PR description is truthful (no advisory-only CI claims)
-- [ ] No scratch files committed (build-*.txt, *.bat, __pycache__, etc.)
+- [ ] No scratch files committed (<code>build-\*.txt</code>, <code>\*.bat</code>, <code>\_\_pycache\_\_</code>, etc.)
 - [ ] No machine-specific absolute paths added (AGENTS.md rule)
 - [ ] CI gates left fail-hard (no `continue-on-error` / `::warning::` swallows)
+- [ ] External AgilePlus item is cited; no tracker artifacts were added
 - [ ] Tests trace to an FR where one exists
 - [ ] Changelog updated if user-visible
