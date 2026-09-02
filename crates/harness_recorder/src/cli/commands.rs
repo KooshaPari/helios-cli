@@ -181,7 +181,7 @@ pub async fn convert_command(input: PathBuf, output: PathBuf) -> Result<()> {
 
     let script: crate::script::Script = if input
         .extension()
-        .map_or(false, |e| e == "json" || e.to_string_lossy() == "kla.json")
+        .is_some_and(|e| e == "json" || e.to_string_lossy() == "kla.json")
     {
         serde_json::from_str(&content)
             .with_context(|| format!("Failed to parse JSON script: {}", input.display()))?
