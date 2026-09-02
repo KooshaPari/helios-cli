@@ -5,6 +5,13 @@ All notable changes to **HeliosCLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0](https://github.com/KooshaPari/helios-cli/compare/v0.8.1...v0.9.0) (2026-09-02)
+
+
+### Features
+
+* **release:** sign + notarize helios-cli (v3) ([#658](https://github.com/KooshaPari/helios-cli/issues/658)) ([e98058c](https://github.com/KooshaPari/helios-cli/commit/e98058ccc72e5fdd74916e266b1d4a4caecd4498))
+
 ## [0.8.1](https://github.com/KooshaPari/helios-cli/compare/v0.8.0...v0.8.1) (2026-09-02)
 
 
