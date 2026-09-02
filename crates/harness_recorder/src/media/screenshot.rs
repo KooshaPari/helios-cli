@@ -300,7 +300,7 @@ impl ScreenshotGenerator {
         color: Rgb<u8>,
     ) {
         let code = ch as i32;
-        let glyph = if code >= 32 && code <= 126 {
+        let glyph = if (32..=126).contains(&code) {
             &FONT_8X12[(code - 32) as usize]
         } else {
             // Fallback: draw a small filled rectangle for non-printable chars

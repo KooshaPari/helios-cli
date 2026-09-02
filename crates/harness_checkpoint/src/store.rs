@@ -49,7 +49,7 @@ impl CheckpointStore {
         Ok(())
     }
 
-    /// Get checkpoint by ID
+    /// Looks up a checkpoint by ID (error if not found).
     #[instrument(skip(self, id))]
     pub async fn get(&self, id: &str) -> Result<Checkpoint> {
         self.checkpoints
@@ -60,14 +60,15 @@ impl CheckpointStore {
             .ok_or_else(|| CheckpointError::CheckpointNotFound(id.to_string()))
     }
 
-    /// Get checkpoints by spec ID
-    #[instrument(skip(self, spec_id))]
-    pub async fn get_by_spec(&self, spec_id: &str) -> Result<Vec<Checkpoint>> {
-        let ids = self.by_spec.read().await.get(spec_id).cloned().unwrap_or_default();
+    /// Looks up a checkpoint by ID in the store (async).  Returns Ok(None) if not found.
+    pub async fn try_get(&self, id: &str) -> Result<Option<Checkpoint>> {
+        Ok(self.checkpoints.read().await.get(id).cloned())
+    }
 
-        let checkpoints = self.checkpoints.read().await;
-
-        Ok(ids.iter().filter_map(|id| checkpoints.get(id).cloned()).collect())
+    /// Looks up a checkpoint by ID (blocking).  Returns Ok(None) if not found.
+    /// Panics if no Tokio runtime is active.
+    pub fn get_blocking(&self, id: &str) -> Result<Option<Checkpoint>> {
+        tokio::runtime::Handle::current().block_on(self.try_get(id))
     }
 
     /// Get latest checkpoint for spec
@@ -89,10 +90,25 @@ impl CheckpointStore {
         Ok(())
     }
 
-    /// List all checkpoints
-    #[instrument(skip(self))]
+    /// Get checkpoints by spec ID
+    #[instrument(skip(self, spec_id))]
+    pub async fn get_by_spec(&self, spec_id: &str) -> Result<Vec<Checkpoint>> {
+        let ids = self.by_spec.read().await.get(spec_id).cloned().unwrap_or_default();
+        let checkpoints = self.checkpoints.read().await;
+        Ok(ids
+            .iter()
+            .filter_map(|id| checkpoints.get(id).cloned())
+            .collect())
+    }
+
+    /// List all checkpoints.
     pub async fn list(&self) -> Vec<Checkpoint> {
         self.checkpoints.read().await.values().cloned().collect()
+    }
+
+    /// List all checkpoints (blocking).
+    pub fn list_blocking(&self) -> Vec<Checkpoint> {
+        tokio::runtime::Handle::current().block_on(self.list())
     }
 
     /// Get count
