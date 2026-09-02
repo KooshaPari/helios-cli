@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
+import re
 import tempfile
 from datetime import UTC, datetime
 from enum import Enum
@@ -14,12 +16,14 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from .id_utils import new_id
 
 # Lazy psutil - only load when needed for process monitoring
 _psutil = None
+MAX_TASK_DESCRIPTION_BYTES = 32 * 1024
+_DELEGATION_ID = re.compile(r"[A-Za-z0-9_-]+")
 
 
 def _get_psutil():
@@ -92,6 +96,13 @@ class DelegationRequest(BaseModel):
     priority: Priority = Priority.NORMAL
     timeout_seconds: int = 300
     context_files: list[str] = []
+
+    @field_validator("task_description")
+    @classmethod
+    def validate_task_description_size(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > MAX_TASK_DESCRIPTION_BYTES:
+            raise ValueError(f"task_description exceeds {MAX_TASK_DESCRIPTION_BYTES} UTF-8 bytes")
+        return value
 
 
 class DelegationResult(BaseModel):
@@ -175,9 +186,25 @@ class TeammateRegistry:
 class DelegationProtocol:
     """Handles delegation execution with handoff protocol."""
 
-    def __init__(self):
+    def __init__(self, state_dir: Path | None = None):
         self._delegations: dict[str, DelegationRequest] = {}
         self._results: dict[str, DelegationResult] = {}
+        state_home = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state"))
+        self._state_dir = state_dir or state_home / "helios-harness" / "delegations"
+
+    def _result_path(self, delegation_id: str) -> Path | None:
+        if _DELEGATION_ID.fullmatch(delegation_id) is None:
+            return None
+        return self._state_dir / f"{delegation_id}.json"
+
+    def _persist_result(self, result: DelegationResult) -> None:
+        path = self._result_path(result.delegation_id)
+        if path is None:
+            raise ValueError("invalid delegation id")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(".json.tmp")
+        temporary.write_text(result.model_dump_json())
+        temporary.replace(path)
 
     async def delegate(
         self,
@@ -228,11 +255,22 @@ class DelegationProtocol:
             )
 
         self._results[delegation_id] = delegation_result
+        self._persist_result(delegation_result)
         return delegation_result
 
     def get_status(self, delegation_id: str) -> DelegationResult | None:
         """Get delegation status."""
-        return self._results.get(delegation_id)
+        if delegation_id in self._results:
+            return self._results[delegation_id]
+        path = self._result_path(delegation_id)
+        if path is None or not path.is_file():
+            return None
+        try:
+            result = DelegationResult.model_validate_json(path.read_text())
+        except (OSError, ValueError):
+            return None
+        self._results[delegation_id] = result
+        return result
 
     def cancel_delegation(self, delegation_id: str) -> bool:
         """Cancel a delegation."""
@@ -244,6 +282,7 @@ class DelegationProtocol:
                 status=DelegationStatus.CANCELLED,
                 error="Cancelled by user",
             )
+            self._persist_result(self._results[delegation_id])
             return True
         return False
 

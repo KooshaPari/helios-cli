@@ -46,5 +46,7 @@ def evidence_payload(
 def _result_code(runs: list[RunResult]) -> str:
     if not runs:
         return "WARN"
+    if any(r.skipped for r in runs):
+        return "WARN"
     bad = any(r.returncode not in (0, None) for r in runs)
     return "FAIL" if bad else "PASS"
