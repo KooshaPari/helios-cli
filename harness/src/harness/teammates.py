@@ -302,6 +302,17 @@ class CodexExecutor:
     async def execute(self, request: DelegationRequest) -> dict[str, Any]:
         """Execute delegation via codex exec."""
 
+        # Hard cap: truncate the prompt at MAX_TASK_DESCRIPTION_BYTES before
+        # it ever reaches the Codex process. This is the definitive enforcement
+        # point — it guards against callers who bypass DelegationRequest
+        # validation or construct requests without the validator.
+        raw_prompt = request.task_description
+        encoded_size = len(raw_prompt.encode("utf-8"))
+        if encoded_size > MAX_TASK_DESCRIPTION_BYTES:
+            prompt = raw_prompt.encode("utf-8")[:MAX_TASK_DESCRIPTION_BYTES].decode("utf-8", errors="replace")
+        else:
+            prompt = raw_prompt
+
         # Build command
         cmd = [
             "codex",
@@ -309,7 +320,7 @@ class CodexExecutor:
             "--profile",
             self.profile,
             "--prompt",
-            request.task_description,
+            prompt,
         ]
 
         # Run in isolated workdir
