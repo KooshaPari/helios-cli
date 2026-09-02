@@ -56,25 +56,28 @@ class RepoManifest:
         from subprocess import DEVNULL, CalledProcessError, TimeoutExpired, check_output
 
         def git_output(*args: str) -> str:
-            try:
-                return check_output(
-                    ["git", "-C", root, *args],
-                    text=True,
-                    timeout=2,
-                    stderr=DEVNULL,
-                ).strip()
-            except (CalledProcessError, TimeoutExpired, FileNotFoundError):
-                return ""
+            # Capture stderr so Git error messages never leak to the operator
+            # (the test suite asserts this), but let the failure propagate
+            # so the caller can distinguish a real no-Git repo from a
+            # successful empty-value result. The previous implementation
+            # returned "" on every failure, which masked a missing .git
+            # directory as "branch=main" and made Git detection unrecoverable.
+            return check_output(
+                ["git", "-C", root, *args],
+                text=True,
+                timeout=2,
+                stderr=DEVNULL,
+            ).strip()
 
         root = str(repo_root.resolve())
         try:
             remote = git_output("remote", "get-url", "origin")
-        except (CalledProcessError, TimeoutExpired):
+        except (CalledProcessError, TimeoutExpired, FileNotFoundError):
             remote = "(no-remote)"
         try:
             branch = git_output("branch", "--show-current")
             commit = git_output("rev-parse", "--verify", "HEAD")
-        except (CalledProcessError, TimeoutExpired):
+        except (CalledProcessError, TimeoutExpired, FileNotFoundError):
             branch = "(no-git)"
             commit = ""
         default_branch = branch or "main"
