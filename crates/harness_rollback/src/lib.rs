@@ -80,7 +80,8 @@ pub struct RollbackEngine {
     records: Vec<RollbackRecord>,
     checkpoints: Vec<(String, String, String)>, // (checkpoint_id, git_sha, spec_id)
     repo_path: Option<PathBuf>,
-    store: Option<std::sync::Arc<CheckpointStore>>,
+    #[allow(dead_code)]
+    store: Option<std::sync::Arc<CheckpointStore>>, // populated by callers via with_store()
 }
 
 impl Default for RollbackEngine {

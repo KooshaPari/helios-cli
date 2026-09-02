@@ -52,6 +52,9 @@ for repo_path in "$CLONES_DIR"/*; do
 
   if [[ ",${SKIP_REPOS}," == *",${repo_name},"* ]]; then
     echo "[phase-2-harness] skip $repo_name"
+    # Write a skipped marker so Python aggregation marks this as intentionally
+    # skipped rather than falsely reporting "missing" discovery.
+    printf '{"repo_name":"%s","status":"skipped"}\n' "$repo_name" > "$discovery_out"
     continue
   fi
 
@@ -100,7 +103,10 @@ for repo_path in sorted(p for p in CLONES_DIR.iterdir() if p.is_dir()):
     else:
         try:
             discovery_payload = json.loads((ARTIFACT_ROOT / f"discovery-{repo_name}.json").read_text())
-            discovery_payload["status"] = "ok"
+            # Preserve the writer's status (e.g. "skipped"); only default missing
+            # status to "ok" so intentional skips stay distinct from successes.
+            if "status" not in discovery_payload:
+                discovery_payload["status"] = "ok"
         except Exception as e:  # noqa: BLE001
             discovery_payload = {
                 "repo_name": repo_name,
@@ -110,7 +116,15 @@ for repo_path in sorted(p for p in CLONES_DIR.iterdir() if p.is_dir()):
             }
 
     run_path = LANE_D_DIR / f"{repo_name}-run.json"
-    if not run_path.exists():
+    discovery_status = discovery_payload.get("status")
+    if discovery_status == "skipped":
+        # Honour the bash skip-list: don't aggregate stale run artifacts.
+        run_entry = {
+            "repo_name": repo_name,
+            "result_code": "SKIPPED",
+            "path": str(run_path),
+        }
+    elif not run_path.exists():
         run_entry = {
             "repo_name": repo_name,
             "result_code": "MISSING",
