@@ -160,7 +160,25 @@ impl RollbackEngine {
                     }
                 }
             } else {
-                record.add_failed("no git SHA found for checkpoint");
+                // git_sha not in local vec — try the store if one is configured
+                let store_sha = self.store.as_ref().and_then(|store| {
+                    store.get_blocking(checkpoint_id).ok().flatten().and_then(|cp| cp.git_sha.clone())
+                });
+                if let Some(ref sha) = store_sha {
+                    match restore_git_checkpoint(repo_path, sha) {
+                        Ok(()) => {
+                            info!(checkpoint_id, sha = %sha, source = "store", "git checkpoint restored from store");
+                            record.add_restored(&format!("git:{}:restored:store", sha));
+                        }
+                        Err(e) => {
+                            warn!(checkpoint_id, sha = %sha, error = %e, "git restore from store failed");
+                            record.add_restored(&format!("git:{}:attempted:store", sha));
+                            record.add_failed(&format!("git:{}:{}:store", sha, e));
+                        }
+                    }
+                } else {
+                    record.add_failed("no git SHA found for checkpoint");
+                }
             }
         } else {
             // No repo path — record intended action
