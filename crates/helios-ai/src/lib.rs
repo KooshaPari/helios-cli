@@ -474,7 +474,7 @@ pub fn load_last_session() -> Result<Option<SessionRecord>> {
         .with_context(|| format!("Failed to read sessions dir {}", dir.display()))?
         .filter_map(|e| e.ok())
         .map(|e| e.path())
-        .filter(|p| p.extension().map_or(false, |ext| ext == "json"))
+        .filter(|p| p.extension().is_some_and(|ext| ext == "json"))
         .collect();
 
     if entries.is_empty() {
@@ -504,7 +504,6 @@ pub fn session_from_record(record: &SessionRecord) -> Result<ChatSession> {
 }
 
 /// Tracks token usage and cost against a configurable budget.
-
 /// # Examples
 ///
 /// ```
