@@ -5,6 +5,15 @@ All notable changes to **HeliosCLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1](https://github.com/KooshaPari/helios-cli/compare/v0.8.0...v0.8.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* **harness:** restore strict benchmark envelopes ([#652](https://github.com/KooshaPari/helios-cli/issues/652)) ([9bb96d7](https://github.com/KooshaPari/helios-cli/commit/9bb96d7c7b8d80412d2161aa900dc0ad94bda0fe))
+* **harness:** address codeant nitpicks + enforce prompt cap (AP-ITEM:6 H-05R1) ([#655](https://github.com/KooshaPari/helios-cli/issues/655)) ([90de6ae](https://github.com/KooshaPari/helios-cli/commit/90de6aed3e1a78485116f840257765301cc218f2))
+* unblock AP-ITEM:4 — clean Cargo.lock + clear CI gates ([#651](https://github.com/KooshaPari/helios-cli/issues/651)) ([3c6c289](https://github.com/KooshaPari/helios-cli/commit/3c6c28906f1f2d36c4b09b8537e842f62b32b3ce))
+
 ## [0.8.0] - 2026-08-31
 
 ### Added
