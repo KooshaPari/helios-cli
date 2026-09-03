@@ -289,6 +289,7 @@ impl ScreenshotGenerator {
 
     /// Render a single character using the embedded 8x12 bitmap font.
     /// The glyph is scaled to fit `width` x `height` pixels.
+    #[allow(clippy::too_many_arguments)]
     fn draw_char(
         &self,
         image: &mut RgbImage,
