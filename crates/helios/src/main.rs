@@ -212,34 +212,51 @@ async fn main() -> Result<()> {
         Commands::Run { command, dir, timeout, shell, sandbox } => {
             cmd_run(command, dir, timeout, shell, sandbox).await
         }
-        Commands::Checkpoint { spec, message, repo } => {
-            cmd_checkpoint(spec, message, repo)
-        }
-        Commands::Rollback { checkpoint_id, repo } => {
-            cmd_rollback(checkpoint_id, repo)
-        }
+        Commands::Checkpoint { spec, message, repo } => cmd_checkpoint(spec, message, repo),
+        Commands::Rollback { checkpoint_id, repo } => cmd_rollback(checkpoint_id, repo),
         Commands::Status => cmd_status(),
-        Commands::Enqueue { payload, capacity } => {
-            cmd_enqueue(payload, capacity)
-        }
-        Commands::Record { script, output, format } => {
-            cmd_record(script, output, format).await
-        }
+        Commands::Enqueue { payload, capacity } => cmd_enqueue(payload, capacity),
+        Commands::Record { script, output, format } => cmd_record(script, output, format).await,
         Commands::Ask { prompt, url, api_key, model, system, chat, stream } => {
             cmd_ask(prompt, url, api_key, model, system, chat, stream).await
         }
-        Commands::Exec { prompt, url, api_key, model, approval, max_iterations, budget, cost_per_input_tokens, cost_per_output_tokens } => {
-            cmd_exec(prompt, url, api_key, model, approval, max_iterations, budget, cost_per_input_tokens, cost_per_output_tokens).await
+        Commands::Exec {
+            prompt,
+            url,
+            api_key,
+            model,
+            approval,
+            max_iterations,
+            budget,
+            cost_per_input_tokens,
+            cost_per_output_tokens,
+        } => {
+            cmd_exec(
+                prompt,
+                url,
+                api_key,
+                model,
+                approval,
+                max_iterations,
+                budget,
+                cost_per_input_tokens,
+                cost_per_output_tokens,
+            )
+            .await
         }
-        Commands::Resume { last, session_id } => {
-            cmd_resume(last, session_id)
-        }
+        Commands::Resume { last, session_id } => cmd_resume(last, session_id),
     }
 }
 
 /// Run a command through the harness runner
-async fn cmd_run(command: String, dir: Option<PathBuf>, timeout: u64, shell: bool, sandbox: bool) -> Result<()> {
-    use harness_runner::{RunnerConfig, Runner};
+async fn cmd_run(
+    command: String,
+    dir: Option<PathBuf>,
+    timeout: u64,
+    shell: bool,
+    sandbox: bool,
+) -> Result<()> {
+    use harness_runner::{Runner, RunnerConfig};
 
     // Sandbox mode: enable OS-level sandboxing and validate command safety
     if sandbox {
@@ -249,11 +266,24 @@ async fn cmd_run(command: String, dir: Option<PathBuf>, timeout: u64, shell: boo
         helios_sandbox::enable_sandbox();
 
         // Validate command doesn't contain dangerous operations
-        let dangerous = ["rm -rf /", "mkfs", "dd if=", "> /dev/", "chmod 777 /", "wget", "curl | sh", "eval ", "exec "];
+        let dangerous = [
+            "rm -rf /",
+            "mkfs",
+            "dd if=",
+            "> /dev/",
+            "chmod 777 /",
+            "wget",
+            "curl | sh",
+            "eval ",
+            "exec ",
+        ];
         let cmd_lower = command.to_lowercase();
         for pattern in &dangerous {
             if cmd_lower.contains(pattern) {
-                anyhow::bail!("[helios] Sandbox: command rejected — contains dangerous pattern: '{}'", pattern);
+                anyhow::bail!(
+                    "[helios] Sandbox: command rejected — contains dangerous pattern: '{}'",
+                    pattern
+                );
             }
         }
 
@@ -380,10 +410,8 @@ fn cmd_status() -> Result<()> {
     println!();
 
     // Check config
-    let config_path = std::env::current_dir()
-        .ok()
-        .map(|d| d.join("helios.toml"))
-        .filter(|p| p.exists());
+    let config_path =
+        std::env::current_dir().ok().map(|d| d.join("helios.toml")).filter(|p| p.exists());
 
     match config_path {
         Some(path) => println!("Config: {}", path.display()),
@@ -415,12 +443,11 @@ fn cmd_enqueue(payload: String, capacity: usize) -> Result<()> {
     let channel: Channel<String> = Channel::new(capacity);
 
     // Parse payload as JSON to validate, then enqueue
-    let _parsed: serde_json::Value = serde_json::from_str(&payload)
-        .context("Invalid JSON payload")?;
+    let _parsed: serde_json::Value =
+        serde_json::from_str(&payload).context("Invalid JSON payload")?;
 
     // try_send is non-blocking: returns Err immediately if full / closed.
-    channel.try_send(payload.clone())
-        .map_err(|e| anyhow::anyhow!("Queue send failed: {:?}", e))?;
+    channel.try_send(payload.clone()).map_err(|e| anyhow::anyhow!("Queue send failed: {:?}", e))?;
 
     println!("[helios] Task enqueued (queue depth: 1)");
     println!("  Payload: {}", payload);
@@ -460,27 +487,24 @@ async fn cmd_ask(
         .or_else(|| std::env::var("HELIOS_AI_BASE_URL").ok())
         .unwrap_or_else(|| "http://localhost:11434/v1".into());
 
-    let api_key_val = api_key
-        .or_else(|| std::env::var("HELIOS_AI_API_KEY").ok())
-        .unwrap_or_default();
+    let api_key_val =
+        api_key.or_else(|| std::env::var("HELIOS_AI_API_KEY").ok()).unwrap_or_default();
 
-    let model_val = model
-        .or_else(|| std::env::var("HELIOS_AI_MODEL").ok())
-        .unwrap_or_else(|| "gpt-4o".into());
+    let model_val =
+        model.or_else(|| std::env::var("HELIOS_AI_MODEL").ok()).unwrap_or_else(|| "gpt-4o".into());
 
-    let config = ProviderConfig {
-        base_url,
-        api_key: api_key_val,
-        model: model_val,
-        timeout_secs: 120,
-    };
+    let config =
+        ProviderConfig { base_url, api_key: api_key_val, model: model_val, timeout_secs: 120 };
 
     if chat {
         // Interactive multi-turn chat mode
-        let mut session = ChatSession::new(config, system.as_deref())
-            .context("Failed to create chat session")?;
+        let mut session =
+            ChatSession::new(config, system.as_deref()).context("Failed to create chat session")?;
 
-        println!("[helios] Chat mode (model: {}). Type 'exit' to quit, 'clear' to reset history.", session.client().config().model);
+        println!(
+            "[helios] Chat mode (model: {}). Type 'exit' to quit, 'clear' to reset history.",
+            session.client().config().model
+        );
 
         // Send the initial prompt
         let response = session.send(&prompt).await?;
@@ -516,8 +540,7 @@ async fn cmd_ask(
         Ok(())
     } else if stream {
         // SSE streaming mode
-        let client = AiClient::new(config)
-            .context("Failed to create AI client")?;
+        let client = AiClient::new(config).context("Failed to create AI client")?;
 
         println!("[helios] Streaming from {}...", client.config().model);
 
@@ -527,8 +550,8 @@ async fn cmd_ask(
             vec![helios_ai::Message::user(&prompt)]
         };
 
-        let mut rx = client.stream_chat(&messages, None, None).await
-            .context("Failed to start streaming")?;
+        let mut rx =
+            client.stream_chat(&messages, None, None).await.context("Failed to start streaming")?;
 
         let mut full_response = String::new();
         while let Some(token) = rx.recv().await {
@@ -544,8 +567,7 @@ async fn cmd_ask(
         Ok(())
     } else {
         // Single-turn mode (existing behavior)
-        let client = AiClient::new(config)
-            .context("Failed to create AI client")?;
+        let client = AiClient::new(config).context("Failed to create AI client")?;
 
         println!("[helios] Asking AI (model: {})...", client.config().model);
 
@@ -613,23 +635,16 @@ async fn cmd_exec(
         .or_else(|| std::env::var("HELIOS_AI_BASE_URL").ok())
         .unwrap_or_else(|| "http://localhost:11434/v1".into());
 
-    let api_key_val = api_key
-        .or_else(|| std::env::var("HELIOS_AI_API_KEY").ok())
-        .unwrap_or_default();
+    let api_key_val =
+        api_key.or_else(|| std::env::var("HELIOS_AI_API_KEY").ok()).unwrap_or_default();
 
-    let model_val = model
-        .or_else(|| std::env::var("HELIOS_AI_MODEL").ok())
-        .unwrap_or_else(|| "gpt-4o".into());
+    let model_val =
+        model.or_else(|| std::env::var("HELIOS_AI_MODEL").ok()).unwrap_or_else(|| "gpt-4o".into());
 
-    let config = ProviderConfig {
-        base_url,
-        api_key: api_key_val,
-        model: model_val,
-        timeout_secs: 120,
-    };
+    let config =
+        ProviderConfig { base_url, api_key: api_key_val, model: model_val, timeout_secs: 120 };
 
-    let client = AiClient::new(config)
-        .context("Failed to create AI client for exec")?;
+    let client = AiClient::new(config).context("Failed to create AI client for exec")?;
 
     let mut cost_tracker = CostTracker::new(cost_per_input_tokens, cost_per_output_tokens, budget);
 
@@ -653,7 +668,10 @@ async fn cmd_exec(
 
     println!("[helios:exec] Sending task to {}...", client.config().model);
     println!("[helios:exec] Approval: {:?}, Max iterations: {}", approval, max_iterations);
-    println!("[helios:exec] Budget: ${:.2}, Input: ${}/tok, Output: ${}/tok", budget, cost_per_input_tokens, cost_per_output_tokens);
+    println!(
+        "[helios:exec] Budget: ${:.2}, Input: ${}/tok, Output: ${}/tok",
+        budget, cost_per_input_tokens, cost_per_output_tokens
+    );
     println!("[helios:exec] Prompt: {}", prompt);
 
     // Agent loop: iterate up to max_iterations, sending the prompt and printing responses.
@@ -701,11 +719,10 @@ async fn cmd_exec(
         }
 
         // Feed the response back as context for the next iteration
-        current_prompt =
-            "The previous response contained tool call descriptions. \n\
+        current_prompt = "The previous response contained tool call descriptions. \n\
              In future versions these will be executed automatically. \n\
              For now, respond with the final result."
-                .to_string();
+            .to_string();
     }
 
     println!("\n[helios:exec] Session complete. {}", cost_tracker.usage_summary());
@@ -734,8 +751,7 @@ fn cmd_resume(last: bool, session_id: Option<String>) -> Result<()> {
         }
     } else {
         let id_str = session_id.unwrap();
-        let id: uuid::Uuid = id_str.parse()
-            .context("Invalid session UUID")?;
+        let id: uuid::Uuid = id_str.parse().context("Invalid session UUID")?;
         let path = session_path(&id)?;
         println!("[helios:resume] Loading session {}...", id);
         load_session(&path)?
@@ -748,11 +764,12 @@ fn cmd_resume(last: bool, session_id: Option<String>) -> Result<()> {
     println!("[helios:resume] Messages:      {}", record.messages.len());
     println!();
 
-    let _session = session_from_record(&record)
-        .context("Failed to reconstruct session")?;
+    let _session = session_from_record(&record).context("Failed to reconstruct session")?;
 
     println!("[helios:resume] Session restored successfully.");
-    println!("[helios:resume] Use 'helios ask --chat' or 'helios exec' to continue the conversation.");
+    println!(
+        "[helios:resume] Use 'helios ask --chat' or 'helios exec' to continue the conversation."
+    );
 
     Ok(())
 }
@@ -824,10 +841,7 @@ mod tests {
         let channel: Channel<String> = Channel::new(1);
         channel.try_send("a".into()).unwrap();
         // The channel is full — try_send must return Err immediately, not block.
-        assert!(
-            channel.try_send("b".into()).is_err(),
-            "try_send on a full channel must not block"
-        );
+        assert!(channel.try_send("b".into()).is_err(), "try_send on a full channel must not block");
     }
 
     /// Test that the CLI parser can be constructed without panicking.
@@ -845,9 +859,13 @@ mod tests {
     fn test_cli_parser_record_subcommand() {
         use clap::Parser;
         let cli = Cli::try_parse_from([
-            "helios", "record", "test.kla.yaml",
-            "--output", "./recording",
-            "--format", "gif",
+            "helios",
+            "record",
+            "test.kla.yaml",
+            "--output",
+            "./recording",
+            "--format",
+            "gif",
         ]);
         assert!(cli.is_ok(), "CLI parsing 'helios record' should succeed: {cli:?}");
         let cli = cli.unwrap();
@@ -859,10 +877,15 @@ mod tests {
     fn test_cli_parser_ask_subcommand() {
         use clap::Parser;
         let cli = Cli::try_parse_from([
-            "helios", "ask", "What is Rust?",
-            "--url", "http://localhost:11434/v1",
-            "--model", "llama3",
-            "--system", "You are a helpful assistant",
+            "helios",
+            "ask",
+            "What is Rust?",
+            "--url",
+            "http://localhost:11434/v1",
+            "--model",
+            "llama3",
+            "--system",
+            "You are a helpful assistant",
         ]);
         assert!(cli.is_ok(), "CLI parsing 'helios ask' should succeed: {cli:?}");
         let cli = cli.unwrap();
@@ -901,9 +924,13 @@ mod tests {
     fn test_cli_parser_exec_subcommand() {
         use clap::Parser;
         let cli = Cli::try_parse_from([
-            "helios", "exec", "fix the failing tests",
-            "--url", "http://localhost:11434/v1",
-            "--model", "llama3",
+            "helios",
+            "exec",
+            "fix the failing tests",
+            "--url",
+            "http://localhost:11434/v1",
+            "--model",
+            "llama3",
         ]);
         assert!(cli.is_ok(), "CLI parsing 'helios exec' should succeed: {cli:?}");
         let cli = cli.unwrap();
@@ -956,7 +983,10 @@ mod tests {
     fn test_cli_parser_resume_session_id() {
         use clap::Parser;
         let cli = Cli::try_parse_from([
-            "helios", "resume", "--session-id", "550e8400-e29b-41d4-a716-446655440000",
+            "helios",
+            "resume",
+            "--session-id",
+            "550e8400-e29b-41d4-a716-446655440000",
         ]);
         assert!(cli.is_ok(), "CLI parsing 'helios resume --session-id' should succeed: {cli:?}");
         let cli = cli.unwrap();
@@ -990,9 +1020,7 @@ mod tests {
     #[test]
     fn test_cli_parser_resume_conflicting_flags() {
         use clap::Parser;
-        let cli = Cli::try_parse_from([
-            "helios", "resume", "--last", "--session-id", "some-uuid",
-        ]);
+        let cli = Cli::try_parse_from(["helios", "resume", "--last", "--session-id", "some-uuid"]);
         assert!(cli.is_err(), "--last and --session-id should conflict");
     }
 
@@ -1000,11 +1028,12 @@ mod tests {
     #[test]
     fn test_cli_parser_exec_approval_auto_edit() {
         use clap::Parser;
-        let cli = Cli::try_parse_from([
-            "helios", "exec", "refactor this",
-            "--approval", "auto-edit",
-        ]);
-        assert!(cli.is_ok(), "CLI parsing 'helios exec --approval auto-edit' should succeed: {cli:?}");
+        let cli =
+            Cli::try_parse_from(["helios", "exec", "refactor this", "--approval", "auto-edit"]);
+        assert!(
+            cli.is_ok(),
+            "CLI parsing 'helios exec --approval auto-edit' should succeed: {cli:?}"
+        );
         let cli = cli.unwrap();
         match cli.command {
             Commands::Exec { approval, .. } => {
@@ -1018,11 +1047,12 @@ mod tests {
     #[test]
     fn test_cli_parser_exec_approval_full_auto() {
         use clap::Parser;
-        let cli = Cli::try_parse_from([
-            "helios", "exec", "deploy everything",
-            "--approval", "full-auto",
-        ]);
-        assert!(cli.is_ok(), "CLI parsing 'helios exec --approval full-auto' should succeed: {cli:?}");
+        let cli =
+            Cli::try_parse_from(["helios", "exec", "deploy everything", "--approval", "full-auto"]);
+        assert!(
+            cli.is_ok(),
+            "CLI parsing 'helios exec --approval full-auto' should succeed: {cli:?}"
+        );
         let cli = cli.unwrap();
         match cli.command {
             Commands::Exec { approval, .. } => {
@@ -1036,11 +1066,12 @@ mod tests {
     #[test]
     fn test_cli_parser_exec_max_iterations() {
         use clap::Parser;
-        let cli = Cli::try_parse_from([
-            "helios", "exec", "build the project",
-            "--max-iterations", "5",
-        ]);
-        assert!(cli.is_ok(), "CLI parsing 'helios exec --max-iterations 5' should succeed: {cli:?}");
+        let cli =
+            Cli::try_parse_from(["helios", "exec", "build the project", "--max-iterations", "5"]);
+        assert!(
+            cli.is_ok(),
+            "CLI parsing 'helios exec --max-iterations 5' should succeed: {cli:?}"
+        );
         let cli = cli.unwrap();
         match cli.command {
             Commands::Exec { max_iterations, .. } => {
@@ -1068,10 +1099,15 @@ mod tests {
     fn test_cli_parser_exec_budget_flags() {
         use clap::Parser;
         let cli = Cli::try_parse_from([
-            "helios", "exec", "do something",
-            "--budget", "5.0",
-            "--cost-per-input-tokens", "0.000010",
-            "--cost-per-output-tokens", "0.000020",
+            "helios",
+            "exec",
+            "do something",
+            "--budget",
+            "5.0",
+            "--cost-per-input-tokens",
+            "0.000010",
+            "--cost-per-output-tokens",
+            "0.000020",
         ]);
         assert!(cli.is_ok(), "CLI parsing 'helios exec' with budget flags should succeed: {cli:?}");
         let cli = cli.unwrap();
@@ -1093,8 +1129,14 @@ mod tests {
         match cli.command {
             Commands::Exec { budget, cost_per_input_tokens, cost_per_output_tokens, .. } => {
                 assert!((budget - 1.0).abs() < f64::EPSILON, "default budget should be 1.0");
-                assert!((cost_per_input_tokens - 0.000030).abs() < f64::EPSILON, "default input cost should be $30/M");
-                assert!((cost_per_output_tokens - 0.000060).abs() < f64::EPSILON, "default output cost should be $60/M");
+                assert!(
+                    (cost_per_input_tokens - 0.000030).abs() < f64::EPSILON,
+                    "default input cost should be $30/M"
+                );
+                assert!(
+                    (cost_per_output_tokens - 0.000060).abs() < f64::EPSILON,
+                    "default output cost should be $60/M"
+                );
             }
             _ => panic!("Expected Exec command"),
         }
@@ -1104,10 +1146,7 @@ mod tests {
     #[test]
     fn test_cli_parser_exec_approval_invalid() {
         use clap::Parser;
-        let cli = Cli::try_parse_from([
-            "helios", "exec", "hello",
-            "--approval", "invalid-mode",
-        ]);
+        let cli = Cli::try_parse_from(["helios", "exec", "hello", "--approval", "invalid-mode"]);
         assert!(cli.is_err(), "invalid approval value should be rejected");
     }
 
@@ -1115,10 +1154,7 @@ mod tests {
     #[test]
     fn test_cli_parser_ask_stream_flag() {
         use clap::Parser;
-        let cli = Cli::try_parse_from([
-            "helios", "ask", "What is Rust?",
-            "--stream",
-        ]);
+        let cli = Cli::try_parse_from(["helios", "ask", "What is Rust?", "--stream"]);
         assert!(cli.is_ok(), "CLI parsing 'helios ask --stream' should succeed: {cli:?}");
         let cli = cli.unwrap();
         match cli.command {

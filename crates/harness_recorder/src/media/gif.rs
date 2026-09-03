@@ -54,8 +54,8 @@ impl GifGenerator {
         )?;
 
         // Read the PNG bytes into our frame buffer
-        let image_data = std::fs::read(temp_image_file.path())
-            .context("Failed to read generated screenshot")?;
+        let image_data =
+            std::fs::read(temp_image_file.path()).context("Failed to read generated screenshot")?;
         self.frames.push(image_data);
 
         Ok(())

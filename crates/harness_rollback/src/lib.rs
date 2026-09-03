@@ -10,8 +10,8 @@
 use chrono::{DateTime, Utc};
 use harness_checkpoint::git::restore_git_checkpoint;
 use harness_checkpoint::store::CheckpointStore;
-use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use tracing::{info, warn};
 use uuid::Uuid;
 
@@ -97,12 +97,7 @@ impl RollbackEngine {
 
     /// Create engine with a git repo path for real restoration
     pub fn with_repo(repo_path: PathBuf) -> Self {
-        Self {
-            records: vec![],
-            checkpoints: vec![],
-            repo_path: Some(repo_path),
-            store: None,
-        }
+        Self { records: vec![], checkpoints: vec![], repo_path: Some(repo_path), store: None }
     }
 
     /// Create engine with a checkpoint store for lookup
@@ -122,8 +117,11 @@ impl RollbackEngine {
 
     pub fn register(&mut self, checkpoint_id: &str, git_sha: &str, spec_id: &str) -> Uuid {
         let id = Uuid::new_v4();
-        self.checkpoints
-            .push((checkpoint_id.to_string(), git_sha.to_string(), spec_id.to_string()));
+        self.checkpoints.push((
+            checkpoint_id.to_string(),
+            git_sha.to_string(),
+            spec_id.to_string(),
+        ));
         id
     }
 
@@ -162,7 +160,11 @@ impl RollbackEngine {
             } else {
                 // git_sha not in local vec — try the store if one is configured
                 let store_sha = self.store.as_ref().and_then(|store| {
-                    store.get_blocking(checkpoint_id).ok().flatten().and_then(|cp| cp.git_sha.clone())
+                    store
+                        .get_blocking(checkpoint_id)
+                        .ok()
+                        .flatten()
+                        .and_then(|cp| cp.git_sha.clone())
                 });
                 if let Some(ref sha) = store_sha {
                     match restore_git_checkpoint(repo_path, sha) {

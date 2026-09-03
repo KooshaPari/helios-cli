@@ -80,32 +80,26 @@ impl FileEditTool {
         let resolved = self.resolve(path.as_ref());
         debug!(path = %resolved.display(), "read_file");
 
-        let content = std::fs::read_to_string(&resolved)
-            .map_err(|e| {
-                if e.kind() == std::io::ErrorKind::NotFound {
-                    FileEditError::NotFound { path: resolved }
-                } else {
-                    FileEditError::Io(e)
-                }
-            })?;
+        let content = std::fs::read_to_string(&resolved).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                FileEditError::NotFound { path: resolved }
+            } else {
+                FileEditError::Io(e)
+            }
+        })?;
         Ok(content)
     }
 
     /// Write content to a file, overwriting any existing content.
     ///
     /// Parent directories are created automatically if they don't exist.
-    pub fn write_file(
-        &self,
-        path: impl AsRef<Path>,
-        content: &str,
-    ) -> FileEditResult<()> {
+    pub fn write_file(&self, path: impl AsRef<Path>, content: &str) -> FileEditResult<()> {
         let resolved = self.resolve(path.as_ref());
         debug!(path = %resolved.display(), len = content.len(), "write_file");
 
         // Ensure parent directory exists
         if let Some(parent) = resolved.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(FileEditError::Io)?;
+            std::fs::create_dir_all(parent).map_err(FileEditError::Io)?;
         }
 
         std::fs::write(&resolved, content).map_err(FileEditError::Io)?;
@@ -139,14 +133,13 @@ impl FileEditTool {
             "edit_file"
         );
 
-        let content = std::fs::read_to_string(&resolved)
-            .map_err(|e| {
-                if e.kind() == std::io::ErrorKind::NotFound {
-                    FileEditError::NotFound { path: resolved.clone() }
-                } else {
-                    FileEditError::Io(e)
-                }
-            })?;
+        let content = std::fs::read_to_string(&resolved).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                FileEditError::NotFound { path: resolved.clone() }
+            } else {
+                FileEditError::Io(e)
+            }
+        })?;
 
         let count = content.matches(search).count();
         if count == 0 {
@@ -154,10 +147,7 @@ impl FileEditTool {
         }
 
         if !replace_all && count > 1 {
-            return Err(FileEditError::AmbiguousMatch {
-                path: resolved,
-                count,
-            });
+            return Err(FileEditError::AmbiguousMatch { path: resolved, count });
         }
 
         let new_content = if replace_all {
@@ -312,7 +302,11 @@ mod tests {
     fn resolve_absolute_path() {
         let (tool, _tmp) = tool_in_tmpdir();
         // On Windows, an absolute path needs a drive letter (e.g. C:\...)
-        let abs = PathBuf::from(if cfg!(windows) { "C:\\some\\absolute\\path.txt" } else { "/some/absolute/path.txt" });
+        let abs = PathBuf::from(if cfg!(windows) {
+            "C:\\some\\absolute\\path.txt"
+        } else {
+            "/some/absolute/path.txt"
+        });
         assert_eq!(tool.resolve(&abs), abs);
     }
 

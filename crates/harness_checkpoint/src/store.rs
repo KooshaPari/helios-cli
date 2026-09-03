@@ -95,10 +95,7 @@ impl CheckpointStore {
     pub async fn get_by_spec(&self, spec_id: &str) -> Result<Vec<Checkpoint>> {
         let ids = self.by_spec.read().await.get(spec_id).cloned().unwrap_or_default();
         let checkpoints = self.checkpoints.read().await;
-        Ok(ids
-            .iter()
-            .filter_map(|id| checkpoints.get(id).cloned())
-            .collect())
+        Ok(ids.iter().filter_map(|id| checkpoints.get(id).cloned()).collect())
     }
 
     /// List all checkpoints.

@@ -87,8 +87,6 @@ steps:
     text: echo dispatch
 "#;
         std::fs::write(&input, yaml).expect("write yaml");
-        execute_command(Commands::Convert { input, output })
-            .await
-            .expect("convert dispatch");
+        execute_command(Commands::Convert { input, output }).await.expect("convert dispatch");
     }
 }

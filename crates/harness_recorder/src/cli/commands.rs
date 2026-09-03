@@ -179,29 +179,27 @@ pub async fn convert_command(input: PathBuf, output: PathBuf) -> Result<()> {
     let content = std::fs::read_to_string(&input)
         .with_context(|| format!("Failed to read input file: {}", input.display()))?;
 
-    let script: crate::script::Script = if input
-        .extension()
-        .is_some_and(|e| e == "json" || e.to_string_lossy() == "kla.json")
-    {
-        serde_json::from_str(&content)
-            .with_context(|| format!("Failed to parse JSON script: {}", input.display()))?
-    } else {
-        // Default: treat as YAML
-        serde_yaml::from_str(&content)
-            .with_context(|| format!("Failed to parse YAML script: {}", input.display()))?
-    };
+    let script: crate::script::Script =
+        if input.extension().is_some_and(|e| e == "json" || e.to_string_lossy() == "kla.json") {
+            serde_json::from_str(&content)
+                .with_context(|| format!("Failed to parse JSON script: {}", input.display()))?
+        } else {
+            // Default: treat as YAML
+            serde_yaml::from_str(&content)
+                .with_context(|| format!("Failed to parse YAML script: {}", input.display()))?
+        };
 
     // Determine output format from the file extension.
-    let out_ext = output
-        .extension()
-        .map(|e| e.to_string_lossy().to_lowercase())
-        .unwrap_or_default();
+    let out_ext =
+        output.extension().map(|e| e.to_string_lossy().to_lowercase()).unwrap_or_default();
 
     let serialized = match out_ext.as_str() {
-        "json" | "kla.json" => serde_json::to_string_pretty(&script)
-            .context("Failed to serialize script to JSON")?,
-        "yaml" | "kla.yaml" | "yml" => serde_yaml::to_string(&script)
-            .context("Failed to serialize script to YAML")?,
+        "json" | "kla.json" => {
+            serde_json::to_string_pretty(&script).context("Failed to serialize script to JSON")?
+        }
+        "yaml" | "kla.yaml" | "yml" => {
+            serde_yaml::to_string(&script).context("Failed to serialize script to YAML")?
+        }
         other => {
             anyhow::bail!(
                 "Unsupported output format '.{}'. Supported: .json, .kla.json, .yaml, .kla.yaml, .yml",

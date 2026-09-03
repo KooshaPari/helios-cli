@@ -409,7 +409,8 @@ mod tests {
     #[tokio::test]
     async fn run_with_zero_timeout() {
         #[cfg(windows)]
-        let result = Runner::new().with_timeout(0).run("cmd", &["/C", "ping -n 2 127.0.0.1 > NUL"]).await;
+        let result =
+            Runner::new().with_timeout(0).run("cmd", &["/C", "ping -n 2 127.0.0.1 > NUL"]).await;
         #[cfg(not(windows))]
         let result = Runner::new().with_timeout(0).run("sh", &["-c", "sleep 1"]).await;
 
