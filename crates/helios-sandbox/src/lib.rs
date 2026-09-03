@@ -124,8 +124,14 @@ fn enable_sandbox_linux() {
         parent_fd: i32,
     }
 
+    // Declared for Landlock ABI v2+ best-effort rule-set queries. The
+    // `best_effort` field is part of the upstream ABI surface but is not yet
+    // wired into the ABI-v1-only query path in this crate, so it is currently
+    // unconstructed. Retaining the struct (rather than deleting it) documents
+    // the ABI v2 shape for the eventual version handshake.
     #[repr(C)]
     #[derive(Debug, Clone, Copy)]
+    #[allow(dead_code)]
     struct LandlockRulesetAttrVersions {
         best_effort: u64,
     }
