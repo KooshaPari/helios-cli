@@ -339,7 +339,7 @@ mod tests {
     fn is_sandboxed_returns_bool() {
         let result = is_sandboxed();
         // Just verify the type and that we can call it without panicking.
-        assert!(result == true || result == false);
+        let _: bool = result;
     }
 
     /// `enable_sandbox` does not panic regardless of platform.
