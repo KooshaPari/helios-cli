@@ -594,6 +594,7 @@ const AGENT_SYSTEM_PROMPT: &str = concat!(
 /// - `suggest`: Show the plan without executing anything.
 /// - `auto-edit`: Auto-apply file edits, but ask before shell commands.
 /// - `full-auto`: Execute everything without asking.
+#[allow(clippy::too_many_arguments)] // CLI handler: fixed positional args from clap
 async fn cmd_exec(
     prompt: String,
     url: Option<String>,
@@ -700,11 +701,11 @@ async fn cmd_exec(
         }
 
         // Feed the response back as context for the next iteration
-        current_prompt = format!(
+        current_prompt =
             "The previous response contained tool call descriptions. \n\
              In future versions these will be executed automatically. \n\
              For now, respond with the final result."
-        );
+                .to_string();
     }
 
     println!("\n[helios:exec] Session complete. {}", cost_tracker.usage_summary());
