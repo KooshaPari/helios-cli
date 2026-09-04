@@ -103,16 +103,15 @@ impl VerificationPipeline {
                 let result = match scanner_path {
                     Some(path) => {
                         // Scanner found — run it
-                        let output = tokio::process::Command::new(&path)
-                            .arg("--help")
-                            .output()
-                            .await;
+                        let output =
+                            tokio::process::Command::new(&path).arg("--help").output().await;
 
                         match output {
                             Ok(o) => {
                                 let duration = chrono::Utc::now()
                                     .signed_duration_since(start)
-                                    .num_milliseconds() as u64;
+                                    .num_milliseconds()
+                                    as u64;
                                 let passed = o.status.success();
                                 VerificationResult {
                                     id: uuid::Uuid::new_v4(),
@@ -189,7 +188,13 @@ impl VerificationPipeline {
                         move || {
                             // Try cargo bench with the metric name
                             let output = std::process::Command::new("cargo")
-                                .args(["bench", "--bench", &metric, "--", "--output-format=bencher"])
+                                .args([
+                                    "bench",
+                                    "--bench",
+                                    &metric,
+                                    "--",
+                                    "--output-format=bencher",
+                                ])
                                 .output();
                             if let Ok(output) = output {
                                 if output.status.success() {
@@ -210,7 +215,9 @@ impl VerificationPipeline {
                     Ok(Ok(output)) => {
                         let stdout = String::from_utf8_lossy(&output.stdout).to_string();
                         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-                        let elapsed = chrono::Utc::now().signed_duration_since(start).num_milliseconds() as u64;
+                        let elapsed = chrono::Utc::now()
+                            .signed_duration_since(start)
+                            .num_milliseconds() as u64;
 
                         // Try to extract timing from benchmark output
                         let measured_ns = extract_benchmark_time(&stdout, &stderr);
@@ -231,7 +238,10 @@ impl VerificationPipeline {
                             } else {
                                 (
                                     true,
-                                    format!("Performance: {} measured {}ns (no threshold to compare)", metric, actual_ns),
+                                    format!(
+                                        "Performance: {} measured {}ns (no threshold to compare)",
+                                        metric, actual_ns
+                                    ),
                                 )
                             }
                         } else {
@@ -278,20 +288,18 @@ impl VerificationPipeline {
                             metrics: Default::default(),
                         })
                     }
-                    _ => {
-                        Ok(VerificationResult {
-                            id: uuid::Uuid::new_v4(),
-                            spec_id: spec_id.to_string(),
-                            verification_type: crate::result::VerificationType::Performance,
-                            status: crate::result::VerificationStatus::Failed,
-                            started_at: start,
-                            completed_at: Some(chrono::Utc::now()),
-                            duration_ms: 0,
-                            output: format!("Performance benchmark '{}' failed to execute", metric),
-                            errors: vec!["Benchmark execution failed or timed out".to_string()],
-                            metrics: Default::default(),
-                        })
-                    }
+                    _ => Ok(VerificationResult {
+                        id: uuid::Uuid::new_v4(),
+                        spec_id: spec_id.to_string(),
+                        verification_type: crate::result::VerificationType::Performance,
+                        status: crate::result::VerificationStatus::Failed,
+                        started_at: start,
+                        completed_at: Some(chrono::Utc::now()),
+                        duration_ms: 0,
+                        output: format!("Performance benchmark '{}' failed to execute", metric),
+                        errors: vec!["Benchmark execution failed or timed out".to_string()],
+                        metrics: Default::default(),
+                    }),
                 }
             }
             VerificationRule::Custom { command, expected_exit_code } => {
@@ -409,13 +417,13 @@ fn has_shell_metacharacters(s: &str) -> bool {
 fn parse_duration_to_ns(s: &str) -> Option<u64> {
     let s = s.trim().to_lowercase();
     if s.ends_with("ns") {
-        s[..s.len()-2].trim().parse::<u64>().ok()
+        s[..s.len() - 2].trim().parse::<u64>().ok()
     } else if s.ends_with("ms") {
-        s[..s.len()-2].trim().parse::<u64>().ok().map(|v| v * 1_000_000)
+        s[..s.len() - 2].trim().parse::<u64>().ok().map(|v| v * 1_000_000)
     } else if s.ends_with("us") {
-        s[..s.len()-2].trim().parse::<u64>().ok().map(|v| v * 1_000)
+        s[..s.len() - 2].trim().parse::<u64>().ok().map(|v| v * 1_000)
     } else if s.ends_with('s') {
-        s[..s.len()-1].trim().parse::<f64>().ok().map(|v| (v * 1_000_000_000.0) as u64)
+        s[..s.len() - 1].trim().parse::<f64>().ok().map(|v| (v * 1_000_000_000.0) as u64)
     } else {
         // Try parsing as plain nanoseconds
         s.parse::<u64>().ok()
@@ -433,7 +441,7 @@ fn extract_benchmark_time(stdout: &str, stderr: &str) -> Option<u64> {
         if trimmed.starts_with("time:") || trimmed.contains("time:") {
             // Extract the first number after "time:"
             if let Some(start_idx) = trimmed.find('[') {
-                let bracket_content = &trimmed[start_idx+1..];
+                let bracket_content = &trimmed[start_idx + 1..];
                 if let Some(end_idx) = bracket_content.find(']') {
                     let timing_str = &bracket_content[..end_idx].trim();
                     if let Some(val) = parse_bench_value(timing_str) {
@@ -446,8 +454,9 @@ fn extract_benchmark_time(stdout: &str, stderr: &str) -> Option<u64> {
         // Look for `test bench_xxx ... bench: 1234 ns/iter (+/- 56)`
         if trimmed.contains("bench:") && trimmed.contains("ns/iter") {
             if let Some(bench_idx) = trimmed.find("bench:") {
-                let after_bench = trimmed[bench_idx+6..].trim();
-                let num_str: String = after_bench.chars().take_while(|c| c.is_ascii_digit()).collect();
+                let after_bench = trimmed[bench_idx + 6..].trim();
+                let num_str: String =
+                    after_bench.chars().take_while(|c| c.is_ascii_digit()).collect();
                 if let Ok(ns) = num_str.parse::<u64>() {
                     return Some(ns);
                 }
@@ -457,7 +466,7 @@ fn extract_benchmark_time(stdout: &str, stderr: &str) -> Option<u64> {
         // Look for `finished in X.XXs`
         if trimmed.contains("finished in") {
             if let Some(idx) = trimmed.find("finished in") {
-                let time_str = &trimmed[idx+11..].trim();
+                let time_str = &trimmed[idx + 11..].trim();
                 if let Ok(secs) = time_str.trim_end_matches('s').parse::<f64>() {
                     return Some((secs * 1_000_000_000.0) as u64);
                 }
@@ -745,9 +754,7 @@ mod tests {
         assert!(results[0].output.contains("metacharacters"));
         assert_eq!(
             results[0].errors,
-            vec![
-                "scanner name rejected: contains potentially dangerous characters".to_string()
-            ]
+            vec!["scanner name rejected: contains potentially dangerous characters".to_string()]
         );
     }
 

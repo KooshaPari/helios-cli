@@ -73,12 +73,7 @@ pub struct Tui {
 impl Tui {
     /// Create a new [`Tui`] instance with an empty chat and default status.
     pub fn new() -> Self {
-        Self {
-            messages: Vec::new(),
-            input: String::new(),
-            running: true,
-            status: "Ready".into(),
-        }
+        Self { messages: Vec::new(), input: String::new(), running: true, status: "Ready".into() }
     }
 
     /// Push a new message into the chat history.
@@ -103,7 +98,7 @@ impl Tui {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Min(3),   // chat view (flexible)
+                Constraint::Min(3),    // chat view (flexible)
                 Constraint::Length(1), // status bar
                 Constraint::Length(3), // input area
             ])
@@ -146,21 +141,12 @@ impl Tui {
         let status = Paragraph::new(Line::from(vec![
             Span::styled(
                 " helios-tui ",
-                Style::default()
-                    .fg(Color::Black)
-                    .bg(Color::Cyan)
-                    .add_modifier(Modifier::BOLD),
+                Style::default().fg(Color::Black).bg(Color::Cyan).add_modifier(Modifier::BOLD),
             ),
             Span::raw("  "),
-            Span::styled(
-                &self.status,
-                Style::default().fg(Color::DarkGray),
-            ),
+            Span::styled(&self.status, Style::default().fg(Color::DarkGray)),
             Span::raw("  "),
-            Span::styled(
-                "Ctrl+C to quit",
-                Style::default().fg(Color::DarkGray),
-            ),
+            Span::styled("Ctrl+C to quit", Style::default().fg(Color::DarkGray)),
         ]));
         frame.render_widget(status, area);
     }
@@ -168,10 +154,7 @@ impl Tui {
     /// Render the text input area at the bottom.
     fn render_input_area(&self, frame: &mut Frame, area: Rect) {
         let input_display = if self.input.is_empty() {
-            Span::styled(
-                "Type a message...",
-                Style::default().fg(Color::DarkGray),
-            )
+            Span::styled("Type a message...", Style::default().fg(Color::DarkGray))
         } else {
             Span::raw(&self.input)
         };
@@ -196,7 +179,8 @@ impl Tui {
     #[allow(dead_code)]
     fn handle_key(&mut self, key: KeyEvent) -> bool {
         match (key.modifiers, key.code) {
-            (KeyModifiers::CONTROL, KeyCode::Char('c')) | (KeyModifiers::CONTROL, KeyCode::Char('C')) => {
+            (KeyModifiers::CONTROL, KeyCode::Char('c'))
+            | (KeyModifiers::CONTROL, KeyCode::Char('C')) => {
                 self.running = false;
                 true
             }
@@ -211,10 +195,7 @@ impl Tui {
             (KeyModifiers::NONE, KeyCode::Enter) => {
                 if !self.input.is_empty() {
                     let text = std::mem::take(&mut self.input);
-                    self.push_message(ChatMessage {
-                        role: Role::User,
-                        text,
-                    });
+                    self.push_message(ChatMessage { role: Role::User, text });
                 }
                 true
             }
@@ -249,10 +230,7 @@ mod tests {
     #[test]
     fn push_message_adds_to_history() {
         let mut tui = Tui::new();
-        tui.push_message(ChatMessage {
-            role: Role::User,
-            text: "hello".into(),
-        });
+        tui.push_message(ChatMessage { role: Role::User, text: "hello".into() });
         assert_eq!(tui.messages.len(), 1);
         assert_eq!(tui.messages[0].text, "hello");
     }

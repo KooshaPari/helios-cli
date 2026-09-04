@@ -26,7 +26,9 @@ pub struct ProviderConfig {
     pub timeout_secs: u64,
 }
 
-fn default_timeout() -> u64 { 120 }
+fn default_timeout() -> u64 {
+    120
+}
 
 impl ProviderConfig {
     /// OpenAI provider
@@ -191,22 +193,14 @@ impl AiClient {
     pub async fn complete(&self, prompt: &str) -> Result<String> {
         let messages = vec![Message::user(prompt)];
         let resp = self.chat(&messages, None, None).await?;
-        resp.choices.first()
-            .map(|c| c.message.content.clone())
-            .context("No response from AI")
+        resp.choices.first().map(|c| c.message.content.clone()).context("No response from AI")
     }
 
     /// Send a system prompt + user message.
-    pub async fn complete_with_system(
-        &self,
-        system: &str,
-        user: &str,
-    ) -> Result<String> {
+    pub async fn complete_with_system(&self, system: &str, user: &str) -> Result<String> {
         let messages = vec![Message::system(system), Message::user(user)];
         let resp = self.chat(&messages, None, None).await?;
-        resp.choices.first()
-            .map(|c| c.message.content.clone())
-            .context("No response from AI")
+        resp.choices.first().map(|c| c.message.content.clone()).context("No response from AI")
     }
 
     /// Get the current configuration.
@@ -312,11 +306,7 @@ impl ChatSession {
         if let Some(sys) = system_prompt {
             messages.push(Message::system(sys));
         }
-        Ok(Self {
-            client,
-            messages,
-            max_history: 50,
-        })
+        Ok(Self { client, messages, max_history: 50 })
     }
 
     /// Send a user message and get the assistant's response, maintaining history.
@@ -334,9 +324,8 @@ impl ChatSession {
         }
 
         let response = self.client.chat(&self.messages, None, None).await?;
-        let content = response.choices.first()
-            .map(|c| c.message.content.clone())
-            .unwrap_or_default();
+        let content =
+            response.choices.first().map(|c| c.message.content.clone()).unwrap_or_default();
 
         self.messages.push(Message::assistant(&content));
         Ok(content)
@@ -352,10 +341,7 @@ impl ChatSession {
     /// Returns a [`mpsc::Receiver`] that yields content tokens. After consuming
     /// the receiver, call [`record_response`](Self::record_response) to append
     /// the full accumulated text to the conversation history.
-    pub async fn send_stream(
-        &mut self,
-        user_message: &str,
-    ) -> Result<mpsc::Receiver<String>> {
+    pub async fn send_stream(&mut self, user_message: &str) -> Result<mpsc::Receiver<String>> {
         self.messages.push(Message::user(user_message));
 
         // Trim history if too long (keep system prompt + last N exchanges)
@@ -414,11 +400,9 @@ pub struct SessionRecord {
 /// Get the helios sessions directory (`~/.helios/sessions/`).
 /// Creates it if it doesn't exist.
 pub fn sessions_dir() -> Result<PathBuf> {
-    let home = dirs()
-        .context("Cannot determine home directory")?;
+    let home = dirs().context("Cannot determine home directory")?;
     let sessions = home.join(".helios").join("sessions");
-    std::fs::create_dir_all(&sessions)
-        .context("Failed to create sessions directory")?;
+    std::fs::create_dir_all(&sessions).context("Failed to create sessions directory")?;
     Ok(sessions)
 }
 
@@ -443,12 +427,9 @@ pub fn session_path(id: &Uuid) -> Result<PathBuf> {
 ///
 /// Serializes the session to `~/.helios/sessions/<uuid>.json` and returns
 /// the path that was written.
-pub fn save_session(
-    record: &SessionRecord,
-) -> Result<PathBuf> {
+pub fn save_session(record: &SessionRecord) -> Result<PathBuf> {
     let path = session_path(&record.id)?;
-    let json = serde_json::to_string_pretty(record)
-        .context("Failed to serialize session")?;
+    let json = serde_json::to_string_pretty(record).context("Failed to serialize session")?;
     std::fs::write(&path, &json)
         .with_context(|| format!("Failed to write session to {}", path.display()))?;
     info!(id = %record.id, path = %path.display(), "Session saved");
@@ -606,11 +587,8 @@ pub fn parse_sse_line(line: &str) -> Option<SseEvent> {
 
     // Try to parse as a StreamChunk
     let chunk: StreamChunk = serde_json::from_str(data).ok()?;
-    let delta_content = chunk
-        .choices
-        .first()
-        .and_then(|c| c.delta.as_ref())
-        .and_then(|d| d.content.clone())?;
+    let delta_content =
+        chunk.choices.first().and_then(|c| c.delta.as_ref()).and_then(|d| d.content.clone())?;
 
     if delta_content.is_empty() {
         return None;

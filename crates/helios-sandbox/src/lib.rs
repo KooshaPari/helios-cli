@@ -124,12 +124,6 @@ fn enable_sandbox_linux() {
         parent_fd: i32,
     }
 
-    #[repr(C)]
-    #[derive(Debug, Clone, Copy)]
-    struct LandlockRulesetAttrVersions {
-        best_effort: u64,
-    }
-
     /// Safe wrapper around raw Landlock syscalls.
     #[inline]
     unsafe fn landlock_syscall3(n: i64, a1: usize, a2: usize, a3: usize) -> libc::c_long {
@@ -177,9 +171,8 @@ fn enable_sandbox_linux() {
     }
 
     // 1. Create a Landlock ruleset that denies write+exec by default.
-    let mut ruleset_attr = LandlockRulesetAttr {
-        handled_access_fs: all_write_and_execute | read_only,
-    };
+    let mut ruleset_attr =
+        LandlockRulesetAttr { handled_access_fs: all_write_and_execute | read_only };
 
     let ruleset_fd = unsafe {
         landlock_syscall3(
@@ -212,25 +205,22 @@ fn enable_sandbox_linux() {
         std::env::set_current_dir("/").ok();
         std::env::current_dir().expect("cannot determine cwd")
     });
-    let cwd_cstr = CString::new(cwd.to_string_lossy().as_bytes().to_vec())
-        .expect("cwd contains null byte");
+    let cwd_cstr =
+        CString::new(cwd.to_string_lossy().as_bytes().to_vec()).expect("cwd contains null byte");
 
     let cwd_fd = unsafe { libc::open(cwd_cstr.as_ptr(), libc::O_PATH | libc::O_CLOEXEC) };
     if cwd_fd < 0 {
         let errno = unsafe { *libc::__errno_location() };
-        unsafe { libc::close(ruleset_fd); }
-        eprintln!(
-            "[helios-sandbox] Failed to open cwd (errno {}); sandboxing unavailable",
-            errno
-        );
+        unsafe {
+            libc::close(ruleset_fd);
+        }
+        eprintln!("[helios-sandbox] Failed to open cwd (errno {}); sandboxing unavailable", errno);
         return;
     }
 
     // 3. Add a rule: allow read-only access within the cwd.
-    let mut path_beneath = LandlockPathBeneathAttr {
-        allowed_access_fs: read_only,
-        parent_fd: cwd_fd,
-    };
+    let mut path_beneath =
+        LandlockPathBeneathAttr { allowed_access_fs: read_only, parent_fd: cwd_fd };
 
     let add_result = unsafe {
         landlock_syscall3(
@@ -241,11 +231,15 @@ fn enable_sandbox_linux() {
         )
     };
 
-    unsafe { libc::close(cwd_fd); }
+    unsafe {
+        libc::close(cwd_fd);
+    }
 
     if add_result < 0 {
         let errno = unsafe { *libc::__errno_location() };
-        unsafe { libc::close(ruleset_fd); }
+        unsafe {
+            libc::close(ruleset_fd);
+        }
         eprintln!(
             "[helios-sandbox] Landlock add_rule failed (errno {}); sandboxing unavailable",
             errno
@@ -263,7 +257,9 @@ fn enable_sandbox_linux() {
         )
     };
 
-    unsafe { libc::close(ruleset_fd); }
+    unsafe {
+        libc::close(ruleset_fd);
+    }
 
     if restrict_result < 0 {
         let errno = unsafe { *libc::__errno_location() };
@@ -333,7 +329,7 @@ mod tests {
     fn is_sandboxed_returns_bool() {
         let result = is_sandboxed();
         // Just verify the type and that we can call it without panicking.
-        assert!(result == true || result == false);
+        let _: bool = result;
     }
 
     /// `enable_sandbox` does not panic regardless of platform.
@@ -357,18 +353,12 @@ mod tests {
             // On a Linux kernel with Landlock, the flag should now be true.
             // If Landlock is unavailable, the flag remains false — both are
             // acceptable.
-            assert!(
-                after || !after,
-                "on Linux, is_sandboxed should return a bool"
-            );
+            assert!(after || !after, "on Linux, is_sandboxed should return a bool");
         }
 
         #[cfg(not(target_os = "linux"))]
         {
-            assert!(
-                !after,
-                "on non-Linux platforms, is_sandboxed should remain false"
-            );
+            assert!(!after, "on non-Linux platforms, is_sandboxed should remain false");
         }
     }
 
