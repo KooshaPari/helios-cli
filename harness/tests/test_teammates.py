@@ -138,6 +138,7 @@ class TestCodexExecutor:
 
     @pytest.mark.asyncio
     async def test_executor_prompt_cap_preserves_utf8_byte_limit(self, monkeypatch):
+        # Traces to: FR-HELIOS-IO-006 (bounded delegated evidence input).
         captured = {}
 
         class Process:
