@@ -280,12 +280,8 @@ impl ScreenshotGenerator {
 
                 // Simple character rendering (just a colored rectangle for now)
                 // In real implementation, render actual glyphs
-                let cell = GlyphCell {
-                    x: x_offset,
-                    y: y_offset,
-                    width: char_width,
-                    height: char_height,
-                };
+                let cell =
+                    GlyphCell { x: x_offset, y: y_offset, width: char_width, height: char_height };
                 self.draw_char(image, &cell, ch, text_color);
             }
         }
@@ -295,13 +291,7 @@ impl ScreenshotGenerator {
 
     /// Render a single character using the embedded 8x12 bitmap font.
     /// The glyph is scaled to fit the cell's `width` x `height` pixels.
-    fn draw_char(
-        &self,
-        image: &mut RgbImage,
-        cell: &GlyphCell,
-        ch: char,
-        color: Rgb<u8>,
-    ) {
+    fn draw_char(&self, image: &mut RgbImage, cell: &GlyphCell, ch: char, color: Rgb<u8>) {
         let x = cell.x;
         let y = cell.y;
         let width = cell.width;
