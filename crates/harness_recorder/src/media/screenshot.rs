@@ -199,6 +199,14 @@ const FONT_8X12: &[[u8; 12]; 95] = &[
     [0x00, 0x00, 0x00, 0x00, 0x32, 0x49, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
 ];
 
+/// The pixel-geometry of a single glyph cell (x/y origin + width/height).
+struct GlyphCell {
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+}
+
 pub struct ScreenshotGenerator {
     config: MediaConfig,
     theme: ThemeConfig,
@@ -272,7 +280,13 @@ impl ScreenshotGenerator {
 
                 // Simple character rendering (just a colored rectangle for now)
                 // In real implementation, render actual glyphs
-                self.draw_char(image, x_offset, y_offset, char_width, char_height, ch, text_color);
+                let cell = GlyphCell {
+                    x: x_offset,
+                    y: y_offset,
+                    width: char_width,
+                    height: char_height,
+                };
+                self.draw_char(image, &cell, ch, text_color);
             }
         }
 
@@ -280,18 +294,18 @@ impl ScreenshotGenerator {
     }
 
     /// Render a single character using the embedded 8x12 bitmap font.
-    /// The glyph is scaled to fit `width` x `height` pixels.
-    #[allow(clippy::too_many_arguments)]
+    /// The glyph is scaled to fit the cell's `width` x `height` pixels.
     fn draw_char(
         &self,
         image: &mut RgbImage,
-        x: u32,
-        y: u32,
-        width: u32,
-        height: u32,
+        cell: &GlyphCell,
         ch: char,
         color: Rgb<u8>,
     ) {
+        let x = cell.x;
+        let y = cell.y;
+        let width = cell.width;
+        let height = cell.height;
         let code = ch as i32;
         let glyph = if (32..=126).contains(&code) {
             &FONT_8X12[(code - 32) as usize]
