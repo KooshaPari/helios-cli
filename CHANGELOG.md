@@ -5,6 +5,13 @@ All notable changes to **HeliosCLI** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1](https://github.com/KooshaPari/helios-cli/compare/v0.10.0...v0.10.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* clear dead_code CI gate + CRITICAL vitest CVE ([#663](https://github.com/KooshaPari/helios-cli/issues/663)) ([2c3f4d6](https://github.com/KooshaPari/helios-cli/commit/2c3f4d6ca212a9ccd1a14bce0b9347b5ae60a598))
+
 ## [0.10.0](https://github.com/KooshaPari/helios-cli/compare/v0.9.0...v0.10.0) (2026-09-02)
 
 
