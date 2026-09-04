@@ -54,7 +54,8 @@ for repo_path in "$CLONES_DIR"/*; do
     echo "[phase-2-harness] skip $repo_name"
     # Write a skipped marker so Python aggregation marks this as intentionally
     # skipped rather than falsely reporting "missing" discovery.
-    printf '{"repo_name":"%s","status":"skipped"}\n' "$repo_name" > "$discovery_out"
+    encoded_repo_name=$("$PYTHON_BIN" -c 'import json, sys; print(json.dumps(sys.argv[1]))' "$repo_name")
+    printf '{"repo_name":%s,"status":"skipped"}\n' "$encoded_repo_name" > "$discovery_out"
     continue
   fi
 

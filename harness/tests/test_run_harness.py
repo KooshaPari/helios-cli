@@ -118,6 +118,29 @@ def test_harness_dry_run_and_plan_hash(tmp_path):
     assert output["plan_hash"]
 
 
+def test_phase2_skip_marker_escapes_repo_name(tmp_path):
+    # Traces to: FR-HELIOS-IO-006 (valid bounded evidence artifacts).
+    root = tmp_path / "root"
+    (root / "clones" / 'bad"name').mkdir(parents=True)
+    script = Path("commands/execute-phase-2-harness.sh").resolve()
+
+    subprocess.run(
+        [str(script)],
+        env={
+            **__import__("os").environ,
+            "HELIOS_HARNESS_ROOT": str(root),
+            "HELIOS_HARNESS_PYTHON": sys.executable,
+            "PHASE2_SKIP_REPOS": 'bad"name',
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    marker = root / "artifacts" / "phase-2" / 'discovery-bad"name.json'
+    assert json.loads(marker.read_text())["status"] == "skipped"
+
+
 def test_harness_replay_and_validate(tmp_path):
     # Traces to: FR-HELIOS-IO-006 (deterministic replay evidence).
     repo = tmp_path / "repo"

@@ -1,9 +1,11 @@
 """Tests for teammates module."""
 
+import asyncio
 from pathlib import Path
 
 import pytest
 from harness.teammates import (
+    MAX_TASK_DESCRIPTION_BYTES,
     CodexExecutor,
     DelegationProtocol,
     DelegationRequest,
@@ -133,6 +135,31 @@ class TestCodexExecutor:
     def test_executor_init_custom(self):
         executor = CodexExecutor(profile="custom", workdir=Path("/tmp"))
         assert executor.profile == "custom"
+
+    @pytest.mark.asyncio
+    async def test_executor_prompt_cap_preserves_utf8_byte_limit(self, monkeypatch):
+        captured = {}
+
+        class Process:
+            returncode = 0
+
+            async def communicate(self):
+                return b"", b""
+
+        async def fake_create_subprocess_exec(*args, **kwargs):
+            captured["args"] = args
+            return Process()
+
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_create_subprocess_exec)
+        request = DelegationRequest.model_construct(
+            teammate_id="agent-1", task_description="x" + "é" * (MAX_TASK_DESCRIPTION_BYTES // 2)
+        )
+
+        await CodexExecutor().execute(request)
+
+        prompt = captured["args"][-1]
+        assert len(prompt.encode("utf-8")) <= MAX_TASK_DESCRIPTION_BYTES
+        assert "�" not in prompt
 
 
 class TestHealthMonitor:
