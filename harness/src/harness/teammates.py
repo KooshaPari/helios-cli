@@ -309,7 +309,9 @@ class CodexExecutor:
         raw_prompt = request.task_description
         encoded_size = len(raw_prompt.encode("utf-8"))
         if encoded_size > MAX_TASK_DESCRIPTION_BYTES:
-            prompt = raw_prompt.encode("utf-8")[:MAX_TASK_DESCRIPTION_BYTES].decode("utf-8", errors="replace")
+            prompt = raw_prompt.encode("utf-8")[:MAX_TASK_DESCRIPTION_BYTES].decode(
+                "utf-8", errors="ignore"
+            )
         else:
             prompt = raw_prompt
 
