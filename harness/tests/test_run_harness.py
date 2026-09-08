@@ -6,10 +6,8 @@ from pathlib import Path
 import pytest
 from harness.scripts.run_harness import _legacy_module
 
-SCRIPT = Path("harness/scripts/run-harness.py").resolve()
-# Alternative path for running from harness directory
-if not SCRIPT.exists():
-    SCRIPT = Path("scripts/run-harness.py").resolve()
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "run-harness.py"
+PHASE2_SCRIPT = Path(__file__).resolve().parents[2] / "commands" / "execute-phase-2-harness.sh"
 
 
 def _run(cmd, cwd: Path) -> str:
@@ -116,6 +114,28 @@ def test_harness_dry_run_and_plan_hash(tmp_path):
     output = json.loads(out_run.read_text())
     assert output["result_code"] == "PASS"
     assert output["plan_hash"]
+
+
+def test_phase2_skip_marker_escapes_repo_name(tmp_path):
+    # Traces to: FR-HELIOS-IO-006 (valid bounded evidence artifacts).
+    root = tmp_path / "root"
+    (root / "clones" / 'bad"name').mkdir(parents=True)
+    subprocess.run(
+        [str(PHASE2_SCRIPT)],
+        env={
+            **__import__("os").environ,
+            "HELIOS_HARNESS_ROOT": str(root),
+            "HELIOS_HARNESS_PYTHON": sys.executable,
+            "PHASE2_SKIP_REPOS": 'bad"name',
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    marker = root / "artifacts" / "phase-2" / 'discovery-bad"name.json'
+    payload = json.loads(marker.read_text())
+    assert payload == {"repo_name": 'bad"name', "status": "skipped"}
 
 
 def test_harness_replay_and_validate(tmp_path):
