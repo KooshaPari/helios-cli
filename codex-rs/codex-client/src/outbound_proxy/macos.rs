@@ -101,7 +101,12 @@ pub(super) fn resolve(request_url: &str, origin: &RequestOrigin) -> SystemProxyD
 }
 
 fn system_proxy_settings() -> Option<CFDictionary<CFString, CFType>> {
-    let store = SCDynamicStoreBuilder::new("Codex").build()?;
+    // `SCDynamicStoreBuilder::build` returns `SCDynamicStore` directly (not
+    // a `Result`), so the `?` operator does not apply here — it requires the
+    // unstable `Try` trait. The surrounding function returns `Option`, and
+    // `get_proxies()` itself yields `Option<...>`, which propagates `None`
+    // through the existing return type.
+    let store = SCDynamicStoreBuilder::new("Codex").build();
     store.get_proxies()
 }
 
