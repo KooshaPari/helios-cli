@@ -22,6 +22,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt;
 use std::time::Duration;
+use url::Url;
 
 const DEFAULT_STREAM_IDLE_TIMEOUT_MS: u64 = 300_000;
 const DEFAULT_STREAM_MAX_RETRIES: u64 = 5;
@@ -254,6 +255,8 @@ impl ModelProviderInfo {
             .clone()
             .unwrap_or_else(|| default_base_url.to_string());
 
+        validate_base_url(&self.name, &base_url)?;
+
         let headers = self.build_header_map()?;
         let retry = ApiRetryConfig {
             max_attempts: self.request_max_retries(),
@@ -414,6 +417,56 @@ impl ModelProviderInfo {
     pub fn has_command_auth(&self) -> bool {
         self.auth.is_some()
     }
+}
+
+/// Reject `base_url` values that contain a malformed scheme combination.
+///
+/// The user-visible symptom this guard catches is the daemon log line:
+///
+///   `ws://http//100.96.135.160:20128/v1/responses`
+///
+/// which appears when a user (or a config-generation tool) writes a
+/// `base_url` of the form `ws://http://host:port/...` — prepending a
+/// `ws://` (or `wss://`) scheme in front of an already-complete URL.
+///
+/// The `url` crate parses `ws://http://host:port/...` as
+/// `scheme=ws, host=http, port=(missing), path=//host:port/...`, then
+/// re-serializes to the malformed form shown above — exactly what we
+/// have observed in production logs on this fork.
+///
+/// Codex's WebSocket transport (`codex-api`) derives its scheme from the
+/// `http`/`ws` or `https`/`wss` pair automatically, so the user should
+/// never need to type `ws://` or `wss://` here. A valid `base_url` for
+/// an HTTP+WS endpoint is `http://host` or `https://host`. A `ws://` or
+/// `wss://` scheme in `base_url` is almost certainly a bug.
+///
+/// The check is intentionally narrow: we only flag the specific
+/// double-scheme pattern we have actually seen. We do not block other
+/// `ws://`/`wss://` URLs (a future-proofing decision — if Codex ever
+/// supports a WebSocket-only provider, that would be the right form).
+fn validate_base_url(provider_name: &str, base_url: &str) -> CodexResult<()> {
+    let parsed = Url::parse(base_url).map_err(|e| {
+        CodexErr::InvalidRequest(format!(
+            "model_providers.{provider_name}.base_url = {base_url:?} is not a valid URL: {e}. \
+             base_url must start with http:// or https:// (Codex derives ws:// / wss:// automatically)."
+        ))
+    })?;
+
+    let scheme = parsed.scheme();
+    let host = parsed.host_str().unwrap_or("");
+
+    // Detect ws://http://host[:port]/... — the daemon log signature.
+    if matches!(scheme, "ws" | "wss") && matches!(host, "http" | "https" | "ws" | "wss") {
+        return Err(CodexErr::InvalidRequest(format!(
+            "model_providers.{provider_name}.base_url = {base_url:?} has a malformed scheme. \
+             The URL parses as scheme={scheme:?}, host={host:?}, which means a ws:// or wss:// \
+             prefix was prepended in front of an already-complete URL. \
+             Fix: remove the leading ws:// or wss:// and use the http:// or https:// URL directly. \
+             Codex derives the WebSocket scheme from http<->ws / https<->wss automatically."
+        )));
+    }
+
+    Ok(())
 }
 
 pub const DEFAULT_LMSTUDIO_PORT: u16 = 1234;

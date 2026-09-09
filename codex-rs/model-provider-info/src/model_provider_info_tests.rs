@@ -490,3 +490,124 @@ refresh_interval_ms = 0
     assert_eq!(auth.refresh_interval_ms, 0);
     assert_eq!(auth.refresh_interval(), None);
 }
+
+// ----------------------------------------------------------------------------
+// validate_base_url tests — guards the ws://http://... double-scheme bug.
+//
+// Background: this fork observed `ws://http//100.96.135.160:20128/v1/responses`
+// in production daemon stderr logs, which is what happens when a user (or a
+// config-generation tool) writes `base_url = "ws://http://host:port/..."`.
+// The `url` crate parses `ws://http://...` as scheme=ws, host=http, then
+// re-serializes to that malformed form. These tests pin the validator's
+// behaviour so future regressions are caught at CI time.
+// ----------------------------------------------------------------------------
+
+#[test]
+fn validate_base_url_accepts_clean_http() {
+    let result = validate_base_url("omni", "http://100.96.135.160:20128/v1");
+    assert!(
+        result.is_ok(),
+        "expected clean http base_url to be accepted, got: {result:?}"
+    );
+}
+
+#[test]
+fn validate_base_url_accepts_clean_https() {
+    let result = validate_base_url("openai", "https://api.openai.com/v1");
+    assert!(
+        result.is_ok(),
+        "expected clean https base_url to be accepted, got: {result:?}"
+    );
+}
+
+#[test]
+fn validate_base_url_accepts_clean_ws_only() {
+    // Future-proofing: if Codex ever supports a WebSocket-only provider,
+    // a clean `ws://...` should still pass. Only the double-scheme
+    // pattern is rejected.
+    let result = validate_base_url("future-ws", "ws://example.com/ws");
+    assert!(
+        result.is_ok(),
+        "expected clean ws:// base_url to be accepted, got: {result:?}"
+    );
+}
+
+#[test]
+fn validate_base_url_rejects_ws_http_double_scheme() {
+    // The exact daemon-log signature observed in production.
+    let result = validate_base_url(
+        "omni",
+        "ws://http://100.96.135.160:20128/v1",
+    );
+    let err = result.expect_err("expected ws://http://... to be rejected");
+    let msg = err.to_string();
+    assert!(
+        msg.contains("malformed scheme"),
+        "error message should explain the malformed scheme: {msg}"
+    );
+    assert!(
+        msg.contains("http"),
+        "error message should mention http so the user can find/fix it: {msg}"
+    );
+    assert!(
+        msg.contains("omni"),
+        "error message should include the provider name so the user knows which one is broken: {msg}"
+    );
+}
+
+#[test]
+fn validate_base_url_rejects_wss_https_double_scheme() {
+    let result = validate_base_url(
+        "secure-omni",
+        "wss://https://api.example.com/v1",
+    );
+    let err = result.expect_err("expected wss://https://... to be rejected");
+    let msg = err.to_string();
+    assert!(
+        msg.contains("malformed scheme"),
+        "error message should explain the malformed scheme: {msg}"
+    );
+}
+
+#[test]
+fn validate_base_url_rejects_malformed_string() {
+    let result = validate_base_url("bad", "not a url at all");
+    let err = result.expect_err("expected non-URL string to be rejected");
+    let msg = err.to_string();
+    assert!(
+        msg.contains("not a valid URL"),
+        "error message should explain the parse failure: {msg}"
+    );
+}
+
+#[test]
+fn to_api_provider_rejects_double_scheme_base_url() {
+    // End-to-end: the validator runs inside to_api_provider. A
+    // ws://http://... base_url must cause the full conversion to fail.
+    let provider = ModelProviderInfo {
+        name: "omni-bad".into(),
+        base_url: Some("ws://http://100.96.135.160:20128/v1".into()),
+        env_key: None,
+        env_key_instructions: None,
+        experimental_bearer_token: None,
+        auth: None,
+        aws: None,
+        wire_api: WireApi::Responses,
+        query_params: None,
+        http_headers: None,
+        env_http_headers: None,
+        request_max_retries: None,
+        stream_max_retries: None,
+        stream_idle_timeout_ms: None,
+        websocket_connect_timeout_ms: None,
+        requires_openai_auth: false,
+        supports_websockets: true,
+    };
+
+    let result = provider.to_api_provider(None);
+    let err = result.expect_err("ws://http://... base_url must be rejected by to_api_provider");
+    assert!(
+        err.to_string().contains("malformed scheme"),
+        "to_api_provider should propagate the validation error: {err}"
+    );
+}
