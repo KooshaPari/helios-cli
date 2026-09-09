@@ -30,7 +30,19 @@ use tokio::time::timeout;
 use crate::auth::agent_identity_telemetry;
 use crate::auth::resolve_provider_auth;
 
-const MODELS_REFRESH_TIMEOUT: Duration = Duration::from_secs(5);
+// HTTP fetch timeout for the `/models` catalog refresh.
+//
+// 30s gives roughly 6x the previous 5s budget, which was empirically too tight
+// when chatgpt.com/backend-api experienced transient slowness. Each timeout
+// fired `codex_models_manager::manager: failed to refresh available models:
+// timeout waiting for child process to exit` (mis-named error; see
+// `CodexErr::Timeout` docstring in `codex-rs/protocol/src/error.rs`).
+//
+// The cache TTL is `DEFAULT_MODEL_CACHE_TTL = Duration::from_secs(300)`
+// (5 minutes) in `codex-rs/models-manager/src/manager.rs`, so the longer
+// fetch window only applies when a refresh is actually requested and has
+// no impact on a session that already loaded its catalog.
+const MODELS_REFRESH_TIMEOUT: Duration = Duration::from_secs(30);
 const MODELS_ENDPOINT: &str = "/models";
 
 /// Provider-owned OpenAI-compatible `/models` endpoint.
@@ -266,5 +278,32 @@ mod tests {
         );
 
         assert!(!endpoint.has_command_auth());
+    }
+
+    /// Regression guard: the previous 5s budget was empirically too tight for
+    /// transient `chatgpt.com/backend-api/codex/models` slowness, producing
+    /// `codex_models_manager::manager: failed to refresh available models:
+    /// timeout waiting for child process to exit` warnings at the rate of
+    /// one every few hours. If a future change shrinks this below 10s, CI
+    /// should fail so the regression is caught before merge.
+    #[test]
+    fn models_refresh_timeout_is_at_least_10_seconds() {
+        assert!(
+            MODELS_REFRESH_TIMEOUT >= Duration::from_secs(10),
+            "MODELS_REFRESH_TIMEOUT = {:?} (expected >= 10s)",
+            MODELS_REFRESH_TIMEOUT,
+        );
+    }
+
+    /// The HTTP fetch wraps `client.list_models(...)` in `tokio::time::timeout`
+    /// and converts the `Elapsed` error into `CodexErr::Timeout`. Verify the
+    /// variant exists and has the historical display string used by log
+    /// scrapers and dashboards.
+    #[test]
+    fn timeout_variant_preserves_historical_display_string() {
+        assert_eq!(
+            format!("{}", CodexErr::Timeout),
+            "timeout waiting for child process to exit",
+        );
     }
 }

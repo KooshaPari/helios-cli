@@ -90,7 +90,19 @@ pub enum CodexErr {
     AgentLimitReached { max_threads: usize },
     #[error("session configured event was not the first event in the stream")]
     SessionConfiguredNotFirstEvent,
-    /// Returned by run_command_stream when the spawned child process timed out (10s).
+    /// Returned when an operation exceeds its bounded timeout. Covers two
+    /// distinct call sites:
+    ///
+    /// 1. `run_command_stream` waiting for a spawned child process to exit
+    ///    (10s wall-clock budget).
+    /// 2. The `/models` catalog refresh in
+    ///    `codex-rs/model-provider/src/models_endpoint.rs` waiting on the
+    ///    HTTP fetch to complete (30s budget as of
+    ///    `MODELS_REFRESH_TIMEOUT`).
+    ///
+    /// The display string is preserved as the historical
+    /// `"timeout waiting for child process to exit"` to avoid churn in
+    /// log-scrapers and dashboards that key off the exact text.
     #[error("timeout waiting for child process to exit")]
     Timeout,
     #[error("request timed out")]
